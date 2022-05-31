@@ -356,7 +356,7 @@ include WkpayrollHelper
 					pjtDescription =  entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject)
 					pjtQuantity = sumEntry[entry.issue_id]
 					amount = rateHash['rate'] * pjtQuantity
-					invItem = updateInvoiceItem(invItem, accountProject.project_id, pjtDescription, rateHash['rate'], pjtQuantity, rateHash['currency'], 'i', amount, nil, nil, nil) unless isCreate
+					invItem = updateInvoiceItem(invItem, accountProject.project_id, pjtDescription, rateHash['rate'], pjtQuantity, rateHash['currency'], 'i', amount, nil, nil, nil, 'Issue', entry&.issue_id) unless isCreate
 				else
 					isContinue = true
 					pjtQuantity = timeEntries.sum(:hours)
@@ -820,6 +820,8 @@ include WkpayrollHelper
 					items.store "item_amount", entry.amount.round(2)
 					items.store "issue_id", entry.issue_id if accProject.itemized_bill
 					items.store "billing_type", accProject.billing_type
+					items.store "invoice_item_id", accProject.itemized_bill ? entry.issue_id : nil
+					items.store "invoice_item_type", accProject.itemized_bill ? 'Issue' : nil
 					@currency = entry.currency
 					@invItems.store @itemCount, items
 					@itemCount = @itemCount + 1
@@ -843,7 +845,7 @@ include WkpayrollHelper
 				if item["item_type"] == "e" && item["id"].blank?
 					saveInvoice if @invoice&.id.blank?
 					invoiceItem = @invoice.invoice_items.new()
-					invoiceItem = updateInvoiceItem(invoiceItem, item["project_id"], item["item_desc"], item["rate"], 1, item["currency"], 'e', item["item_amount"], nil, nil, nil)
+					invoiceItem = updateInvoiceItem(invoiceItem, item["project_id"], item["item_desc"], item["rate"], 1, item["currency"], 'e', item["item_amount"], nil, nil, nil, item["invoice_item_type"], item["invoice_item_id"])
 					item["id"] = invoiceItem.id
 					(item["expense_id"] || []).each{|id| updateBilledEntry(WkExpenseEntry.find(id), invoiceItem.id)}
 				end

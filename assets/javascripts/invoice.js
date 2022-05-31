@@ -1027,10 +1027,12 @@ function fillInvFields(row){
 				var qty = resData[1] ? resData[1] : ''
 				var sn = resData[2] ? resData[2] : ''
 				var running_sn = resData[3] ? resData[3] : ''
-				$("#product_serial_no_"+row).val([sn,running_sn,qty]);
-				$("#rate_"+row).val(rate);
-				$("#quantity_"+row).val(qty);
-				addAmount('rate_'+row)
+				if(rate){
+					$("#product_serial_no_"+row).val([sn,running_sn,qty]);
+					$("#rate_"+row).val(rate);
+					$("#quantity_"+row).val(qty);
+					addAmount('rate_'+row)
+				}
 			}
 			if (resData.length == 0){
 				$("#rate_"+row).val('');
