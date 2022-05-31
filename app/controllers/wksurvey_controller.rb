@@ -377,7 +377,7 @@ class WksurveyController < WkbaseController
   end
 
   def survey_result
-    @survey_result_Entries = WkSurveyQuestion.where("wk_survey_questions.survey_id = #{params[:survey_id]} AND wk_survey_questions.question_type NOT IN ('TB', 'MTB') AND wk_survey_questions.not_in_report = #{booleanFormat(false)}").select("wk_survey_questions.survey_id AS id, wk_survey_questions.id AS question_id, wk_survey_questions.name AS question_name")
+    @survey_result_Entries = WkSurveyQuestion.where("wk_survey_questions.survey_id = #{params[:survey_id]} AND wk_survey_questions.question_type NOT IN ('TB', 'MTB') AND wk_survey_questions.not_in_report = #{booleanFormat(false)}").select("wk_survey_questions.survey_id, wk_survey_questions.id, wk_survey_questions.name AS question_name")
     .order("wk_survey_questions.survey_id, wk_survey_questions.id")
 
     @survey_txt_questions = WkSurvey.surveyTextQuestion(params[:survey_id])
