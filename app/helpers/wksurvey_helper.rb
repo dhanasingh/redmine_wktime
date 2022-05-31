@@ -292,7 +292,7 @@ module WksurveyHelper
         surveyed_employees_per_choice = WkSurvey.find_by_sql("SELECT COUNT(SR.user_id) AS emp_count, SQ.id
         FROM wk_surveys AS S
         INNER JOIN wk_survey_questions AS SQ ON S.id = SQ.survey_id
-        INNER JOIN wk_survey_answers AS SCC ON SQ.id = SCC.survey_choice_id
+        INNER JOIN wk_survey_answers AS SCC ON SQ.id = SCC.survey_question_id
         INNER JOIN wk_survey_responses AS SR ON SR.survey_id = S.id	AND SR.id = SCC.survey_response_id " +
         " WHERE SQ.id = #{question_id} "+ surveyForQry + groupNameCond +
         "GROUP BY S.id, SQ.id")
