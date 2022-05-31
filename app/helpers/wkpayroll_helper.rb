@@ -354,8 +354,7 @@ module WkpayrollHelper
 	def computeProrate(payPeriod, terminationDate,userId, component_type)
 		# Last worked day by the user on the particular payPeriod
 		lastWorkDateByUser = terminationDate.blank? ? payPeriod[1] : terminationDate
-		lopDays = ["b", "a"].include?(component_type) ? getLossOfPayDays(payPeriod,userId) : 0
-		multiplier = (getWorkingDaysCount(payPeriod[0],lastWorkDateByUser) - lopDays) / getWorkingDaysCount(payPeriod[0],payPeriod[1])
+		multiplier = ["b", "a"].include?(component_type) ? ((getWorkingDaysCount(payPeriod[0],lastWorkDateByUser) - getLossOfPayDays(payPeriod,userId)) / getWorkingDaysCount(payPeriod[0],payPeriod[1])) : 1
 		multiplier
 	end
 
