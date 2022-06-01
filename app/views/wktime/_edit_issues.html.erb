@@ -1,115 +1,121 @@
-<% 
-@wday_index = 1 
-@trOpen = false
-@row = 0
-@total_hours = 0.0
-dayHrArr = Array.new
-for i in 0.. @renderer.getDaysPerSheet - 1
-	dayHrArr << 0.0
-end
-thours = nums = dayHrArr #Array[0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0]
-prev_entry = nil
-entry = nil 
-currencySym = ""
+<%
+	@wday_index = 1
+	@trOpen = false
+	@row = 0
+	@total_hours = 0.0
+	dayHrArr = Array.new
+	for i in 0.. @renderer.getDaysPerSheet - 1
+		dayHrArr << 0.0
+	end
+	thours = nums = dayHrArr #Array[0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0]
+	prev_entry = nil
+	entry = nil
+	currencySym = ""
 %>
 
 <div class="wk-contextual">
-<% if @editable %>
-	<%= link_to l(:button_add_row), "#", { :onclick => "javascript:addRow();projectChanged(document.getElementsByName('time_entry[][project_id]'),0);", :class => 'icon icon-time-add' }%>
-<% end %>
+	<% if @editable %>
+		<%= link_to l(:button_add_row), "#", { :onclick => "javascript:addRow();projectChanged(document.getElementsByName('time_entry[][project_id]'),0);", :class => 'icon icon-time-add' }%>
+	<% end %>
 </div>
+
 <div style="overflow: auto">
-<table id="issueTable" class="list time-entries">
-<thead>
-<tr>
-	<%= render :partial => 'issue_header'%>
-</tr>
-</thead>
-<tbody>
-<% approvalProjects = @approvable_projects.pluck(:id)%>
-<% unless entries.blank?
-	col_values = []
-	matrix_values = []
-	weeklyHash = getWeeklyView(entries, controller.getUnitLabel, false, @renderer.getStartOfSheet(@selectedDate), @renderer.getDaysPerSheet) %>
-	<% weeklyHash.each do |key, matrix| %>
-		<% matrix.each do |rows| %>
-			<% issueWritten = false %>
-			<% rows.each.with_index do |entry, i| %>
-				<% if !entry.blank? && ((@wktime.present? && @wktime.status == 'n') || approvalProjects.length == 0 || approvalProjects.include?(entry.project_id)) %>
-					<% if !issueWritten %>
-						<% # this is a new Row %>
-						<% # close the previously opened row first %>
-						<%= render :partial => 'edit_hours', :locals => {:entry => nil, :isTemplate => false,
-							:padAt => 'end', :padTill => @renderer.getDaysPerSheet + 1}%>
-					
-						<%= render :partial => 'edit_issues2', :locals => {:entry => entry, :isTemplate => false}%>		
-						<% issueWritten = true %>
+	<table id="issueTable" class="list time-entries">
+		<thead>
+		<tr>
+			<%= render :partial => 'issue_header'%>
+		</tr>
+		</thead>
+		<tbody>
+
+			<%
+				approvalProjects = @approvable_projects.pluck(:id)
+				# To Populate approved leaves
+				approved_leaves = controller.get_approved_leaves if @wktime.nil? && params['sheet_view'] != 'I'
+			%>
+			<% if entries.present? || approved_leaves.present? %>
+				<%
+					col_values = []
+					matrix_values = []
+					weeklyHash = getWeeklyView(entries, controller.getUnitLabel, false, @renderer.getStartOfSheet(@selectedDate), @renderer.getDaysPerSheet)
+				%>
+				<% (weeklyHash.merge(approved_leaves || {})).each do |key, matrix| %>
+					<% matrix.each do |rows| %>
+						<% issueWritten = false %>
+						<% (rows || []).each.with_index do |entry, i| %>
+							<% if !entry.blank? && ((@wktime.present? && @wktime.status == 'n') || approvalProjects.length == 0 || approvalProjects.include?(entry.project_id)) %>
+								<% if !issueWritten %>
+									<% # this is a new Row %>
+									<% # close the previously opened row first %>
+									<%= render :partial => 'edit_hours', :locals => {:entry => nil, :isTemplate => false, :padAt => 'end', :padTill => @renderer.getDaysPerSheet + 1}%>
+									<%= render :partial => 'edit_issues2', :locals => {:entry => entry, :isTemplate => false}%>
+									<% issueWritten = true %>
+								<% end %>
+								<% # fill the days till the current day %>
+								<%= render :partial => 'edit_hours', :locals => {:entry => nil, :isTemplate => false, :padAt => 'begin', :padTill => i+1}%>
+								<%= render :partial => 'edit_hours', :locals => {:entry => entry, :isTemplate => entry.id.blank?, :padAt => 'begin', :padTill => i+2}%>
+								<% thours[i] += entry.hours unless @prev_template || entry.hours.blank?%>
+								<% @total_hours += entry.hours unless @prev_template || entry.hours.blank? %>
+								<% currencySym = controller.getUnit(entry) %>
+							<% end %>
+						<% end %>
+						<% # write only the firt row for previous week template
+							break if @prev_template %>
 					<% end %>
-					<% # fill the days till the current day %>
-					<%= render :partial => 'edit_hours', :locals => {:entry => nil, :isTemplate => false, :padAt => 'begin', :padTill => i+1}%>
-					<%= render :partial => 'edit_hours', :locals => {:entry => entry, :isTemplate => false, :padAt => 'begin', :padTill => i+2}%>	
-					<% thours[i] += entry.hours unless @prev_template || entry.hours.blank?%>
-					<% @total_hours += entry.hours unless @prev_template || entry.hours.blank? %>
-					<% currencySym = controller.getUnit(entry) %>
+				<% end %>
+
+			<% else -%>
+				<% # if there are no entries, put an empty row%>
+				<% currencySym = controller.getUnit(nil) %>
+				<%= render :partial => 'edit_issues2', :locals => {:entry => nil, :isTemplate => false}%>
+			<% end %>
+
+			<% # pad any incomplete days %>
+			<%= render :partial => 'edit_hours', :locals => {:entry => nil, :isTemplate => false, :padAt => 'end', :padTill => @renderer.getDaysPerSheet + 1} %>
+
+			<!-- row for putting the total -->
+			<tr>
+			<td class="project"></td>
+			<td class="issue"></td>
+			<td class="activity"></td>
+			<% if showBilling && controller.showSpentFor%>
+				<td></td>
+			<% end %>
+			<% if controller.enterCommentInRow %>
+				<td class="comments"></td>
+			<% end %> <!-- for currency -->
+			<% if !controller.getUnitLabel.blank? %>
+				<td ></td>
+			<% end %>
+			<% if controller.getUnitLabel.blank? %>
+				<% if controller.enterCustomFieldInRow(1) %>
+					<td ></td>
+				<% end %>
+				<% if controller.enterCustomFieldInRow(2) %>
+					<td ></td>
 				<% end %>
 			<% end %>
-			<% # write only the firt row for previous week template
-			  break if @prev_template %>
-		<% end %>
-	<% end %>
-
-<% else -%>
-	<% # if there are no entries, put an empty row%>
-	<% currencySym = controller.getUnit(nil) %>
-	<%= render :partial => 'edit_issues2', :locals => {:entry => nil, :isTemplate => false}%>
-<% end %>
-	
-	<% # pad any incomplete days %>
-	<%= render :partial => 'edit_hours', :locals => {:entry => nil, :isTemplate => false,
-		:padAt => 'end', :padTill => @renderer.getDaysPerSheet + 1}%>
-
-	<!-- row for putting the total -->
-	<tr>
-	<td class="project"></td>
-	<td class="issue"></td>
-	<td class="activity"></td>
-	<% if showBilling && controller.showSpentFor%>
-		<td></td>
-	<% end %>
-	<% if controller.enterCommentInRow %>	
-		<td class="comments"></td>
-	<% end %> <!-- for currency -->
-	<% if !controller.getUnitLabel.blank? %>
-		<td ></td>
-	<% end %>
-	<% if controller.getUnitLabel.blank? %>
-		<% if controller.enterCustomFieldInRow(1) %>
-			<td ></td>
-		<% end %>
-		<% if controller.enterCustomFieldInRow(2) %>
-			<td ></td>
-		<% end %>
-	<% end %>
-	<% if @renderer.showSpentOnInRow %>
-		<td></td>
-	<% end %>
-	<% thours.each_with_index do |th,i| %>		
-		<td align="center"><%= currencySym %>&nbsp;<span id=<%= "day_total_#{i+1}" %>><%= ("%.2f" % th) %></span></td>
-	<% end %>
-	<td>	
-	<b>	<%= l(:label_total) %>: <%= currencySym %>&nbsp;<span id="total_hours"><%= ("%.2f" % @total_hours) %></span></b>
-	<%=h hidden_field_tag('total', ("%.2f" % @total_hours) ) %>
-	<%=h hidden_field_tag('unit', currencySym) %>
-	</td>
-	</tr>	
-	<%=h hidden_field_tag('hidden_clock_in_out', "" )  %>
-	 <% if controller.showWorktimeHeader && @renderer.showWorkTimeHeader %>
-		<!-- Remaining Hours -->
-		<%= render :partial => 'worktime_header', :locals => {:str => 'remaining_hours', :isEditable => false, :value => '0.0'}%>
-	<% end %>
-</tbody>
-</table>
+			<% if @renderer.showSpentOnInRow %>
+				<td></td>
+			<% end %>
+			<% thours.each_with_index do |th,i| %>
+				<td align="center"><%= currencySym %>&nbsp;<span id=<%= "day_total_#{i+1}" %>><%= ("%.2f" % th) %></span></td>
+			<% end %>
+			<td>
+			<b>	<%= l(:label_total) %>: <%= currencySym %>&nbsp;<span id="total_hours"><%= ("%.2f" % @total_hours) %></span></b>
+			<%=h hidden_field_tag('total', ("%.2f" % @total_hours) ) %>
+			<%=h hidden_field_tag('unit', currencySym) %>
+			</td>
+			</tr>
+			<%=h hidden_field_tag('hidden_clock_in_out', "" )  %>
+			<% if controller.showWorktimeHeader && @renderer.showWorkTimeHeader %>
+				<!-- Remaining Hours -->
+				<%= render :partial => 'worktime_header', :locals => {:str => 'remaining_hours', :isEditable => false, :value => '0.0'}%>
+			<% end %>
+		</tbody>
+	</table>
 </div>
+
 <div style="float: left;">
 	<% if !@locked %>
 			<%if @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r' && (@approverwkStatuses.length == 0 || @user.id == User.current.id) %>
@@ -129,7 +135,7 @@ currencySym = ""
 				<% if @approvedwkStatuses.length == 0 %>
 					<%= submit_tag l(:button_wk_unsubmit), :name => 'wktime_unsubmit', :disabled => !(@row > 0)%>
 				<% end %>
-				<% if controller.check_approvable_status() && (approverEntries - approvedEntries).length > 0 %>		
+				<% if controller.check_approvable_status() && (approverEntries - approvedEntries).length > 0 %>
 					<%= submit_tag l(:button_wk_approve), :name => 'wktime_approve', :disabled => !(@row > 0)%>
 					<%=h hidden_field_tag('wktime_notes', "") %>
 					<% # the jquery dialog box doesn't port the reject button value%>
@@ -146,10 +152,12 @@ currencySym = ""
 		<% end %>
 	<% end %>
 </div>
+
 <div class="contextual">
-<% if @editable %>
-	<%= link_to l(:button_add_row), "#", { :onclick => "javascript:addRow();projectChanged(document.getElementsByName('time_entry[][project_id]'),0);", :class => 'icon icon-time-add' } %>
-<% end %>
+	<% if @editable %>
+		<%= link_to l(:button_add_row), "#", { :onclick => "javascript:addRow();projectChanged(document.getElementsByName('time_entry[][project_id]'),0);", :class => 'icon icon-time-add' } %>
+	<% end %>
 </div>
+
 <div style="clear: both;"></div>
 <%= context_menu %>

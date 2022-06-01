@@ -1235,3 +1235,28 @@ ru:
   label_received_quantity: Received Quantity
   label_confirmation_number: Supplier Confirmation Number
   label_fullfilled: Fulfilled
+
+  label_assemble_item: Assemble Item
+  label_tax_number: Tax Number
+  label_add_existing_asset: Add Existing Asset
+  label_interview_type: Interview Type
+  label_consumed_item_for_issue: Allow Consumed Items for Issue
+
+  label_new_enumeration: New Enumerations
+  label_new_activity: New Activity
+  label_owner_type: Owner Type
+  label_asset_name: Asset Name
+  label_clock_summary: Clock Summary
+  label_leave_summary: Leave Summary
+  label_reset_month: Reset Month
+  label_activity_information: Activity Information
+  label_enumeration_details: Enumerations Details
+  label_group_permission: Group Permissions
+  label_new_ledger: New Ledger
+  label_next_step: Next Step
+  label_delete_payroll: Delete Payroll
+  label_invoice_details: Invoice Details
+  label_items: Item
+  label_hide_amount_in_words: Hide amount in words
+  label_new_interview: New Interview
+  label_edit_interview: Edit Interview

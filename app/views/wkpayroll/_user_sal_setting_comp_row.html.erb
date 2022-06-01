@@ -15,13 +15,17 @@
 			<% end %>
 		</td>
 		<td>
-			<%=h select_tag('dependent_id' + compEntry[0].sc_id.to_s , 
-				options_for_select(sal_component, :selected =>  compEntry[2], :required => true), 
-				options = {:disabled => !(validateERPPermission('A_PAYRL') && compEntry[1]) || showCalTax,
+			<% if compEntry[0].sc_component_type == 'b' %>
+				<%= select_tag('salary_type' + compEntry[0].sc_id.to_s , options_for_select(getSalaryType.invert, selected: compEntry[4]),
+				disabled: !(validateERPPermission('A_PAYRL') && compEntry[1]), style: "min-width: 100px") %>
+			<% else %>
+				<%= select_tag('dependent_id' + compEntry[0].sc_id.to_s , options_for_select(sal_component, :selected =>  compEntry[2], :required => true),
+				options = {disabled: !(validateERPPermission('A_PAYRL') && compEntry[1]) || showCalTax,
 				class: showCalTax ? "" : "userSalComps", style: "min-width: 100px" } ) %>
+			<% end %>
 		</td>
 		<td>
-			<%=h text_field_tag('factor' + compEntry[0].sc_id.to_s, compEntry[3], :size => 10, :maxlength => 7, 
+			<%=h text_field_tag('factor' + compEntry[0].sc_id.to_s, compEntry[3], :size => 10, :maxlength => 7,
 				:disabled => !(validateERPPermission('A_PAYRL') && compEntry[1]), :required => true,
 				class: showCalTax ? "" : "userSalComps" ) %>
 		</td>

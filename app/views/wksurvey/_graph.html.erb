@@ -1,5 +1,6 @@
 <div>
-	<canvas id="survey_result_graph<%= entry.question_id %>" width="600" height=<%= entry.count * 55 %>></canvas>
+<% height = entry.wk_survey_choices.length > 0 ? entry.wk_survey_choices.length : 1 %>
+	<canvas id="survey_result_graph<%= entry.id %>" width="600" height=<%= height * 55 %>></canvas>
 </div>
 
 <% content_for :header_tags do %>
@@ -9,7 +10,7 @@
 <% getSurveyForType(params) %>
 <%= javascript_tag do %>
 	$(document).ready(function(){
-		var url = <%= raw url_for(controller: 'wksurvey', action: 'graph', graph: "graph", question_id: entry.question_id, surveyForType: @surveyForType,
+		var url = <%= raw url_for(controller: 'wksurvey', action: 'graph', graph: "graph", question_id: entry.id, surveyForType: @surveyForType,
 			surveyForID: @surveyForID, groupName: params[:groupName], survey_id: @survey.id, groupName: params[:groupName]).to_json %>;
 		$.getJSON(url, function(data){
 			if (data['graphtype'] == "line"){
@@ -24,7 +25,7 @@
 					}]
 				};
 
-				new Chart(document.getElementById("survey_result_graph<%= entry.question_id %>").getContext("2d"), {
+				new Chart(document.getElementById("survey_result_graph<%= entry.id %>").getContext("2d"), {
 					type: 'line',
 					data: chartData,
 					options: {
@@ -76,7 +77,7 @@
 			{
 				<%# for surveyquestion average %>
 				if (data['showAvg']){
-					$('#avgScore_<%= entry.question_id %>').html(data['avg_score']);
+					$('#avgScore_<%= entry.id %>').html(data['avg_score']);
 				}
 				var chartData = {
 					labels: data['labels'],
@@ -89,7 +90,7 @@
 					}]
 				};
 
-				new Chart(document.getElementById("survey_result_graph<%= entry.question_id %>").getContext("2d"), {
+				new Chart(document.getElementById("survey_result_graph<%= entry.id %>").getContext("2d"), {
 					type: 'bar',
 					data: chartData,
 					options: {

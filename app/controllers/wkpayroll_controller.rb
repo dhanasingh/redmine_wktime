@@ -208,7 +208,8 @@ class WkpayrollController < WkbaseController
 			is_override = params['is_override' + componentId.to_s()]
 			dependent_id = params['dependent_id' + componentId.to_s()].to_i
 			factor = params['factor' + componentId.to_s()]
-			u_salary_comps << {:user_id => userId, :component_id => componentId, :dependent_id => dependent_id, :factor => factor, :is_override => is_override}
+			salary_type = params['salary_type' + componentId.to_s()]
+			u_salary_comps << {:user_id => userId, :component_id => componentId, :dependent_id => dependent_id, :factor => factor, :is_override => is_override, salary_type: salary_type}
 		end
 		errorMsg = saveUserSalary(u_salary_comps, false)
 		if errorMsg.blank?
@@ -216,7 +217,7 @@ class WkpayrollController < WkbaseController
 					redirect_to :action => 'income_tax', action_type: 'userSettings', user_id: userId, method: 'saveTaxVal',
 												taxsettings: params[:taxsettings].permit!.to_h
 			else
-				redirect_to :action => 'usrsettingsindex'
+				redirect_to :action => 'usrsettingsindex', tab: "payroll"
 				flash[:notice] = l(:notice_successful_update)
 			end
 		else
@@ -374,7 +375,7 @@ class WkpayrollController < WkbaseController
 
 	end
 
-  	def check_perm_and_redirect
+  def check_perm_and_redirect
 	  unless check_permission
 	    render_403
 	    return false
@@ -586,15 +587,18 @@ class WkpayrollController < WkbaseController
 				end
 			else
 				factor = entry["factor".to_sym]
+				salary_type = entry["salary_type".to_sym]
 				if wkUserSalComp.blank?
 					wkUserSalComp = WkUserSalaryComponents.new
 					wkUserSalComp.user_id = userId
 					wkUserSalComp.salary_component_id = componentId
 					wkUserSalComp.dependent_id = dependentId if dependentId > 0
 					wkUserSalComp.factor = factor
+					wkUserSalComp.salary_type = salary_type
 				else
 					wkUserSalComp.dependent_id = dependentId > 0 ? dependentId : nil
 					wkUserSalComp.factor = factor
+					wkUserSalComp.salary_type = salary_type
 				end
 				if (wkUserSalComp.changed? && !wkUserSalComp.new_record?) || wkUserSalComp.destroyed?
 					saveUsrSalCompHistory(userSettingHash)

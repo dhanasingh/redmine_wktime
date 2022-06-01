@@ -101,4 +101,8 @@ before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destr
 	def additionalAccountType
 		true
 	end
+
+	def isInvoiceController
+		false
+	end
 end

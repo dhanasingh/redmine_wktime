@@ -101,7 +101,11 @@ $(document).ready(function() {
 			});
 			$("#invoiceTable .item_types").change(function(){
 				showHideProductItem(this);
+				invItemChange(this);
 			});
+		}
+		else{
+			$("[id^='serial_number_img_']").hide();
 		}
 
 		$(".productItemsDD").change(function(){
@@ -136,7 +140,14 @@ $(document).ready(function() {
 				let row = parseInt((this.name).split('_').pop());
 				let text = $("#invoice_item_id_"+row).val() != "" ? $("#invoice_item_id_"+row+ " option:selected").text() : "";
 				$("#invoiceTable #name_"+row).val(text);
-				applyTax(this, "invoice_item");
+
+				var itemType = $("#invoiceTable #item_type_"+row).val();
+				if ((["m", "a"].includes(itemType) && ["I"].includes($('#invoice_type').val())) || ["SI"].includes($('#invoice_type').val())){
+					applyTax(this, "invoice_item");
+				}
+				if(["I"].includes($('#invoice_type').val())){
+					fillInvFields(row);
+				}
 			});
 
 			$("[id^='project_id_']").change(function(){
@@ -252,7 +263,7 @@ function invoiceAddRow(tableId, rowCount){
 	if(tableId == "invoiceTable"){
 		if($("#invoice_type").val() == "I"){
 			$("#item_type_"+(rowlength)).val("i");
-			$("#invoice_item_id_"+(rowlength)).hide();
+			$("#invoice_item_id_"+(rowlength)).val("").select2();
 			applyTax(document.getElementById("project_id_"+(rowlength)), "project");
 		}else{
 			$("#invoice_item_id_"+(rowlength)).val("").select2();
@@ -264,6 +275,18 @@ function invoiceAddRow(tableId, rowCount){
 	}
 	if(tableId == "shipmentTable"){
 		$("#invoice_item_id_"+(rowlength)).val("");
+	}
+
+	// For Load invoice type dropdown
+	if (["I"].includes($('#invoice_type').val())){
+		let changeDD = document.getElementById("invoice_item_id_"+rowlength);
+		$.ajax({
+			url:  "/wkorderentity/getIssueDD",
+			data: {project_id: $("#invoiceTable #project_id_"+rowlength).val() },
+			success: function(resData){
+				updateUserDD(resData, changeDD, 1, true, false, label_prod_item);
+			}
+		});
 	}
 }
 
@@ -813,8 +836,11 @@ function InvCompDialog(action, listId)
 
 function showHideProductItem(ele){
 	let row = parseInt((ele.name).split('_').pop());
+	if ($("#invoiceTable #item_type_"+row).val() != 'm'){
+		$("#serial_number_img_"+row).hide();
+	}
 	if($("#invoice_item_id_"+row).data('select2')) $("#invoice_item_id_"+row).select2('destroy');
-	if(!['m', 'a'].includes($("#invoiceTable #item_type_"+row).val())){
+	if(!['m', 'a', 'i', 'e'].includes($("#invoiceTable #item_type_"+row).val())){
 		$("#invoice_item_id_"+row).hide();
 		$("#invoice_item_id_"+row).val("");
 	}else{
@@ -838,7 +864,7 @@ function applyTax(ele, type){
 		let data = {}
 		if(type == "invoice_item"){
 			url += "get_product_tax";
-			data = {product_item_id: ids[1] }
+			data = {item_id: ids[1], invoice_type: $('#invoice_type').val() }
 		}else{
 			url += "get_project_tax";
 			data = {project_id: id, parent_type: $("#parent_type").val(), parent_id: $("#parent_id").val()}
@@ -931,4 +957,154 @@ function renderTaxRows(data, ele){
 	});
 	$("#taxTable").find("tr:last").before(tr);
 	updateTotals();
+}
+
+function invItemChange(ele){
+	let row = parseInt((ele.name).split('_').pop());
+	changeDD = document.getElementById("invoice_item_id_"+row);
+	var itemType = $("#invoiceTable #item_type_"+row).val();
+	var additional_item_type = $('#additional_item_type').val()
+	if(['m'].includes(itemType)){
+	 $("#serial_number_img_"+row).show();
+	}else{
+		$("#serial_number_img_"+row).hide();
+	}
+	switch(itemType){
+		case 'm':
+			$("#invoiceTable #invoice_item_type_"+row).val('WkInventoryItem');
+			url = "/wklogmaterial/modifyProductDD";
+			data = {ptype: 'product_item', log_type: 'I', module_type: 'invoice'};
+			break;
+		case 'a':
+			$("#invoiceTable #invoice_item_type_"+row).val('WkInventoryItem');
+			url = "/wklogmaterial/modifyProductDD";
+			data = {ptype: 'product_item', log_type: 'A', module_type: 'invoice'};
+			break;
+		default:
+			$("#invoiceTable #invoice_item_type_"+row).val('Issue');
+			url = "/wkorderentity/getIssueDD";
+			data = {project_id: $("#invoiceTable #project_id_"+row).val() };
+	}
+
+	$.ajax({
+		url: url,
+		data: data,
+		success: function(resData){
+			if(additional_item_type && itemType =='a'){
+				$.ajax({
+					url: "/wklogmaterial/modifyProductDD",
+					data: {ptype: 'product_item', log_type: additional_item_type, module_type: 'invoice'},
+					success: function(resData1){
+						resData = resData+resData1
+						updateUserDD(resData, changeDD, 1, true, false, label_prod_item);
+					}
+				});
+			}
+			else{
+				updateUserDD(resData, changeDD, 1, true, false, label_prod_item);
+			}
+			$("#invoice_item_id_"+row).val(null).trigger('change');
+			$("#name_"+row).val('');
+		},
+		beforeSend: function(){ $(this).addClass("ajax-loading"); },
+		complete: function(){ $(this).removeClass("ajax-loading"); }
+	});
+}
+
+function fillInvFields(row){
+	var invoice_item_id = $("#invoice_item_id_"+row).val();
+	var itemType = $("#invoiceTable #item_type_"+row).val();
+	var inventory_id = invoice_item_id && invoice_item_id.split(',').pop()
+	var data = {};
+	url = "/wkorderentity/getInvDetals";
+	data = {item_id: inventory_id, itemType: itemType };
+	$.ajax({
+		url: url,
+		data: data,
+		success: function(resData){
+			if (resData.length > 0){
+				var rate = resData[0] ? resData[0] : ''
+				var qty = resData[1] ? resData[1] : ''
+				var sn = resData[2] ? resData[2] : ''
+				var running_sn = resData[3] ? resData[3] : ''
+				if(rate){
+					$("#product_serial_no_"+row).val([sn,running_sn,qty]);
+					$("#rate_"+row).val(rate);
+					$("#quantity_"+row).val(qty);
+					addAmount('rate_'+row)
+				}
+			}
+			if (resData.length == 0){
+				$("#rate_"+row).val('');
+				$("#quantity_"+row).val('');
+			}
+		},
+		beforeSend: function(){ $(this).addClass("ajax-loading"); },
+		complete: function(){ $(this).removeClass("ajax-loading"); }
+	});
+}
+
+function saveEntity(){
+	var ret = true;
+	var invoice_item_id = '';
+	var qty = {};
+	$("#invoiceTable [id^='quantity_']").each(function(){
+		let row = parseInt((this.name).split('_').pop());
+		if(['m', 'a'].includes($("#invoiceTable #item_type_"+row).val())){
+			invoice_item_id = $("#invoice_item_id_"+row).val();
+			var inv_id = invoice_item_id && invoice_item_id.split(',').pop().trim()
+			qty[inv_id] = qty[inv_id] || 0
+			qty[inv_id] += parseFloat($("#quantity_"+row).val()) || 0;
+		}
+	});
+	keys = Object.keys(qty)
+	url = "/wkorderentity/checkQty";
+	data = {inventory_itemID: keys }
+	$.ajax({
+		url: url,
+		data: data,
+		async: false,
+		success: function(resData){
+			var errMsg = [];
+			$.each(qty, function(key, val){
+				if(resData[parseInt(key)]['item']['available_quantity'] < val){
+					errMsg.push(resData[parseInt(key)]['name']);
+				}
+			});
+			if(errMsg.length > 0){
+				var confirmMsg = confirm(errMsg+' Quantity is higher than avilable quantity')
+				if(confirmMsg){ret = true;}
+				else{ret = false;}
+			}
+		},
+		beforeSend: function(){ $(this).addClass("ajax-loading"); },
+		complete: function(){ $(this).removeClass("ajax-loading"); }
+	});
+	return ret;
+}
+
+function getUsedSerialNumber(ele){
+	var row = parseInt((ele.id).split('_').pop());
+	$("#inv_serial_no").val('')
+	$("#inv_serial_no").val($("#used_serial_no_"+row).val());
+	$("#item_serial_no").val($("#product_serial_no_"+row).val());
+	var sn = [];
+	$("#serialno-dlg").dialog({
+		modal: true,
+		title: 'Serial Number',
+		width: "30%",
+		buttons: {
+			"Ok": function() {
+				$("#used_serial_no_"+row).val($("#inv_serial_no").val());
+				if($('#inv_serial_no').val()){
+					($('#inv_serial_no').val().split(',')).map(function(number){ sn.push({id:'', serial_number: number})});
+				}
+				$("#used_serialNo_obj_"+row).val(JSON.stringify(sn));
+				$(this).dialog("close");
+			},
+			Cancel: function() {
+				$(this).dialog("close");
+			}
+		}
+	});
 }

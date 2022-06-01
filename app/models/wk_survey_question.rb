@@ -28,4 +28,8 @@ class WkSurveyQuestion < ActiveRecord::Base
   def response_texts(group_name=nil)
     self.wk_survey_responses.where(group_name: group_name).select("wk_survey_answers.id, wk_survey_answers.choice_text")
   end
+
+  scope :question_name, ->(id){
+    where(id: id)&.first&.name
+  }
 end

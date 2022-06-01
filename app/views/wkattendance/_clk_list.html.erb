@@ -1,7 +1,8 @@
-<script type="text/javascript"> 
+<script type="text/javascript">
 	not_valid_errormsg = "<%=l(:error_not_valid) %>";
 	enter_clk_in_errormsg = "<%=l(:error_enter_clk_in) %>";
 	greater_then_errormsg = "<%=l(:error_greater_then) %>";
+	const current_user_id = "<%= User.current.id %>";
 </script>
 <% show_on_map = session[controller_name].try(:[], :show_on_map) %>
 
@@ -21,7 +22,7 @@
 							<% end %>
 						</th>
 						<th class="lbl-txt-align"><%= l(:label_clock_out) %></th>
-					<% end %>	
+					<% end %>
 					<%= sort_header_tag('hours', caption: l(:field_hours), class: "lbl-txt-align", style:(show_on_map ? "width:10%" : "")) %>
 					<th style="<%= show_on_map ? "width:10%" : "" %>"></th>
 				</tr>
@@ -45,7 +46,7 @@
 								<%=h !entry.hours ? "0.0" : (entry.hours).round(2) %>
 						</td>
 						<td align="center">
-							<%= link_to image_tag('edit.png'), {controller: controller.controller_name, action: 'clockedit', user_id: entry.user_id, date: entry.entry_date, page: params[:page],tab: controller.controller_name}, 
+							<%= link_to image_tag('edit.png'), {controller: controller.controller_name, action: 'clockedit', user_id: entry.user_id, date: entry.entry_date, page: params[:page],tab: controller.controller_name, id: entry.id},
 										title: l(:button_edit) %>
 						</td>
 					</tr>

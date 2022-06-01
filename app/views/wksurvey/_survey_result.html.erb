@@ -19,8 +19,8 @@
       <table class="odd-even">
         <tr><th align="left"><%= entry.question_name %></th></tr>
         <tr>
-          <td><%= render :partial => 'graph', :locals => { :entry => entry } if (validateTrendingChart(entry.id, entry.question_id) || params[:groupName] != 'trendChart') %></td>
-          <th style="padding-left: 300px; font-size: 96px;" id="avgScore_<%= entry.question_id %>"></th>
+          <td><%= render :partial => 'graph', :locals => { :entry => entry } if (validateTrendingChart(entry.survey_id, entry.id) || params[:groupName] != 'trendChart') %></td>
+          <th style="padding-left: 300px; font-size: 96px;" id="avgScore_<%= entry.id %>"></th>
         <tr>
       </table>
     </fieldset>

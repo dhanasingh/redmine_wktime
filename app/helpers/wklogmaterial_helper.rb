@@ -159,12 +159,35 @@ module WklogmaterialHelper
 	end
 
 	def getLogTypeName
-		{'T' => 'time_entry', 'E' => 'wk_expense_entry', 'M' => 'wk_material_entry', 'A' => 'wk_material_entry', 'RA' => 'wk_material_entry'}
+		entry = {'T' => 'time_entry', 'E' => 'wk_expense_entry', 'M' => 'wk_material_entry', 'A' => 'wk_material_entry'}
+		hookType = call_hook(:additional_type)
+		entry[hookType] = 'wk_material_entry' if hookType.present?
+		entry
 	end
 
 	def get_item_details_url(itemId, spentType)
 		productItemId = WkInventoryItem.find(itemId)&.product_item_id
-		url = {controller: spentType == 'M' ? 'wkproductitem' : 'wkasset', action: 'edit', inventory_item_id: itemId, product_item_id: productItemId}
+		url = {action: 'edit', inventory_item_id: itemId, product_item_id: productItemId}
+		if spentType == 'M'
+			url[:controller] = 'wkproductitem'
+		elsif spentType == 'A'
+			url[:controller] = 'wkasset'
+		else
+			call_hook(:get_inventory_url, {url: url, spentType: spentType})
+		end
 		url
+	end
+
+	def saveConsumedSN(serial_nos, entry)
+		serial_nos.each do |sn|
+			WkConsumedItems.where(id: sn["id"]).delete_all() if sn["is_delete"].present? && sn["id"].present?
+			if sn["id"].blank? && !sn["is_delete"]
+				materialSN = WkConsumedItems.new
+				materialSN.consumer_id = entry.id
+				materialSN.consumer_type = entry.class.name
+				materialSN.serial_number = sn["serial_number"]
+				materialSN.save
+			end
+		end
 	end
 end

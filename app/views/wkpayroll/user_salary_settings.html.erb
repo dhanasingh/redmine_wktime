@@ -5,18 +5,20 @@
 	isdisabled = true
 	salEntryByTypeHash = {'a' => [], 'b'=> [], 'd'=> [], 'c' => []}
 	actualSalValHash = Hash.new{|hsh,key| hsh[key] = {} }
-	@userSalaryEntries.each do |entry| 
+	@userSalaryEntries.each do |entry|
 		isOverride = entry.user_salary_component_id.blank? ? false : true
 		if isOverride
 			dependent_id = entry.usc_dependent_id.blank? ? 0 : entry.usc_dependent_id
 			factor = entry.usc_factor.blank? ? 0 : (entry.usc_factor)
+			salary_type = entry.usc_salary_type.present? ? entry.usc_salary_type : entry.sc_salary_type
 		else
 			key = entry.id.to_s + "_" + entry.user_id.to_s
 			factor = @userSalCompHash[key].present? ? (@userSalCompHash[key]).factor : 0.00
 			dependent_id = @userSalCompHash[key].present? ? (@userSalCompHash[key]).dependent_id : 0
+			salary_type = @userSalCompHash[key].present? ? (@userSalCompHash[key]).sc_salary_type : null
 		end
 		actualSalValHash[entry.sc_component_type].store entry.sc_id, @userSalHash[entry.user_id][entry.sc_id] unless @userSalHash[entry.user_id].blank?
-		salEntryByTypeHash[entry.sc_component_type] << [entry, isOverride, dependent_id, factor] unless entry.sc_component_type.blank? || entry.sc_component_type == 'r'
+		salEntryByTypeHash[entry.sc_component_type] << [entry, isOverride, dependent_id, factor, salary_type] unless entry.sc_component_type.blank? || entry.sc_component_type == 'r'
 	end
 	grossVal = "%.2f" % (actualSalValHash['a'].values.sum + actualSalValHash['b'].values.sum)
 %>
@@ -42,7 +44,7 @@
 						<tr>
 							<th class="lbl-txt-align" style="padding:0 5px 0 5px;"><%= l(:label_override_common_setting) %></th>
 							<th class="lbl-txt-align" style="padding:0 5px 0 5px;"><%= l(:label_salary_component) %></th>
-							<th class="lbl-txt-align" style="padding:0 5px 0 5px;"><%= l(:label_dependent_field) %></th>
+							<th class="lbl-txt-align" style="padding:0 5px 0 5px;"><%= l(:label_salary_type) %></th>
 							<th class="lbl-txt-align" style="padding:0 5px 0 5px;"><%= l(:label_factor) %></th>
 							<th class="lbl-txt-align"><%= l(:label_actual) %></th>
 						</tr>
@@ -51,7 +53,7 @@
 				</table>
 			</fieldset>
 				&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-				
+
 			<fieldset class="box tabular" style="display: inline-block; vertical-align: top; width:45%;"><legend><b><%=l(:label_allowances)%></b></legend>
 				<table style="width:100%;border-collapse: collapse;" >
 					<thead>
@@ -74,8 +76,8 @@
 				</table>
 			</fieldset>
 				&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-				
-				
+
+
 			<fieldset class="box tabular" style="display: inline-block; vertical-align: top; width:45%; "><legend><b><%=l(:label_deduction)%></b></legend>
 				<table style="width:100%;border-collapse: collapse;">
 					<thead>
@@ -120,7 +122,7 @@
 			<% if validateERPPermission('A_PAYRL') %>
 				<span style="margin-left:25.0em;">
 					<%= submit_tag l(:button_save), :id => 'wk_user_sal_setting_save', :name => 'user_sal_save', :disabled => false %>
-					<%= submit_tag l(:button_save_with_tax), :id => 'wk_user_sal_setting_save_with_tax', :name => 'user_sal_save_with_tax', :disabled => false if isCalculateTax %> 
+					<%= submit_tag l(:button_save_with_tax), :id => 'wk_user_sal_setting_save_with_tax', :name => 'user_sal_save_with_tax', :disabled => false if isCalculateTax %>
 				</span>
 			<% end %>
 		<% end %>

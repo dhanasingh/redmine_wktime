@@ -18,7 +18,8 @@
 class WkSkill < ActiveRecord::Base
   belongs_to :user
   belongs_to :skill_set, class_name: "WkCrmEnumeration"
-  has_many :users_groups, through: :user
+  has_many :groups, through: :user
+  belongs_to :source, :polymorphic => true
 
   validates_presence_of :skill_set
   validates_numericality_of :rating, :experience
@@ -32,7 +33,7 @@ class WkSkill < ActiveRecord::Base
   scope :experience, ->(experience){ where("experience >= ?", experience)}
   scope :interest_level, ->(interest_level){ where("interest_level >= ?", interest_level)}
   scope :userGroup, ->(id){
-    joins(:users_groups)
+    joins(:groups)
     .where("groups_users.group_id =  ? ", id)
   }
 end

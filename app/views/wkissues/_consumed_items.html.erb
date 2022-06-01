@@ -1,0 +1,35 @@
+<table class="list time-entries">
+  <thead>
+    <tr>
+      <th class="lbl-txt-align"><%= l(:label_project) %></th>
+      <th class="lbl-txt-align"><%= l(:label_issue) %></th>
+      <th class="lbl-txt-align"><%= l(:label_product) %></th>
+      <th class="lbl-txt-align"><%= l(:label_brand)  %></th>
+      <th class="lbl-txt-align"><%= l(:label_model)  %></th>
+      <th class="lbl-txt-align"><%= l(:label_serial_number)  %></th>
+      <th class="lbl-txt-align"><%= l(:field_currency)  %></th>
+      <th class="lbl-txt-align"><%= l(:label_selling_price)  %></th>
+      <th class="lbl-txt-align"><%= l(:field_quantity)  %></th>
+      <th>
+    </tr>
+  </thead>
+  <tbody>
+    <% (entries || []).each do |e| %>
+      <% serial_number = e&.serial_number.map{|sn| sn.serial_number.to_s } %>
+      <tr>
+        <td class="lbl-txt-align"><%= e&.project&.name %></td>
+        <td class="lbl-txt-align"><%= e.issue.to_s || '' %></td>
+        <td class="lbl-txt-align"><%= e.inventory_item&.product_item&.product&.name %></td>
+        <td class="lbl-txt-align"><%= e.inventory_item&.product_item&.brand&.name || ""  %></td>
+        <td class="lbl-txt-align"><%= e.inventory_item&.product_item&.product_model&.name || "" %></td>
+        <td class="lbl-txt-align"><%= serial_number&.join(',').truncate_words(5, separator: ',') || '' %></td>
+        <td class="lbl-txt-align"><%= e.currency %></td>
+        <td class="lbl-txt-align"><%= e.selling_price %></td>
+        <td class="lbl-txt-align"><%= e.quantity %></td>
+        <td class="lbl-txt-align">
+          <%= link_to l(:label_details), {controller: 'timelog', action: 'edit', id: e.id, spent_type: 'M'}, class: 'icon icon-report' %>
+        </td>
+      </tr>
+    <%end%>
+  </tbody>
+</table>

@@ -29,28 +29,29 @@ include WktimeHelper
 			'LT' => l(:label_location_type),
 			'DP' => l(:label_department),
 			'CR' => l(:label_relationship),
-			'SK' => l(:label_skill_set)
+			'SK' => l(:label_skill_set),
+			'IT' => l(:label_interview_type),
 		}
 		enumhash = call_hook :external_enum_type
 		unless enumhash.blank?
 			mergeHash = eval(enumhash)
 			enumerationType =  enumerationType.merge(mergeHash)
 		end
-		enumerationType	
+		enumerationType
 	end
-	
+
 	def options_for_enum_select(enumType, value, needBlank)
 		ennumArray = Array.new
 		defaultValue = 0
 		crmenum = WkCrmEnumeration.where(:enum_type => enumType, :active => true).order(enum_type: :asc, position: :asc, name: :asc)
 		if !crmenum.blank?
-			crmenum.each do | entry|				
+			crmenum.each do | entry|
 				ennumArray <<  [I18n.t("#{entry.name.gsub('.', '/')}", :default => entry.name), entry.id  ]
 				defaultValue = entry.id if entry.is_default?# === "true"
 			end
 		end
 		if needBlank
-			ennumArray.unshift(["",0]) 
+			ennumArray.unshift(["",0])
 		end
 		options_for_select(ennumArray, value.blank? ? defaultValue : value)
 	end
@@ -62,5 +63,5 @@ include WktimeHelper
 		enums = wkcrmenums.map{ |enum| { value: enum.id, label: enum.name }}
 		enums
 	end
-	
+
 end

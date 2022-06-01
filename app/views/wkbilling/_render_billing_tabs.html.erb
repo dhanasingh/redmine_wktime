@@ -2,9 +2,9 @@
 <%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
 
 <script type="text/javascript">
-	blgcontractsUrl = '<%=url_for(controller: "wkcontract", action: "index", tab: "wkcontract")%>';
-	blginvoiceUrl = '<%=url_for(controller: "wkinvoice", action: "index", tab: "wkinvoice")%>';
-	blgpaymentUrl = '<%=url_for(controller: "wkpayment", action: "index", tab: "wkpayment")%>';
+	blgcontractsUrl = '<%=url_for(controller: "wkcontract", tab: "wkcontract")%>';
+	blginvoiceUrl = '<%=url_for(controller: "wkinvoice", tab: "wkinvoice")%>';
+	blgpaymentUrl = '<%=url_for(controller: "wkpayment", tab: "wkpayment")%>';
 	prevTab = 'tab-<%= "#{controller_name}" %>';
 </script>
 

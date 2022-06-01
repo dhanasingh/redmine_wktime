@@ -26,7 +26,7 @@
 				<th class="lbl-txt-align"><%= l(:label_modified).capitalize %></th>
 				<th></th>
          </tr>
-	  <% end %>	 
+	  <% end %>
   </thead>
    <tbody>
 	<% opportunities.each do |entry| %>
@@ -39,8 +39,8 @@
 			<td class="lbl-txt-align"><%=h entry.close_date.localtime.strftime("%Y-%m-%d") %></td>
 			<td class="lbl-txt-align"><%=h entry.assigned_user.name(:firstname_lastname)  unless entry.assigned_user.blank? %></td>
 			<td class="lbl-txt-align"><%=h entry.updated_at.localtime.strftime("%Y-%m-%d") %></td>
-			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => 'wkopportunity', :action => 'edit', :opp_id => entry.id, :tab => 'wkopportunity'}, :title => l(:button_edit) %>
-							<%= link_to image_tag('delete.png'), {:controller => 'wkopportunity', :action => 'destroy', :opp_id => entry.id, :tab => 'wkopportunity'},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
+			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => 'wkopportunity', :action => 'edit', :opp_id => entry.id, :tab => 'wkopportunity', id: entry.id}, :title => l(:button_edit) %>
+							<%= link_to image_tag('delete.png'), {:controller => 'wkopportunity', :action => 'destroy', :opp_id => entry.id, :tab => 'wkopportunity', id: entry.id},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
 		</tr>
 	<% end %>
    </tbody>

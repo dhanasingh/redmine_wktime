@@ -1,6 +1,12 @@
 $(document).ready(function(){
-	
+
 	disableComponents(null);
+
+	$('#interview_type').change(function(){
+		if(!$('#activity_subject').val()){
+			$('#activity_subject').val($(this).find(':selected').text());
+		}
+	});
 });
 
 function loadStatus(fldId)
@@ -60,7 +66,7 @@ function disableComponents(fldId)
 		activityDuration.style.display = 'none';
 		activity_duration_min.style.display = 'none';
 		lblLocation.style.display = 'none';
-		locationdd.style.display = 'none';		
+		locationdd.style.display = 'none';
 		lblEndDate.style.display = 'block';
 		activity_end_date.style.display = 'block';
 		end_hour.style.display = 'block';
@@ -68,6 +74,6 @@ function disableComponents(fldId)
 		activity_direction.style.display = 'none';
 		task_status.style.display = 'block';
 		activity_status.style.display = 'none';
-		
+
 	}
 }

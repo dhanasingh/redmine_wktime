@@ -24,7 +24,7 @@
 		<table width='100%'>
 			<% if controller.showAssetProperties   %>
 			<tr>
-				<th style="text-align: left"><%= "Parent" %></th>
+				<th style="text-align: left"><%= l(:label_parent_revision) %></th>
 				<td style="text-align: left;padding-left:40px;"><%=h select_tag("parent_id", options_for_select(parentArr, :selected => (invntItem.blank? ? (@parentEntry.blank? ? parentArr : @parentEntry.id) : invntItem.parent_id)), :disabled => isDisable && !isTransfer) %></td>
 			</tr>
 			<% end %>
@@ -32,13 +32,13 @@
 				<tr>
 					<th style="text-align: left"><%= l(:label_sp_number) %></th>
 					<td style="text-align: left;padding-left:40px;">
-						<%= link_to invoice_no, controller: 'wksupplierinvoice', action: 'edit', invoice_id: invntItem&.supplier_invoice&.id, new_invoice: false, preview_billing: false, tab: 'wksupplierinvoice' if invoice_no.present? %>
+						<%= link_to invoice_no, {controller: 'wksupplierinvoice', action: 'edit', invoice_id: invntItem&.supplier_invoice&.id, new_invoice: false, preview_billing: false, tab: 'wksupplierinvoice', id: invntItem&.supplier_invoice&.id} if invoice_no.present? %>
 					</td>
-				</tr>		
+				</tr>
 				<tr>
 					<th style="text-align: left"></th>
 					<td style="text-align: left;padding-left:40px;">
-						<%= link_to l(:label_goods_receipt), controller: 'wkshipment', action: 'edit', shipment_id: invntItem&.shipment_id, tab: 'wkshipment' if invntItem&.shipment&.shipment_type == 'I' %>
+						<%= link_to l(:label_goods_receipt), {controller: 'wkshipment', action: 'edit', shipment_id: invntItem&.shipment_id, tab: 'wkshipment', id: invntItem&.shipment_id} if invntItem&.shipment&.shipment_type == 'I' %>
 					</td>
 				</tr>
 			<% end %>
@@ -66,8 +66,8 @@
 				<tr>
 					<th style="text-align: left"><%= l(:label_location) %></th>
 					<td style="text-align: left;padding-left:40px;">
-						<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', invntItem.blank? ? nil : invntItem.location_id, false), :disabled => isDisable && !isTransfer) %>
-						<% unless invntItem.blank? || isTransfer || controller.getItemType != 'I' %>
+						<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', invntItem.blank? ? nil : invntItem.location_id, false), id: 'locationID', disabled: isDisable && !isTransfer) %>
+						<% if controller.getItemType == 'I' && invntItem.present? && !isTransfer && !@assembledComponent.present? %>
 									<%= link_to l(:button_transfer), url_for(:controller => controller_name, :action => 'transfer', :inventory_item_id => invntItem.id), :class => 'icon icon-bullet-go' %>
 						<% end %>
 					</td>

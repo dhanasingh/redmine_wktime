@@ -25,7 +25,7 @@ class WkattendanceController < WkbaseController
 
 	before_action :require_login
 	before_action :check_perm_and_redirect, :only => [:edit, :clockedit]
-	before_action :check_update_permission, only: "update"
+	before_action :check_update_permission, :only => [:update, :saveClockInOut]
 	before_action :check_index_perm, :only => [:index]
 	require 'csv'
 
@@ -146,7 +146,7 @@ class WkattendanceController < WkbaseController
 				 select id, start_time, end_time, " + getConvertDateStr('start_time') + " entry_date, hours, user_id, s_longitude, s_latitude, e_longitude, e_latitude
 				 from wk_attendances
 				 WHERE " + getConvertDateStr('start_time') +" between '#{@from}' and '#{@to}' AND user_id in (#{ids})
-			) evw on (vw.selected_date = evw.entry_date and vw.id = evw.user_id) where vw.id in (#{ids}) "
+			) evw on (vw.selected_date = evw.entry_date and vw.id = evw.user_id) where vw.id in (#{ids}) AND vw.selected_date <= '#{Time.now.to_date}'"
 		orderStr = " ORDER BY " + (sort_clause.present? ? sort_clause.first : "vw.selected_date desc, vw.firstname")
 
 		respond_to do |format|

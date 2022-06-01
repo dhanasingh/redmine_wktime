@@ -18,6 +18,7 @@ module WkproductitemHelper
 include WktimeHelper
 include WkshipmentHelper
 include WkassetHelper
+include WklogmaterialHelper
 
 	def parentArray(type, needBlank, loadDD, locationId, currentParent)
 		parentArr = Array.new
@@ -32,12 +33,12 @@ include WkassetHelper
 			invItemObj = invItemObj.where.not(:id => currentParent)
 		end
 		invItemObj.each do |entry|
-			parentArr << [(entry.asset_property.blank? ? "" : entry.asset_property.name.to_s), entry.id] 
+			parentArr << [(entry.asset_property.blank? ? "" : entry.asset_property.name.to_s), entry.id]
 		end
 		parentArr.unshift(["",""]) if needBlank
 		parentArr
 	end
-	
+
 	def componentsArray(apartmentId, needBlank, loadDD)
 		bedArr = Array.new
 		inventoryObj = WkInventoryItem.where(:parent_id => apartmentId).includes(:asset_property)#.where(:wk_asset_properties => {:matterial_entry_id => nil} )
@@ -50,7 +51,7 @@ include WkassetHelper
 		bedArr.unshift(["",""]) if needBlank
 		bedArr
 	end
-	
+
 	def availabilityHash
 		avlType ={
 		    '' =>  "",
@@ -58,12 +59,12 @@ include WkassetHelper
 			'U' =>  l(:label_in_use)
 		}
 		avlType
-		
+
 	end
 
 	def getProjectArr
-		projArr = getProjects
-		projArr[0] = [l(:label_all_projects),'AP']
+		projArr = Project.active.order('name').map{ |p| [p.name, p.id]}
+		projArr.unshift([l(:label_all_projects),'AP'])
 		projArr.unshift(["",''])
 		projArr
 	end
@@ -83,6 +84,25 @@ include WkassetHelper
 			attributes.each { |p| attributeArr << { value: p.id, label: p.name }}
 		end
 		attributeArr
+	end
+
+	def saveAssembledItem(assemble_item, inventoryItem)
+		(assemble_item || {}).each do |key, item|
+			items = JSON.parse(item)
+			sourceItem = WkInventoryItem.find(items["inventory_item_id"])
+			sourceItem.available_quantity = sourceItem.available_quantity - items["quantity"].to_i
+			if sourceItem.save
+				assembledItem = sourceItem.dup
+				assembledItem.parent_id = inventoryItem.id
+				assembledItem.from_id = sourceItem.id
+				assembledItem.total_quantity = items["quantity"].to_i
+				assembledItem.available_quantity = items["quantity"].to_i
+				assembledItem.supplier_invoice_id = nil
+				assembledItem.lock_version = 0
+				assembledItem.save
+				saveConsumedSN(items["serial_no"], assembledItem) if items["serial_no"].present?
+			end
+		end
 	end
 
 end

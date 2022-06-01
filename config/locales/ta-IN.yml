@@ -1138,3 +1138,28 @@ ta-IN:
   label_received_quantity: பெறப்பட்ட எண்ணிக்கை
   label_confirmation_number: விற்பனையாளர் உறுதிப்படுத்தல் எண்
   label_fullfilled: நிறைவேறியது
+
+  label_assemble_item: ஒன்றுகூட்டு பொருள்
+  label_tax_number: வரி எண்
+  label_add_existing_asset: தற்போதுள்ள சொத்தை சேர்க்கவும்
+  label_interview_type: நேர்காணல் வகை
+  label_consumed_item_for_issue: உபயோகப்படுத்தப்பட்ட பொருள்  சிக்கலுக்கு அனுமதிக்கவும்
+
+  label_new_enumeration: புதிய கணக்கீடுகள்
+  label_new_activity: புதிய செயல்பாடு
+  label_owner_type: உரிமையாளர் வகை
+  label_asset_name: சொத்து பெயர்
+  label_clock_summary: மணி சுருக்கம்
+  label_leave_summary: விடுப்பு சுருக்கம்
+  label_reset_month: Reset மாதம்
+  label_activity_information: செயல்பாடு தகவல்
+  label_enumeration_details: கணக்கீடு விவரங்கள்
+  label_group_permission: குழு அனுமதிகள்
+  label_new_ledger: புதிய பேரேடு
+  label_next_step: அடுத்த படி
+  label_delete_payroll: ஊதியப்பட்டியலை நீக்கு
+  label_invoice_details: விலைப்பட்டியல் விவரங்கள்
+  label_items: பொருள்
+  label_hide_amount_in_words: வார்த்தைகளை தொகை மறைக்க
+  label_new_interview: புதிய நேர்காணல்
+  label_edit_interview: நேர்காணல் திருத்து

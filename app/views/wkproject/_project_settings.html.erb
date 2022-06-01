@@ -5,4 +5,5 @@
     <p><%= project_fields.check_box :is_issueSurvey_allowed, :no_label => true  %><label><%= l(:label_allow_survey_for_issue) %></label></p>
     <p><%= project_fields.check_box :is_billable, :no_label => true  %><label><%= l(:label_billable) %></label></p>
     <p><%= project_fields.text_field :profit_overhead_percentage %><b>%</b></p>
+    <p><%= project_fields.check_box :allow_consumed_items, :no_label => true  %><label><%= l(:label_consumed_item_for_issue) %></label></p>
 <% end %>

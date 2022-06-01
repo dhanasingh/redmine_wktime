@@ -17,7 +17,7 @@
 		actRelated = session[controller_name].try(:[], :related_to)
 		show_on_map = session[controller_name].try(:[], :show_on_map) %>
 		<div style="float:right">
-			<%= link_to l(:label_new_item, l(:field_activity)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+			<%= link_to controller.get_activity_label, url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
 		</div>
 		<table>
 			<th align="left" ><%= l(:label_activity_type) %>:</th>

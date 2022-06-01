@@ -7,37 +7,37 @@
 					<%= sort_header_tag('type', :caption => l(:field_type), class: "lbl-txt-align") %>
 					<%= sort_header_tag('name', :caption => l(:field_name), class: "lbl-txt-align") %>
 					<%= sort_header_tag('project', :caption => l(:label_project), class: "lbl-txt-align") %>
-					<%= sort_header_tag('billing_type', :caption => l(:label_billing_type), class: "lbl-txt-align") %>							
-					<th class="lbl-txt-align"><%= l(:label_apply_tax) %></th>		
+					<%= sort_header_tag('billing_type', :caption => l(:label_billing_type), class: "lbl-txt-align") %>
+					<th class="lbl-txt-align"><%= l(:label_apply_tax) %></th>
 					<th class="lbl-txt-align"><%= l(:label_itemized_bill) %></th>
 					<th class="lbl-txt-align"><%= l(:label_include_expense) %></th>
 					<th></th>
-				<% else %>			
+				<% else %>
 					<th class="lbl-txt-align"><%= l(:field_type) %></th>
 					<th class="lbl-txt-align"><%= l(:field_name) %></th>
-					<th class="lbl-txt-align"><%= l(:label_project) %></th>	
-					<th class="lbl-txt-align"><%= l(:label_billing_type) %></th>								
-					<th class="lbl-txt-align"><%= l(:label_apply_tax) %></th>		
+					<th class="lbl-txt-align"><%= l(:label_project) %></th>
+					<th class="lbl-txt-align"><%= l(:label_billing_type) %></th>
+					<th class="lbl-txt-align"><%= l(:label_apply_tax) %></th>
 					<th class="lbl-txt-align"><%= l(:label_itemized_bill) %></th>
 					<th class="lbl-txt-align"><%= l(:label_include_expense) %></th>
 					<th></th>
-				<% end %>	
+				<% end %>
          </tr>
   </thead>
 	 <tbody>
        <% @accountproject.each do |entry| %>
-		 <tr>		  
+		 <tr>
 			<td class="lbl-txt-align"><%=h entry.parent_type == 'WkAccount' ? 'Account' : 'Contact'  %></td>
 			<td class="lbl-txt-align"><%=h entry.parent.blank? ? "" : entry.parent.name  %></td>
 			<td class="lbl-txt-align"><%=h entry.project.blank? ? "" : entry.project.name  %></td>
 			<td class="lbl-txt-align"><%=h entry.billing_type == 'TM' ? l(:label_time_material) : l(:label_fixed_cost)  %></td>
-			<td class="lbl-txt-align"><%=h checked_image entry.apply_tax?  %></td>			
+			<td class="lbl-txt-align"><%=h checked_image entry.apply_tax?  %></td>
 			<td class="lbl-txt-align"><%=h checked_image entry.itemized_bill?  %></td>
 			<td class="lbl-txt-align"><%=h checked_image entry.include_expense?  %></td>
 
-			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => 'wkaccountproject', :action => 'edit', :project_id => entry.project.identifier, :acc_project_id => entry.id},
+			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => 'wkaccountproject', :action => 'edit', :project_id => entry.project.identifier, :acc_project_id => entry.id, id: entry.id},
                                        :title => l(:button_edit) %>
-			<%= link_to image_tag('delete.png'), {:controller => 'wkaccountproject', :action => 'destroy', :project_id => entry.project.identifier, :account_project_id => entry.id},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
+			<%= link_to image_tag('delete.png'), {:controller => 'wkaccountproject', :action => 'destroy', :project_id => entry.project.identifier, :account_project_id => entry.id, id: entry.id},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
 		 </tr>
 	<% end %>
    </tbody>

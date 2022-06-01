@@ -6,7 +6,7 @@
 	grpUrl="<%= "#{url_for(:controller => "wkreport", :action => 'getMembersbyGroup')}" %>";
 	//getMembersbyGroup
 </script>
-<%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
+<%= form_tag({:controller => controller_name, :action => "export"}, :method => :get, :id => 'query_form') do %>
 	<%
 		rpttype =session[controller_name].try(:[], :report_type)
 		groupid =session[controller_name].try(:[], :group_id)

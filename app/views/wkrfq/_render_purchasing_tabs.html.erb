@@ -2,13 +2,13 @@
 <%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
 
 <script type="text/javascript">
-    purRfqUrl = '<%=url_for(controller: "wkrfq", action: "index", tab: "wkrfq")%>';
-    purQuoteUrl = '<%=url_for(controller: "wkquote", action: "index", tab: "wkquote")%>';
-    purPurOrderUrl = '<%=url_for(controller: "wkpurchaseorder", action: "index", tab: "wkpurchaseorder")%>';
-    purSupInvUrl = '<%=url_for(controller: "wksupplierinvoice", action: "index", tab: "wksupplierinvoice")%>';
-	purSupPayUrl = '<%=url_for(controller: "wksupplierpayment", action: "index", tab: "wksupplierpayment")%>';
-	purSupAccUrl = '<%=url_for(controller: "wksupplieraccount", action: "index", tab: "wksupplieraccount")%>';
-	purSupContactUrl = '<%=url_for(controller: "wksuppliercontact", action: "index", tab: "wksuppliercontact")%>';
+    purRfqUrl = '<%=url_for(controller: "wkrfq", tab: "wkrfq")%>';
+    purQuoteUrl = '<%=url_for(controller: "wkquote", tab: "wkquote")%>';
+    purPurOrderUrl = '<%=url_for(controller: "wkpurchaseorder", tab: "wkpurchaseorder")%>';
+    purSupInvUrl = '<%=url_for(controller: "wksupplierinvoice", tab: "wksupplierinvoice")%>';
+	purSupPayUrl = '<%=url_for(controller: "wksupplierpayment", tab: "wksupplierpayment")%>';
+	purSupAccUrl = '<%=url_for(controller: "wksupplieraccount", tab: "wksupplieraccount")%>';
+	purSupContactUrl = '<%=url_for(controller: "wksuppliercontact", tab: "wksuppliercontact")%>';
     prevTab = 'tab-<%= "#{controller_name}" %>';
 </script>
 

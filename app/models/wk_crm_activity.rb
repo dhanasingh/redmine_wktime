@@ -24,6 +24,7 @@ class WkCrmActivity < ActiveRecord::Base
   validate :validate_crm_activity
   before_save :update_status_update_on
   after_save :activity_notification
+  belongs_to :interview_type, class_name: "WkCrmEnumeration"
 
   acts_as_attachable :view_permission => :view_files,
                     :edit_permission => :manage_files,

@@ -1,10 +1,7 @@
 <h2><%= l(:label_wkexpense) %></h2>
 <script type="text/javascript">
-   wktimeIndexUrl = '<%=url_for(:controller => "wktime", :action => "index", :tab => "wktime")%>';
-   wkexpIndexUrl = '<%=url_for(:controller => "wkexpense", :action => "index", :tab => "wkexpense")%>';
-   wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';     
-   clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>'; 
-   payrollUrl = '<%=url_for(:controller => "wkpayroll", :action => "index", :tab => "payroll")%>';
+   wktimeIndexUrl = '<%=url_for(:controller => "wktime", :tab => "wktime")%>';
+   wkexpIndexUrl = '<%=url_for(:controller => "wkexpense", :tab => "wkexpense")%>';
 </script>
 
 <% if showExpense %>

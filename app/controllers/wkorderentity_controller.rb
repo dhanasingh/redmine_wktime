@@ -23,6 +23,7 @@ class WkorderentityController < WkbillingController
 	include WkorderentityHelper
 	include WkreportHelper
 	include WkgltransactionHelper
+	include WklogmaterialHelper
 
 	def index
 		sort_init 'invoice_date', 'desc'
@@ -189,6 +190,7 @@ class WkorderentityController < WkbillingController
 		@invoice = nil
 		@invoiceItem = nil
 		@projectsDD = Array.new
+		@issuesDD = Array.new
 		@productItemsDD = getproductItems
     @currency = nil
 		@preBilling = false
@@ -258,6 +260,7 @@ class WkorderentityController < WkbillingController
 			@invPaymentItems = @invoice.payment_items.current_items
 			pjtList = @invoiceItem.select(:project_id).distinct
 			pjtList.each do |entry|
+				@issuesDD = Issue.where(:project_id => entry.project_id.to_i).pluck(:subject, :id)
 				@projectsDD << [ entry.project.name, entry.project_id ] if !entry.project_id.blank? && entry.project_id != 0
 			end
 		end
@@ -351,17 +354,25 @@ class WkorderentityController < WkbillingController
 
 				invoice_item_id = ((params["invoice_item_id_#{i}"]) || "").split(",").last
 				invoice_item_id = invoice_item_id.present? ? invoice_item_id.to_i : nil
-				product_id = params["product_id_#{i}"].present? ? params["product_id_#{i}"] : ((params["invoice_item_id_#{i}"]) || "").split(",").first
-				product_id = product_id.present? ? product_id.to_i : nil
+				product_id = nil
+				if ["m", "a"].include?(itemType) || !isInvoiceController
+					product_id = params["product_id_#{i}"].present? ? params["product_id_#{i}"] : ((params["invoice_item_id_#{i}"]) || "").split(",").first
+					product_id = product_id.present? ? product_id.to_i : nil
+				end
 				unless params["item_id_#{i}"].blank?
 					arrId.delete(params["item_id_#{i}"].to_i)
 					invoiceItem = WkInvoiceItem.find(params["item_id_#{i}"].to_i)
+					old_item_quantity = invoiceItem.quantity
 					org_amount = params["rate_#{i}"].to_f * params["quantity_#{i}"].to_f
 					updatedItem = updateInvoiceItem(invoiceItem, pjtId,  params["name_#{i}"], params["rate_#{i}"].to_f, params["quantity_#{i}"].to_f, invoiceItem.original_currency, itemType, org_amount, crInvoiceId, crPaymentId, product_id, params["invoice_item_type_#{i}"], invoice_item_id)
 				else
 					invoiceItem = @invoice.invoice_items.new
 					org_amount = params["rate_#{i}"].to_f * params["quantity_#{i}"].to_f
 					updatedItem = updateInvoiceItem(invoiceItem, pjtId, params["name_#{i}"], params["rate_#{i}"].to_f, params["quantity_#{i}"].to_f, params["original_currency_#{i}"], itemType, org_amount, crInvoiceId, crPaymentId, product_id, params["invoice_item_type_#{i}"], invoice_item_id)
+				end
+				if ["m", "a"].include?(itemType) && invoice_item_id.present?
+					saveConsumedSN(JSON.parse(params["used_serialNo_obj_#{i}"]), updatedItem) if params["used_serialNo_obj_#{i}"].present?
+					updateParentInventoryItem(invoice_item_id.to_i, params["quantity_#{i}"].to_i, old_item_quantity || '')
 				end
 				if !params[:populate_unbilled].blank? && params[:populate_unbilled] == "true" && params[:creditfrominvoice].blank? && !params["entry_id_#{i}"].blank?
 					accProject = WkAccountProject.where(:project_id => pjtId)
@@ -381,7 +392,6 @@ class WkorderentityController < WkbillingController
 					matterialEntry = WkMaterialEntry.find(params["material_id_#{i}"].to_i)
 					updateBilledEntry(matterialEntry, updatedItem.id)
 				end
-
 				if updatedItem.product_id.present?
 					# set Product Totals
 					total_amounts["product"] = set_product_total(total_amounts["product"], updatedItem)
@@ -401,8 +411,16 @@ class WkorderentityController < WkbillingController
 			storeInvoiceItemTax(total_amounts)
 
 			if !arrId.blank?
-				deleteBilledEntries(arrId)
-				WkInvoiceItem.where(:id => arrId).delete_all
+				WkInvoice.transaction do
+					begin
+					deleteBilledEntries(arrId)
+					invoice_items = WkInvoiceItem.where(:id => arrId, item_type: 'm')
+					updateInvItemQuantity(invoice_items)
+					WkInvoiceItem.where(:id => arrId).delete_all
+					rescue => ex
+						raise ActiveRecord::Rollback
+					end
+				end
 			end
 
 			unless @invoice.id.blank?
@@ -487,9 +505,20 @@ class WkorderentityController < WkbillingController
 	end
 
 	def destroy
-		invoice = WkInvoice.find(params[:invoice_id].to_i)#.destroy
-		deleteBilledEntries(invoice.invoice_items.pluck(:id))
-		if invoice.destroy
+		isDelete = true
+		WkInvoice.transaction do
+			begin
+			invoice = WkInvoice.find(params[:invoice_id].to_i)#.destroy
+			deleteBilledEntries(invoice.invoice_items.pluck(:id))
+			invoice_items = invoice.invoice_items.where(item_type: 'm')
+			updateInvItemQuantity(invoice_items)
+			invoice.destroy
+			rescue => ex
+				isDelete = false
+				raise ActiveRecord::Rollback
+			end
+		end
+		if isDelete
 			flash[:notice] = l(:notice_successful_delete)
 		else
 			flash[:error] = invoice.errors.full_messages.join("<br>")
@@ -534,7 +563,7 @@ class WkorderentityController < WkbillingController
 	end
 
 	def getCustomerAddress(invoice)
-		invoice.parent.name + "\n" + (invoice.parent.address.blank? ? "" : invoice.parent.address.fullAddress)
+		invoice.parent.name + "\n" + (invoice.parent.address.blank? ? "" : invoice.parent.address.fullAddress) + (invoice&.parent_type == 'WkAccount' ? "\n" + "GST No: " + invoice&.parent&.tax_number.to_s : "")
 	end
 
 	def getAutoPostModule
@@ -669,9 +698,11 @@ class WkorderentityController < WkbillingController
 		listTotal(pdf, columnWidth, @invoiceItem, l(:label_grand_total))
 		pdf.ln(5)
 		pdf.SetFontStyle('B',10)
-		pdf.RDMCell(40, 5, l(:label_amount_in_words) + "  :  ", 1)
-		pdf.SetFontStyle('',10)
-		pdf.RDMCell(table_width - 40, 5, numberInWords(@invoiceItem.sum(:original_amount)) + " " + l(:label_only), 1)
+		if (Setting.plugin_redmine_wktime['wktime_hide_amount_in_words'].to_i != 1)
+			pdf.RDMCell(40, 5, l(:label_amount_in_words) + "  :  ", 1)
+			pdf.SetFontStyle('',10)
+			pdf.RDMCell(table_width - 40, 5, numberInWords(@invoiceItem.sum(:original_amount)) + " " + l(:label_only), 1)
+		end
 		pdf.ln
 		if invoiceComp.present?
 			invoiceComp.each do |comp|
@@ -870,8 +901,10 @@ class WkorderentityController < WkbillingController
 	end
 
 	def get_product_tax
-		data = WkProductItem.getProductTax(params[:product_item_id])
-		render json: data
+		prod_item_id = params[:item_id]
+		prod_item_id = WkInventoryItem.where(id: prod_item_id).pluck(:product_item_id)&.first if params[:invoice_type] == 'I'
+		data = WkProductItem.getProductTax(prod_item_id)
+		render json: data || []
 	end
 
 	def get_project_tax
@@ -885,5 +918,49 @@ class WkorderentityController < WkbillingController
 	end
 
 	def update_status
+	end
+
+	def getIssueDD()
+		issuetArr = ""
+		issuesDD = Issue.where(:project_id => params[:project_id].to_i)
+		issuesDD.each do | entry |
+			issuetArr << entry.id.to_s() + ',' +  entry.subject.to_s()  + "\n"
+		end
+		respond_to do |format|
+			format.text  { render plain: issuetArr }
+		end
+	end
+
+	def getInvDetals()
+		case params[:itemType]
+		when 'a', 'm'
+			rates = WkInventoryItem.where(:id => params[:item_id].to_i).pluck(:selling_price, :available_quantity,:serial_number, :running_sn).first if params[:item_id].present?
+		else
+			rates = WkIssue.where(:issue_id => params[:item_id].to_i).pluck(:rate) if params[:item_id].present?
+		end
+		render json: rates || []
+	end
+
+	def checkQty()
+		invItems = WkInventoryItem.where(:id => params[:inventory_itemID]) if params[:inventory_itemID].present?
+		invHash = {}
+		invItems.each do |item|
+			invHash[item.id] = {item: item, name: item.product_item.product.name}
+		end
+		render json: invHash
+	end
+
+	def addExpenseType
+		false
+	end
+
+	def updateInvItemQuantity(invoice_items)
+		invoice_items.each do |i|
+			inv_obj = i.invoice_item
+			if i.invoice_item_id.present? && i.invoice_item_type == 'WkInventoryItem' && inv_obj.present?
+				inv_obj.available_quantity = inv_obj.available_quantity + i.quantity
+				inv_obj.save
+			end
+		end
 	end
 end

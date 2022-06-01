@@ -1,0 +1,40 @@
+<%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
+<%= javascript_include_tag 'index', plugin: "redmine_wktime" %>
+
+<div id="accordion">
+  <label><%= l(:label_components) %></label>
+  <div>
+    <%if params[:inventory_item_id].blank?%>
+      <div class="wk-contextual">
+        <%= link_to l(:label_new_component), "javascript:getAssembleItem();", class: 'icon icon-add' %>
+      </div>
+    <%end%>
+    <table id="assembleItemTable" class="list time-entries">
+      <thead>
+        <tr>
+          <th class="lbl-txt-align"><%= l(:label_attn_sl_no) %></th>
+          <th class="lbl-txt-align"><%= l(:label_product) %></th>
+          <th class="lbl-txt-align"><%= l(:label_item)  %></th>
+          <th class="lbl-txt-align"><%= l(:field_quantity)  %></th>
+          <th class="lbl-txt-align"><%= l(:label_location)  %></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% (component || []).each_with_index do |entry, index| %>
+          <% item_name = (entry&.product_item&.brand&.name.to_s() +' - '+ entry&.product_item&.product_model&.name.to_s() + ' - '+ entry&.product_item&.part_number.to_s() +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s()) +' - '+ (entry.serial_number.to_s() + entry.running_sn.to_s()) )%>
+          <tr>
+            <td class="lbl-txt-align"><%= index +1 %></td>
+            <td class="lbl-txt-align"><%= entry&.product_item&.product&.name || '' %></td>
+            <td class="lbl-txt-align"><%= item_name %></td>
+            <td class="lbl-txt-align"><%= entry.total_quantity  %></td>
+            <td class="lbl-txt-align"><%= entry&.location&.name  %></td>
+            <td>
+              <%= link_to image_tag('delete.png'), {controller: controller.controller_name, action: 'destroy', inventory_item_id: entry.id, product_item_id: entry.product_item_id, tab: controller.controller_name},  data: {confirm: l(:text_are_you_sure)}, method: :delete, title: l(:button_delete) %>
+            </td>
+          </tr>
+        <%end%>
+      </tbody>
+    </table>
+  </div>
+</div>

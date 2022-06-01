@@ -1,5 +1,6 @@
 module WkorderentityHelper
 include WkcrmHelper
+include WkassetHelper
 
 	def getRfqArray(needBlank)
 		rfqArr = WkRfq.all.order(id: :desc).pluck(:name, :id)
@@ -129,4 +130,14 @@ include WkcrmHelper
 			l(:label_delivered) => 'd'
     }
   end
+
+	def getItemDD(item_type)
+		rateper = getRatePerHash(false)
+		inv_items = WkInventoryItem.getInventoryItems(item_type)
+		if item_type == 'm'
+      inv_items.map{|i| [i&.product_item&.product&.name.to_s()+' - '+i&.product_item&.brand&.name.to_s()+' - '+ i&.product_item&.product_model&.name.to_s()+' - '+  (i.currency.to_s() + ' ' +  i.selling_price.to_s() +' - '+ (i.serial_number.to_s() + i.running_sn.to_s() + ' - qty ' + i.available_quantity.to_s())), i.product_item&.product&.id.to_s+', '+i&.id.to_s]}
+    else
+      inv_items.map{|i| [i&.asset_property.name.to_s()+' - '+i&.asset_property.rate.to_s()+' - '+rateper[i&.asset_property.rate_per].to_s(), i.product_item&.product&.id.to_s+', '+i&.id.to_s]}
+    end
+	end
 end

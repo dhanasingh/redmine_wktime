@@ -356,7 +356,7 @@ include WkpayrollHelper
 					pjtDescription =  entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject)
 					pjtQuantity = sumEntry[entry.issue_id]
 					amount = rateHash['rate'] * pjtQuantity
-					invItem = updateInvoiceItem(invItem, accountProject.project_id, pjtDescription, rateHash['rate'], pjtQuantity, rateHash['currency'], 'i', amount, nil, nil, nil) unless isCreate
+					invItem = updateInvoiceItem(invItem, accountProject.project_id, pjtDescription, rateHash['rate'], pjtQuantity, rateHash['currency'], 'i', amount, nil, nil, nil, 'Issue', entry&.issue_id) unless isCreate
 				else
 					isContinue = true
 					pjtQuantity = timeEntries.sum(:hours)
@@ -381,6 +381,8 @@ include WkpayrollHelper
 					@invItems[@itemCount].store 'item_quantity', pjtQuantity.round(4)
 					@invItems[@itemCount].store 'item_amount', itemAmount.round(2)
 					@invItems[@itemCount].store 'issue_id', accountProject.itemized_bill ? entry.issue_id : 0
+					@invItems[@itemCount].store 'invoice_item_type', accountProject.itemized_bill ? 'Issue' : ''
+					@invItems[@itemCount].store 'invoice_item_id', accountProject.itemized_bill ? entry.issue_id : ''
 					@invItems[@itemCount].store 'billing_type', accountProject.billing_type
 					@itemCount = @itemCount + 1
 					oldIssueId = entry.issue_id
@@ -405,7 +407,6 @@ include WkpayrollHelper
 	def updateInvoiceItem(invItem, projectId, description, rate, quantity, org_currency, itemType, org_amount, creditInvoiceId, crPaymentItemId, productId, invoiceItemType=nil, invoiceItemID=nil)
 		toCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 		amount = getExchangedAmount(org_currency, org_amount)
-
 		invItem.project_id = projectId
 		invItem.name = description
 		invItem.rate = rate
@@ -764,8 +765,8 @@ include WkpayrollHelper
 			@invItems[@itemCount].store 'milestone_id', ''
 			@invItems[@itemCount].store 'project_id', mEntry.project_id
 			@invItems[@itemCount].store 'product_id', productId
-			@invItems[@itemCount].store 'invoice_item_id', mEntry&.inventory_item&.product_item&.id
-			@invItems[@itemCount].store 'invoice_item_type', "WkProductItem"
+			@invItems[@itemCount].store 'invoice_item_id', mEntry&.inventory_item&.id
+			@invItems[@itemCount].store 'invoice_item_type', "WkInventoryItem"
 			@invItems[@itemCount].store 'material_id', mEntry.id
 			@invItems[@itemCount].store 'item_desc', desc
 			@invItems[@itemCount].store 'item_type', productType
@@ -784,8 +785,8 @@ include WkpayrollHelper
 					end
 				end
 				invItem = @invoice.invoice_items.new()
-				invoice_item_id = mEntry&.inventory_item&.product_item&.id || nil
-				invItem = updateInvoiceItem(invItem, mEntry.project_id, desc, rate, qty, curr, productType, amount, nil, nil, productId, "WkProductItem", invoice_item_id)
+				invoice_item_id = mEntry&.inventory_item&.id || nil
+				invItem = updateInvoiceItem(invItem, mEntry.project_id, desc, rate, qty, curr, productType, amount, nil, nil, productId, "WkInventoryItem", invoice_item_id)
 				updateMatterial = WkMaterialEntry.find(mEntry.id)
 				updateBilledEntry(updateMatterial, invItem.id)
 				# updateMatterial.invoice_item_id = invItem.id
@@ -819,6 +820,8 @@ include WkpayrollHelper
 					items.store "item_amount", entry.amount.round(2)
 					items.store "issue_id", entry.issue_id if accProject.itemized_bill
 					items.store "billing_type", accProject.billing_type
+					items.store "invoice_item_id", accProject.itemized_bill ? entry.issue_id : nil
+					items.store "invoice_item_type", accProject.itemized_bill ? 'Issue' : nil
 					@currency = entry.currency
 					@invItems.store @itemCount, items
 					@itemCount = @itemCount + 1
@@ -842,7 +845,7 @@ include WkpayrollHelper
 				if item["item_type"] == "e" && item["id"].blank?
 					saveInvoice if @invoice&.id.blank?
 					invoiceItem = @invoice.invoice_items.new()
-					invoiceItem = updateInvoiceItem(invoiceItem, item["project_id"], item["item_desc"], item["rate"], 1, item["currency"], 'e', item["item_amount"], nil, nil, nil)
+					invoiceItem = updateInvoiceItem(invoiceItem, item["project_id"], item["item_desc"], item["rate"], 1, item["currency"], 'e', item["item_amount"], nil, nil, nil, item["invoice_item_type"], item["invoice_item_id"])
 					item["id"] = invoiceItem.id
 					(item["expense_id"] || []).each{|id| updateBilledEntry(WkExpenseEntry.find(id), invoiceItem.id)}
 				end

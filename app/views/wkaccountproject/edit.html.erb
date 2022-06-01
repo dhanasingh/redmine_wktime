@@ -127,6 +127,9 @@
 	<% end %>
 	</tbody>
 	</table>
+	<div class="wk-contextual">
+		<%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('milestoneTable', 'mtotalrow');",  :class => 'icon icon-add' }%>
+	</div style="clear:both">
 	</div>
 	<div style="clear:both"></div>
 	<% if @invoiceComp.present? %>

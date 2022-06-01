@@ -39,7 +39,7 @@ transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 	<% totaldebit = 0 %>
 	<% totalCredit = 0 %>
 	<div class="wk-contextual">
-	<%= link_to l(:button_add_row), "#", { :onclick => "javascript:txnAddrowValidation('txnTable');",  :class => 'icon icon-add' }%>
+		<%= link_to l(:button_add_row), "#", { :onclick => "javascript:txnAddrowValidation('txnTable');",  :class => 'icon icon-add' }%>
 	</div>
 	<div style="clear:both"></div>
 	<table id="txnTable" class="list time-entries">
@@ -143,6 +143,9 @@ transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 
 	</tbody>
 	</table>
+	<div class="wk-contextual">
+		<%= link_to l(:button_add_row), "#", { :onclick => "javascript:txnAddrowValidation('txnTable');",  :class => 'icon icon-add' }%>
+	</div style="clear:both">
 	<table >
 	<tr>
 		<td></td>

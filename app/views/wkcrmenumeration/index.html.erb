@@ -8,7 +8,7 @@
 	<%	enumerationType = session[controller_name].try(:[], :enumType) %>
 	<fieldset>
 		<div style="float:right">
-			<%= link_to l(:label_new_item, l(:label_enumerations)), url_for(:controller => controller_name, :action => 'edit', :enum_id => ""), :class => 'icon icon-add' %>
+			<%= link_to l(:label_new_enumeration), url_for(:controller => controller_name, :action => 'edit', :enum_id => ""), :class => 'icon icon-add' %>
 		</div>
 		<table>
 			<tr>

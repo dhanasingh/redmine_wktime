@@ -20,8 +20,8 @@
 				<td>
 					<%= hidden_field_tag "shift_id[]",  entry.id  %>
 				</td>
-			    <td>			 
-					<%= text_field_tag "name[]",  entry.name  , :style => "width:150px;", :required => true  %> 
+			    <td>
+					<%= text_field_tag "name[]",  entry.name  , :style => "width:150px;", :required => true  %>
 			    </td>
 			    <td>
 					<%= text_field_tag "start_time[]", (!entry.start_time ? "" : entry.start_time.localtime.strftime('%R')) , :style => "width:150px;", :required => true  %>
@@ -45,17 +45,17 @@
 								<% end %>
 								</div>
 							<% end %>
-							
+
 						</span>
-						<%= link_to l(:label_required_staff), url_for(:controller => controller_name, :action => 'edit', :shift_id => entry.id), :class => 'icon icon-add' %>
+						<%= link_to l(:label_required_staff), url_for(:controller => controller_name, :action => 'edit', :shift_id => entry.id, id: entry.id), :class => 'icon icon-add' %>
 					</div>
 				</td>
-			 
+
 				<td class="buttons">
 					<%= link_to(l(:button_delete), '#',
 							:class => 'delete-commit-keywords icon-only icon-del',
 							:title => l(:button_delete)) %>
-					
+
 				</td>
 			</tr>
 		<% end %>
@@ -65,13 +65,13 @@
 				<%= hidden_field_tag "shift_id[]",  ""  %>
 			</td>
 			<td>
-				<%=  
-				text_field_tag "name[]",  ""  , :required => true,  :style => "width:150px;"  %> 
+				<%=
+				text_field_tag "name[]",  ""  , :required => true,  :style => "width:150px;"  %>
 			</td>
 			<td>
 				<%=	text_field_tag "start_time[]",  ""  , :required => true, :style => "width:150px;"  %>
 			</td>
-			
+
 			<td>
 				<%=	text_field_tag "end_time[]",  ""  , :required => true, :style => "width:150px;"  %>
 			</td>
@@ -92,11 +92,11 @@
     <tr>
       <td></td>
 	  <td></td>
-      <td></td>  
+      <td></td>
 	  <td></td>
 	  <td></td>
-	  <td></td>	 
-	  <td></td>	  
+	  <td></td>
+	  <td></td>
       <td class="buttons">
         <%= link_to(l(:button_add), '#',
                     :class => 'add-commit-keywords icon-only icon-add',

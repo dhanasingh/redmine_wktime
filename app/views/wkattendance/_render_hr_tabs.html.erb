@@ -2,14 +2,14 @@
 <%= stylesheet_link_tag 'wk-time', plugin:"redmine_wktime" %>
 
 <script type="text/javascript">
-   var wkattnIndexUrl = '<%=url_for(controller: "wkattendance", action: "index", tab: "leave")%>';
-   var wkleavereqUrl = '<%=url_for(controller: "wkleaverequest", action: "index", tab: "wkleaverequest")%>';
+   var wkattnIndexUrl = '<%=url_for(controller: "wkattendance", tab: "leave")%>';
+   var wkleavereqUrl = '<%=url_for(controller: "wkleaverequest", tab: "wkleaverequest")%>';
    var clockInOutUrl = '<%=url_for(controller: "wkattendance", action: "clockindex", tab: "clock")%>';
-   var payrollUrl = '<%=url_for(controller: "wkpayroll", action: "index", tab: "payroll")%>';
-   var wkSchedulingUrl = '<%=url_for(controller: "wkscheduling", action: "index", tab: "wkscheduling")%>';
+   var payrollUrl = '<%=url_for(controller: "wkpayroll", tab: "payroll")%>';
+   var wkSchedulingUrl = '<%=url_for(controller: "wkscheduling", tab: "wkscheduling")%>';
    var wkSurveyUrl = '<%=url_for(controller: "wksurvey", action: "user_survey", tab: "wksurvey", :surveyForType => 'User')%>';
-   var wkskillUrl = '<%=url_for(controller: "wkskill", action: "index", tab: "wkskill")%>';
-   var wkreferralsUrl = '<%=url_for(controller: "wkreferrals", action: "index", tab: "wkreferrals")%>';
+   var wkskillUrl = '<%=url_for(controller: "wkskill", tab: "wkskill")%>';
+   var wkreferralsUrl = '<%=url_for(controller: "wkreferrals", tab: "wkreferrals")%>';
    grpUrl="<%= "#{url_for(controller: "wkpayroll", action: 'getMembersbyGroup')}" %>";
 	prevTab = 'tab-<%= "#{controller_name}" %>';
 </script>

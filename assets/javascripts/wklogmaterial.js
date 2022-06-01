@@ -1,4 +1,4 @@
- $(document).ready(function() {	
+ $(document).ready(function() {
 	hideLogDetails(null);
 	var entry = 'time_entry'
 	var log_type = document.getElementById("log_type").value;
@@ -7,10 +7,10 @@
 	if((document.getElementById(entry+'_project_id')) != null)
 	{
 		$('#'+entry+'_project_id').change(function(){
-			var project=$(this);			
+			var project=$(this);
 			uid = document.getElementById('userId').value;
 				loadSpentFors(project.val(), 'spent_for', false, uid)
-				
+
 			const allowedProjs = $('#allowedProjects').val();
 			if(allowedProjs) allowedProjs.includes(this.value) ? $('#issuelogtable').show() : $('#issuelogtable').hide();
 		});
@@ -47,7 +47,7 @@
 
 	$('#issueLogger').on('click', function(){
 		var clock_action = $('#clock_action').val();
-		var newDate = new Date(); 
+		var newDate = new Date();
 		clock_action = clock_action == '' || clock_action == 'E' ? 'S' : 'E';
 		$('#clock_action').val(clock_action);
 		if(clock_action == 'S'){
@@ -79,36 +79,6 @@
 
 	$('.edit_'+entry+' .new_'+entry+'').submit(function(){
 		sessionStorage.setItem("spent_type", $('#log_type').val());
-	});
-
-	$('#material_sn').change(function(){
-		let sn =[];
-		let product_serial_numbers = $('#product_serial_numbers').val();
-		if($(this).val() != '' && (JSON.parse(product_serial_numbers).length) > 0){
-			let material_sn = $(this).val().split(',');
-			material_sn.map(function(number){
-				if(!(JSON.parse(product_serial_numbers)).includes(number.trim())) sn.push(number) ;
-			});
-			if(sn.length > 0){
-				$("#warn_serial_number").show();
-			}
-			else{
-				$("#warn_serial_number").hide();
-			}
-			let hidden_sn = $('#hidden_sns').val();
-			let hidden_sn_arr = JSON.parse(hidden_sn);
-			let sns =[];
-			hidden_sn_arr.map(function (ele, i) { if(!ele['is_delete']) sns.push(ele['serial_number']) });
-			let removed_sns = sns.filter(x => !material_sn.includes(x));
-			if(removed_sns.length > 0){
-				hidden_sn_arr.map(function (ele, i) { if(removed_sns.includes(ele['serial_number'])) ele['is_delete'] = true; });
-			}
-			let added_sns = material_sn.filter(x => !sns.includes(x));
-			if(added_sns.length > 0){
-				added_sns.map(function (number) { hidden_sn_arr.push({id: '', serial_number: number})});
-			}
-			$('#hidden_sns').val(JSON.stringify(hidden_sn_arr));
-		}
 	});
 });
 

@@ -19,5 +19,9 @@ class WkpaymentController < WkpaymententityController
   unloadable
 	menu_item :wkinvoice
 	accept_api_auth :index, :edit, :update
-  
+
+	def getLabelNewPayment
+		l(:label_txn_payment)
+	end
+
 end

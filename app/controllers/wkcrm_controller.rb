@@ -126,6 +126,7 @@ class WkcrmController < WkbaseController
 		wkaccount.account_number = params[:account_number]
 		wkaccount.account_category = params[:account_category]
 		wkaccount.description = params[:description]
+		wkaccount.tax_number = params[:tax_number]
 		wkaccount.account_billing = params[:account_billing].blank? ? 0 : params[:account_billing]
 		wkaccount.location_id = params[:location_id] if params[:location_id] != "0"
 		wkaccount.created_by_user_id = User.current.id if wkaccount.new_record?
@@ -182,7 +183,7 @@ class WkcrmController < WkbaseController
 		unless @account.blank?
 			controllerName = @hookType.blank? ? 'wkcrmaccount' : @hookType[0][1]
 			flash[:notice] = l(:notice_successful_convert)
-			redirect_to controller: controllerName, action: 'edit', account_id: @account.id, rm_resident_id: rm_resident_id
+			redirect_to controller: controllerName, action: 'edit', account_id: @account.id, id: @account.id, rm_resident_id: rm_resident_id
 		else
 			controllerName = @hookType.blank? ? 'wkcrmcontact' : @hookType[0][1]
 			if @lead.valid?
@@ -192,7 +193,7 @@ class WkcrmController < WkbaseController
 				controllerName = 'wklead'
 			end
 			controllerName = "wkreferrals" if @contact.contact_type == "IC"
-		  redirect_to controller: controllerName, action: 'edit', contact_id: @contact.id, lead_id: @lead.id, rm_resident_id: rm_resident_id
+		  redirect_to controller: controllerName, action: 'edit', contact_id: @contact.id, lead_id: @lead.id, id: @lead.id, rm_resident_id: rm_resident_id
 		end
 	end
 
@@ -219,7 +220,7 @@ class WkcrmController < WkbaseController
 			convertToContact
 		end
 	end
-	
+
 	def convertToAccount
 		# @account.account_type = 'A'
 		@account.updated_by_user_id = User.current.id
@@ -260,6 +261,6 @@ class WkcrmController < WkbaseController
 	end
 
 	def get_activity_label
-		l(:field_activity)
+		l(:label_new_activity)
 	end
 end

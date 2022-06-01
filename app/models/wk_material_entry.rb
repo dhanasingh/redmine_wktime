@@ -19,7 +19,7 @@ class WkMaterialEntry < TimeEntry
   unloadable
 
   self.table_name = "wk_material_entries"
-  
+
   validates_presence_of :project_id, :user_id, :issue_id, :quantity, :activity_id, :spent_on
   validates :spent_on, :date => true
 
@@ -30,7 +30,7 @@ class WkMaterialEntry < TimeEntry
   belongs_to :inventory_item, :class_name => 'WkInventoryItem'
   has_one :spent_for, ->{where(spent_type: "WkMaterialEntry")} , class_name: "WkSpentFor", foreign_key: "spent_id", :dependent => :destroy
   accepts_nested_attributes_for :spent_for
-  has_many :serial_number, class_name: "WkMaterialEntrySn", foreign_key: "material_entry_id", :dependent => :destroy
+  has_many :serial_number, ->{where(consumer_type: "WkMaterialEntry")} , class_name: "WkConsumedItems", foreign_key: "consumer_id", dependent: :destroy
 
   scope :visible, lambda {|*args|
     joins(:project).
@@ -46,7 +46,7 @@ class WkMaterialEntry < TimeEntry
 
   def self.get_material_entries(inventory_item_id)
     WkMaterialEntry.where(inventory_item_id: inventory_item_id)
-  end  
+  end
 
   def validate_time_entry
     errors.add :project_id, :invalid if project.nil?
@@ -73,8 +73,13 @@ class WkMaterialEntry < TimeEntry
   scope :getMaterialInvoice, ->(id){
     joins(:spent_for)
     .joins("INNER JOIN wk_invoice_items ON wk_invoice_items.id = wk_spent_fors.invoice_item_id")
-    .joins("INNER JOIN wk_inventory_items ON wk_inventory_items.id = wk_material_entries.inventory_item_id") 
+    .joins("INNER JOIN wk_inventory_items ON wk_inventory_items.id = wk_material_entries.inventory_item_id")
     .where("wk_invoice_items.invoice_id" => id, "wk_invoice_items.item_type" => 'm')
     .select("wk_material_entries.*, wk_inventory_items.location_id, wk_inventory_items.cost_price, wk_inventory_items.over_head_price, wk_inventory_items.serial_number as serial_no, wk_inventory_items.running_sn, wk_inventory_items.notes")
+  }
+
+  scope :getMaterialConsumption, ->(issue_id){
+    joins("INNER JOIN wk_inventory_items ON wk_inventory_items.id = wk_material_entries.inventory_item_id")
+    .where("issue_id =  ? AND wk_inventory_items.product_type = 'I'", issue_id)
   }
 end

@@ -295,7 +295,7 @@ class WksurveyController < WkbaseController
             questionID = sel_ids[3]
             questionTypeName = "question_type_" + questionID
             questionType = params[questionTypeName]
-            survey_choice_id = (["RB","CB"].include? questionType) ? choice_nameVal.last : nil
+            survey_choice_id = (["RB","CB"].include? questionType) && choice_nameVal.last.to_i > 0 ? choice_nameVal.last : nil
             choice_text = (["TB","MTB"].include? questionType) ? choice_nameVal.last : nil
             surveyAnswers << {survey_question_id: questionID, survey_choice_id: survey_choice_id, choice_text: choice_text} if to_boolean(params["isReviewerOnly_"+ questionID]) || params[:isReview] == "false"
           end
@@ -377,14 +377,8 @@ class WksurveyController < WkbaseController
   end
 
   def survey_result
-    @survey_result_Entries = WkSurvey.find_by_sql("
-      SELECT count(*) AS count, S.id, S.name, SQ.id AS question_id, SQ.name AS question_name
-      FROM wk_surveys AS S
-      INNER JOIN wk_survey_questions AS SQ ON SQ.survey_id = S.id
-      INNER JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id
-      WHERE (S.id = #{params[:survey_id]} AND SQ.question_type NOT IN ('TB', 'MTB') AND SQ.not_in_report = #{booleanFormat(false)})
-      GROUP BY S.id, S.name, SQ.id, SQ.name
-      ORDER BY S.id, SQ.id")
+    @survey_result_Entries = WkSurveyQuestion.where("wk_survey_questions.survey_id = #{params[:survey_id]} AND wk_survey_questions.question_type NOT IN ('TB', 'MTB') AND wk_survey_questions.not_in_report = #{booleanFormat(false)}").select("wk_survey_questions.survey_id, wk_survey_questions.id, wk_survey_questions.name AS question_name")
+    .order("wk_survey_questions.survey_id, wk_survey_questions.id")
 
     @survey_txt_questions = WkSurvey.surveyTextQuestion(params[:survey_id])
     txt_answers= WkSurvey.getTextAnswer(params[:survey_id], params[:surveyForType])
@@ -462,7 +456,7 @@ class WksurveyController < WkbaseController
     errMsg = ""
     survey_id = params[:survey_id]
     @survey = WkSurvey.find(survey_id)
-    url = url_for(:controller => "wksurvey", :action => "survey", :survey_id => survey_id, :tab => "wksurvey")
+    url = url_for(:controller => "wksurvey", :action => "survey", :survey_id => survey_id, :tab => "wksurvey", id: survey_id)
     defaultNotes = l(:label_survey_email_notes)
     email_notes = params[:email_notes] + "\n\n" + defaultNotes + "\n" + url  + "\n\n" + l(:label_redmine_administrator)
 

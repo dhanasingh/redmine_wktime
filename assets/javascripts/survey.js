@@ -1,5 +1,4 @@
-$(function()
-{
+$(function(){
 	$('input[type=text]').blur();
 	$( "#accordion" ).accordion({
 		icons: { "header": "ui-icon-circle-triangle-e", "activeHeader": "ui-icon-circle-triangle-s" },
@@ -123,6 +122,21 @@ $(function()
 		}]
 
 	});
+
+	//To render without choice question, append the choice next to question label
+	$('[id^=tr_question_]').each(function(){
+		const id = (this.id.split('_')).pop();
+		if($('.tr_choice_'+id).length == 1 && $('.td_choice_name_'+id).text().length == 0)
+			$(this).append($('.tr_choice_'+id).contents());
+	});
+
+	var radio = false;
+	//Uncheck If single Radio button/Check box element present
+		$("input:radio").mouseup(function(){
+			radio = $(this).is(':checked');
+		}).click(function(){
+			if(radio) $(this).prop("checked", false);
+		});
 });
 
 function addrows(qINDEX, qID)

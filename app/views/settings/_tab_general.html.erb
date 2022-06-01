@@ -37,7 +37,7 @@
 			</div>
 		</div>
 	</fieldset>
-	<fieldset style="display: inline-block; vertical-align: top; min-width: 100px; height:320px; width:600px;">
+	<fieldset style="display: inline-block; vertical-align: top; min-width: 600px;">
 		<legend><%= l(:label_general) %></legend>
 		<p style="padding-left:220px;"><label><%= l(:label_financial_year_start) %></label>
 			<%= select_tag 'settings[wktime_financial_year_start]', options_for_select((l('date.month_names').collect.with_index.to_a), :selected =>  @settings['wktime_financial_year_start']) %>
@@ -62,5 +62,8 @@
 		<p style="padding-left:220px;"> <%= l(:label_api_key_info) %>&nbsp;<%= link_to "Mapbox", 'https://account.mapbox.com' %></p>
 		<p style="padding-left:220px;">
 			<%= check_box_tag('settings[invoice_auto_round_gl]', 1, @settings['invoice_auto_round_gl'].to_i == 1) %> <label><%= l(:label_auto_round_gl) %></label>
+		</p>
+		<p style="padding-left:220px;">
+			<%= check_box_tag('settings[wktime_hide_amount_in_words]', 1, @settings['wktime_hide_amount_in_words'].to_i == 1) %> <label><%= l(:label_hide_amount_in_words) %></label>
 		</p>
 	</fieldset>

@@ -18,6 +18,7 @@
 		  <% else %>
 				<tr>
 					<% unless controller.is_referral %><th class="lbl-txt-align"><%= l(:label_activity_type) %></th><% end %>
+					<% if controller.is_referral %><th class="lbl-txt-align"><%= l(:field_type) %></th><% end %>
 					<th class="lbl-txt-align"><%= l(:field_subject) %></th>
 					<th class="lbl-txt-align"><%= l(:field_status) %></th>
 					<th class="lbl-txt-align"><%= l(controller.is_referral ? :label_rating : :label_relates_to) %></th>
@@ -36,6 +37,7 @@
 						<% if !show_on_map && !controller.is_referral %>
 							<td class="lbl-txt-align"><%=h acttypeHash[entry.activity_type] %></td>
 						<% end %>
+						<% if !show_on_map && controller.is_referral %><td class="lbl-txt-align"><%= entry&.interview_type&.name %></td><% end %>
 						<td class="lbl-txt-align"><%=h entry.name %></td>
 						<td class="lbl-txt-align">
 							<%= controller.is_referral ? rf_status[entry.status] : (["M", "C"].include?(entry.activity_type) ? meetCallStatusHash[entry.status] : taskStatusHash[entry.status]) %>
@@ -53,11 +55,11 @@
 						<% end %>
 						<td class="lbl-txt-align">
 							<%= link_to image_tag("edit.png"),
-								{controller: "wkcrmactivity", action: "edit", activity_id: entry.id, tab: "wkcrmactivity", controller_from: controller_name, action_from: action_name },
+								{controller: "wkcrmactivity", action: "edit", activity_id: entry.id, tab: "wkcrmactivity", controller_from: controller_name, action_from: action_name, id: entry.id},
 								title: l(:button_edit) if !controller.is_referral || controller.deletePermission %>
 							<% if controller.deletePermission %>
 								<%= link_to image_tag("delete.png"),
-									{controller: "wkcrmactivity", action: "destroy", activity_id: entry.id, tab: "wkcrmactivity", controller_from: controller_name, action_from: action_name},
+									{controller: "wkcrmactivity", action: "destroy", activity_id: entry.id, tab: "wkcrmactivity", controller_from: controller_name, action_from: action_name, id: entry.id},
 									data: {confirm: l(:text_are_you_sure)}, method: :delete, title: l(:button_delete) %>
 							<% end %>
 						</td>

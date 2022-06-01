@@ -7,7 +7,7 @@
 		hasNext = accrual_on < lastAccrualOn
 	%>
 	<%if !@leave_details[0].blank?%>
-	<h2><%= l(:label_wk_leave) + " " + l(:field_summary) %></h2>
+	<h2><%= l(:label_leave_summary) %></h2>
 	<table>
 		<tr>
 			<th align="left"><%=l(:field_user)%></th>
@@ -17,14 +17,14 @@
 			<th align="left"><%=l(:label_wk_attn_for)%></th>
 			<td><%=h accrualOnStr %></td>
 		</tr>
-		<tr>	
+		<tr>
 			<td colspan="2">
 				 <%= link_to("\xc2\xab " + l(:label_previous ), {:controller => controller.controller_name, :action => 'edit', :user_id => params[:user_id], :accrual_on => ((accrual_on + 1) << 1) -1, :tab => controller.controller_name},
 						  :title => l(:label_wk_prev_week_tip)) %>
 			<%if hasNext%>
 			  |
 			  <%= link_to(l(:label_next) + " \xc2\xbb", {:controller => controller.controller_name, :action => 'edit', :user_id => params[:user_id], :accrual_on => ((accrual_on + 1) >> 1) -1, :tab => controller.controller_name},
-						  :title => l(:label_next_week)) %> 
+						  :title => l(:label_next_week)) %>
 			<%end%>
 			</td>
 		</tr>
@@ -45,16 +45,16 @@
 	<%
 		disable = true
 		wktime_helper = Object.new.extend(WktimeHelper)
-		disable = false if wktime_helper.validateERPPermission('A_ATTEND') && ( params[:user_id].to_i != User.current.id || (!Setting.plugin_redmine_wktime['wktime_own_approval'].blank? && 
+		disable = false if wktime_helper.validateERPPermission('A_ATTEND') && ( params[:user_id].to_i != User.current.id || (!Setting.plugin_redmine_wktime['wktime_own_approval'].blank? &&
 							Setting.plugin_redmine_wktime['wktime_own_approval'].to_i == 1 ))
 	%>
-	<% 
+	<%
 		ids = ''
 		newIssueIds =''
 		userId = ''
 	%>
 	<% @leave_details.each do |entry| -%>
-		<% 				
+		<%
 			if entry.id.blank?
 				newIssueIds = newIssueIds +',' if newIssueIds!=''
 				newIssueIds = newIssueIds + entry.issue_id.to_s
@@ -65,7 +65,7 @@
 			userId = entry.user_id
 			remaining = (entry.balance.blank? ? 0 : entry.balance) + (entry.accrual.blank? ? 0 : entry.accrual) - (entry.used.blank? ? 0 : (entry.used*@accrualMultiplier[entry.issue_id]))
 		%>
-		
+
 	<tr class="time-entry <%= cycle("odd", "even") %>">
 	<td width="220px"><b><%=h entry.issue.subject%></b></th>
 		<td><%=h text_field_tag('balance_'+entry.issue_id.to_s,entry.balance.blank? ? 0 : entry.balance,:size => 10, :disabled => disable, :required => true) %>
@@ -86,10 +86,10 @@
 		<th><b><%= l(:label_no_leaves_configured) %></b></th>
 	<%end%>
 	<%=h hidden_field_tag('user_id', userId) %>
-	
+
 	<%=h hidden_field_tag('accrual_on', accrual_on) %>
-	
+
 	<%=h hidden_field_tag('new_issue_ids', newIssueIds) %>
-	
+
 	<%=h hidden_field_tag('ids', ids) %>
 <% end %>

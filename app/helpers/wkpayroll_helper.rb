@@ -296,7 +296,7 @@ module WkpayrollHelper
 		sqlStr = "SELECT sc.id, sc.id as sc_id, sc.name as sc_name, sc.component_type as sc_component_type,
 				sc.frequency as sc_frequency, sc.start_date as sc_start_date, sc.salary_type as sc_salary_type, wu.termination_date,
 				usc.factor as usc_factor, usc.dependent_id as usc_dependent_id, usc.salary_component_id as salary_component_id,
-				usc.id as user_salary_component_id, u.id as user_id, u.firstname, u.lastname, usc.factor, usc.dependent_id
+				usc.id as user_salary_component_id, u.id as user_id, u.firstname, u.lastname, usc.factor, usc.dependent_id, usc.salary_type as usc_salary_type
 			FROM users u
 			left join wk_salary_components sc on (1 = 1)
 			left join wk_user_salary_components usc on (sc.id = usc.salary_component_id and  usc.user_id = u.id)
@@ -321,7 +321,7 @@ module WkpayrollHelper
 	end
 
 	def getMultiplier(entry, payPeriod)
-		if entry.sc_salary_type == 'h'
+		if (entry&.usc_salary_type || entry.sc_salary_type) == 'h'
 			multiplier = getWorkedHours(entry.user_id, payPeriod[0], payPeriod[1])
 		else
 			multiplier = 1.0
@@ -354,8 +354,7 @@ module WkpayrollHelper
 	def computeProrate(payPeriod, terminationDate,userId, component_type)
 		# Last worked day by the user on the particular payPeriod
 		lastWorkDateByUser = terminationDate.blank? ? payPeriod[1] : terminationDate
-		lopDays = ["b", "a"].include?(component_type) ? getLossOfPayDays(payPeriod,userId) : 0
-		multiplier = (getWorkingDaysCount(payPeriod[0],lastWorkDateByUser) - lopDays) / getWorkingDaysCount(payPeriod[0],payPeriod[1])
+		multiplier = ["b", "a"].include?(component_type) ? ((getWorkingDaysCount(payPeriod[0],lastWorkDateByUser) - getLossOfPayDays(payPeriod,userId)) / getWorkingDaysCount(payPeriod[0],payPeriod[1])) : 1
 		multiplier
 	end
 

@@ -162,6 +162,12 @@ class WkexpenseController < WktimeController
   def issueLogValidation
   end
 
+  def get_approved_leaves
+  end
+
+  def get_holiday
+  end
+
 private
   def getSpecificField
 	"amount"

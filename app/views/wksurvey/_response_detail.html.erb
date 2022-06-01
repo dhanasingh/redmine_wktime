@@ -21,28 +21,28 @@
       <%= hidden_field_tag("question_type_"+ (entry.id).to_s, entry.question_type) %>
       <%= hidden_field_tag("isReviewerOnly_"+ (entry.id).to_s, isReviewerOnly) %>
       <fieldset class="box tabular"><table>
-        <tr>
+        <tr id="tr_question_<%= entry.id %>">
           <th align="left" style="padding-left:10px;"><%= entry.name %><%= isMandatory ? content_tag(:span, "*", class: "required") : nil %></th>
         </tr>
         <% if ["RB","CB"].include? entry.question_type %>
+          <% entry.wk_survey_choices.new if entry.wk_survey_choices.blank? %>
           <% entry.wk_survey_choices.each do |choice_entry| %>
-            <% survey_ans = @response.wk_survey_answers.where("survey_choice_id = #{choice_entry.id}
-                AND survey_question_id = #{entry.id}").first if @response.present?
-              isChecked = survey_ans.present?
+            <%
+              survey_ans = entry.wk_survey_answers.where(survey_response_id: @response&.id)
+              survey_ans = survey_ans&.where("survey_choice_id = #{choice_entry.id}") if choice_entry.id.present?
+              survey_ans = survey_ans&.first
+              isChecked = @response.present? && survey_ans.present?
             %>
-            <tr>
+            <tr class="tr_choice_<%= entry.id %>">
               <td align="left" style="padding-left:30px;">
                 <% case entry.question_type %>
                 <% when 'CB' %>
-                    <%= check_box_tag(("survey_sel_choice_"+ (entry.id).to_s + "_" + (choice_entry.id).to_s  ),
-                        choice_entry.id, isChecked, disabled: disableAnswer,
-                        required: isMandatory,
-                        class: "survey_sel_choice_"+ (entry.id).to_s) %>
-                    <%= choice_entry.name %>
+                  <%= check_box_tag("survey_sel_choice_"+ (entry.id).to_s + "_" + (choice_entry.id).to_s, choice_entry.id || entry.id, isChecked, disabled: disableAnswer, required: isMandatory,
+                    class: "survey_sel_choice_"+ (entry.id).to_s) %>
+                  <span class="td_choice_name_<%= entry.id %>"><%= choice_entry.name %></span>
                 <% when 'RB' %>
-                    <%= radio_button_tag("survey_sel_choice_"+ (entry.id).to_s + "_", choice_entry.id, isChecked,
-                        disabled: disableAnswer, required: isMandatory) %>
-                    <%= choice_entry.name %>
+                  <%= radio_button_tag("survey_sel_choice_"+ (entry.id).to_s + "_", choice_entry.id || entry.id, isChecked, disabled: disableAnswer, required: isMandatory) %>
+                  <span class="td_choice_name_<%= entry.id %>"><%= choice_entry.name %></span>
                 <% end %>
               </td>
             </tr>

@@ -25,13 +25,15 @@ class WkLeaveReq < ActiveRecord::Base
   validates_presence_of :leave_type, :start_date, :end_date
 
   scope :get_all, ->{
-    joins(:wkstatus, :user, :leave_type).select("wk_leave_reqs.*, wk_statuses.status")
-    .where("status_date = (
-      SELECT MAX(S.status_date)
-      FROM wk_statuses AS S
-      WHERE S.status_for_id = wk_leave_reqs.id AND S.status_for_type = 'WkLeaveReq'
-      GROUP BY S.status_for_id)"
-    )
+    joins(:user)
+    .joins("INNER JOIN wk_statuses ON wk_statuses.status_for_id = wk_leave_reqs.id AND wk_statuses.status_for_type = 'WkLeaveReq'
+      INNER JOIN
+      (SELECT MAX(S.status_date) AS status_date, S.status_for_id
+      FROM wk_leave_reqs AS LR
+      INNER JOIN wk_statuses AS S ON S.status_for_id = LR.id AND S.status_for_type = 'WkLeaveReq'
+      GROUP BY S.status_for_id)
+      AS S ON S.status_for_id = wk_leave_reqs.id AND S.status_date = wk_statuses.status_date")
+    .select("wk_leave_reqs.*, wk_statuses.status")
   }
 
   scope :leaveReqSupervisor, -> {
@@ -59,6 +61,10 @@ class WkLeaveReq < ActiveRecord::Base
 
   scope :getEntry, ->(id){
     get_all.where(id: id).first
+  }
+
+  scope :dateFilter, ->(from, to){
+    where(" wk_leave_reqs.start_date between ? and ? ", getFromDateTime(from), getToDateTime(to) )
   }
 
   def startDate
@@ -101,10 +107,6 @@ class WkLeaveReq < ActiveRecord::Base
     end
   end
 
-  scope :dateFilter, ->(from, to){
-    where(" wk_leave_reqs.start_date between ? and ? ", getFromDateTime(from), getToDateTime(to) )
-  }
-
 	def self.date_for_user_time_zone(y, m, d)
 		if tz = User.current.time_zone
 		  tz.local y, m, d
@@ -123,5 +125,10 @@ class WkLeaveReq < ActiveRecord::Base
 
   def status
     self.wkstatus.order(status_date: :desc).first&.status
+  end
+
+  def self.getApprovedLeaves(user_id, startdate)
+    get_all.where(user_id: user_id, "wk_statuses.status" => "A",
+      start_date: startdate..(startdate.to_date + 7.days), end_date: startdate..(startdate.to_date + 7.days))
   end
 end

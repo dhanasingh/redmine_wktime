@@ -85,7 +85,7 @@ $(document).ready(function() {
 		  });
 	}
 
-	$('#product_item #available_quantity').change(function(){
+	$('#productItem #available_quantity').change(function(){
 		$("#item_total_quantity").html(this.value);
 		$('#total_quantity').val(this.value);
 	});
@@ -146,7 +146,108 @@ $(document).ready(function() {
 	$('#automatic_product_item').change(function(){
 		showHidePartNumber();
 	});
+
+	//accordion section
+	$( "#accordion" ).accordion({
+		icons: { "header": "ui-icon-circle-triangle-e", "activeHeader": "ui-icon-circle-triangle-s" },
+		collapsible: true,
+		heightStyle: "content"
+	});
+
+	// for searchable dopdown
+	if($("#referred_by").length > 0) $("#referred_by").select2();
+
+	$("#assembleItem" ).dialog({
+		modal: true,
+		autoOpen: false,
+		title: 'Assemble New Item',
+		width: "50%",
+		height: 370,
+		buttons: {
+			"Ok": function() {
+				let rowlength = $('#assembleItemTable >tbody >tr').length;
+				let item_id = $('#product_item').val();
+				let quantity = $("#quantity").val();
+				let item_avail_quantity = $("#item_avail_quantity").val();
+				let tr = '', sn = [], index_no = (rowlength+1);
+				if($('#serial_no').val()){
+					($('#serial_no').val().split(',')).map(function(number){ sn.push({id:'', serial_number: number.trim()})});
+				}
+				if(!item_id){
+					alert("Item cannot be blank");
+				}
+				else if(parseFloat(quantity) > parseFloat(item_avail_quantity)){
+					alert('Quantity is higher than avilable quantity');
+				}
+				else{
+					let item = {};
+					item = {index_no: index_no, inventory_item_id: item_id, quantity: quantity, location_id: $('#location_id').val(), serial_no: sn}
+					tr += '<tr>';
+					tr += '<td class="lbl-txt-align">'+index_no+'</td>';
+					tr += '<input type="hidden" name="assemble[item_'+index_no+']" id="assemble_item_'+index_no+'" value='+(JSON.stringify(item))+'></td>';
+					tr += '<td class="lbl-txt-align">'+$('#product :selected').text()+'</td>';
+					tr += '<td class="lbl-txt-align">'+$('#product_item :selected').text()+'</td>';
+					tr += '<td class="lbl-txt-align">'+quantity+'</td>';
+					tr += '<td class="lbl-txt-align">'+$('#location_id :selected').text();+'</td>';
+					tr += '<td><a title="Delete" href="javascript:deleteItemRow('+ index_no +');"><img src="/images/delete.png"> </a> </td>';
+					tr += '</tr>';
+					$('#assembleItemTable > tbody:last-child').append(tr);
+					$(this).dialog("close");
+				}
+			},
+			"Cancel": function() {
+				$(this).dialog("close");
+			}
+		}
+	});
+
+	$('#material_sn').change(function(){
+		let sn =[];
+		let product_serial_numbers = $('#product_serial_numbers').val();
+		if($(this).val() != '' && (JSON.parse(product_serial_numbers).length) > 0){
+			let material_sn = $(this).val().split(',');
+			// show hide serialnumber note
+			showHideSnNote($(this).val());
+
+			let hidden_sn = $('#hidden_sns').val();
+			let hidden_sn_arr = JSON.parse(hidden_sn);
+			let sns =[];
+			hidden_sn_arr.map(function (ele, i) { if(!ele['is_delete']) sns.push(ele['serial_number']) });
+			let removed_sns = sns.filter(x => !material_sn.includes(x));
+			if(removed_sns.length > 0){
+				hidden_sn_arr.map(function (ele, i) { if(removed_sns.includes(ele['serial_number'])) ele['is_delete'] = true; });
+			}
+			let added_sns = material_sn.filter(x => !sns.includes(x));
+			if(added_sns.length > 0){
+				added_sns.map(function (number) { hidden_sn_arr.push({id: '', serial_number: number})});
+			}
+			$('#hidden_sns').val(JSON.stringify(hidden_sn_arr));
+		}
+	});
+
+	$('.itemSN').change(function(){
+		showHideSnNote($(this).val());
+	});
+	$('#inv_serial_no').change(function(){
+		let fullSerNo = $("#item_serial_no").val();
+		full_serno_ele = fullSerNo.split(',')
+		let serialNumbers = getSerialNumbersRange(full_serno_ele[0], full_serno_ele[1], full_serno_ele[2]);
+		showHideSnNote($(this).val(), JSON.stringify(serialNumbers));
+	});
 });
+
+function showHideSnNote(consumed_sn, serialNumbers=[]){
+	let sn =[];
+	let product_serial_numbers = (serialNumbers.length) > 0 ? serialNumbers : $('#product_serial_numbers').val();
+	if(consumed_sn != '' && (JSON.parse(product_serial_numbers).length) > 0){
+		let serial_number = consumed_sn.split(',');
+		serial_number.map(function(number){
+			if(!(JSON.parse(product_serial_numbers)).includes(number.trim())) sn.push(number) ;
+		});
+		sn.length > 0 ? $("#warn_serial_number").show() : $("#warn_serial_number").hide();
+	}
+	else $("#warn_serial_number").hide();
+}
 
 function openReportPopup(){
 	var popupUrl, periodType;
@@ -272,6 +373,7 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, bla
 			}
 			if(index != -1){
 				val = items[i].substring(start, index);
+				val = val.replace(/_/g, ",");
 				text = items[i].substring(index+1);
 				dropdown.options[needBlankOption ? i+1 : i] = new Option(
 					text, val, false, val == userid);
@@ -1087,7 +1189,7 @@ function getSerialNumbersRange(serial_number, running_sn, total_quantity){
 
 function exportReport(format){
 	$('#query_form').append('<input type="hidden" name="format" value='+format+' /> ');
-	$('#query_form').attr('action', 'export').submit();
+	$('#query_form').submit();
 }
 
 function locationChanged(locationId, uid){
@@ -1235,4 +1337,48 @@ function receivedQuantitySum(data){
 	});
 	quantity_sum += data.received_qty
 	return quantity_sum
+}
+
+function populateAsset()
+{
+	let url = new URL(window.location.href);
+	url.searchParams.set('inventory_item_id', $('#existing_id').val());
+	location.href = url;
+}
+
+function getAssembleItem(){
+	$("#quantity").val('');
+	$("#serial_no").val('');
+	$("#product_item").val('');
+	$("#avail_quantity").html('');
+	$("#assembleItem").dialog("open");
+}
+
+function deleteItemRow(index){
+	let isDelete = confirm("Are you sure want to delete");
+		if (isDelete) {
+			$("#assembleItemTable tr:eq("+index+")").remove();
+		}
+}
+
+function itemChanged(id)
+{
+	$.ajax({
+	url: productItemUrl,
+	type: 'get',
+	data: {id: id },
+	success: function(data){
+		let item = data.item;
+		let product_serial_numbers = [];
+		if(item.running_sn) product_serial_numbers = getSerialNumbersRange(item.serial_number, item.running_sn, item.total_quantity);
+		$('#product_serial_numbers').val(JSON.stringify(product_serial_numbers));
+		$('#item_avail_quantity').val(item.available_quantity);
+		$('#avail_quantity').html(item.available_quantity);
+		$('#serial_no').val('');
+		$('#quantity').val('');
+		$('#warn_serial_number').hide();
+	},
+	beforeSend: function(){ $(this).addClass('ajax-loading'); },
+	complete: function(){ $(this).removeClass('ajax-loading'); }
+	});
 }
