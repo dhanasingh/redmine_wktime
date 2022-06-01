@@ -4,123 +4,123 @@ Please click here to register if interested,
 https://us02web.zoom.us/meeting/register/tZUocemrqDojGNDcxXaOjx767-y5ZCGv07DY
 
 *Topics* :
-● Receive Goods (Shipments)
-● Product and items
-● Material Log
-● Invoice
-● Asset and depreciation
-● Disposed Asset
-● Asset and stock Report
+* Receive Goods (Shipments)
+* Product and items
+* Material Log
+* Invoice
+* Asset and depreciation
+* Disposed Asset
+* Asset and stock Report
 
--------------------------------------------------------------------------------
+-----
 
 = ERPmine
 
 This Plugin has the following modules:
 
-1) Time & Expense
+* *Time* *and* *Expense*
     Submit Time & Expense Sheets
     Approve Time & Expense Sheets
     Print Time & Expense Sheets
-2) Attendance
+
+* *Attendance*
     Clock In / Clock Out
     Check Leave Status
     Leave Request
     Integrate with Attendance / Time clock devices
     Schedule Shifts
-    Report - User Utilization
-3) PayRoll
+    User Unbilledtilization Report
+
+* *PayRoll*
     Setup Payroll data
-    Generate Salary
-    Report - Salary Register
-    Report - Salary Slip
-    Report - Tax
-4) Billing
+    Generate/Preview Salary
+    Payroll Report
+    Pay Slip Report
+    Payroll Bank Report
+
+* *Billing*
     Setup Billable Projects
-    Generate Invoices
+    Generate/Unbilled Invoices
     Payments
     Print Invoices
-    Report - Project profitability
-5) Accounting
+    Project profitability Report
+
+* *Accounting*
     Create Ledgers
     Post Financial Transaction
-    Report - Balance Sheet
-    Report - Profit & Loss A/c
-    Report - Trail Balance
-6) CRM
-    Create Lead,Opportunity, Activity and Contacts
-    Report - Lead Conversion
-    Report - Sales Activity
-7) Purchasing
+    Balance Sheet Report
+    Profit & Loss A/c Report
+    Trail Balance Report
+
+* *CRM*
+    Create Leads, Accounts, Contacts, Opportunity and Activity
+    Lead Conversion Report
+    Sales Activity Report
+
+* *Purchasing*
     Create RFQ, Quote, Purchase Order,
     Create Supplier Invoice and Supplier Payments
-    Report - Purchasing cycle
-8) Inventory
-    Create Product, Items, Shipments and Asset
+    Purchasing cycle Report
+
+* *Inventory*
+    Create Product, Items, Receipts, Assets and Depreciation
     Log Material and Asset Entries
-    Report - Stock and Asset
+    Stock and Asset Report
 
 For more information on features, please refer to the user guide
 
-	http://erpmine.org/attachments/download/115/ERPmine-User-Guide_v4.5.pdf
+  http://erpmine.org/attachments/download/115/ERPmine-User-Guide_v4.5.pdf
 
-=== INSTALLATION:
+=== Installation
 
-Unpack the zip file to the plugins folder of Redmine.
-Starting from version 1.2, it requires db migration.
+* Unpack the zip file to the plugins folder of Redmine.
 
-So run the following command for db migration
+* Run the following command to install the rufus-scheduler gem
+    bundle install
 
-  rake redmine:plugins:migrate NAME=redmine_wktime RAILS_ENV=production
+* Run the following command for db migration
+    rake redmine:plugins:migrate NAME=redmine_wktime RAILS_ENV=production
 
-When uninstalling the plugin, be sure to remove the db changes by running
+* Plaese make sure public/plugin_asset/redmine_wktime has proper access.
 
-  rake redmine:plugins:migrate NAME=redmine_wktime VERSION=0 RAILS_ENV=production
+* For rufus-scheduler to work , the rails application should be up all the time.
+  If an apache passenger module is used then make sure the following settings are made
+    1. PassengerMinInstances 1
+    2. RailsAppSpawnerIdleTime 0
+    3. PassengerPreStart https://rails-app-url/
 
-This plugin uses js and css assets and it will be copied to public/plugin_asset/redmine_wktime
-folder upon server startup, so please make sure public/plugin_asset/redmine_wktime has proper access.
-The pdf export requires rmagick gem.
+=== Uninstallation
 
-Starting from version 1.5, it requires the gem rufus-scheduler.
+* When uninstalling the plugin, be sure to remove the db changes by running
 
-so run the following command to install the gem
-  bundle install
-
-For rufus-scheduler to work , the rails application should be up all the time.
-
-If an apache passenger module is used then make sure the following settings are made
-  a) PassengerMinInstances 1
-  b) RailsAppSpawnerIdleTime 0
-  c) PassengerPreStart https://rails-app-url/
+    rake redmine:plugins:migrate NAME=redmine_wktime VERSION=0 RAILS_ENV=production
 
 === Release Notes for v4.6
 
-  Features:
+* *Features*
+    - Allow default choice for Check box and Radio button type survey questions.
+    - Change Item Dropdown list based on invoice type.
+    - Create a page to assemble inventory items.
+    - Does not allow admins to edit their own clock records.
+    - Allow customization of salary type at the user level.
+    - Add configuration for amount in words.
+    - Add tax number field for Account module.
+    - Display consumed Material list in issue detail page.
+    - Include a "New Row" link below the table as well.
+    - Allow old users in the Referred By list.
+    - Auto populate the Approved leaves in empty timesheets.
+    - Change Rating field into a dropdown in interview page.
+    - Add an interview type dropdown.
 
-  - Allow default choice for Check box and Radio button type survey questions.
-  - Change Item Dropdown list based on invoice type.
-  - Create a page to assemble inventory items.
-  - Does not allow admins to edit their own clock records.
-  - Allow customization of salary type at the user level.
-  - Add configuration for amount in words.
-  - Add tax number field for Account module.
-  - Display consumed Material list in issue detail page.
-  - Include a "New Row" link below the table as well.
-  - Allow old users in the Referred By list.
-  - Auto populate the Approved leaves in empty timesheets.
-  - Change Rating field into a dropdown in interview page.
-  - Add an interview type dropdown.
+* *Bug* *fixes*
+    - Auto populate the holiday description also in timesheet.
+    - Format all pages Edit/Delete URLs.
+    - Issues are not loaded When clicking issue logger.
+    - Display the current date clock records only.
+    - The interview page displays the wrong menu selection.
+    - The translation of some labels is wrong in some languages.
 
-Bug fixes:
-
-  - Auto populate the holiday description also in timesheet.
-  - Format all pages Edit/Delete URLs
-  - Issues are not loaded When clicking issue logger
-  - Display the current date clock records only
-  - The interview page displays the wrong menu selection
-  - The translation of some labels is wrong in some languages
-
-=== Customization:
+=== Customization
 
   For any Customization/Support, please contact us, our consulting team will be happy to help you
 
@@ -142,17 +142,17 @@ Bug fixes:
 
 	Please provide your rating at https://www.redmine.org/plugins/wk-time
 
-=== Resources:
+=== Resources
 
-	User guide:
+	*User* *guide*:
 
 		http://erpmine.org/attachments/download/115/ERPmine-User-Guide_v4.5.pdf
 
-	Overview presentation in open office format:
+	*Overview* *presentation* *in* *open* *office* *format*:
 
 		http://erpmine.org/attachments/download/23/erpmine-overview.odp
 
-	Training Videos:
+	*Training* *Videos*:
 
 		https://www.youtube.com/watch?v=CHAgSMmkKBE
 
@@ -160,6 +160,6 @@ Bug fixes:
 
 		https://www.youtube.com/watch?v=5IgBbhrVF4k
 
-	For more:
+	*For* *more*:
 
 		http://erpmine.org/projects/erpmine/wiki/Resources
