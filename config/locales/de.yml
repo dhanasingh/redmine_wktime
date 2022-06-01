@@ -1196,13 +1196,13 @@ de:
   label_contribution_remitted: Beitrag überwiesen
 
   #delivery
-  label_delivery: Auslieferung
-  label_delivery_date: Auslieferdatum
-  label_new_delivery: Neue Auslieferung
+  label_delivery: Lieferung
+  label_delivery_date: Lieferdatum
+  label_new_delivery: Neue Lieferung
   label_delivered: Ausgeliefert
   label_intransit: Unterwegs
   label_load: Beladung
-  label_delivery_slip: Auslieferschein
+  label_delivery_slip: Lieferschein
   button_csv: CSV
   button_pdf: PDF
 
@@ -1229,8 +1229,8 @@ de:
   label_net_inflow: Nettozufluss
   label_select_product_item: Produktartikelauswahl
   label_received_quantity: Erhaltene Menge
-  label_confirmation_number: Supplier Confirmation Number
-  label_fullfilled: Fulfilled
+  label_confirmation_number: Auftragsbestätigung
+  label_fullfilled: Erfüllt
 
   label_assemble_item: Assemble Item
   label_tax_number: Tax Number
