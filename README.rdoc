@@ -93,9 +93,32 @@ If an apache passenger module is used then make sure the following settings are 
   b) RailsAppSpawnerIdleTime 0
   c) PassengerPreStart https://rails-app-url/
 
-=== Release Notes for v4.5.2
+=== Release Notes for v4.6
 
-  - Redmine 5.0 compatibility
+  Features:
+
+  - Allow default choice for Check box and Radio button type survey questions.
+  - Change Item Dropdown list based on invoice type.
+  - Create a page to assemble inventory items.
+  - Does not allow admins to edit their own clock records.
+  - Allow customization of salary type at the user level.
+  - Add configuration for amount in words.
+  - Add tax number field for Account module.
+  - Display consumed Material list in issue detail page.
+  - Include a "New Row" link below the table as well.
+  - Allow old users in the Referred By list.
+  - Auto populate the Approved leaves in empty timesheets.
+  - Change Rating field into a dropdown in interview page.
+  - Add an interview type dropdown.
+
+Bug fixes:
+
+  - Auto populate the holiday description also in timesheet.
+  - Format all pages Edit/Delete URLs
+  - Issues are not loaded When clicking issue logger
+  - Display the current date clock records only
+  - The interview page displays the wrong menu selection
+  - The translation of some labels is wrong in some languages
 
 === Customization:
 
