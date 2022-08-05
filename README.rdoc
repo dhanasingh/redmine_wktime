@@ -1,16 +1,13 @@
-= Webinar on ERPmine – CRM,  July 26th, 2022, 5 PM India (11:30 AM GMT)
+= Webinar on ERPmine – Accounting,  Aug 30th, 2022, 5 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
-https://us02web.zoom.us/meeting/register/tZUvd-ypqzIuG9zgNFZ9uioJRoRlRXIRPf7y
+https://us02web.zoom.us/meeting/register/tZYsceGurz0oGtYpcBAtK7VK8zevVOGqpFuz
 
 *Topics* :
-- Lead
-- Account
-- Opportunity
-- Contact
-- Activities
-- Reports
-- Mobile app
+- Accounting Transactions
+- General Ledger
+- Financial Reports
+- Mobile app 
 -----
 
 = ERPmine
