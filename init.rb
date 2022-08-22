@@ -290,6 +290,7 @@ TimelogController.send(:include, TimelogControllerPatch)
 ContextMenusController.send(:include, ContextMenusControllerPatch)
 UsersController.send(:include, UsersControllerPatch)
 MyController.send(:include, MyControllerPatch)
+QueriesController.send(:include, QueriesControllerPatch)
 
 # Patches for Supervisor
 module FttePatch

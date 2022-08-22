@@ -98,4 +98,18 @@ module QueriesHelper
 		value = item&.inventory_item&.product_type == 'I' ? val+' - '+product_items : val +' - '+ assetObj.name
 	end
 	# =============================
+	
+	# Renders the list of queries for the sidebar
+	def render_sidebar_queries(klass, project)
+	# ============= ERPmine_patch Redmine 5.0  =====================
+		spent_type = session[:timelog] && session[:timelog][:spent_type]
+		kclassName =  spent_type == "M" || spent_type == "A" ? WkMaterialEntryQuery : (spent_type == 'E' ? WkExpenseEntryQuery : klass)
+		queries = sidebar_queries(kclassName, project)
+	# =============================
+
+		out = ''.html_safe
+		out << query_links(l(:label_my_queries), queries.select(&:is_private?))
+		out << query_links(l(:label_query_plural), queries.reject(&:is_private?))
+		out
+	end
 end
