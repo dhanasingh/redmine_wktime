@@ -633,13 +633,14 @@ end
 				tabs <<	{name: 'wkskill', partial: 'wktime/tab_content', :label => :label_wk_skill} if showSkill
 				tabs << {:name => 'wkreferrals', :partial => 'wktime/tab_content', :label => :label_referrals} if isChecked("wktime_enable_referrals_module")
 
-		elsif params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"
+		elsif params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact" || params[:controller] == "wksalesquote"
 			tabs = [
 				{:name => 'wklead', :partial => 'wktime/tab_content', :label => :label_lead_plural},
 				{:name => 'wkcrmaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
 				{:name => 'wkopportunity', :partial => 'wktime/tab_content', :label => :label_opportunity_plural},
 				{:name => 'wkcrmactivity', :partial => 'wktime/tab_content', :label => :label_activity_plural},
-				{:name => 'wkcrmcontact', :partial => 'wktime/tab_content', :label => :label_contact_plural}
+				{:name => 'wkcrmcontact', :partial => 'wktime/tab_content', :label => :label_contact_plural},
+				{:name => 'wksalesquote', :partial => 'wktime/tab_content', :label => :label_sales_quote}
 			   ]
 
 		elsif params[:controller] == "wkinvoice" || params[:controller] == "wkcontract" || params[:controller] == "wkpayment"

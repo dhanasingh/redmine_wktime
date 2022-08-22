@@ -2,7 +2,7 @@ var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, pay
 	blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl,
 	blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl,
 	wklocationUrl,  wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkassetUrl, wkassetdepreciationUrl, wkgrpPermissionUrl, wkSchedulingUrl,
-	userCurrentUrl, wkSurveyUrl, wkleavereqUrl, wknotificationUrl, wkskillUrl, wkreferralsUrl, wkdeliveryUrl;
+	userCurrentUrl, wkSurveyUrl, wkleavereqUrl, wknotificationUrl, wkskillUrl, wkreferralsUrl, wkdeliveryUrl, salesquoteUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -141,6 +141,7 @@ $(document).ready(function() {
 	changeProp('tab-wkskill',wkskillUrl);
 	changeProp('tab-wkreferrals',wkreferralsUrl);
 	changeProp('tab-wkdelivery',wkdeliveryUrl);
+	changeProp('tab-wksalesquote',salesquoteUrl);
 
 	showHidePartNumber();
 	$('#automatic_product_item').change(function(){

@@ -915,3 +915,5 @@ get 'wklogmaterial/loadSpentType', :to => 'wklogmaterial#loadSpentType'
 get 'wklogmaterial/spent_log_edit', :to => 'wklogmaterial#spent_log_edit'
 
 get 'wklogmaterial/modifyProductDD', :to => 'wklogmaterial#modifyProductDD'
+
+get 'wksalesquote/index', :to => 'wksalesquote#index'

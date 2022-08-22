@@ -1163,5 +1163,6 @@ ta-IN:
   label_hide_amount_in_words: வார்த்தைகளை தொகை மறைக்க
   label_new_interview: புதிய நேர்காணல்
   label_edit_interview: நேர்காணல் திருத்து
-  
+
   error_product_qty_greater_avail_qty: Product quantity cannot be greater than available quantity
+  label_sales_quote: Sales Quote
