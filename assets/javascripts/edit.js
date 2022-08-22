@@ -102,12 +102,12 @@ $(document).ready(function() {
 					var x = document.getElementsByName("custfield_img"+comment_row+"[]");
 					if( ((e_comments.val() != "" || custFldToolTip)  && (!commentInRow  || custFldToolTip )) || $("#attachment_" + comment_row + "_" + comment_col + " .attachments_fields").children().length > 0)
 					{
-						$(x[comment_col-1]).attr({src: "../plugin_assets/redmine_wktime/images/withcommant.png"});
+						$(x[comment_col-1]).attr({src: "/plugin_assets/redmine_wktime/images/withcommant.png"});
 
 					}
 					else
 					{
-						$(x[comment_col-1]).attr({src: "../plugin_assets/redmine_wktime/images/withoutcommant.png"});
+						$(x[comment_col-1]).attr({src: "/plugin_assets/redmine_wktime/images/withoutcommant.png"});
 					}
 					$(attachmentField).appendTo(attachmentDiv);
 					$( this ).dialog( "close" );
@@ -188,7 +188,7 @@ $(document).ready(function() {
 	}
 });
 
-$(window).load(function(){
+$(window).on('load', function () {
 	warnLeavingUnsavedTE(lblWarnUnsavedTE);
 });
 
@@ -323,17 +323,12 @@ function updateCustomField() {
 		{
 			cust_field = $( "#" + cust_fids[i]);
 			custom_fields = $('input[name="'+cust_fids[i]+'_'+comment_row+'[]"]');
-			if(cust_field.attr('type') == "hidden"){
-				//the checkbox also has a hidden field
-				ck_cust_field = $('input[id="'+cust_fids[i]+'"][type="checkbox"]');
-				if(ck_cust_field.is(':checked')){
-					custom_fields[comment_col-1].value = 1;
-				}else /*if(custom_fields[comment_col-1].value != "")*/{
-					//set it to 0 only if it is not empty
-					custom_fields[comment_col-1].value = 0;
-				}
-				cust_field.val(custom_fields[comment_col-1].value);
-			}else{
+			if(cust_field.attr('type') == "checkbox"){
+				ck_cust_field = $('input[id="'+cust_fids[i]+'"][type="checkbox"]')
+				ck_cust_field.is(':checked') ? cust_field.val(1) : cust_field.val(null);
+				custom_fields[comment_col-1].value = cust_field.val();
+			}
+			else{
 				custom_fields[comment_col-1].value = cust_field.val();
 			}
 		}
