@@ -115,7 +115,7 @@ $(document).ready(function() {
 		});
 
 			//Apply tax rows
-		if(["SI", "I"].includes($('#invoice_type').val())){
+		if(["SI", "I", "SQ"].includes($('#invoice_type').val())){
 			let searchParams = new URLSearchParams(window.location.search);
 				if(!(searchParams.has("invoice_id") && searchParams.get("invoice_id") > 0)){
 				let productIDs = [];
@@ -145,7 +145,7 @@ $(document).ready(function() {
 				if ((["m", "a"].includes(itemType) && ["I"].includes($('#invoice_type').val())) || ["SI"].includes($('#invoice_type').val())){
 					applyTax(this, "invoice_item");
 				}
-				if(["I"].includes($('#invoice_type').val())){
+				if(["I", "SQ"].includes($('#invoice_type').val())){
 					fillInvFields(row);
 				}
 			});
@@ -1014,19 +1014,21 @@ function invItemChange(ele){
 function fillInvFields(row){
 	var invoice_item_id = $("#invoice_item_id_"+row).val();
 	var itemType = $("#invoiceTable #item_type_"+row).val();
-	var inventory_id = invoice_item_id && invoice_item_id.split(',').pop()
+	var inventory_id = invoice_item_id && invoice_item_id.split(',').pop();
+	var project_id = $("#invoiceTable #project_id_"+row).val();
+	var invoice_type = $("#invoice_type").val();
 	var data = {};
 	url = "/wkorderentity/getInvDetals";
-	data = {item_id: inventory_id, itemType: itemType };
+	data = {item_id: inventory_id, itemType: itemType, invoice_type: invoice_type, project_id: project_id};
 	$.ajax({
 		url: url,
 		data: data,
 		success: function(resData){
-			if (resData.length > 0){
-				var rate = resData[0] ? resData[0] : ''
-				var qty = resData[1] ? resData[1] : ''
-				var sn = resData[2] ? resData[2] : ''
-				var running_sn = resData[3] ? resData[3] : ''
+			if (Object.keys(resData).length > 0){
+				var rate = resData['rate'] || ''
+				var qty = resData['quantity'] || ''
+				var sn = resData['serial_number'] || ''
+				var running_sn = resData['running_sn'] || ''
 				if(rate){
 					$("#product_serial_no_"+row).val([sn,running_sn,qty]);
 					$("#rate_"+row).val(rate);
@@ -1034,7 +1036,7 @@ function fillInvFields(row){
 					addAmount('rate_'+row)
 				}
 			}
-			if (resData.length == 0){
+			if (Object.keys(resData).length == 0){
 				$("#rate_"+row).val('');
 				$("#quantity_"+row).val('');
 			}

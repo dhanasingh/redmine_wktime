@@ -50,6 +50,7 @@ class WkorderentityController < WkbillingController
 		account_id = session[controller_name].try(:[], :account_id)
 		projectId	= session[controller_name].try(:[], :project_id)
 		rfqId	= session[controller_name].try(:[], :rfq_id)
+		lead_id = session[controller_name].try(:[], :lead_id)
 		parentType = ""
 		parentId = ""
 		if filter_type == '2' && !contact_id.blank?
@@ -64,6 +65,13 @@ class WkorderentityController < WkbillingController
 			parentId = 	account_id
 		elsif filter_type == '3' && account_id.blank?
 			parentType =  'WkAccount'
+		end
+
+		if filter_type == '4' && !lead_id.blank?
+			parentType =  'WkLead'
+			parentId = 	lead_id
+		elsif filter_type == '4' && lead_id.blank?
+			parentType =  'WkLead'
 		end
 
 		accountProjects = getProjArrays(parentId, parentType)
@@ -204,20 +212,28 @@ class WkorderentityController < WkbillingController
 		parentType = ""
 		parentId = ""
 		filter_type = params[:polymorphic_filter]
-		contact_id = params[:polymorphic_filter]
-		account_id = params[:polymorphic_filter]
+		contact_id = params[:contact_id]
+		account_id = params[:account_id]
+		lead_id = params[:lead_id]
 		if filter_type == '2' && !contact_id.blank?
 			parentType = 'WkCrmContact'
-			parentId = 	params[:contact_id]
+			parentId = 	contact_id
 		elsif filter_type == '2' && contact_id.blank?
 			parentType = 'WkCrmContact'
 		end
 
 		if filter_type == '3' && !account_id.blank?
 			parentType =  'WkAccount'
-			parentId = 	params[:account_id]
+			parentId = 	account_id
 		elsif filter_type == '3' && account_id.blank?
 			parentType =  'WkAccount'
+		end
+
+		if filter_type == '4' && !lead_id.blank?
+			parentType =  'WkLead'
+			parentId = 	lead_id
+		elsif filter_type == '4' && lead_id.blank?
+			parentType =  'WkLead'
 		end
 
 		if parentId.blank? && parentType.blank?
@@ -527,7 +543,7 @@ class WkorderentityController < WkbillingController
 	end
 
 		def set_filter_session
-			filters = [:period_type, :period, :from, :to, :contact_id, :account_id, :project_id, :polymorphic_filter, :rfq_id]
+			filters = [:period_type, :period, :from, :to, :contact_id, :account_id, :project_id, :polymorphic_filter, :rfq_id, :lead_id]
 			super(filters, {:from => @from, :to => @to})
     end
 
@@ -932,13 +948,39 @@ class WkorderentityController < WkbillingController
 	end
 
 	def getInvDetals()
+		invoiceDetails = {}
 		case params[:itemType]
 		when 'a', 'm'
-			rates = WkInventoryItem.where(:id => params[:item_id].to_i).pluck(:selling_price, :available_quantity,:serial_number, :running_sn).first if params[:item_id].present?
+			if params[:item_id].present?
+				inventory_item = WkInventoryItem.where(:id => params[:item_id].to_i).first
+				invoiceDetails[:rate] = inventory_item&.selling_price
+				invoiceDetails[:quantity] = inventory_item&.available_quantity
+				invoiceDetails[:serial_number] = inventory_item&.serial_number
+				invoiceDetails[:running_sn] = inventory_item&.running_sn
+			end
 		else
-			rates = WkIssue.where(:issue_id => params[:item_id].to_i).pluck(:rate) if params[:item_id].present?
+			invoiceDetails[:rate] = getBillingRate(params[:project_id].to_i, params[:item_id].to_i) if params[:item_id].present? && params[:project_id].present?
+			if ["SQ"].include?(params[:invoice_type]) && params[:item_id].present?
+				issue = Issue.where(id: params[:item_id].to_i)
+				invoiceDetails[:quantity] = issue&.first&.estimated_hours || nil
+			end
 		end
-		render json: rates || []
+		render json: invoiceDetails
+	end
+
+	def getBillingRate(project_id, issue_id)
+		billing_rate = nil
+		wk_project = WkProject.where(project_id: project_id )
+		billing_rate = wk_project.first.billing_rate&.round(4) if wk_project.present?
+		if billing_rate.blank? || billing_rate <= 0
+			wk_issue = WkIssue.where(issue_id: issue_id )
+			billing_rate = wk_issue.first.rate&.round(4) if wk_issue.present?
+		end
+		if billing_rate.blank? || billing_rate <= 0
+			wk_user = WkUser.where(user_id: User.current.id )
+			billing_rate = wk_user.first.billing_rate&.round(4) if wk_user.present?
+		end
+		billing_rate
 	end
 
 	def checkQty()

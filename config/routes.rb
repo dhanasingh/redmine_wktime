@@ -362,6 +362,25 @@ get 'wkcrm/getActRelatedIds', :to => 'wkcrm#getActRelatedIds'
 
 get 'wkcrm/getCrmUsers', to: 'wkcrm#getCrmUsers'
 
+
+# For CRM Sales Quote
+
+get 'wksalesquote', :to => 'wksalesquote#index'
+
+get 'wksalesquote/new', :to => 'wksalesquote#new'
+
+get 'wksalesquote/edit', :to => 'wksalesquote#edit'
+
+get 'wksalesquote/:id/edit', :to => 'wksalesquote#edit'
+
+post 'wksalesquote/update', :to => 'wksalesquote#update'
+
+delete 'wksalesquote/:id', :to => 'wksalesquote#destroy'
+
+get 'wksalesquote/invreport', :to => 'wksalesquote#invreport'
+
+get 'wksalesquote/export', :to => 'wksalesquote#export'
+
 # For Billing Invoice
 
 get 'wkinvoice', :to => 'wkinvoice#index'
@@ -915,5 +934,3 @@ get 'wklogmaterial/loadSpentType', :to => 'wklogmaterial#loadSpentType'
 get 'wklogmaterial/spent_log_edit', :to => 'wklogmaterial#spent_log_edit'
 
 get 'wklogmaterial/modifyProductDD', :to => 'wklogmaterial#modifyProductDD'
-
-get 'wksalesquote/index', :to => 'wksalesquote#index'

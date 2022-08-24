@@ -374,4 +374,8 @@ class WkbaseController < ApplicationController
 	def loadPurchaseDD
 		false
 	end
+
+	def addLeadDD
+		false
+	end
 end
