@@ -5,8 +5,9 @@
 	<%	contactId =session[controller_name].try(:[], :contact_id)
 		accountId =session[controller_name].try(:[], :account_id)
 		filterSession =session[controller_name].try(:[], :polymorphic_filter)
-		projid =session[controller_name].try(:[], :project_id) %>
-		<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :filter_session => filterSession, :project_id => projid, :pjtChanged => false, :isapply => true, :isproject => false, :isAll => true, :blankOptionForPjt => true, :blankForActDD => true, :blankForContactDD => true, :isFilter => true, :loadSIDD => false } %>
+		projid =session[controller_name].try(:[], :project_id)
+		leadID =session[controller_name].try(:[], :lead_id) %>
+		<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :filter_session => filterSession, :project_id => projid, :pjtChanged => false, :isapply => true, :isproject => false, :isAll => true, :blankOptionForPjt => true, :blankForActDD => true, :blankForContactDD => true, :isFilter => true, :loadSIDD => false, lead_id: leadID } %>
 	
 			<div style="clear:both;"></div>
 	</fieldset>

@@ -241,7 +241,7 @@ include WkdocumentHelper
 		when "WkOpportunity"
 			accSections = ["wkcrmactivity", "wkdocument"]
 		when "WkLead"
-			accSections = ["wkcrmactivity"]
+			accSections = ["wkcrmactivity", "wkaccountproject"]
 			accSections << "wkdocument" if validateERPPermission("A_REFERRAL")
 		else
 			accSections = ["wkcrmactivity"]

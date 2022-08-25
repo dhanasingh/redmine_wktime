@@ -35,6 +35,8 @@ class WkinvoiceController < WkorderentityController
 			accountProjects = WkAccountProject.where(:parent_type => parentType, :parent_id => parentId.to_i)
 			unless accountProjects.blank?
 				@projectsDD = accountProjects[0].parent.projects.pluck(:name, :id)
+				project_id = accountProjects.first.project_id
+				@issuesDD = Issue.where(:project_id => project_id.to_i).pluck(:subject, :id)
 				setTempEntity(invIntervals[0][0], invIntervals[0][1], parentId, parentType, params[:populate_items], params[:project_id])
 			else
 				client = parentType.constantize.find(parentId)

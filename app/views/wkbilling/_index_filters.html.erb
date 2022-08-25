@@ -12,43 +12,45 @@
 <% parent_id = 0 %>
 <% parent_type = 'WkAccount' %>
 <script type="text/javascript">
-$(document).ready(function()
-{
-	<% if polymorphic_filter == '1' || polymorphic_filter.blank? %>
-		<% allSelection = true %>
-		$("#account_id").attr("disabled", true);
-		$("#contact_id").attr("disabled", true);
-		$("#lead_id").attr("disabled", true);
-	<% elsif polymorphic_filter == '2' %>
-		<% contactSelection = true %>
-		<% parent_id = contact_id %>
-		<% parent_type = 'WkCrmContact' %>
-		$("#account_id").attr("disabled", true);
-		$("#lead_id").attr("disabled", true);
-		$("#contact_id").removeAttr("disabled");
-	<% elsif polymorphic_filter == '4' %>
-		<% leadSelection = true %>
-		<% parent_id = lead_id %>
-		<% parent_type = 'WkLead' %>
-		$("#contact_id").attr("disabled", true);
-		$("#account_id").attr("disabled", true);
-		$("#lead_id").removeAttr("disabled");
-	<% else  %>
-		<% accountSelection = true %>
-		<% parent_id = account_id %>
-		<% parent_type = 'WkAccount' %>
-		$("#contact_id").attr("disabled", true);
-		$("#lead_id").attr("disabled", true);
-		$("#account_id").removeAttr("disabled");
-	<% end %>
+	$(document).ready(function()
+	{
+		<% if polymorphic_filter == '1' || polymorphic_filter.blank? %>
+			<% allSelection = true %>
+			$("#account_id").attr("disabled", true);
+			$("#contact_id").attr("disabled", true);
+			$("#lead_id").attr("disabled", true);
+		<% elsif polymorphic_filter == '2' %>
+			<% contactSelection = true %>
+			<% parent_id = contact_id %>
+			<% parent_type = 'WkCrmContact' %>
+			$("#account_id").attr("disabled", true);
+			$("#lead_id").attr("disabled", true);
+			$("#contact_id").removeAttr("disabled");
+		<% elsif polymorphic_filter == '4' %>
+			<% leadSelection = true %>
+			<% parent_id = lead_id %>
+			<% parent_type = 'WkLead' %>
+			$("#contact_id").attr("disabled", true);
+			$("#account_id").attr("disabled", true);
+			$("#lead_id").removeAttr("disabled");
+		<% else  %>
+			<% accountSelection = true %>
+			<% parent_id = account_id %>
+			<% parent_type = 'WkAccount' %>
+			$("#contact_id").attr("disabled", true);
+			$("#lead_id").attr("disabled", true);
+			$("#account_id").removeAttr("disabled");
+		<% end %>
 
-});
- </script>
-<% contactArr = relatedValues('WkCrmContact', nil, controller.getOrderContactType, true, controller.additionalContactType, controller.additionalAccountType) %>
-<% accountArr = options_for_wktime_account(blankForActDD, controller.getOrderAccountType, controller.additionalAccountType) %>
-<%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>
-<% leads = relatedValues('WkLead', nil, controller.getOrderContactType, true, controller.additionalContactType, controller.additionalAccountType) %>
-<%	projArr = options_for_wktime_project(projects,true)
+	});
+</script>
+<% 
+	contactArr = relatedValues('WkCrmContact', nil, controller.getOrderContactType, blankForContactDD, controller.additionalContactType, controller.additionalAccountType)
+	accountArr = options_for_wktime_account(blankForActDD, controller.getOrderAccountType, controller.additionalAccountType)
+	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name')
+	leads = relatedValues('WkLead', nil, controller.getOrderContactType, false, controller.additionalContactType, controller.additionalAccountType)
+	parent_id = accountArr.present? ? accountArr[0][1] : 0
+	projArr = options_for_wktime_project(projects,true)
 	isPjtBlank = true
 	if pjtChanged
 		accountProjects = getProjArrays(parent_id, parent_type)
@@ -82,8 +84,9 @@ $(document).ready(function()
 	:onchange => " if(#{pjtChanged}) { accProjChanged('', this.id, false, #{blankOptionForPjt}); } if(#{loadSIDD}) { getSupplierInvoice(#{User.current.id}, 'si_id'); } if(#{controller.loadPurchaseDD}) { rfqTOQuoteChanged(#{User.current.id}, 'po_id');} ") %></td>
 
 	<% if controller.addLeadDD %>
-		<th align="left"><%= radio_button_tag 'polymorphic_filter', '4', leadSelection, onclick: " $('#lead_id').removeAttr('disabled');$('#contact_id').attr('disabled', true);$('#account_id').attr('disabled', true); "%><%= l(:label_lead) %></th>
-		<td><%= select_tag('lead_id', options_for_select(leads, selected: lead_id.blank? ? leads : lead_id )) %></td>
+		<th align="left"><%= radio_button_tag 'polymorphic_filter', '4', leadSelection, onclick: " $('#lead_id').removeAttr('disabled');$('#contact_id').attr('disabled', true);$('#account_id').attr('disabled', true);", onchange: " getprojects(this, #{pjtChanged}, #{loadSIDD})"%><%= l(:label_lead) %></th>
+		<td><%= select_tag('lead_id', options_for_select(leads, selected: lead_id.blank? ? leads : lead_id ),
+		:onchange => " if(#{pjtChanged}) { accProjChanged('', this.id, false, #{blankOptionForPjt}); }") %></td>
 	<% end %>
 
 	<% if isproject %>

@@ -459,7 +459,12 @@ function accProjChanged(uid, fldId, isparent, blankOptions)
 		var parentDD = document.getElementById('related_to');
 		parentType = parentDD.options[parentDD.selectedIndex].value;
 	} else {
-		parentType = fldId == 'contact_id' && parentId != "" ? 'WkCrmContact' : ( fldId == 'account_id' && parentId != "" ? 'WkAccount' : '');
+		if(fldId == 'contact_id' && parentId != "")
+			parentType = 'WkCrmContact'
+		else if( fldId == 'lead_id' && parentId != "")
+			parentType = 'WkLead';
+		else
+			parentType = 'WkAccount';
 	}
 	var needBlankOption = blankOptions;
 	var projDropdown = document.getElementById("project_id");
@@ -1028,6 +1033,8 @@ function getprojects(ele, isAccProj, isSIProj){
 		case '2': ddeleID = 'contact_id'
 		break;
 		case '3': ddeleID = 'account_id'
+		break;
+		case '4': ddeleID = 'lead_id'
 		break;
 		default : ddeleID = ele.id
 	}

@@ -142,7 +142,7 @@ include WkaccountprojectHelper
 	end
 
 
-    def setLimitAndOffset
+  def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -171,11 +171,13 @@ include WkaccountprojectHelper
 		contact_id = (contact_id.first).id unless contact_id.blank?
 		account_id = params[:account_id].blank? ? nil : WkAccount.where(:id => params[:account_id])
 		account_id = (account_id.first).id unless account_id.blank?
+		lead_id = params[:lead_id].blank? ? nil : WkLead.where(:id => params[:lead_id])
+		lead_id = (lead_id.first).id unless lead_id.blank?
 
 		if !showCRMModule
 			render_403
 			return false
-		elsif project_id.blank? && contact_id.blank? && account_id.blank?
+		elsif project_id.blank? && contact_id.blank? && account_id.blank? && lead_id.blank?
 			render_404
 			return false
 		elsif !params[:project_id].blank?
@@ -214,7 +216,11 @@ include WkaccountprojectHelper
 	end
 
 	def set_filter_session
-		filters = [:contact_id, :account_id, :polymorphic_filter]
+		filters = [:contact_id, :account_id, :polymorphic_filter, :lead_id]
 		super(filters, {:project_id => params[:project_id]})
+	end
+
+	def addLeadDD
+		true
 	end
 end

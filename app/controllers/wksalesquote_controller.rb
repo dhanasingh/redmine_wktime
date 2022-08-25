@@ -3,6 +3,9 @@ class WksalesquoteController < WkquoteController
 
 	before_action :require_login
 
+  before_action :check_perm_and_redirect, :only => [:index, :edit, :update]
+  before_action :check_crm_admin_and_redirect, :only => [:destroy]
+
 	def newOrderEntity(parentId, parentType)
 		newInvoice(parentId, parentType)
 	end
@@ -18,6 +21,8 @@ class WksalesquoteController < WkquoteController
 			accountProjects = WkAccountProject.where(:parent_type => parentType, :parent_id => parentId.to_i)
 			unless accountProjects.blank?
 				@projectsDD = accountProjects[0].parent.projects.pluck(:name, :id)
+				project_id = accountProjects.first.project_id
+				@issuesDD = Issue.where(:project_id => project_id.to_i).pluck(:subject, :id)
 				setTempEntity(invIntervals[0][0], invIntervals[0][1], parentId, parentType, params[:populate_items], params[:project_id])
 			else
 				client = parentType.constantize.find(parentId)
@@ -97,5 +102,31 @@ class WksalesquoteController < WkquoteController
 
 	def addLeadDD
 		true
+	end
+
+	def deletePermission
+		validateERPPermission("A_CRM_PRVLG")
+	end
+
+	def needChangedProject
+		true
+	end
+
+	def check_perm_and_redirect
+		unless check_permission
+			render_403
+			return false
+		end
+	end
+
+	def check_permission
+		return validateERPPermission("B_CRM_PRVLG") || validateERPPermission("A_CRM_PRVLG")
+	end
+	
+	def check_crm_admin_and_redirect
+		unless validateERPPermission("A_CRM_PRVLG")
+			render_403
+			return false
+		end
 	end
 end
