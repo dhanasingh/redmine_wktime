@@ -18,6 +18,7 @@
 class WkcontactController < WkcrmController
   unloadable
   include WkaccountprojectHelper
+	include WksalesquoteHelper
 
 	def index
 		sort_init 'updated_at', 'desc'
@@ -45,14 +46,14 @@ class WkcontactController < WkcrmController
 			else
 				wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id").where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => accountId).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 			end
-		
+
 		elsif contactName.blank? &&  !accountId.blank?
 			if accountId == 'AA'
 				wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id").where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where.not(:account_id => nil)
 			else
 				wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id").where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => accountId)
 			end
-		
+
 		elsif !contactName.blank? &&  accountId.blank?
 			wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id").where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => nil).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 		else
@@ -73,8 +74,8 @@ class WkcontactController < WkcrmController
 			end
 			format.csv do
 				headers = { name: l(:field_name), acc_name: l(:label_account_name), location: l(:label_location), title: l(:field_title), email: l(:field_mail), phone: l(:label_work_phone), assignee: l(:field_assigned_to), modified: l(:label_modified) }
-  			data = wkcontact.map do |e| 
-					{name: e.name, acc_name: (e&.account&.name || ''), location: (e&.location&.name || ''), title: (e&.title || ''), email: (e&.address&.email || ''),  phone: (e&.address&.work_phone || ''), assignee: (e&.assigned_user&.name(:firstname_lastname) || ''), modified: e.updated_at.localtime.strftime("%Y-%m-%d") } 
+  			data = wkcontact.map do |e|
+					{name: e.name, acc_name: (e&.account&.name || ''), location: (e&.location&.name || ''), title: (e&.title || ''), email: (e&.address&.email || ''),  phone: (e&.address&.work_phone || ''), assignee: (e&.assigned_user&.name(:firstname_lastname) || ''), modified: e.updated_at.localtime.strftime("%Y-%m-%d") }
 				end
 				respond_to do |format|
 					format.csv {
@@ -86,21 +87,22 @@ class WkcontactController < WkcrmController
 	end
 
 	def edit
-		@conEditEntry = nil		
+		@conEditEntry = nil
 		unless params[:contact_id].blank?
 			set_filter_session
 			@accountproject = formPagination(accountProjctList)
 			@conEditEntry = WkCrmContact.find(params[:contact_id])
+			@invoiceEntries = formPagination(salesQuoteList(params[:contact_id], 'WkCrmContact'))
 		end
 
 		respond_to do |format|
-			format.html {        
+			format.html {
 			  render :layout => !request.xhr?
 			}
 			format.api
 		end
 	end
-	
+
 	def update
 		wkContact = contactSave
 		errorMsg = wkContact.errors.full_messages.join("<br>")
@@ -117,14 +119,14 @@ class WkcontactController < WkcrmController
 			format.api{
 				if errorMsg.blank?
 					render :plain => errorMsg, :layout => nil
-				else			
-					@error_messages = errorMsg.split('\n')	
+				else
+					@error_messages = errorMsg.split('\n')
 					render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
 				end
 			}
 		end
 	end
-	
+
 	def destroy
 	    contact = WkCrmContact.find(params[:contact_id].to_i)
 		if contact.destroy
@@ -135,19 +137,19 @@ class WkcontactController < WkcrmController
 		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end
-	
+
 	def set_filter_session
 		filters = [:contactname, :account_id, :location_id]
 		super(filters)
     end
-	
+
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
 		@contact = entries.limit(@limit).offset(@offset)
 	end
-	
-	def setLimitAndOffset		
+
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -160,13 +162,13 @@ class WkcontactController < WkcrmController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
 	end
-	
+
 	def getAccountLbl
 		l(:field_account)
 	end
-	
+
 	def contactLbl
 		l(:label_contact_plural)
 	end

@@ -263,4 +263,16 @@ class WkcrmController < WkbaseController
 	def get_activity_label
 		l(:label_new_activity)
 	end
+
+	def getLabelInvNum
+		l(:label_quote_number)
+	end
+
+	def getDateLbl
+		l(:label_quote_date)
+	end
+
+	def isInvPaymentLink
+		false
+	end
 end

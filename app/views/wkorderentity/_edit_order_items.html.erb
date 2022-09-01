@@ -7,6 +7,7 @@
 	grpUrl="<%= "#{url_for(:controller => "wkreport", :action => 'getMembersbyGroup')}" %>";
 	var label_tax = "<%= l(:label_tax) %>";
 	var label_prod_item = "<%= l(:label_select_product_item) %>";
+	var delete_all_row = "<%= l(:warn_delete_all_rows) %>";
 </script>
 <%
 	itemHash = { 'i' => l(:label_item), 'c' =>  l(:label_credit) }
@@ -499,12 +500,16 @@
 <div class="wk-contextual">
 	<% if !@preBilling && !isDisable %>
 	<%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('invoiceTable', 'totalrow');",  :class => 'icon icon-add' } %>
+	<% if controller.addAllRows %>
+		<%= link_to l(:label_add_all_rows), request.params.merge(populate_items: '1'),  data: {:confirm => l(:warn_add_all_rows)},  class: 'icon icon-add' %>
+		<%= link_to l(:label_delete_all_rows), "#", { :onclick => "javascript:deleteAllRows('invoiceTable', 'totalrow');",  :class => 'icon icon-add'} %>
 	<% end %>
+<% end %>
 </div>
 <div style="clear:both"></div>
 <%=h hidden_field_tag("totalrow",  row_index-1 )  %>
 <%=h hidden_field_tag("taxrow",  tax_index-1 )  %>
-<%=h hidden_field_tag("invoice_id",  params[:loadUnBilled].present? ? params[:invoice_id] : @invoice.id )  %>
+<%=h hidden_field_tag("invoice_id",  (params[:loadUnBilled].present? || controller.addAllRows && params[:populate_items]) ? params[:invoice_id] : @invoice.id )  %>
 <%=h hidden_field_tag("parent_type", @invoice.parent_type)  %>
 <%=h hidden_field_tag("parent_id", @invoice.parent_id)  %>
 <%= hidden_field_tag("additional_item_type", call_hook(:modify_product_log_type)) %>

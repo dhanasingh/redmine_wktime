@@ -49,7 +49,6 @@
 	accountArr = options_for_wktime_account(blankForActDD, controller.getOrderAccountType, controller.additionalAccountType)
 	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name')
 	leads = relatedValues('WkLead', nil, controller.getOrderContactType, false, controller.additionalContactType, controller.additionalAccountType)
-	parent_id = accountArr.present? ? accountArr[0][1] : 0
 	projArr = options_for_wktime_project(projects,true)
 	isPjtBlank = true
 	if pjtChanged

@@ -23,8 +23,8 @@ class WkquoteController < WksupplierorderentityController
   
 	def editOrderEntity
 		super
-		unless params[:invoice_id].blank?
-			@rfgQuoteEntry = WkRfqQuote.find(@invoice.rfq_quote.id) unless @invoice.blank?
+		if params[:invoice_id].present?
+			@rfgQuoteEntry = WkRfqQuote.find(@invoice.rfq_quote&.id) if @invoice&.rfq_quote.present?
 		end
 	end
 	
@@ -122,5 +122,9 @@ class WkquoteController < WksupplierorderentityController
 		status = invoice.status == 'o' ? l(:label_open_issues) : l(:label_closed_issues)
 		invoiceArr = [invoice.invoice_number, invoice.invoice_date, status, invoice&.parent&.name, invoice&.rfq_quote&.rfq&.name]
 		invoiceArr
+	end
+
+	def showContractSection
+		false
 	end
 end

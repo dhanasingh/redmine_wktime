@@ -20,6 +20,7 @@ class WkleadController < WkcrmController
   include WktimeHelper
   include WkleadHelper
   include WkaccountprojectHelper
+	include WksalesquoteHelper
   accept_api_auth :index, :edit, :update
 
 	def index
@@ -91,6 +92,7 @@ class WkleadController < WkcrmController
 		if params[:lead_id].present?
 			@lead = WkLead.find(params[:lead_id])
 			@accountproject = formPagination(accountProjctList)
+			@invoiceEntries = formPagination(salesQuoteList(params[:lead_id], 'WkLead'))
 		end
 		@lead
 	end

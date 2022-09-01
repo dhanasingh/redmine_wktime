@@ -4,4 +4,8 @@
 		<%= check_box_tag('settings[crm_save_geo_location]', 1, @settings['crm_save_geo_location'].to_i == 1) %>
 		<label for="settings_crm_save_geo_location"><%= l(:label_save_geo_location) %> </label>
 	</p>
+	
+	<p>
+		  <label><%= l(:label_sales_quote_no_prefix) %></label><%= text_field_tag 'settings[wktime_sales_quote_no_prefix]', @settings['wktime_sales_quote_no_prefix'], size: 13 %> 
+	</p>
   </fieldset>

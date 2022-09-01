@@ -1265,3 +1265,8 @@ ru:
   label_sales_quote: Sales Quote
   label_sales_quote_items: Sales Quote Items
   label_new_sales_quote: New Sales Quote
+  label_sales_quote_no_prefix: Sales Quote Number Prefix
+  label_add_all_rows: Add All Rows
+  label_delete_all_rows: Delete All Rows
+  warn_add_all_rows: Are you sure you want to add all rows from Project?
+  warn_delete_all_rows: Are you sure you want to delete all rows?

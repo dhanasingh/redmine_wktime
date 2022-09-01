@@ -24,31 +24,6 @@ class WkinvoiceController < WkorderentityController
 		newInvoice(parentId, parentType)
 	end
 
-	def newInvoice(parentId, parentType)
-		invoiceFreq = getInvFreqAndFreqStart
-		invIntervals = getIntervals(params[:start_date].to_date, params[:end_date].to_date, invoiceFreq["frequency"], invoiceFreq["start"], true, false)
-		if !params[:project_id].blank? && params[:project_id] != '0'
-			@projectsDD = Project.where(:id => params[:project_id].to_i).pluck(:name, :id)
-			@issuesDD = Issue.where(:project_id => params[:project_id].to_i).pluck(:subject, :id)
-			setTempEntity(invIntervals[0][0], invIntervals[0][1], parentId, parentType, params[:populate_items], params[:project_id])
-		elsif (!params[:project_id].blank? && params[:project_id] == '0') || params[:isAccBilling] == "true"
-			accountProjects = WkAccountProject.where(:parent_type => parentType, :parent_id => parentId.to_i)
-			unless accountProjects.blank?
-				@projectsDD = accountProjects[0].parent.projects.pluck(:name, :id)
-				project_id = accountProjects.first.project_id
-				@issuesDD = Issue.where(:project_id => project_id.to_i).pluck(:subject, :id)
-				setTempEntity(invIntervals[0][0], invIntervals[0][1], parentId, parentType, params[:populate_items], params[:project_id])
-			else
-				client = parentType.constantize.find(parentId)
-				flash[:error] = l(:warn_billable_project_not_configured, :name => client.name)
-				redirect_to :action => 'new'
-			end
-		else
-			flash[:error] = l(:warning_select_project)
-			redirect_to :action => 'new'
-		end
-	end
-
 	def saveOrderInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
 		begin
 			@@invmutex.synchronize do

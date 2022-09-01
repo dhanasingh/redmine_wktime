@@ -219,14 +219,14 @@ include WkdocumentHelper
 		accSections = ["wkcrmactivity"]
 		case entity
 		when "WkAccount"
-			accSections = ["wkcrmactivity", "wkcrmcontact", "wkaccountproject", "wksurvey", "wkdocument"]
+			accSections = ["wkcrmactivity", "wkcrmcontact", "wkaccountproject", "wksurvey", "wkdocument", "wksalesquote"]
 			accSections << "wkopportunity" unless curObj.account_type == "S"
 			hookSection = call_hook(:view_accordion_section, {:entity => entity, :curObj => curObj})
 			hookSection = hookSection.split(" ")
 			sectionsToRemove = call_hook(:remove_existing_accordion_section, {:entity => entity, :curObj => curObj})
 			sectionsToRemove = sectionsToRemove.split(" ")
 		when "WkCrmContact"
-			accSections = ["wkcrmactivity", "wkcrmcontact", "wkaccountproject", "wksurvey", "wkdocument"]
+			accSections = ["wkcrmactivity", "wkcrmcontact", "wkaccountproject", "wksurvey", "wkdocument", "wksalesquote"]
 			accSections << "wkopportunity" unless curObj.contact_type == "SC"
 			hookSection = call_hook(:view_accordion_section, {:entity => entity, :curObj => curObj})
 			hookSection = hookSection.split(" ")
@@ -241,7 +241,7 @@ include WkdocumentHelper
 		when "WkOpportunity"
 			accSections = ["wkcrmactivity", "wkdocument"]
 		when "WkLead"
-			accSections = ["wkcrmactivity", "wkaccountproject"]
+			accSections = ["wkcrmactivity", "wkaccountproject", "wksalesquote"]
 			accSections << "wkdocument" if validateERPPermission("A_REFERRAL")
 		else
 			accSections = ["wkcrmactivity"]

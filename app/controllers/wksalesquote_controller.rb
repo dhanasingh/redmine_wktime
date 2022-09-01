@@ -1,53 +1,74 @@
 class WksalesquoteController < WkquoteController
   menu_item :wklead
+	@@sqmutex = Mutex.new
 
 	before_action :require_login
 
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update]
   before_action :check_crm_admin_and_redirect, :only => [:destroy]
+	include WkorderentityHelper
 
 	def newOrderEntity(parentId, parentType)
 		newInvoice(parentId, parentType)
 	end
-
-	def newInvoice(parentId, parentType)
-		invoiceFreq = getInvFreqAndFreqStart
-		invIntervals = getIntervals(params[:start_date].to_date, params[:end_date].to_date, invoiceFreq["frequency"], invoiceFreq["start"], true, false)
-		if !params[:project_id].blank? && params[:project_id] != '0'
-			@projectsDD = Project.where(:id => params[:project_id].to_i).pluck(:name, :id)
-			@issuesDD = Issue.where(:project_id => params[:project_id].to_i).pluck(:subject, :id)
-			setTempEntity(invIntervals[0][0], invIntervals[0][1], parentId, parentType, params[:populate_items], params[:project_id])
-		elsif (!params[:project_id].blank? && params[:project_id] == '0') || params[:isAccBilling] == "true"
-			accountProjects = WkAccountProject.where(:parent_type => parentType, :parent_id => parentId.to_i)
-			unless accountProjects.blank?
-				@projectsDD = accountProjects[0].parent.projects.pluck(:name, :id)
-				project_id = accountProjects.first.project_id
-				@issuesDD = Issue.where(:project_id => project_id.to_i).pluck(:subject, :id)
-				setTempEntity(invIntervals[0][0], invIntervals[0][1], parentId, parentType, params[:populate_items], params[:project_id])
-			else
-				client = parentType.constantize.find(parentId)
-				flash[:error] = l(:warn_billable_project_not_configured, :name => client.name)
-				redirect_to :action => 'new'
-			end
+	
+	def setTempEntity(startDate, endDate, parentID, parentType, populatedItems, projectID)
+	@currency = params[:inv_currency]
+	super
+	if populatedItems
+		@unbilled = true
+		if projectID == '0'
+			accountProjects = WkAccountProject.where(parent_type: parentType, parent_id: parentID.to_i)
 		else
-			flash[:error] = l(:warning_select_project)
-			redirect_to :action => 'new'
+			accountProjects = WkAccountProject.where(parent_type: parentType, parent_id: parentID.to_i, project_id: projectID)
 		end
-	end
-
-	def editOrderEntity
-		if params[:invoice_id].present?
-			@invoice = WkInvoice.find(params[:invoice_id].to_i)
-			@invoiceItem = @invoice.invoice_items
-			@invPaymentItems = @invoice.payment_items.current_items
-			pjtList = @invoiceItem.select(:project_id).distinct
-			pjtList.each do |entry|
-				@issuesDD = Issue.where(:project_id => entry.project_id.to_i).pluck(:subject, :id)
-				@projectsDD << [ entry.project.name, entry.project_id ] if !entry.project_id.blank? && entry.project_id != 0
+		accountProjects.each do |acc_proj|
+			if acc_proj.billing_type == 'TM'
+				issues = Issue.where(project_id: acc_proj.project_id)
+				if @invoiceItem.present?
+					issue_id = @invoiceItem.pluck(:invoice_item_id)
+					issues = issues.where.not(id: issue_id) if issue_id.present?
+				end
+				issues.each do |issue|
+					invoice_items = {}
+					rate = getBillingRate(issue.project_id, issue.id)
+					quantity = getIssueEstimatedHours(issue.id)
+					amount = (rate || 0) * (quantity || 0)
+					invoice_items = {project_id: issue.project_id, item_desc: issue.subject, rate: rate, item_quantity: quantity, item_amount: amount.round(2), billing_type: acc_proj.billing_type, issue_id: issue.id}
+					loadInvItems(invoice_items)
+				end
+			else
+				@currency = acc_proj.wk_billing_schedules&.first&.currency
+				scheduledEntries = acc_proj.wk_billing_schedules.where(account_project_id: acc_proj.id)
+				scheduledEntries.each do |entry|
+					invoice_items = {}
+					itemDesc = ""
+					if isAccountBilling(entry.account_project)
+						itemDesc = entry.account_project.project.name + " - " + entry.milestone
+					else
+						itemDesc = entry.milestone
+					end
+					invoice_items = {project_id: entry.account_project.project_id, item_desc: itemDesc, rate: entry.amount, item_quantity: 1, item_amount: entry.amount.round(2), billing_type: entry.account_project.billing_type, milestone_id: entry.id}
+					loadInvItems(invoice_items)
+				end
 			end
 		end
 	end
+end
 
+def loadInvItems(invoice_items)
+	@invItems[@itemCount].store 'milestone_id', invoice_items[:milestone_id] if invoice_items[:billing_type] == 'FC'
+	@invItems[@itemCount].store 'project_id', invoice_items[:project_id]
+	@invItems[@itemCount].store 'item_desc', invoice_items[:item_desc]
+	@invItems[@itemCount].store 'item_type', 'i'
+	@invItems[@itemCount].store 'rate', invoice_items[:rate]
+	@invItems[@itemCount].store 'currency', @currency || Setting.plugin_redmine_wktime['wktime_currency']
+	@invItems[@itemCount].store 'item_quantity', invoice_items[:item_quantity]
+	@invItems[@itemCount].store 'item_amount', invoice_items[:item_amount]
+	@invItems[@itemCount].store 'issue_id', invoice_items[:issue_id]  if invoice_items[:billing_type] == 'TM'
+	@invItems[@itemCount].store 'billing_type', invoice_items[:billing_type]
+	@itemCount = @itemCount + 1
+end
 	
 	def getInvoiceType
 		'SQ'
@@ -112,6 +133,14 @@ class WksalesquoteController < WkquoteController
 		true
 	end
 
+	def addAllRows
+		true
+	end
+	
+	def getOrderNumberPrefix
+		'wktime_sales_quote_no_prefix'
+	end
+
 	def check_perm_and_redirect
 		unless check_permission
 			render_403
@@ -128,5 +157,44 @@ class WksalesquoteController < WkquoteController
 			render_403
 			return false
 		end
+	end
+
+	def saveOrderInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
+		begin
+			@@sqmutex.synchronize do
+				addInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
+			end
+		rescue => ex
+		  logger.error ex.message
+		end
+	end
+
+	def saveOrderRelations
+	end
+
+	def getInvoiceHeaders
+		headers = [getLabelInvNum, getDateLbl, l(:field_status), getAccountLbl]
+		headers
+	end
+
+	def getInvoices(invoice)
+		status = invoice.status == 'o' ? l(:label_open_issues) : l(:label_closed_issues)
+		invoiceArr = [invoice.invoice_number, invoice.invoice_date, status, invoice&.parent&.name]
+		invoiceArr
+	end
+
+	def getSupplierAddress(invoice)
+		getMainLocation + "\n" +  getAddress
+	end
+
+	def getCustomerAddress(invoice)
+		invoice.parent.name + "\n" + (invoice.parent.address.blank? ? "" : invoice.parent.address.fullAddress) + (invoice&.parent_type == 'WkAccount' ? "\n" + "GST No: " + invoice&.parent&.tax_number.to_s : "")
+	end
+
+	def getOrderContract(invoice)
+	end
+
+	def storeInvoiceItemTax(totals)
+		saveInvoiceItemTax(totals)
 	end
 end

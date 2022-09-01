@@ -106,4 +106,8 @@ class WkLead < ActiveRecord::Base
   end
 
   scope :filter_pass_out, ->(pass_out){ where("wk_candidates.pass_out" => pass_out) }
+
+  def address
+	  contact.address unless contact.blank?
+  end
 end

@@ -1,0 +1,19 @@
+<label><%= l(:label_sales_quote) %></label>
+<%
+    if params[:account_id].present?
+        id = 'account_id'
+        filter_session = '3'
+    elsif params[:contact_id].present?
+        id = 'contact_id'
+        filter_session = '2'
+    elsif params[:lead_id].present?
+        id = 'lead_id'
+        filter_session = '4'
+    end
+%>
+<div>
+	<div class="wk-contextual">
+		<%= link_to l(:label_new_sales_quote), url_for(controller: 'wksalesquote', action: 'new', id => params[id], filter_session: filter_session), class: 'icon icon-add'%>
+	</div>
+	<%= render :partial => 'wkorderentity/order_list' %>
+</div>

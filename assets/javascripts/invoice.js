@@ -151,6 +151,22 @@ $(document).ready(function() {
 			});
 
 			$("[id^='project_id_']").change(function(){
+				//load itemDD				
+				url = "/wkorderentity/getIssueDD";
+				data = {project_id: $(this).val() };
+				let row = parseInt((this.name).split('_').pop());
+				changeDD = document.getElementById("invoice_item_id_"+row);
+				$.ajax({
+					url: url,
+					data: data,
+					success: function(resData){
+						updateUserDD(resData, changeDD, 1, true, false, label_prod_item);
+						$("#invoice_item_id_"+row).val(null).trigger('change');
+						$("#name_"+row).val('');
+					},
+					beforeSend: function(){ $(this).addClass("ajax-loading"); },
+					complete: function(){ $(this).removeClass("ajax-loading"); }
+				});
 				applyTax(this, "project");
 			});
 
@@ -1109,4 +1125,16 @@ function getUsedSerialNumber(ele){
 			}
 		}
 	});
+}
+
+function deleteAllRows(tableId, totalrow){
+	let isDelete = confirm(delete_all_row);
+	if(isDelete){
+		let table = document.getElementById(tableId);
+		let rowlength = tableId == "invoiceTable" ? table.rows.length - 2 : table.rows.length;
+		for (var i = 1; i <= rowlength; i++) {
+			row_id = table.rows.length - 2;
+			deleteRow(tableId, totalrow);
+		}
+	}	
 }

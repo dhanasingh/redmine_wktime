@@ -18,6 +18,7 @@
 class WkaccountController < WkcrmController
 
 	include WkaccountprojectHelper
+	include WksalesquoteHelper
     before_action :require_login
 
 	def index
@@ -99,6 +100,7 @@ class WkaccountController < WkcrmController
 			set_filter_session
 			@accountproject = formPagination(accountProjctList)
 			@accountEntry = WkAccount.find(params[:account_id])
+			@invoiceEntries = formPagination(salesQuoteList(params[:account_id], 'WkAccount'))
 		end
 		respond_to do |format|
 			format.html do
