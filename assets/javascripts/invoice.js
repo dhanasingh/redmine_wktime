@@ -138,7 +138,7 @@ $(document).ready(function() {
 
 			$(".productItemsDD").change(function(){
 				let row = parseInt((this.name).split('_').pop());
-				let text = $("#invoice_item_id_"+row).val() != "" ? $("#invoice_item_id_"+row+ " option:selected").text() : "";
+				let text = ["", '0'].includes($("#invoice_item_id_"+row).val()) ? "" : $("#invoice_item_id_"+row+ " option:selected").text();
 				$("#invoiceTable #name_"+row).val(text);
 
 				var itemType = $("#invoiceTable #item_type_"+row).val();

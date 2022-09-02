@@ -431,4 +431,8 @@ class WkinvoiceController < WkorderentityController
 	def addExpenseType
 		true
 	end
+
+	def showQuantityPopup
+		true
+	end
 end

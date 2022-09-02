@@ -75,7 +75,7 @@
 							<td class="lbl-txt-align">
 								<%= link_to image_tag('edit.png'), {:controller => controller.redirect_controller, :action => 'edit', :invoice_id => entry.id, :new_invoice => false, :preview_billing => false, :tab => controller.controller_name, id: entry.id}, :title => l(:button_edit) %>
 								<% if isEditableInvoice(entry.id) && controller.deletePermission  %>
-									<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :invoice_id => entry.id, id: entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+									<%= link_to image_tag('delete.png'), {:controller => controller.redirect_controller, :action => 'destroy', :invoice_id => entry.id, id: entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
 								<% end %>
 							</td>
 						</tr>

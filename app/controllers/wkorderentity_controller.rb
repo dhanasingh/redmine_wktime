@@ -198,7 +198,7 @@ class WkorderentityController < WkbillingController
 		@invoice = nil
 		@invoiceItem = nil
 		@projectsDD = Array.new
-		@issuesDD = Array.new
+		@issuesDD = Hash.new
 		@productItemsDD = getproductItems
     @currency = nil
 		@preBilling = false
@@ -276,7 +276,7 @@ class WkorderentityController < WkbillingController
 			@invPaymentItems = @invoice.payment_items.current_items
 			pjtList = @invoiceItem.select(:project_id).distinct
 			pjtList.each do |entry|
-				@issuesDD = Issue.where(:project_id => entry.project_id.to_i).pluck(:subject, :id)
+				@issuesDD[entry.project_id.to_i] = Issue.where(:project_id => entry.project_id.to_i).pluck(:subject, :id)
 				@projectsDD << [ entry.project.name, entry.project_id ] if !entry.project_id.blank? && entry.project_id != 0
 			end
 		end
@@ -961,9 +961,10 @@ class WkorderentityController < WkbillingController
 				invoiceDetails[:running_sn] = inventory_item&.running_sn
 			end
 		else
-			invoiceDetails[:rate] = getBillingRate(params[:project_id].to_i, params[:item_id].to_i) if params[:item_id].present? && params[:project_id].present?
-			if ["SQ"].include?(params[:invoice_type]) && params[:item_id].present?
-				invoiceDetails[:quantity] = getIssueEstimatedHours(params[:item_id].to_i)
+			item_id = params[:item_id].to_i
+			invoiceDetails[:rate] = getBillingRate(params[:project_id].to_i, item_id) if item_id !=0 && params[:project_id].present?
+			if ["SQ"].include?(params[:invoice_type]) && item_id !=0
+				invoiceDetails[:quantity] = getIssueEstimatedHours(item_id)
 			end
 		end
 		render json: invoiceDetails
@@ -997,14 +998,13 @@ class WkorderentityController < WkbillingController
 		invIntervals = getIntervals(params[:start_date].to_date, params[:end_date].to_date, invoiceFreq["frequency"], invoiceFreq["start"], true, false)
 		if !params[:project_id].blank? && params[:project_id] != '0'
 			@projectsDD = Project.where(:id => params[:project_id].to_i).pluck(:name, :id)
-			@issuesDD = Issue.where(:project_id => params[:project_id].to_i).pluck(:subject, :id)
+			@issuesDD[params[:project_id].to_i] = Issue.where(:project_id => params[:project_id].to_i).pluck(:subject, :id)
 			setTempEntity(invIntervals[0][0], invIntervals[0][1], parentId, parentType, params[:populate_items], params[:project_id])
 		elsif (!params[:project_id].blank? && params[:project_id] == '0') || params[:isAccBilling] == "true"
 			accountProjects = WkAccountProject.where(:parent_type => parentType, :parent_id => parentId.to_i)
 			unless accountProjects.blank?
 				@projectsDD = accountProjects[0].parent.projects.pluck(:name, :id)
-				project_id = accountProjects.first.project_id
-				@issuesDD = Issue.where(:project_id => project_id.to_i).pluck(:subject, :id)
+				accountProjects.each{|proj| @issuesDD[proj.project_id.to_i] = Issue.where(project_id: proj.project_id.to_i).pluck(:subject, :id)}
 				setTempEntity(invIntervals[0][0], invIntervals[0][1], parentId, parentType, params[:populate_items], params[:project_id])
 			else
 				client = parentType.constantize.find(parentId)
@@ -1023,5 +1023,9 @@ class WkorderentityController < WkbillingController
 
 	def showContractSection
 		true
+	end
+
+	def showQuantityPopup
+		false
 	end
 end
