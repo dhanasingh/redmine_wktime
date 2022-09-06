@@ -161,7 +161,7 @@ class WkorderentityController < WkbillingController
 				LEFT JOIN wk_accounts a on (wk_invoices.parent_type = 'WkAccount' and wk_invoices.parent_id = a.id)
 				LEFT JOIN wk_crm_contacts c on (wk_invoices.parent_type = 'WkCrmContact' and wk_invoices.parent_id = c.id)
 				").group("wk_invoices.id, CASE WHEN wk_invoices.parent_type = 'WkAccount' THEN a.name ELSE CONCAT(c.first_name, c.last_name) END,
-				CONCAT(users.firstname, users.lastname), wk_invoices.status, wk_invoices.invoice_number, wk_invoices.start_date, wk_invoices.end_date, wk_invoices.invoice_date, wk_invoices.closed_on, wk_invoices.modifier_id, wk_invoices.gl_transaction_id, wk_invoices.parent_id, wk_invoices.invoice_type, wk_invoices.invoice_num_key, wk_invoices.created_at, wk_invoices.updated_at,wk_invoices.parent_type, wk_invoices.confirm_num")
+				CONCAT(users.firstname, users.lastname), wk_invoices.status, wk_invoices.invoice_number, wk_invoices.start_date, wk_invoices.end_date, wk_invoices.invoice_date, wk_invoices.closed_on, wk_invoices.modifier_id, wk_invoices.gl_transaction_id, wk_invoices.parent_id, wk_invoices.invoice_type, wk_invoices.invoice_num_key, wk_invoices.created_at, wk_invoices.updated_at,wk_invoices.parent_type, wk_invoices.confirm_num, wk_invoices.description")
 				.select("wk_invoices.*, SUM(wk_invoice_items.quantity) AS quantity, SUM(wk_invoice_items.amount) AS amount, SUM(wk_invoice_items.original_amount)
 				 AS original_amt")
 			invEntries =  invEntries.reorder(sort_clause)
@@ -276,6 +276,7 @@ class WkorderentityController < WkbillingController
 			@invPaymentItems = @invoice.payment_items.current_items
 			pjtList = @invoiceItem.select(:project_id).distinct
 			pjtList.each do |entry|
+				@issuesDD = Hash.new if @issuesDD.blank?
 				@issuesDD[entry.project_id.to_i] = Issue.where(:project_id => entry.project_id.to_i).pluck(:subject, :id)
 				@projectsDD << [ entry.project.name, entry.project_id ] if !entry.project_id.blank? && entry.project_id != 0
 			end
@@ -339,6 +340,7 @@ class WkorderentityController < WkbillingController
 			@invoice.status = params[:field_status] if params[:field_status].present?
 			@invoice.invoice_number = params[:inv_number] if params[:inv_number].present?
 			@invoice.confirm_num = params[:confirm_num] if params[:confirm_num].present?
+			@invoice.description = params[:description] if params[:description].present?
 			if @invoice.status_changed?
 				@invoice.closed_on = Time.now
 			end
@@ -643,6 +645,7 @@ class WkorderentityController < WkbillingController
 		prodIDs = @invoiceItem.where.not(product_id: nil).where.not(:item_type => 'r').pluck(:product_id).uniq()
 		projectID =  @invoiceItem.collect{|i| i.project_id}.uniq
 		invoiceComp = getInvoiceComponents(invoice.parent_id, invoice.parent_type, projectID, getOrderComponetsId )
+		description = invoice.description || ''
 		pdf = ITCPDF.new(current_language)
 		pdf.SetTitle(title)
 		pdf.add_page
@@ -655,7 +658,7 @@ class WkorderentityController < WkbillingController
 
 		logo = WkLocation.getMainLogo()
 		if logo.present?
-			pdf.Image(logo.diskfile.to_s, page_width-50, 15, 30, 25)
+			pdf.Image(logo.diskfile.to_s, page_width-50, 15)
 		end
 		pdf.ln(25)
 
@@ -678,8 +681,8 @@ class WkorderentityController < WkbillingController
 
 		if showContractSection
 			pdf.SetFontStyle('B',10)
-			pdf.RDMCell(130, 5, l(:label_cntrt_purchase_work_order), 1, 0, '', 1)
-			pdf.RDMCell(showContractSection ? table_width - 130 : table_width, 5, l(:label_period), 1, 0, '', 1)
+			pdf.RDMCell(130, 7, l(:label_cntrt_purchase_work_order), 1, 0, '', 1)
+			pdf.RDMCell(showContractSection ? table_width - 130 : table_width, 7, l(:label_period), 1, 0, '', 1)
 			pdf.ln
 			pdf.SetFontStyle('',10)
 			pdf.RDMMultiCell(130, 10, getOrderContract(invoice) || '', 1, 'L', 0, 0)
@@ -687,15 +690,27 @@ class WkorderentityController < WkbillingController
 			pdf.ln(10)
 		end
 
+		if addDescription
+			pdf.SetFontStyle('B',10)
+			pdf.set_fill_color(230, 230, 230)
+			pdf.RDMCell(table_width, 7, l(:field_description), 1, 0, '', 1)
+			pdf.ln(7)
+			pdf.set_fill_color(255, 255, 255)
+			pdf.SetFontStyle('',10)
+			height = pdf.get_string_height(table_width, description)
+			pdf.RDMMultiCell(table_width, height,  description, 1, 'L', 0, 0)
+			pdf.ln(height)
+		end
+
 		pdf.set_fill_color(230, 230, 230)
 		pdf.SetFontStyle('B',10)
-		pdf.RDMCell(80, 10, l(:label_invoice_name), 'LTB', 0, 'L', 1)
+		pdf.RDMCell(80, 7, l(:label_invoice_name), 'LTB', 0, 'L', 1)
 		headerList = [l(:label_billing_type), l(:label_rate), l(:field_quantity), l(:field_currency), l(:field_amount)]
 		columnWidth = (table_width - 80)/headerList.size
 		headerList.each do |header|
 			border = headerList.last == header ? 'TBR' : 'TB'
 			align = [l(:label_billing_type)].include?(header) ? 'L' : 'R'
-			pdf.RDMCell(columnWidth, 10, header, border, 0, align, 1)
+			pdf.RDMCell(columnWidth, 7, header, border, 0, align, 1)
 		end
 		pdf.SetFontStyle('',10)
 		pdf.set_fill_color(255, 255, 255)
@@ -714,18 +729,23 @@ class WkorderentityController < WkbillingController
 			end
 		end
 		listTotal(pdf, columnWidth, @invoiceItem, l(:label_grand_total))
-		pdf.ln(5)
+		pdf.ln(7)
 		pdf.SetFontStyle('B',10)
 		if (Setting.plugin_redmine_wktime['wktime_hide_amount_in_words'].to_i != 1)
-			pdf.RDMCell(40, 5, l(:label_amount_in_words) + "  :  ", 1)
+			pdf.RDMCell(35, 5, l(:label_amount_in_words) + " :  ", 'LTB')
 			pdf.SetFontStyle('',10)
-			pdf.RDMCell(table_width - 40, 5, numberInWords(@invoiceItem.sum(:original_amount)) + " " + l(:label_only), 1)
+			pdf.RDMCell(table_width - 35, 5, numberInWords(@invoiceItem.sum(:original_amount)) + " " + l(:label_only), 'TBR')
 		end
 		pdf.ln
 		if invoiceComp.present?
+			pdf.SetFontStyle('B',10)
+			pdf.set_fill_color(230, 230, 230)
+			pdf.RDMCell(table_width, 7, l(:label_terms_cond) + ":", 1, 0, '', 1)
+			pdf.set_fill_color(255, 255, 255)
+			pdf.ln
+			pdf.SetFontStyle('',10)
 			invoiceComp.each do |comp|
-				pdf.RDMCell(100, 5, comp[:name], 1, 0, '', 1)
-				pdf.RDMCell(table_width - 100, 5, comp[:value], 1, 0, '', 1)
+				pdf.RDMCell(table_width, 5, comp[:name] + ":  " + comp[:value], 1, 0, '', 1)
 				pdf.ln
 			end
 		end
@@ -790,12 +810,12 @@ class WkorderentityController < WkbillingController
 		pdf.ln
 		pdf.SetFontStyle('B',10)
 		pdf.set_fill_color(230, 230, 230)
-		pdf.RDMCell(80, 5, '', 'LTB', 0, 'L', 1)
-		pdf.RDMCell(columnWidth, 5, '', 'TB', 0, 'L', 1)
-		pdf.RDMCell(columnWidth, 5, l(:label_total), 'TB', 0, 'R',1)
-		pdf.RDMCell(columnWidth, 5, invoice_items.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:quantity).round(2).to_s, 'TB', 0, 'R',1)
-		pdf.RDMCell(columnWidth, 5, invoice_items[0].original_currency.to_s, 'TB', 0, 'R',1)
-		pdf.RDMCell(columnWidth, 5, invoice_items.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:original_amount).round(2).to_s, 'TBR', 0, 'R',1)
+		pdf.RDMCell(80, 7, '', 'LTB', 0, 'L', 1)
+		pdf.RDMCell(columnWidth, 7, '', 'TB', 0, 'L', 1)
+		pdf.RDMCell(columnWidth, 7, l(:label_total), 'TB', 0, 'R',1)
+		pdf.RDMCell(columnWidth, 7, invoice_items.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:quantity).round(2).to_s, 'TB', 0, 'R',1)
+		pdf.RDMCell(columnWidth, 7, invoice_items[0].original_currency.to_s, 'TB', 0, 'R',1)
+		pdf.RDMCell(columnWidth, 7, invoice_items.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:original_amount).round(2).to_s, 'TBR', 0, 'R',1)
 		pdf.set_fill_color(255, 255, 255)
 	end
 
@@ -815,12 +835,12 @@ class WkorderentityController < WkbillingController
 		pdf.ln
 		pdf.SetFontStyle('B',10)
 		pdf.set_fill_color(230, 230, 230)
-		pdf.RDMCell(80, 5, '', 'LTB', 0, 'L', 1)
-		pdf.RDMCell(columnWidth, 5, '', 'TB', 0, 'L', 1)
-		pdf.RDMCell(columnWidth, 5, label, 'TB', 0, 'R', 1)
-		pdf.RDMCell(columnWidth, 5, invoice.sum(:quantity).round(2).to_s, 'TB', 0, 'R',1)
-		pdf.RDMCell(columnWidth, 5, invoice.first.original_currency.to_s, 'TB', 0, 'R',1)
-		pdf.RDMCell(columnWidth, 5, invoice.sum(:original_amount).round(2).to_s, 'TBR', 0, 'R',1)
+		pdf.RDMCell(80, 7, '', 'LTB', 0, 'L', 1)
+		pdf.RDMCell(columnWidth, 7, '', 'TB', 0, 'L', 1)
+		pdf.RDMCell(columnWidth, 7, label, 'TB', 0, 'R', 1)
+		pdf.RDMCell(columnWidth, 7, invoice.sum(:quantity).round(2).to_s, 'TB', 0, 'R',1)
+		pdf.RDMCell(columnWidth, 7, invoice.first.original_currency.to_s, 'TB', 0, 'R',1)
+		pdf.RDMCell(columnWidth, 7, invoice.sum(:original_amount).round(2).to_s, 'TBR', 0, 'R',1)
 		pdf.set_fill_color(255, 255, 255)
 	end
 
@@ -1026,6 +1046,10 @@ class WkorderentityController < WkbillingController
 	end
 
 	def showQuantityPopup
+		false
+	end
+
+	def addDescription
 		false
 	end
 end

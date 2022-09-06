@@ -915,7 +915,7 @@ post 'wkdocument/save', :to => 'wkdocument#save'
 
 get 'wkdocument/download/:id', :to => 'wkdocument#download'
 
-get 'wkdocument/:id', :to => 'wkdocument#destroy'
+delete 'wkdocument/:id', :to => 'wkdocument#destroy'
 
 get 'wkdocument/:id', :to => 'wkdocument#view'
 

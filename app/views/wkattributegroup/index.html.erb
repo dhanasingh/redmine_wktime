@@ -4,7 +4,7 @@
 <h2><%= l(:label_attribute_group) %></h2>
 <%= render partial: "wkproduct/render_inventory_tabs" %>
 <% name =session[controller_name].try(:[], :name) %>
-<%= form_tag({:controller => 'wkattributegroup', :action => 'index'}, :method => :post, :id => 'query_form') do %>
+<%= form_tag({:controller => 'wkattributegroup', :action => 'index'}, :method => :get, :id => 'query_form') do %>
 	  <%= hidden_field_tag "searchlist", controller_name %>
 	  <fieldset>
 			<%= hidden_field_tag "tab", "wkattributegroup" %>

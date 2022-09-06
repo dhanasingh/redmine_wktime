@@ -245,7 +245,7 @@
 							</td>
 							<td class="lbl-txt-align" headers="quantity" style="width: 11%">
 								<%= text_field_tag "quantity_#{row_index}", value['item_quantity'], :maxlength => 14, :style => "width:83%;", :onchange => "addAmount(this.id)", :disabled => @preBilling %>
-								<% if ['i'].include?(value['item_type']) && value['billing_type'] == 'TM' || value['item_type'] == "e" %>
+								<% if controller.showQuantityPopup && (['i'].include?(value['item_type']) && value['billing_type'] == 'TM' || value['item_type'] == "e") %>
 									<%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript: showUnbillQtyDetails(#{value['project_id']}, #{value['issue_id'].to_i}, '#{@invoice.start_date}', '#{@invoice.end_date}', #{@invoice.parent_id}, '#{@invoice.parent_type}', '#{value['item_type']}');" %>
 								<% end %>
 							</td>

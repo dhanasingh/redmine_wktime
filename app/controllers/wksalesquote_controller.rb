@@ -197,4 +197,12 @@ end
 	def storeInvoiceItemTax(totals)
 		saveInvoiceItemTax(totals)
 	end
+
+	def addDescription
+		true
+	end
+	
+	def getOrderComponetsId
+		'wktime_sq_components'
+	end
 end

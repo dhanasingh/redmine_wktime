@@ -241,7 +241,8 @@ include WkdocumentHelper
 		when "WkOpportunity"
 			accSections = ["wkcrmactivity", "wkdocument"]
 		when "WkLead"
-			accSections = ["wkcrmactivity", "wkaccountproject", "wksalesquote"]
+			accSections = ["wkcrmactivity"]
+			accSections.push("wkaccountproject","wksalesquote") if curObj.contact.contact_type == "C"
 			accSections << "wkdocument" if validateERPPermission("A_REFERRAL")
 		else
 			accSections = ["wkcrmactivity"]

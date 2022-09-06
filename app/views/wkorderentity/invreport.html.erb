@@ -40,6 +40,15 @@
 					</tr>
 				<% end %>
 
+				<% if controller.addDescription %>
+					<tr style="width:50%; background-color: #f2f2f2">
+						<th align="left" colspan="6" width="30%"><%= l(:field_description) %></th>
+					</tr>
+					<tr style="width:50%;">
+						<td align="left" colspan="6" width="30%"><%= textilizable @invoice.description || '' %></td>
+					</tr>
+				<% end %>
+
 				<tr style="width:100%;">
 					<td colspan="6">
 						<table height="100%" style="width:100%; border-collapse: collapse;">
@@ -93,17 +102,18 @@
 				</tr>
 				<% if (Setting.plugin_redmine_wktime['wktime_hide_amount_in_words'].to_i != 1) %>
 					<tr style="width:100%;">
-						<td align="left" colspan="1" width="20%"><b><%= l(:label_amount_in_words) %></b></td>
-						<td align="left" colspan="5" width="35%"><%=h numberInWords(@invoiceItem.sum(:original_amount)) + " " + l(:label_only) + "." %></td>
+						<td align="left" colspan="6" width="30%"><b><%= l(:label_amount_in_words) + " : "%></b><%= numberInWords(@invoiceItem.sum(:original_amount)) + " " + l(:label_only) + "." %></td>
 					</tr>
 				<% end %>
-				<% if invoiceComp.present?
-						invoiceComp.each do |comp| %>
-							<tr style="width:100%;">
-								<td align="left" colspan="2" width="250px"><b><%= comp[:name] %></b></td>
-								<td align="left" colspan="4" width="500px"><%= comp[:value] %></td>
-							</tr>
-						<% end %>
+				<% if invoiceComp.present? %>
+					<tr style="width:50%; background-color: #f2f2f2">
+						<th align="left" colspan="6" width="30%"><%= l(:label_terms_cond)+ ":" %></th>
+					</tr>
+					<% invoiceComp.each do |comp| %>
+						<tr style="width:100%;">
+							<td align="left" colspan="6"><%= comp[:name] + " : " + comp[:value]%></td>
+						</tr>
+					<% end %>
 				<% end %>
 		</table>
 	</div>
