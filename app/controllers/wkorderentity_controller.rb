@@ -869,6 +869,7 @@ class WkorderentityController < WkbillingController
 	def invoice_to_csv(invoice)
 		decimal_separator = l(:general_csv_decimal_separator)
 		export = Redmine::Export::CSV.generate do |csv|
+			csv << [l(:field_description), invoice.description || ''] if addDescription
 			csv << (getInvoiceHeaders.concat(getInvoiceItemHeaders)).collect {|c| Redmine::CodesetUtil.from_utf8(c.to_s, l(:general_csv_encoding))}
 			itemDetails = invoice.invoice_items.where.not(item_type: 'r').order(:item_type)
 			itemDetails.each do |entry|

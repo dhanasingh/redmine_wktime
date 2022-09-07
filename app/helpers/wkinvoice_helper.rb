@@ -946,7 +946,7 @@ include WkpayrollHelper
 			unless Setting.plugin_redmine_wktime[componetsId].blank?
 				Setting.plugin_redmine_wktime[componetsId].each do |element|
 					comp = element.split('|')
-					invoiceComponents << {name: comp[0], value: comp[1]}
+					invoiceComponents << {name: comp[0], value: comp[1] || ''}
 				end
 			end
 		end

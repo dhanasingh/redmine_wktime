@@ -78,7 +78,7 @@
 		<% if controller.addDescription %>
 			<tr>
 				<th align="left"><label><%= l(:field_description) %></label></th>
-				<td><%= text_area_tag 'description', @invoice&.description || '', maxlength: 255, style: "width:300px; height:75px;" %></td>
+				<td rowspan="1" colspan="8"><%= text_area_tag 'description', @invoice&.description || '', maxlength: 255, style: "width:600px; height:75px;" %></td>
 			</tr>
 		<% end %>
 	</table>

@@ -219,15 +219,15 @@ include WkdocumentHelper
 		accSections = ["wkcrmactivity"]
 		case entity
 		when "WkAccount"
-			accSections = ["wkcrmactivity", "wkcrmcontact", "wkaccountproject", "wksurvey", "wkdocument", "wksalesquote"]
-			accSections << "wkopportunity" unless curObj.account_type == "S"
+			accSections = ["wkcrmactivity", "wkcrmcontact", "wkaccountproject", "wksurvey", "wkdocument"]
+			accSections.push("wksalesquote", "wkopportunity") if curObj.account_type == "A"
 			hookSection = call_hook(:view_accordion_section, {:entity => entity, :curObj => curObj})
 			hookSection = hookSection.split(" ")
 			sectionsToRemove = call_hook(:remove_existing_accordion_section, {:entity => entity, :curObj => curObj})
 			sectionsToRemove = sectionsToRemove.split(" ")
 		when "WkCrmContact"
-			accSections = ["wkcrmactivity", "wkcrmcontact", "wkaccountproject", "wksurvey", "wkdocument", "wksalesquote"]
-			accSections << "wkopportunity" unless curObj.contact_type == "SC"
+			accSections = ["wkcrmactivity", "wkcrmcontact", "wkaccountproject", "wksurvey", "wkdocument"]
+			accSections.push("wksalesquote", "wkopportunity") if curObj.contact_type == "C"
 			hookSection = call_hook(:view_accordion_section, {:entity => entity, :curObj => curObj})
 			hookSection = hookSection.split(" ")
 			sectionsToRemove = call_hook(:remove_existing_accordion_section, {:entity => entity, :curObj => curObj})
