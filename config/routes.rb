@@ -673,8 +673,6 @@ get 'wkproductitem/:id/edit', :to => 'wkproductitem#edit'
 
 post 'wkproductitem/update', :to => 'wkproductitem#update'
 
-delete 'wkproductitem/:id', :to => 'wkproductitem#destroy'
-
 delete 'wkproductitem/destroy', :to => 'wkproductitem#destroy'
 
 get 'wkproductitem/transfer', :to => 'wkproductitem#transfer'
@@ -739,7 +737,7 @@ get 'wkasset/:id/edit', :to => 'wkasset#edit'
 
 post 'wkasset/update', :to => 'wkasset#update'
 
-delete 'wkasset/:id', :to => 'wkasset#destroy'
+delete 'wkasset/destroy', :to => 'wkasset#destroy'
 
 get 'wkasset/transfer', :to => 'wkasset#transfer'
 
