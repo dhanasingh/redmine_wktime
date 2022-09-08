@@ -340,7 +340,7 @@ class WkorderentityController < WkbillingController
 			@invoice.status = params[:field_status] if params[:field_status].present?
 			@invoice.invoice_number = params[:inv_number] if params[:inv_number].present?
 			@invoice.confirm_num = params[:confirm_num] if params[:confirm_num].present?
-			@invoice.description = params[:description] if params[:description].present?
+			@invoice.description = params[:description] || ''
 			if @invoice.status_changed?
 				@invoice.closed_on = Time.now
 			end
@@ -354,9 +354,9 @@ class WkorderentityController < WkbillingController
 			@matterialVal = Hash.new{|hsh,key| hsh[key] = {} }
 			@totalMatterialAmount = 0.00
 
-			while savedRows < totalRow
+			while (savedRows + deletedRows) < totalRow
 				i = savedRows + deletedRows + 1
-				if params["item_id_#{i}"].blank? && params["quantity_#{i}"].blank?
+				if params["item_id_#{i}"].blank? && (params["quantity_#{i}"].blank? || params["rate_#{i}"].blank?)
 					deletedRows = deletedRows + 1
 					next
 				end
@@ -472,6 +472,7 @@ class WkorderentityController < WkbillingController
 			@invoice.status = params[:field_status] if params[:field_status].present?
 			@invoice.invoice_number = params[:inv_number] if params[:inv_number].present?
 			@invoice.confirm_num = params[:confirm_num] if params[:confirm_num].present?
+			@invoice.description = params[:description] || ''
 			@invoice.save
 		end
 
@@ -994,7 +995,7 @@ class WkorderentityController < WkbillingController
 	def checkQty()
 		invItems = WkInventoryItem.where(:id => params[:inventory_itemID]) if params[:inventory_itemID].present?
 		invHash = {}
-		invItems.each do |item|
+		(invItems||[]).each do |item|
 			invHash[item.id] = {item: item, name: item.product_item.product.name}
 		end
 		render json: invHash

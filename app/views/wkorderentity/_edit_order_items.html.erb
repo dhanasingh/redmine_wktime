@@ -41,7 +41,7 @@
 	@productItemsDD.prepend([l(:label_select_product_item), ""])
 	@issuesDD.values.each{|value| value.prepend([l(:label_select_product_item), ""])} if @issuesDD.present?
 	if @invoiceItem.blank? && controller.isInvoiceController
-		invoiceItemDD = @issuesDD.values[0]
+		invoiceItemDD = @issuesDD&.values&.first || []
 		model_name = "Issue"
 	else
 		invoiceItemDD = @productItemsDD
@@ -95,7 +95,7 @@
 							exchangeRate = getExchangeRate(entry.original_currency, entry.currency)
 							exchangeRate = exchangeRate.blank? ? 1 : exchangeRate
 							if ["i", "e"].include?(entry.item_type) && controller.isInvoiceController
-								invoiceItemDD = @issuesDD[entry.project_id]
+								invoiceItemDD = @issuesDD[entry.project_id] || []
 								selected_itemDD_val = entry.try(:invoice_item_id)
 								model_name = "Issue"
 							elsif ["m", "a"].include?(entry.item_type) && controller.isInvoiceController
@@ -190,7 +190,7 @@
 							exchangeRate = exchangeRate.blank? ? 1 : exchangeRate
 							amount = (value['item_amount'] * exchangeRate)
 							if ["i", "e"].include?(value['item_type']) && controller.isInvoiceController
-							invoiceItemDD = @issuesDD[value['project_id']]
+							invoiceItemDD = @issuesDD[value['project_id']] || []
 							selected_itemDD_val = value['issue_id'].to_s
 							model_name = "Issue"
 						elsif ["m", "a"].include?(value['item_type']) && controller.isInvoiceController
