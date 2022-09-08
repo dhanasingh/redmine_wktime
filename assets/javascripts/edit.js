@@ -294,10 +294,6 @@ function showCustomField() {
 		var i, cust_field, ck_cust_field, custom_fields, cust_vals;
 		for(i=0; i < cust_fids.length; i++){
 			cust_field = $( "#" + cust_fids[i]);
-			let customID = (cust_fids[i].split('_')).pop();
-			if(!cust_field.attr('type') && !cust_field.is("select")){
-				cust_field = $('[name*="[custom_field_values]['+customID+']"]');
-			}
 			custom_fields = $('input[name="'+cust_fids[i]+'_'+comment_row+'[]"]');
 
 			if(cust_field.is("select")){
@@ -310,10 +306,6 @@ function showCustomField() {
 				ck_cust_field.attr('checked', custom_fields[comment_col-1].value == 1);
 			}else if(cust_field.attr('type') == "checkbox"){
 				cust_field.attr('checked', custom_fields[comment_col-1].value == 1);
-			}else if(cust_field.attr('type') == "radio"){
-				cust_field.each(function() {
-					$(this).prop("checked", $(this).val() == custom_fields[comment_col-1].value);
-				});
 			}else{
 				cust_field.val(custom_fields[comment_col-1].value);
 			}
@@ -330,21 +322,18 @@ function updateCustomField() {
 		for(i=0; i < cust_fids.length; i++)
 		{
 			cust_field = $( "#" + cust_fids[i]);
-			let customID = (cust_fids[i].split('_')).pop();
-			if(!cust_field.attr('type') && !cust_field.is("select")){
-				cust_field = $('[name="[custom_field_values]['+customID+']"]');
-			}
 			custom_fields = $('input[name="'+cust_fids[i]+'_'+comment_row+'[]"]');
-
-			if(cust_field.attr('type') == "checkbox"){
-				ck_cust_field = $('input[id="'+cust_fids[i]+'"][type="checkbox"]')
-				ck_cust_field.is(':checked') ? cust_field.val(1) : cust_field.val(null);
-				custom_fields[comment_col-1].value = cust_field.val();
-			}else if(cust_field.attr('type') == "radio"){
-				let value = $('input[name="[custom_field_values]['+customID+']"]:checked').val();
-				custom_fields[comment_col-1].value = value;
-			}
-			else{
+			if(cust_field.attr('type') == "hidden"){
+				//the checkbox also has a hidden field
+				ck_cust_field = $('input[id="'+cust_fids[i]+'"][type="checkbox"]');
+				if(ck_cust_field.is(':checked')){
+					custom_fields[comment_col-1].value = 1;
+				}else /*if(custom_fields[comment_col-1].value != "")*/{
+					//set it to 0 only if it is not empty
+					custom_fields[comment_col-1].value = 0;
+				}
+				cust_field.val(custom_fields[comment_col-1].value);
+			}else{
 				custom_fields[comment_col-1].value = cust_field.val();
 			}
 		}
@@ -362,10 +351,6 @@ function getCustFldToolTip()
 		for(i=0; i < cust_fids.length; i++)
 		{
 			cust_field = $( "#" + cust_fids[i]);
-			let customID = (cust_fids[i].split('_')).pop();
-			if(!cust_field.attr('type') && !cust_field.is("select")){
-				cust_field = $('[name="[custom_field_values]['+customID+']"]');
-			}
 			if (cusfield == "")
 			{
 				str = "";
