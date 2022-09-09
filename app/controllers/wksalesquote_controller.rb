@@ -15,6 +15,7 @@ class WksalesquoteController < WkquoteController
 	def setTempEntity(startDate, endDate, parentID, parentType, populatedItems, projectID)
 	@currency = params[:inv_currency]
 	super
+	@invoice = WkInvoice.find(params[:invoice_id].to_i) if params[:invoice_id].present?
 	if populatedItems
 		@unbilled = true
 		if projectID == '0'

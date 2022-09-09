@@ -26,7 +26,7 @@ module ReportUserUtilization
 
         time_entries.each do |teDetails|
             key = teDetails.user_id.to_s
-            user_data[key].each do |hour|
+            (user_data[key] || {}).each do |hour|
                 month_year = hour.first.to_s
                 billable = ActiveModel::Type::Boolean.new.cast(teDetails.is_billable) ? :bill_hrs : :non_bill_hrs
                 if month_year == (teDetails.tyear).to_s + "," + (teDetails.tmonth).to_s
