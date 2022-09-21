@@ -1268,3 +1268,6 @@ de:
   warn_delete_all_rows: Sind Sie sicher, dass Sie alle Zeilen löschen möchten?
   label_sales_quote_components: Angebotskomponenten
   label_terms_cond: Geschäftsbedingungen
+
+  label_invoice_template_use: Eigenes Rechnungstemplate aktivieren
+  label_invoice_template_code: Eigenes Rechnungstemplate
