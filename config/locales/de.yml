@@ -262,8 +262,8 @@ de:
   label_override_common_setting: Globale Einstellung überschreiben
   label_actual: Tatsächlich
 
-  label_wk_billing: Abrechnung
-  label_enable_billing_module: Abrechnungsmodul aktivieren
+  label_wk_billing: Faktura
+  label_enable_billing_module: Fakturasmodul aktivieren
   label_accounts: Konten
   label_contracts: Verträge
   label_acc_projects: Kontoprojekte
@@ -289,7 +289,7 @@ de:
   label_item_type: Artikelart
   label_invoice_number: Rechnungsnummer
   label_invoice_items: Rechnungspositionen
-  label_billing_type: Abrechnungsart
+  label_billing_type: Fakturaart
   label_apply_tax: Steuern anwenden
   label_itemized_bill: Einzelteilrechnung
   label_invoice_items: Rechnungspositionen
@@ -315,9 +315,9 @@ de:
   label_fixed_cost: Fixe Kosten
   label_milestone: Meilenstein
   label_applicable_taxes: Anwendbare Steuern
-  label_billing_schedules: Abrechnungspläne
+  label_billing_schedules: Fakturatermine
   label_new_billing_project: Neues Konto-Projekt
-  label_billing_groups: Abrechnungsadministratorgruppen
+  label_billing_groups: Faktura Administratorgruppen
   label_start_date: Startdatum
   label_contract_name: Vertragsname
   label_file_name: Dateiname
@@ -1232,27 +1232,27 @@ de:
   label_confirmation_number: Auftragsbestätigung
   label_fullfilled: Erfüllt
 
-  label_assemble_item: Assemble Item
-  label_tax_number: Tax Number
-  label_add_existing_asset: Add Existing Asset
-  label_interview_type: Interview Type
-  label_consumed_item_for_issue: Allow Consumed Items for Issue
+  label_assemble_item: Artikel vereinen
+  label_tax_number: Steuernummer
+  label_add_existing_asset: Vorhandene Anlage hinzufügen
+  label_interview_type: Interview Typ
+  label_consumed_item_for_issue: Verbrauchte Artikel im Ticket zulassen
 
-  label_new_enumeration: New Enumerations
-  label_new_activity: New Activity
-  label_owner_type: Owner Type
-  label_asset_name: Asset Name
-  label_clock_summary: Clock Summary
-  label_leave_summary: Leave Summary
-  label_reset_month: Reset Month
-  label_activity_information: Activity Information
-  label_enumeration_details: Enumerations Details
-  label_group_permission: Group Permissions
-  label_new_ledger: New Ledger
-  label_next_step: Next Step
-  label_delete_payroll: Delete Payroll
-  label_invoice_details: Invoice Details
-  label_items: Item
-  label_hide_amount_in_words: Hide amount in words
-  label_new_interview: New Interview
-  label_edit_interview: Edit Interview
+  label_new_enumeration: Neue Liste
+  label_new_activity: Neue Aktivität
+  label_owner_type: Eigentümer Typ
+  label_asset_name: Anlagenbezeichnung
+  label_clock_summary: Zusammenfassung Zeiten
+  label_leave_summary: Zusammenfassung Abwesenheit
+  label_reset_month: Monat zurücksetzen
+  label_activity_information: Aktivitätsinformation
+  label_enumeration_details: Listendetails
+  label_group_permission: Gruppenrechte
+  label_new_ledger: Neu: Ledger
+  label_next_step: Nächster Schritt
+  label_delete_payroll: Gehaltsabrechnung löschen
+  label_invoice_details: Rechnungsdetails
+  label_items: Artikel
+  label_hide_amount_in_words: Summe in Worten ausblenden
+  label_new_interview: Nues Interview
+  label_edit_interview: Interview bearbeiten
