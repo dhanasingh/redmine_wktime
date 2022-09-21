@@ -118,4 +118,11 @@ lblInvCompVal = "<%=l(:field_value) %>";
 			options_for_select(cfIssueRate, :selected =>  @settings['wktime_issue_billing_rate_cf'])) %>
 	</p>
 	-->
+	<p>
+			<%= check_box_tag('settings[wktime_invoice_template_use]', 1, @settings['wktime_invoice_template_use'].to_i == 1) %> <label><%= l(:label_invoice_template_use) %></label>
+	</p>
+	<p>
+		  <label><%= l(:label_invoice_template_code) %></label><%= text_area_tag 'settings[wktime_invoice_template_code]', @settings['wktime_invoice_template_code'], :size => '25x10' %> 
+	</p>
+	
 </fieldset>
