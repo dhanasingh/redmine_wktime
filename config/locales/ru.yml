@@ -1272,3 +1272,6 @@ ru:
   warn_delete_all_rows: Are you sure you want to delete all rows?
   label_sales_quote_components: Sales Quote Components
   label_terms_cond: Terms and Conditions
+  
+  label_invoice_template_use: Activate own invoice template
+  label_invoice_template_code: Own invoice template
