@@ -1275,3 +1275,5 @@ it:
 
   label_invoice_template_use: Activate own invoice template
   label_invoice_template_code: Own invoice template
+
+  label_wk_item_search_global: Global item search possible
