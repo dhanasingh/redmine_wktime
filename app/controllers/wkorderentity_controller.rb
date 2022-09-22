@@ -255,7 +255,11 @@ class WkorderentityController < WkbillingController
 		end
 		unless params[:is_report].blank? || !to_boolean(params[:is_report])
 			@invoiceItem = @invoiceItem.order(:project_id, :item_type)
-			render :action => 'invreport', :layout => false
+			if (Setting.plugin_redmine_wktime['wktime_invoice_template_use'].to_i != 1)
+				render :action => 'invreport', :layout => false
+			else
+				render inline: Setting.plugin_redmine_wktime['wktime_invoice_template_code']
+			end
 		end
 
 	end

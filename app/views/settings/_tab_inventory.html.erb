@@ -39,6 +39,9 @@
 	<p><label><%= l(:label_debit_with_ledger)  %></label>
 	    <%= select_tag 'settings[inventory_db_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['inventory_db_ledger']) %></p>
 		
+	<p>
+		<%= check_box_tag('settings[wktime_item_search_global]', 1, @settings['wktime_item_search_global'].to_i == 1) %> <label><%= l(:label_wk_item_search_global) %></label>
+	</p>
 	
 	
 </fieldset>
