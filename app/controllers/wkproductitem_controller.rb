@@ -82,7 +82,9 @@ class WkproductitemController < WkinventoryController
 		end
 
 		if projectId.blank?
-			sqlwhere = sqlwhere + " AND iit.project_id IS NULL"
+			if (Setting.plugin_redmine_wktime['wktime_item_search_global'].to_i != 1)
+				sqlwhere = sqlwhere + " AND iit.project_id IS NULL"
+			end
 		elsif projectId != 'AP'
 			sqlwhere = sqlwhere + " AND iit.project_id = #{projectId}"
 		end
