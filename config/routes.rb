@@ -419,7 +419,15 @@ get 'wkorderentity/get_product_tax', to: 'wkorderentity#get_product_tax'
 
 get 'wkorderentity/get_project_tax', to: 'wkorderentity#get_project_tax'
 
-get 'wkorderentity/getIssueDD', to: 'wkorderentity#getIssueDD'
+get 'wkinvoice/getIssueDD', to: 'wkinvoice#getIssueDD'
+
+get 'wksalesquote/getIssueDD', to: 'wksalesquote#getIssueDD'
+
+get 'wkquote/getIssueDD', to: 'wkquote#getIssueDD'
+
+get 'wkpurchaseorder/getIssueDD', to: 'wkpurchaseorder#getIssueDD'
+
+get 'wksupplierinvoice/getIssueDD', to: 'wksupplierinvoice#getIssueDD'
 
 get 'wkorderentity/checkQty', to: 'wkorderentity#checkQty'
 
@@ -885,6 +893,8 @@ get 'wknotification', :to => 'wknotification#index'
 post 'wknotification/update', :to => 'wknotification#update'
 
 get 'wknotification/updateUserNotification', to: 'wknotification#updateUserNotification'
+
+post 'wknotification/markReadNotification', to: 'wknotification#markReadNotification'
 
 # Others Routes
 # Base Controller

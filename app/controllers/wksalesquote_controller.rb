@@ -25,7 +25,7 @@ class WksalesquoteController < WkquoteController
 		end
 		accountProjects.each do |acc_proj|
 			if acc_proj.billing_type == 'TM'
-				issues = Issue.where(project_id: acc_proj.project_id)
+				issues = getProjIssues(acc_proj.project_id.to_i)
 				if @invoiceItem.present?
 					issue_id = @invoiceItem.pluck(:invoice_item_id)
 					issues = issues.where.not(id: issue_id) if issue_id.present?
@@ -205,5 +205,9 @@ end
 	
 	def getOrderComponetsId
 		'wktime_sq_components'
+	end
+
+	def includeClosedIssues
+		Setting.plugin_redmine_wktime['wktime_sales_quote_closed_issues'].present? && Setting.plugin_redmine_wktime['wktime_sales_quote_closed_issues'].to_i == 1
 	end
 end

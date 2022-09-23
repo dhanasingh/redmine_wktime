@@ -1289,3 +1289,5 @@ pl:
   warn_delete_all_rows: Are you sure you want to delete all rows?
   label_sales_quote_components: Sales Quote Components
   label_terms_cond: Terms and Conditions
+  label_mark_all_read: Mark All Read
+  chkbox_sales_quote_closed_issues: Include Closed Issues for Sales Quote

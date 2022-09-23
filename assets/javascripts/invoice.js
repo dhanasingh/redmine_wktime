@@ -152,7 +152,7 @@ $(document).ready(function() {
 
 			$("[id^='project_id_']").change(function(){
 				//load itemDD				
-				url = "/wkorderentity/getIssueDD";
+				url = "/"+controller_name+"/getIssueDD";
 				data = {project_id: $(this).val() };
 				let row = parseInt((this.name).split('_').pop());
 				changeDD = document.getElementById("invoice_item_id_"+row);
@@ -297,7 +297,7 @@ function invoiceAddRow(tableId, rowCount){
 	if (["I"].includes($('#invoice_type').val())){
 		let changeDD = document.getElementById("invoice_item_id_"+rowlength);
 		$.ajax({
-			url:  "/wkorderentity/getIssueDD",
+			url:  "/"+controller_name+"/getIssueDD",
 			data: {project_id: $("#invoiceTable #project_id_"+rowlength).val() },
 			success: function(resData){
 				updateUserDD(resData, changeDD, 1, true, false, label_prod_item);
@@ -998,7 +998,7 @@ function invItemChange(ele){
 			break;
 		default:
 			$("#invoiceTable #invoice_item_type_"+row).val('Issue');
-			url = "/wkorderentity/getIssueDD";
+			url = "/"+controller_name+"/getIssueDD";
 			data = {project_id: $("#invoiceTable #project_id_"+row).val() };
 	}
 

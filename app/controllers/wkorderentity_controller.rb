@@ -277,7 +277,7 @@ class WkorderentityController < WkbillingController
 			pjtList = @invoiceItem.select(:project_id).distinct
 			pjtList.each do |entry|
 				@issuesDD = Hash.new if @issuesDD.blank?
-				@issuesDD[entry.project_id.to_i] = Issue.where(:project_id => entry.project_id.to_i).pluck(:subject, :id)
+				@issuesDD[entry.project_id.to_i] = getIssueDD(entry.project_id.to_i)
 				@projectsDD << [ entry.project.name, entry.project_id ] if !entry.project_id.blank? && entry.project_id != 0
 			end
 		end
@@ -960,14 +960,20 @@ class WkorderentityController < WkbillingController
 	def update_status
 	end
 
-	def getIssueDD()
-		issuetArr = ""
-		issuesDD = Issue.where(:project_id => params[:project_id].to_i)
-		issuesDD.each do | entry |
-			issuetArr << entry.id.to_s() + ',' +  entry.subject.to_s()  + "\n"
-		end
+	def getIssueDD(project_id = nil)
+		project_id = project_id || params[:project_id]
+		issues = getProjIssues(project_id)
 		respond_to do |format|
-			format.text  { render plain: issuetArr }
+			format.text  {
+				issueObj = ''
+				(issues || []).each{ |entry| issueObj << entry.id.to_s() + ',' +  entry.subject.to_s()  + "\n" }
+				render :plain => issueObj
+			}
+			format.html {
+				issueObj =[]
+				(issues || []).each{|entry| issueObj << [entry.subject, entry.id]}
+				return issueObj
+			}
 		end
 	end
 
@@ -1016,17 +1022,18 @@ class WkorderentityController < WkbillingController
 	end
 
 	def newInvoice(parentId, parentType)
+		@issuesDD = Hash.new if @issuesDD.blank?
 		invoiceFreq = getInvFreqAndFreqStart
 		invIntervals = getIntervals(params[:start_date].to_date, params[:end_date].to_date, invoiceFreq["frequency"], invoiceFreq["start"], true, false)
 		if !params[:project_id].blank? && params[:project_id] != '0'
 			@projectsDD = Project.where(:id => params[:project_id].to_i).pluck(:name, :id)
-			@issuesDD[params[:project_id].to_i] = Issue.where(:project_id => params[:project_id].to_i).pluck(:subject, :id)
+			@issuesDD[params[:project_id].to_i] = getIssueDD(params[:project_id].to_i)
 			setTempEntity(invIntervals[0][0], invIntervals[0][1], parentId, parentType, params[:populate_items], params[:project_id])
 		elsif (!params[:project_id].blank? && params[:project_id] == '0') || params[:isAccBilling] == "true"
 			accountProjects = WkAccountProject.where(:parent_type => parentType, :parent_id => parentId.to_i)
 			unless accountProjects.blank?
 				@projectsDD = accountProjects[0].parent.projects.pluck(:name, :id)
-				accountProjects.each{|proj| @issuesDD[proj.project_id.to_i] = Issue.where(project_id: proj.project_id.to_i).pluck(:subject, :id)}
+				accountProjects.each{|proj| @issuesDD[proj.project_id.to_i] = getIssueDD(proj.project_id.to_i)}
 				setTempEntity(invIntervals[0][0], invIntervals[0][1], parentId, parentType, params[:populate_items], params[:project_id])
 			else
 				client = parentType.constantize.find(parentId)
@@ -1053,5 +1060,15 @@ class WkorderentityController < WkbillingController
 
 	def addDescription
 		false
+	end
+
+	def includeClosedIssues
+		false
+	end
+
+	def getProjIssues(project_id)
+		issues = Issue.where(project_id: project_id)
+		issues = issues.open if !includeClosedIssues
+		issues || []
 	end
 end
