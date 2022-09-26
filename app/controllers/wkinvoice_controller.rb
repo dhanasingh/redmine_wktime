@@ -17,11 +17,13 @@
 
 class WkinvoiceController < WkorderentityController
 
-	accept_api_auth :index, :edit, :update, :getInvProj, :getAccountProjIds
+	accept_api_auth :index, :edit, :update, :getInvProj, :getAccountProjIds, :export
 	@@invmutex = Mutex.new
 
 	def newOrderEntity(parentId, parentType)
-		newInvoice(parentId, parentType)
+		invoiceFreq = getInvFreqAndFreqStart
+		invIntervals = getIntervals(params[:start_date].to_date, params[:end_date].to_date, invoiceFreq["frequency"], invoiceFreq["start"], true, false)
+		setupNewInvoice(parentId, parentType, invIntervals[0][0], invIntervals[0][1])
 	end
 
 	def saveOrderInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)

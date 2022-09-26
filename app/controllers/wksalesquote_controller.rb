@@ -9,68 +9,68 @@ class WksalesquoteController < WkquoteController
 	include WkorderentityHelper
 
 	def newOrderEntity(parentId, parentType)
-		newInvoice(parentId, parentType)
+		setupNewInvoice(parentId, parentType, params[:start_date], params[:end_date])
 	end
 	
 	def setTempEntity(startDate, endDate, parentID, parentType, populatedItems, projectID)
-	@currency = params[:inv_currency]
-	super
-	@invoice = WkInvoice.find(params[:invoice_id].to_i) if params[:invoice_id].present?
-	if populatedItems
-		@unbilled = true
-		if projectID == '0'
-			accountProjects = WkAccountProject.where(parent_type: parentType, parent_id: parentID.to_i)
-		else
-			accountProjects = WkAccountProject.where(parent_type: parentType, parent_id: parentID.to_i, project_id: projectID)
-		end
-		accountProjects.each do |acc_proj|
-			if acc_proj.billing_type == 'TM'
-				issues = getProjIssues(acc_proj.project_id.to_i)
-				if @invoiceItem.present?
-					issue_id = @invoiceItem.pluck(:invoice_item_id)
-					issues = issues.where.not(id: issue_id) if issue_id.present?
-				end
-				issues.each do |issue|
-					invoice_items = {}
-					rate = getBillingRate(issue.project_id, issue.id)
-					quantity = getIssueEstimatedHours(issue.id)
-					amount = (rate || 0) * (quantity || 0)
-					invoice_items = {project_id: issue.project_id, item_desc: issue.subject, rate: rate, item_quantity: quantity, item_amount: amount.round(2), billing_type: acc_proj.billing_type, issue_id: issue.id}
-					loadInvItems(invoice_items)
-				end
+		@currency = params[:inv_currency]
+		super
+		@invoice = WkInvoice.find(params[:invoice_id].to_i) if params[:invoice_id].present?
+		if populatedItems
+			@unbilled = true
+			if projectID == '0'
+				accountProjects = WkAccountProject.where(parent_type: parentType, parent_id: parentID.to_i)
 			else
-				@currency = acc_proj.wk_billing_schedules&.first&.currency
-				scheduledEntries = acc_proj.wk_billing_schedules.where(account_project_id: acc_proj.id)
-				scheduledEntries.each do |entry|
-					invoice_items = {}
-					itemDesc = ""
-					if isAccountBilling(entry.account_project)
-						itemDesc = entry.account_project.project.name + " - " + entry.milestone
-					else
-						itemDesc = entry.milestone
+				accountProjects = WkAccountProject.where(parent_type: parentType, parent_id: parentID.to_i, project_id: projectID)
+			end
+			accountProjects.each do |acc_proj|
+				if acc_proj.billing_type == 'TM'
+					issues = getProjIssues(acc_proj.project_id.to_i)
+					if @invoiceItem.present?
+						issue_id = @invoiceItem.pluck(:invoice_item_id)
+						issues = issues.where.not(id: issue_id) if issue_id.present?
 					end
-					invoice_items = {project_id: entry.account_project.project_id, item_desc: itemDesc, rate: entry.amount, item_quantity: 1, item_amount: entry.amount.round(2), billing_type: entry.account_project.billing_type, milestone_id: entry.id}
-					loadInvItems(invoice_items)
+					issues.each do |issue|
+						invoice_items = {}
+						rate = getBillingRate(issue.project_id, issue.id)
+						quantity = getIssueEstimatedHours(issue.id)
+						amount = (rate || 0) * (quantity || 0)
+						invoice_items = {project_id: issue.project_id, item_desc: issue.subject, rate: rate, item_quantity: quantity, item_amount: amount.round(2), billing_type: acc_proj.billing_type, issue_id: issue.id}
+						loadInvItems(invoice_items)
+					end
+				else
+					@currency = acc_proj.wk_billing_schedules&.first&.currency
+					scheduledEntries = acc_proj.wk_billing_schedules.where(account_project_id: acc_proj.id)
+					scheduledEntries.each do |entry|
+						invoice_items = {}
+						itemDesc = ""
+						if isAccountBilling(entry.account_project)
+							itemDesc = entry.account_project.project.name + " - " + entry.milestone
+						else
+							itemDesc = entry.milestone
+						end
+						invoice_items = {project_id: entry.account_project.project_id, item_desc: itemDesc, rate: entry.amount, item_quantity: 1, item_amount: entry.amount.round(2), billing_type: entry.account_project.billing_type, milestone_id: entry.id}
+						loadInvItems(invoice_items)
+					end
 				end
 			end
 		end
 	end
-end
 
-def loadInvItems(invoice_items)
-	@invItems[@itemCount].store 'milestone_id', invoice_items[:milestone_id] if invoice_items[:billing_type] == 'FC'
-	@invItems[@itemCount].store 'project_id', invoice_items[:project_id]
-	@invItems[@itemCount].store 'item_desc', invoice_items[:item_desc]
-	@invItems[@itemCount].store 'item_type', 'i'
-	@invItems[@itemCount].store 'rate', invoice_items[:rate]
-	@invItems[@itemCount].store 'currency', @currency || Setting.plugin_redmine_wktime['wktime_currency']
-	@invItems[@itemCount].store 'item_quantity', invoice_items[:item_quantity]
-	@invItems[@itemCount].store 'item_amount', invoice_items[:item_amount]
-	@invItems[@itemCount].store 'issue_id', invoice_items[:issue_id]  if invoice_items[:billing_type] == 'TM'
-	@invItems[@itemCount].store 'billing_type', invoice_items[:billing_type]
-	@itemCount = @itemCount + 1
-end
-	
+	def loadInvItems(invoice_items)
+		@invItems[@itemCount].store 'milestone_id', invoice_items[:milestone_id] if invoice_items[:billing_type] == 'FC'
+		@invItems[@itemCount].store 'project_id', invoice_items[:project_id]
+		@invItems[@itemCount].store 'item_desc', invoice_items[:item_desc]
+		@invItems[@itemCount].store 'item_type', 'i'
+		@invItems[@itemCount].store 'rate', invoice_items[:rate]
+		@invItems[@itemCount].store 'currency', @currency || Setting.plugin_redmine_wktime['wktime_currency']
+		@invItems[@itemCount].store 'item_quantity', invoice_items[:item_quantity]
+		@invItems[@itemCount].store 'item_amount', invoice_items[:item_amount]
+		@invItems[@itemCount].store 'issue_id', invoice_items[:issue_id]  if invoice_items[:billing_type] == 'TM'
+		@invItems[@itemCount].store 'billing_type', invoice_items[:billing_type]
+		@itemCount = @itemCount + 1
+	end
+
 	def getInvoiceType
 		'SQ'
 	end
