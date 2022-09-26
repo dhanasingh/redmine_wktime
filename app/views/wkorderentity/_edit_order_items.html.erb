@@ -99,6 +99,8 @@
 								invoiceItemDD = @issuesDD[entry.project_id] || []
 								selected_itemDD_val = entry.try(:invoice_item_id)
 								model_name = "Issue"
+								issueItem = invoiceItemDD.detect{|e| e[1] == selected_itemDD_val}
+								invoiceItemDD << [entry&.invoice_item&.subject || '', selected_itemDD_val] if !issueItem.present?
 							elsif ["m", "a"].include?(entry.item_type) && controller.isInvoiceController
 								invoiceItemDD = getItemDD(entry.item_type)
 								invoiceItemDD.prepend([l(:label_select_product_item), ""])
