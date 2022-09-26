@@ -94,7 +94,7 @@ $(document).ready(function() {
 	if($("#invoiceTable .productItemsDD").length > 0){
 		$("#invoiceTable .productItemsDD").select2();
 
-		if($('#invoice_type').val() == 'I'){
+		if(["I", "SQ"].includes($('#invoice_type').val())){
 			//Show Product Items for material & Asset invoice only
 			$("#invoiceTable .productItemsDD").each(function(){
 				showHideProductItem(this);
@@ -277,7 +277,7 @@ function invoiceAddRow(tableId, rowCount){
 	clearId = tableId == "milestoneTable" ? "milestone_id_"+(rowlength) : (tableId == "txnTable" ? "txn_id_"+(rowlength) : "item_id_"+(rowlength) ) ;
 	$("#"+clearId).val("");
 	if(tableId == "invoiceTable"){
-		if($("#invoice_type").val() == "I"){
+		if(["I", "SQ"].includes($('#invoice_type').val())){
 			$("#item_type_"+(rowlength)).val("i");
 			$("#invoice_item_id_"+(rowlength)).val("").select2();
 			applyTax(document.getElementById("project_id_"+(rowlength)), "project");
@@ -294,7 +294,7 @@ function invoiceAddRow(tableId, rowCount){
 	}
 
 	// For Load invoice type dropdown
-	if (["I"].includes($('#invoice_type').val())){
+	if (["I", "SQ"].includes($('#invoice_type').val())){
 		let changeDD = document.getElementById("invoice_item_id_"+rowlength);
 		$.ajax({
 			url:  "/"+controller_name+"/getIssueDD",

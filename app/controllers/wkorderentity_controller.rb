@@ -625,9 +625,8 @@ class WkorderentityController < WkbillingController
 	end
 
 	def export
-		unless params[:invoice_id].blank?
-			@projectsDD = Array.new
-			editOrderEntity
+		if params[:invoice_id].present?
+			@invoice = WkInvoice.find(params[:invoice_id].to_i)
 		end
 		respond_to do |format|
 			format.pdf {
@@ -1063,7 +1062,7 @@ class WkorderentityController < WkbillingController
 	end
 
 	def includeClosedIssues
-		false
+		true
 	end
 
 	def getProjIssues(project_id)
