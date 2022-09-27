@@ -1066,6 +1066,6 @@ class WkorderentityController < WkbillingController
 	def getProjIssues(project_id)
 		issues = Issue.where(project_id: project_id)
 		issues = issues.open if !includeClosedIssues
-		issues.order(created_on: :desc) || []
+		issues.order(id: :desc) || []
 	end
 end
