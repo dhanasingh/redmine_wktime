@@ -392,8 +392,8 @@ class WkorderentityController < WkbillingController
 					saveConsumedSN(JSON.parse(params["used_serialNo_obj_#{i}"]), updatedItem) if params["used_serialNo_obj_#{i}"].present?
 					updateParentInventoryItem(invoice_item_id.to_i, params["quantity_#{i}"].to_i, old_item_quantity || '')
 				end
-				if !params[:populate_unbilled].blank? && params[:populate_unbilled] == "true" && params[:creditfrominvoice].blank? && !params["entry_id_#{i}"].blank?
-					accProject = WkAccountProject.where(:project_id => pjtId)
+				if !params[:populate_unbilled].blank? && params[:populate_unbilled] == "true" && params[:creditfrominvoice].blank? && !params["entry_id_#{i}"].blank? && !addAllRows
+					accProject = WkAccountProject.where("parent_id = ? and parent_type = ? and project_id = ?", @invoice.parent_id, @invoice.parent_type, pjtId)
 					if accProject[0].billing_type == 'TM'
 						idArr = params["entry_id_#{i}"].split(' ')
 						idArr.each do | id |
