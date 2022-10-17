@@ -239,7 +239,7 @@ include WkdocumentHelper
 		when "WkCrmActivity"
 			accSections = ["wkdocument"]
 		when "WkOpportunity"
-			accSections = ["wkcrmactivity", "wkdocument"]
+			accSections = ["wkcrmactivity", "wkdocument","wksalesstagehistory"]
 		when "WkLead"
 			accSections = ["wkcrmactivity"]
 			accSections.push("wkaccountproject","wksalesquote") if curObj.contact.contact_type == "C"

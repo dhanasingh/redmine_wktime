@@ -1291,3 +1291,5 @@ pl:
   label_terms_cond: Terms and Conditions
   label_mark_all_read: Mark All Read
   chkbox_sales_quote_closed_issues: Include Closed Issues for Sales Quote
+  label_sales_stage_history: Sales Stage History
+  label_created_date: Created Date

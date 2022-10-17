@@ -25,7 +25,7 @@
 			<th align="left" style="padding-left:240px;"><%= l(:label_expected_date_to_close_project) %></th>
 			<td align="left" style="padding-left:40px;"><%= date_field_tag('expected_close_date',   Date.today, {:id => 'expected_close_date', :size => 12, :style => "width:160px;"}) + calendar_for('expected_close_date') %></td>
 		</tr>
-		<%  selectedSSId = @oppEditEntry.blank? ? nil : @oppEditEntry[0].sales_stage_id %>
+		<%  selectedSSId = @oppEditEntry.blank? ? nil : get_sales_stage(@oppEditEntry[0]) %>
 		<%  selectedOTId = @oppEditEntry.blank? ? nil : @oppEditEntry[0].opportunity_type_id %>
 		<tr>
 			<th align="left"><%= l(:label_txn_sales_stage) %></th>
@@ -66,7 +66,10 @@
 
 		<tr>
 		<th align="left" ><%= l(:field_description) %></th>
-		<td colspan="4" align="left" style="padding-left:40px;"><%= text_area_tag 'opp_description', (!@oppEditEntry.blank? && !@oppEditEntry[0].description.blank? ? @oppEditEntry[0].description : ""), :maxlength => 255, :style => "width:605px" %></td>
+		<td align="left" style="padding-left:40px;"><%= text_area_tag 'opp_description', (!@oppEditEntry.blank? && !@oppEditEntry[0].description.blank? ? @oppEditEntry[0].description : ""), :maxlength => 255, :style => "width:605px" %></td>
+
+		<th align="left" style="padding-left:240px;"><%= l(:label_created_date) %> </th>
+		<td align="left" style="padding-left:40px;"><%= @oppEditEntry[0]&.created_at.localtime.strftime("%Y-%m-%d") || '' if @oppEditEntry.present? %></td>
 
 		</tr>
 
