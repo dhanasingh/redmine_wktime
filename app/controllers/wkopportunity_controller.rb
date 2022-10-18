@@ -19,8 +19,10 @@ class WkopportunityController < WkcrmController
 		set_filter_session
 		retrieve_date_range
 		oppName = session[controller_name].try(:[], :oppname)
-		accId = session[controller_name].try(:[], :account_id)
 		sales_stage = session[controller_name].try(:[], :sales_stage)
+		filter_type = session[controller_name].try(:[], :polymorphic_filter)
+		contact_id = session[controller_name].try(:[], :contact_id)
+		account_id = session[controller_name].try(:[], :account_id)
 		oppDetails = WkOpportunity.joins("
 			LEFT JOIN(
 				SELECT MAX(status_date) AS status_date, status_for_id
@@ -45,11 +47,26 @@ class WkopportunityController < WkcrmController
 			filterSql = filterSql + " LOWER(wk_opportunities.name) like LOWER(:name)"
 			filterHash[:name] = "%#{oppName}%"
 		end
-		unless accId.blank?
+
+		if filter_type == '3' && account_id.present?
 			filterSql = filterSql + " AND" unless filterSql.blank?
-			filterSql = filterSql + " wk_opportunities.parent_id = :parent_id "
-			filterHash[:parent_id] = accId.to_i
+			filterSql = filterSql + " wk_opportunities.parent_id = :parent_id AND wk_opportunities.parent_type = :parent_type "
+			filterHash[:parent_id] = account_id.to_i
 			filterHash[:parent_type] = 'WkAccount'
+		elsif filter_type == '3' && account_id.blank?
+			filterSql = filterSql + " AND" unless filterSql.blank?
+			filterSql = filterSql + " wk_opportunities.parent_type = :parent_type "
+			filterHash[:parent_type] = 'WkAccount'
+		end
+		if filter_type == '2' && contact_id.present?
+			filterSql = filterSql + " AND" unless filterSql.blank?
+			filterSql = filterSql + " wk_opportunities.parent_id = :parent_id AND wk_opportunities.parent_type = :parent_type"
+			filterHash[:parent_id] = contact_id.to_i
+			filterHash[:parent_type] = 'WkCrmContact'
+		elsif filter_type == '2' && contact_id.blank?
+			filterSql = filterSql + " AND" unless filterSql.blank?
+			filterSql = filterSql + " wk_opportunities.parent_type = :parent_type "
+			filterHash[:parent_type] = 'WkCrmContact'
 		end
 
 		unless filterHash.blank? || filterSql.blank?
@@ -153,7 +170,7 @@ class WkopportunityController < WkcrmController
 
 
     def set_filter_session
-		filters = [:period_type, :oppname, :account_id, :period, :from, :to, :sales_stage]
+		filters = [:period_type, :oppname, :account_id, :period, :from, :to, :sales_stage, :contact_id, :account_id, :polymorphic_filter]
 		super(filters, {:from => @from, :to => @to})
     end
 
@@ -177,6 +194,21 @@ class WkopportunityController < WkcrmController
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
 		end
+	end
+
+	def getOrderContactType
+		'C'
+	end
+
+	def getOrderAccountType
+		'A'
+	end
+
+	def getAccountDDLbl
+		l(:field_account)
+	end
+
+	def getAdditionalDD
 	end
 
 end
