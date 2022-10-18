@@ -47,7 +47,7 @@ class WkopportunityController < WkcrmController
 		end
 		unless accId.blank?
 			filterSql = filterSql + " AND" unless filterSql.blank?
-			filterSql = filterSql + " parent_id = :parent_id "
+			filterSql = filterSql + " wk_opportunities.parent_id = :parent_id "
 			filterHash[:parent_id] = accId.to_i
 			filterHash[:parent_type] = 'WkAccount'
 		end
