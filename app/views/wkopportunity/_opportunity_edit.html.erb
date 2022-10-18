@@ -20,10 +20,9 @@
 	<table >
 		<tr>
 			<th align="left"><%= l(:label_opportunity_name)  %><span style="color:red;">*</span></th>
-			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_name", (!@oppEditEntry.blank? ? @oppEditEntry[0].name : ""), :style => "width:190px;") %></td>
-
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_name", (!@oppEditEntry.blank? ? @oppEditEntry[0].name : ""), :maxlength => 255, :style => "width:190px;") %></td>
 			<th align="left" style="padding-left:240px;"><%= l(:label_expected_date_to_close_project) %></th>
-			<td align="left" style="padding-left:40px;"><%= date_field_tag('expected_close_date',   Date.today, {:id => 'expected_close_date', :size => 12, :style => "width:160px;"}) + calendar_for('expected_close_date') %></td>
+			<td align="left" style="padding-left:40px;"><%= date_field_tag('expected_close_date', (!@oppEditEntry.blank? && !@oppEditEntry[0].close_date.blank? ? @oppEditEntry[0].close_date.to_date : Date.today), {:id => 'expected_close_date', :size => 12, :style => "width:160px;"}) + calendar_for('expected_close_date') %></td>
 		</tr>
 		<%  selectedSSId = @oppEditEntry.blank? ? nil : get_sales_stage(@oppEditEntry[0]) %>
 		<%  selectedOTId = @oppEditEntry.blank? ? nil : @oppEditEntry[0].opportunity_type_id %>

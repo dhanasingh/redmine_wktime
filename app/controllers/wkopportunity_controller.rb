@@ -106,7 +106,7 @@ class WkopportunityController < WkcrmController
 		end
 		oppEntry.name = params[:opp_name]
 		oppEntry.currency = params[:currency]
-		oppEntry.close_date = Time.parse(params[:expected_close_date])
+		oppEntry.close_date =params[:expected_close_date]
 		oppEntry.amount = params[:opp_amount]
 		oppEntry.assigned_user_id = params[:assigned_user_id]
 		oppEntry.opportunity_type_id = params[:opp_type]
