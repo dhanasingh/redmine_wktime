@@ -11,6 +11,6 @@ def getSaleStageHash
 end
 
 def get_sales_stage(entry)
-    entry.wkstatus.order(status_date: :desc).first.status.to_i
+    entry&.wkstatus&.order(status_date: :desc)&.first&.status.to_i
 end
 end

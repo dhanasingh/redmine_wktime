@@ -42,12 +42,12 @@
 			<%=h text_field_tag("opp_amount", (!@oppEditEntry.blank? && !@oppEditEntry[0].amount.blank? ? @oppEditEntry[0].amount : ""), :style => "width:190px;") %></td>
 
 			<th align="left" style="padding-left:240px;"><%= l(:label_probability) + " (%)" %> </th>
-			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_probability", (!@oppEditEntry.blank? && !@oppEditEntry[0].probability.blank? ? @oppEditEntry[0].probability : ""), :style => "width:190px;") %></td>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_probability", (!@oppEditEntry.blank? && !@oppEditEntry[0].probability.blank? ? @oppEditEntry[0].probability : ""), :maxlength => 255, :style => "width:190px;") %></td>
 		</tr>
 
 		<tr>
 			<th align="left"><%= l(:label_next_step) %></th>
-			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_next_step", (!@oppEditEntry.blank? && !@oppEditEntry[0].next_step.blank? ? @oppEditEntry[0].next_step : ""), :style => "width:190px;") %></td>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_next_step", (!@oppEditEntry.blank? && !@oppEditEntry[0].next_step.blank? ? @oppEditEntry[0].next_step : ""), :maxlength => 255, :style => "width:190px;") %></td>
 
 			<th align="left" style="padding-left:240px;"><%= l(:field_assigned_to) %></th>
 			<td align="left" style="padding-left:40px;"><%=h select_tag('assigned_user_id', options_for_select(groupOfUsers, :selected => (!@oppEditEntry.blank? && !@oppEditEntry[0].assigned_user_id.blank? ? @oppEditEntry[0].assigned_user_id : "")),:required => true) %></td>
@@ -69,7 +69,7 @@
 		<td align="left" style="padding-left:40px;"><%= text_area_tag 'opp_description', (!@oppEditEntry.blank? && !@oppEditEntry[0].description.blank? ? @oppEditEntry[0].description : ""), :maxlength => 255, :style => "width:605px" %></td>
 
 		<th align="left" style="padding-left:240px;"><%= l(:label_created_date) %> </th>
-		<td align="left" style="padding-left:40px;"><%= @oppEditEntry[0]&.created_at.localtime.strftime("%Y-%m-%d") || '' if @oppEditEntry.present? %></td>
+		<td align="left" style="padding-left:40px;"><%= @oppEditEntry[0]&.created_at&.localtime&.strftime("%Y-%m-%d") || '' if @oppEditEntry.present? %></td>
 
 		</tr>
 
