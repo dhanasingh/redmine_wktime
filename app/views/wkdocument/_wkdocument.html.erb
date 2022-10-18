@@ -19,7 +19,7 @@
             <tr class="file">
                 <td class="filename">
                     <%= link_to file.filename, url_for(controller: "wkdocument", action: "download", id: file.id),
-                        class: 'icon-only icon-download', title: file.description %>
+                        class: 'icon icon-download', title: file.description %>
                 </td>
                 <td class="description"><%= file.description %></td>
                 <td class="created_on"><%= format_time(file.created_on) %></td>
