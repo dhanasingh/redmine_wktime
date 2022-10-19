@@ -12,7 +12,7 @@ class AddWkInvoicesDescriptions < ActiveRecord::Migration[6.1]
       end
 
       dir.down do
-        add_reference :wk_opportunities, :sales_stage, class: "wk_crm_enumerations", null: false
+        add_reference :wk_opportunities, :sales_stage, class: "wk_crm_enumerations"
         status = WkStatus.joins("INNER JOIN (
           SELECT MAX(status_date) AS status_date, status_for_id
           FROM wk_statuses
