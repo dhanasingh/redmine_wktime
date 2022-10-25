@@ -1,8 +1,6 @@
 class CreateWkSurvey< ActiveRecord::Migration[4.2]
   def change
-	
-	change_column_null :wk_po_supplier_invoices, :purchase_order_id, true
-	
+		
     create_table :wk_surveys do |t|
       t.string :name, :null => false
       t.string :status, :null => false, :limit => 5, :default => 'N'
@@ -44,7 +42,8 @@ class CreateWkSurvey< ActiveRecord::Migration[4.2]
     end	
     
     reversible do |dir|
-      dir.up do	
+      dir.up do
+        change_column_null :wk_po_supplier_invoices, :purchase_order_id, true
         execute <<-SQL
           INSERT INTO wk_permissions(id, name, short_name, modules, created_at, updated_at) VALUES (5, 'EDIT SURVEY', 'E_SUR', 'SU', current_timestamp, current_timestamp);
         SQL
