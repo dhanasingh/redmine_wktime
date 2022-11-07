@@ -1,13 +1,15 @@
-= Webinar on ERPmine – Referral and Skills,  Oct 25th, 2022, 5 PM India (11:30 AM GMT)
+= Webinar on ERPmine – Time and Expenses,  Nov 29th, 2022, 5 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
-https://us02web.zoom.us/meeting/register/tZUlduihrjIvHtTpuUBrMRQg1r2Eg7W0CS4Y
+https://us02web.zoom.us/meeting/register/tZIqc-mvqD4pHdIgePM_WoRaqRNKTRA9Ai9P
 *Topics* :
-- Referral Information
-- Job Interviews
-- Candidate Documents
-- Employees Skill Sets
-- Project Skill Set
+* Project based approvals
+* Minimum maximum validation on holidays
+* Issue logger on /off
+* Map on timesheet
+* Start / stop button on time entries
+* Timesheet Report
+* Mobile App
 -----
 
 = ERPmine
