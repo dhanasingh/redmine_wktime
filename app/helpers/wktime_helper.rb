@@ -738,7 +738,7 @@ end
 
 		# postgre doesn't have the weekday function
 		# The day of the week (0 - 6; Sunday is 0)
-		if ActiveRecord::Base.connection.adapter_name == 'PostgreSQL'
+		if ['PostgreSQL', 'PostGIS'].include?(ActiveRecord::Base.connection.adapter_name)
 			sqlStr = dtfield + " - ((cast(extract(dow from " + dtfield + ") as integer)+7-" + startOfWeek.to_s + ")%7)"
 		elsif ActiveRecord::Base.connection.adapter_name == 'SQLite'
 			sqlStr = "date(" + dtfield  + " , '-' || ((strftime('%w', " + dtfield + ")+7-" + startOfWeek.to_s + ")%7) || ' days')"
@@ -878,7 +878,7 @@ end
 	end
 
 	def getAddDateStr(dtfield,noOfDays)
-		if ActiveRecord::Base.connection.adapter_name == 'PostgreSQL'
+		if ['PostgreSQL', 'PostGIS'].include?(ActiveRecord::Base.connection.adapter_name)
 			dateSqlStr = "date('#{dtfield}') + "	+ noOfDays.to_s
 		elsif ActiveRecord::Base.connection.adapter_name == 'SQLite'
 			dateSqlStr = "date('#{dtfield}' , '+' || " + "(#{noOfDays.to_s})" + " || ' days')"
@@ -892,7 +892,7 @@ end
 
 	def getAddMonthDateStr(dtfield,intervalVal,intervalType)
 		interval = getIntervalFormula(intervalVal)
-		if ActiveRecord::Base.connection.adapter_name == 'PostgreSQL'
+		if ['PostgreSQL', 'PostGIS'].include?(ActiveRecord::Base.connection.adapter_name)
 			dateSqlStr = "date('#{dtfield}') + interval '1 month' * "	+ interval.to_s
 		elsif ActiveRecord::Base.connection.adapter_name == 'SQLite'
 			dateSqlStr = "date('#{dtfield}' , '+' || " + "(#{interval.to_s})" + " || ' months')"
@@ -1253,7 +1253,7 @@ end
 
 	def getAddMonthDateStr(dtfield,intervalVal,intervalType)
 		interval = getIntervalFormula(intervalVal)
-		if ActiveRecord::Base.connection.adapter_name == 'PostgreSQL'
+		if ['PostgreSQL', 'PostGIS'].include?(ActiveRecord::Base.connection.adapter_name)
 			dateSqlStr = "date('#{dtfield}') + interval '1 month' * "	+ interval.to_s
 		elsif ActiveRecord::Base.connection.adapter_name == 'SQLite'
 			dateSqlStr = "date('#{dtfield}' , '+' || " + "(#{interval.to_s})" + " || ' months')"
