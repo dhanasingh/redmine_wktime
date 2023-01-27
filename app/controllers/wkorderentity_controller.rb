@@ -973,6 +973,7 @@ class WkorderentityController < WkbillingController
 				(issues || []).each{|entry| issueObj << [entry.subject, entry.id]}
 				return issueObj
 			}
+			format.api
 		end
 	end
 
