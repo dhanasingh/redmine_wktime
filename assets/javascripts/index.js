@@ -360,7 +360,7 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, bla
 	if(dropdown != null && dropdown.options != null){
 		dropdown.options.length = 0;
 		if(needBlankOption){
-			dropdown.options[0] = new Option(blankText, "0", false, false)
+			dropdown.options[0] = new Option(blankText, "", false, false)
 		}
 		for(i=0; i < items.length-1; i++){
 			index = items[i].indexOf(',');
