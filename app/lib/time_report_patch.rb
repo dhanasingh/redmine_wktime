@@ -4,8 +4,7 @@ module TimeReportPatch
       attr_reader :criteria, :columns, :hours, :total_hours, :periods
 
       # ============= ERPmine_patch Redmine 5.0  =====================
-      def initialize(project, issue, criteria, columns, time_entry_scope, options)
-        @issue = issue
+      def initialize(project, criteria, columns, time_entry_scope, options={})
         @options = options
         # ======================================
         @project = project

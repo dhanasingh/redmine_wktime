@@ -66,7 +66,7 @@ module TimelogControllerPatch
 				unless hookQuery[0].blank?
 					scope = scope.where(hookQuery[0])
 				end
-			@report = Redmine::Helpers::TimeReport.new(@project, @issue, params[:criteria], params[:columns], scope, options)
+			@report = Redmine::Helpers::TimeReport.new(@project, params[:criteria], params[:columns], scope, options)
 			# ================================
 
 			respond_to do |format|
