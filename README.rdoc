@@ -1,14 +1,16 @@
-= Webinar on ERPmine – Payroll ,  March 28th, 2023, 5 PM India (11:30 AM GMT)
+= Webinar on ERPmine – Billing ,  April 25th, 2023, 5 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
-https://us02web.zoom.us/meeting/register/tZ0lduiopzsoHNHFxE67iCysJ1xVcjB3V1qR
+https://us02web.zoom.us/meeting/register/tZ0vdO6rpj8iGd2T-SawIjawTvi_P3FnFT9O
 
 *Topics* :
-* Generate payroll
-* Reimbursement
-* Apply tax
-* Payroll Report
-* Payslip report
+* Billing Projects
+* Invoice Setup
+* Contract Setup
+* Preview Unbilled Invoice
+* Generate Invoice
+* Accept Payment
+* Reports
 * Mobile app
 -----
 
