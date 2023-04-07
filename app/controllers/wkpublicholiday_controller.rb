@@ -41,8 +41,9 @@ class WkpublicholidayController < WkbaseController
 		end
 		@locationId = locationId.blank? ? "All" :  locationId
 		if getSession(:month).present?
-			calendar = Redmine::Helpers::Calendar.new(Date.civil(@year, @month, 1), current_language, :month)
-			entries = entries.where(:holiday_date => calendar.startdt..calendar.enddt)
+			month_beginning = Date.new(@year, @month)
+			month_ending = month_beginning.end_of_month
+			entries = entries.where(:holiday_date => month_beginning..month_ending)
 		else
 			unless getSession(:year).blank?
 				@year_from = getSession(:year).to_i
