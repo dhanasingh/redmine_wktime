@@ -1,7 +1,7 @@
-= Webinar on ERPmine – Survey,  Sep 27th, 2022, 5 PM India (11:30 AM GMT)
+= Webinar on ERPmine – Billing , April 25th, 2023, 5 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
-https://us02web.zoom.us/meeting/register/tZYtf-qvqD0qHdEYIPaCkeztEagX0Q9nG34h
+https://us02web.zoom.us/meeting/register/tZ0vdO6rpj8iGd2T-SawIjawTvi_P3FnFT9O
 
 *Topics* :
 ● Project Survey
@@ -14,7 +14,7 @@ https://us02web.zoom.us/meeting/register/tZYtf-qvqD0qHdEYIPaCkeztEagX0Q9nG34h
 ● Recurring Survey
 ● Survey Response Trending Chart
 ● Notification
-● Mobile app  
+● Mobile app
 -----
 
 = ERPmine
@@ -115,11 +115,16 @@ For more information on features, please refer to the user guide
 === Release Notes for v4.7
 
 * *Features*
-    - CRM Sales Quote.
+    - Add Sales Quote module.
+    - Add "activity type" column in Generate Invoice popup page.
 
 * *Bug* *fixes*
-    - Custom query save issue in spent time.
+    - Save Custom query issue in spent time filter.
     - Add validation for available quantity in material log page.
+    - Compatibility error with PostGIS database.
+    - Make Custom fields editable in the timesheet page.
+    - Remove the deprecated rss_key.
+    - The CRM Contacts dropdown is not populating in one scenario.
 
 We would like to thank Agilex Cyber Management Solutions for partially sponsored this release.
 
