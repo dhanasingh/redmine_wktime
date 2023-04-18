@@ -374,4 +374,18 @@ class WkbaseController < ApplicationController
 	def loadPurchaseDD
 		false
 	end
+
+	def addLeadDD
+		false
+	end
+	
+	def redirect_controller
+		if ['wklead', 'wkcrmaccount', 'wkcrmcontact'].include?controller_name
+			'wksalesquote'
+		elsif ['wkrfq'].include?controller_name
+			'wkquote'
+		else
+			controller_name
+		end
+	end
 end

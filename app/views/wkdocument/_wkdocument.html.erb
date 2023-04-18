@@ -19,7 +19,7 @@
             <tr class="file">
                 <td class="filename">
                     <%= link_to file.filename, url_for(controller: "wkdocument", action: "download", id: file.id),
-                        class: 'icon-only icon-download', title: file.description %>
+                        class: 'icon icon-download', title: file.description %>
                 </td>
                 <td class="description"><%= file.description %></td>
                 <td class="created_on"><%= format_time(file.created_on) %></td>
@@ -29,7 +29,7 @@
                 <%= link_to l(:button_download), url_for(controller: "wkdocument", action: "download", id: file.id),
                         class: 'icon-only icon-download', title: l(:button_download) %>
                 <%= link_to(l(:button_delete), url_for(controller: "wkdocument", action: "destroy", id: file.id),
-                        class: 'icon-only icon-del', title: l(:button_delete),
+                        class: 'icon-only icon-del', title: l(:button_delete), method: :delete,
                         data: {:confirm => l(:text_are_you_sure)}) if validateERPPermission("A_CRM_PRVLG") %>
                 </td>
             </tr>

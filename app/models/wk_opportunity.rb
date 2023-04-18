@@ -17,17 +17,21 @@
 
 class WkOpportunity < ActiveRecord::Base
   unloadable
-  
+
   belongs_to :parent, :polymorphic => true
   belongs_to :assigned_user, :class_name => 'User'
   has_many :activities, as: :parent, class_name: 'WkCrmActivity', :dependent => :destroy
   validates_presence_of :name, :amount
   has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
-  
+  has_many :wkstatus, -> { where(status_for_type: 'WkOpportunity')}, foreign_key: "status_for_id", class_name: "WkStatus", :dependent => :destroy
+  accepts_nested_attributes_for :wkstatus, allow_destroy: true
+
   def self.opportunity_notification(oppEntry)
     opportunityHelper = Object.new.extend(WkopportunityHelper)
     salestagehash = opportunityHelper.getSaleStageHash
-    emailNotes = "Opportunity : " + oppEntry.name + " status has been changed to " + salestagehash[oppEntry.sales_stage_id] + "\n\n" + l(:label_redmine_administrator)
+    status = opportunityHelper.get_sales_stage(oppEntry)
+    statusName = salestagehash[status].present? ? salestagehash[status] : ""
+    emailNotes = "Opportunity : " + oppEntry.name + " status has been changed to " + statusName + "\n\n" + l(:label_redmine_administrator)
 		subject = l(:label_opportunity) + " " + l(:label_notification)
     userId = (WkPermission.permissionUser('B_CRM_PRVLG') + WkPermission.permissionUser('A_CRM_PRVLG')).uniq
     WkNotification.notification(userId, emailNotes, subject, oppEntry, 'opportunityStatusChanged')

@@ -66,7 +66,7 @@ module TimelogControllerPatch
 				unless hookQuery[0].blank?
 					scope = scope.where(hookQuery[0])
 				end
-			@report = Redmine::Helpers::TimeReport.new(@project, @issue, params[:criteria], params[:columns], scope, options)
+			@report = Redmine::Helpers::TimeReport.new(@project, params[:criteria], params[:columns], scope, options)
 			# ================================
 
 			respond_to do |format|
@@ -395,6 +395,7 @@ module TimelogControllerPatch
 			if params[:clock_action] == "S" && @modelEntry.spent_for && @modelEntry.spent_for.end_on.blank?
 				errorMsg = l(:error_issue_logger)
 			else
+				inventoryItemObj = WkInventoryItem.find(params[:inventory_item_id].to_i)
 				if params[:log_type] == 'M' && !params[:inventory_item_id].blank?
 					inventoryObj = wklog_helper.updateParentInventoryItem(params[:inventory_item_id].to_i, params[:product_quantity].to_i, @modelEntry.quantity)
 					inventoryId =  inventoryObj.id
@@ -405,6 +406,8 @@ module TimelogControllerPatch
 				end
 				if inventoryId.blank?
 					errorMsg += l(:error_item_not_available)
+				elsif params[:product_quantity].to_i > inventoryItemObj.available_quantity.to_i
+					errorMsg += l(:error_product_qty_greater_avail_qty)
 				else
 					if params[:log_type] == "A" && params[:clock_action] == "S" && @modelEntry.spent_for.blank?
 						quantity = "0.1"

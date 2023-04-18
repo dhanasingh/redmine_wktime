@@ -67,6 +67,20 @@ This Plugin has the following modules:
     Log Material and Asset Entries
     Stock and Asset Report
 
+* *Survey*
+    Create Project, Account, Contact, User and General survey
+    Recursive survey
+    Survey Responses
+    Survey Result
+
+* *Dashboards*
+    Clock in users
+    Expense for issues
+    Lead generation vs conversion
+    Invoice vs Payment
+    Assets
+    Profit and loss
+
 For more information on features, please refer to the user guide
 
   http://erpmine.org/attachments/download/115/ERPmine-User-Guide_v4.5.pdf
@@ -95,30 +109,22 @@ For more information on features, please refer to the user guide
 
     rake redmine:plugins:migrate NAME=redmine_wktime VERSION=0 RAILS_ENV=production
 
-=== Release Notes for v4.6
+=== Release Notes for v4.7
 
 * *Features*
-    - Allow default choice for Check box and Radio button type survey questions.
-    - Change Item Dropdown list based on invoice type.
-    - Create a page to assemble inventory items.
-    - Does not allow admins to edit their own clock records.
-    - Allow customization of salary type at the user level.
-    - Add configuration for amount in words.
-    - Add tax number field for Account module.
-    - Display consumed Material list in issue detail page.
-    - Include a "New Row" link below the table as well.
-    - Allow old users in the Referred By list.
-    - Auto populate the Approved leaves in empty timesheets.
-    - Change Rating field into a dropdown in interview page.
-    - Add an interview type dropdown.
+    - Add Sales Quote module.
+    - Add "activity type" column in Generate Invoice popup page.
+    - Add language support for Portuguese.
 
 * *Bug* *fixes*
-    - Auto populate the holiday description also in timesheet.
-    - Format all pages Edit/Delete URLs.
-    - Issues are not loaded When clicking issue logger.
-    - Display the current date clock records only.
-    - The interview page displays the wrong menu selection.
-    - The translation of some labels is wrong in some languages.
+    - Save Custom query issue in spent time filter.
+    - Add validation for available quantity in material log page.
+    - Compatibility error with PostGIS database.
+    - Make Custom fields editable in the timesheet page.
+    - Remove the deprecated rss_key.
+    - The CRM Contacts dropdown is not populating in one scenario.
+
+We would like to thank Agilex Cyber Management Solutions for partially sponsored this release.
 
 === Customization
 

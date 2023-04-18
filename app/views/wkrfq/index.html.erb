@@ -5,7 +5,7 @@
     rfq_name =session[controller_name].try(:[], :rfq_name)
     rfq_date =session[controller_name].try(:[], :rfq_date)
 %>
- <%= form_tag({:controller => 'wkrfq', :action => 'index'}, :method => :post, :id => 'query_form') do %>
+ <%= form_tag({:controller => 'wkrfq', :action => 'index'}, :method => :get, :id => 'query_form') do %>
 	<fieldset>
 		<div style="float:right">
 			<%= link_to l(:label_new_rfq), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>

@@ -99,7 +99,7 @@
 		activity = nil
 		activities = nil
 		isDefaultAct = false
-		projActList = @projActivities[project_id] || entry.project.activities || []
+		projActList = @projActivities[project_id] || entry&.project&.activities || []
 		#activities = activities.sort_by{|name, id| name} unless activities.blank?
 		unless projActList.blank?
 			projActList = projActList.sort_by{|name| name}
@@ -140,7 +140,7 @@
 	<%
 		billableProject = nil
 		billableProjects = nil
-		projBillList = @projClients[project_id] || entry.project&.account_projects&.includes(:parent) || []
+		projBillList = @projClients[project_id] || entry&.project&.account_projects&.includes(:parent) || []
 		parentId = nil
 		parentType = nil
 		spentOnTime = nil

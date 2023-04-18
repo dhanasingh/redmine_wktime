@@ -94,7 +94,7 @@ $(document).ready(function() {
 	if($("#invoiceTable .productItemsDD").length > 0){
 		$("#invoiceTable .productItemsDD").select2();
 
-		if($('#invoice_type').val() == 'I'){
+		if(["I", "SQ"].includes($('#invoice_type').val())){
 			//Show Product Items for material & Asset invoice only
 			$("#invoiceTable .productItemsDD").each(function(){
 				showHideProductItem(this);
@@ -115,7 +115,7 @@ $(document).ready(function() {
 		});
 
 			//Apply tax rows
-		if(["SI", "I"].includes($('#invoice_type').val())){
+		if(["SI", "I", "SQ"].includes($('#invoice_type').val())){
 			let searchParams = new URLSearchParams(window.location.search);
 				if(!(searchParams.has("invoice_id") && searchParams.get("invoice_id") > 0)){
 				let productIDs = [];
@@ -138,19 +138,35 @@ $(document).ready(function() {
 
 			$(".productItemsDD").change(function(){
 				let row = parseInt((this.name).split('_').pop());
-				let text = $("#invoice_item_id_"+row).val() != "" ? $("#invoice_item_id_"+row+ " option:selected").text() : "";
+				let text = ["", '0'].includes($("#invoice_item_id_"+row).val()) ? "" : $("#invoice_item_id_"+row+ " option:selected").text();
 				$("#invoiceTable #name_"+row).val(text);
 
 				var itemType = $("#invoiceTable #item_type_"+row).val();
 				if ((["m", "a"].includes(itemType) && ["I"].includes($('#invoice_type').val())) || ["SI"].includes($('#invoice_type').val())){
 					applyTax(this, "invoice_item");
 				}
-				if(["I"].includes($('#invoice_type').val())){
+				if(["I", "SQ"].includes($('#invoice_type').val())){
 					fillInvFields(row);
 				}
 			});
 
 			$("[id^='project_id_']").change(function(){
+				//load itemDD				
+				url = "/"+controller_name+"/getIssueDD";
+				data = {project_id: $(this).val() };
+				let row = parseInt((this.name).split('_').pop());
+				changeDD = document.getElementById("invoice_item_id_"+row);
+				$.ajax({
+					url: url,
+					data: data,
+					success: function(resData){
+						updateUserDD(resData, changeDD, 1, true, false, label_prod_item);
+						$("#invoice_item_id_"+row).val(null).trigger('change');
+						$("#name_"+row).val('');
+					},
+					beforeSend: function(){ $(this).addClass("ajax-loading"); },
+					complete: function(){ $(this).removeClass("ajax-loading"); }
+				});
 				applyTax(this, "project");
 			});
 
@@ -261,7 +277,7 @@ function invoiceAddRow(tableId, rowCount){
 	clearId = tableId == "milestoneTable" ? "milestone_id_"+(rowlength) : (tableId == "txnTable" ? "txn_id_"+(rowlength) : "item_id_"+(rowlength) ) ;
 	$("#"+clearId).val("");
 	if(tableId == "invoiceTable"){
-		if($("#invoice_type").val() == "I"){
+		if(["I", "SQ"].includes($('#invoice_type').val())){
 			$("#item_type_"+(rowlength)).val("i");
 			$("#invoice_item_id_"+(rowlength)).val("").select2();
 			applyTax(document.getElementById("project_id_"+(rowlength)), "project");
@@ -278,10 +294,10 @@ function invoiceAddRow(tableId, rowCount){
 	}
 
 	// For Load invoice type dropdown
-	if (["I"].includes($('#invoice_type').val())){
+	if (["I", "SQ"].includes($('#invoice_type').val())){
 		let changeDD = document.getElementById("invoice_item_id_"+rowlength);
 		$.ajax({
-			url:  "/wkorderentity/getIssueDD",
+			url:  "/"+controller_name+"/getIssueDD",
 			data: {project_id: $("#invoiceTable #project_id_"+rowlength).val() },
 			success: function(resData){
 				updateUserDD(resData, changeDD, 1, true, false, label_prod_item);
@@ -982,7 +998,7 @@ function invItemChange(ele){
 			break;
 		default:
 			$("#invoiceTable #invoice_item_type_"+row).val('Issue');
-			url = "/wkorderentity/getIssueDD";
+			url = "/"+controller_name+"/getIssueDD";
 			data = {project_id: $("#invoiceTable #project_id_"+row).val() };
 	}
 
@@ -1014,19 +1030,21 @@ function invItemChange(ele){
 function fillInvFields(row){
 	var invoice_item_id = $("#invoice_item_id_"+row).val();
 	var itemType = $("#invoiceTable #item_type_"+row).val();
-	var inventory_id = invoice_item_id && invoice_item_id.split(',').pop()
+	var inventory_id = invoice_item_id && invoice_item_id.split(',').pop();
+	var project_id = $("#invoiceTable #project_id_"+row).val();
+	var invoice_type = $("#invoice_type").val();
 	var data = {};
 	url = "/wkorderentity/getInvDetals";
-	data = {item_id: inventory_id, itemType: itemType };
+	data = {item_id: inventory_id, itemType: itemType, invoice_type: invoice_type, project_id: project_id};
 	$.ajax({
 		url: url,
 		data: data,
 		success: function(resData){
-			if (resData.length > 0){
-				var rate = resData[0] ? resData[0] : ''
-				var qty = resData[1] ? resData[1] : ''
-				var sn = resData[2] ? resData[2] : ''
-				var running_sn = resData[3] ? resData[3] : ''
+			if (Object.keys(resData).length > 0){
+				var rate = resData['rate'] || ''
+				var qty = resData['quantity'] || ''
+				var sn = resData['serial_number'] || ''
+				var running_sn = resData['running_sn'] || ''
 				if(rate){
 					$("#product_serial_no_"+row).val([sn,running_sn,qty]);
 					$("#rate_"+row).val(rate);
@@ -1034,7 +1052,7 @@ function fillInvFields(row){
 					addAmount('rate_'+row)
 				}
 			}
-			if (resData.length == 0){
+			if (Object.keys(resData).length == 0){
 				$("#rate_"+row).val('');
 				$("#quantity_"+row).val('');
 			}
@@ -1107,4 +1125,16 @@ function getUsedSerialNumber(ele){
 			}
 		}
 	});
+}
+
+function deleteAllRows(tableId, totalrow){
+	let isDelete = confirm(delete_all_row);
+	if(isDelete){
+		let table = document.getElementById(tableId);
+		let rowlength = tableId == "invoiceTable" ? table.rows.length - 2 : table.rows.length;
+		for (var i = 1; i <= rowlength; i++) {
+			row_id = table.rows.length - 2;
+			deleteRow(tableId, totalrow);
+		}
+	}	
 }

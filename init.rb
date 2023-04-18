@@ -146,7 +146,7 @@ module Redmine::MenuManager::MenuHelper
 			"wkledger", "wklead", "wkopportunity", "wkcrmactivity", "wkcrmcontact", "wkcrmenumeration", "wkpayment", "wkexchangerate","wkrfq","wkquote",
 			"wkpurchaseorder","wksupplierinvoice","wksupplierpayment","wksupplieraccount","wksuppliercontact", "wklocation", "wkproduct", "wkbrand", "wkattributegroup",
 			"wkproductitem", "wkshipment", "wkunitofmeasurement", "wkasset", "wkassetdepreciation", "wkgrouppermission", "wkscheduling", "wkshift", "wkpublicholiday",
-			"wkdashboard", "wksurvey", "wkleaverequest", "wkdocument", "wknotification", "wkskill", "wkreferrals", "wkdelivery"
+			"wkdashboard", "wksurvey", "wkleaverequest", "wkdocument", "wknotification", "wkskill", "wkreferrals", "wkdelivery", "wksalesquote"
 		]
 	  externalMenus = call_hook :external_erpmine_menus
 	   externalMenus = externalMenus.split(' ')
@@ -290,6 +290,7 @@ TimelogController.send(:include, TimelogControllerPatch)
 ContextMenusController.send(:include, ContextMenusControllerPatch)
 UsersController.send(:include, UsersControllerPatch)
 MyController.send(:include, MyControllerPatch)
+QueriesController.send(:include, QueriesControllerPatch)
 
 # Patches for Supervisor
 module FttePatch
@@ -585,7 +586,7 @@ Redmine::Plugin.register :redmine_wktime do
   name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
   description 'ERPmine is an ERP for Service Industries. It has the following modules: Time & Expense, Attendance, Payroll, CRM, Billing, Accounting, Purchasing, Inventory, Asset , Reports, Dashboards and Survey'
-  version '4.6'
+  version '4.7'
   url 'https://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
 

@@ -4,23 +4,36 @@
 <%= form_tag({:controller => "wkopportunity", :action => 'index', :tab => "wkopportunity"}, :method => :get, :id => 'query_form') do %>
 	<%=h hidden_field_tag('tab', "wkopportunity") %>
 	<%= hidden_field_tag "searchlist", controller_name %>
-	<%	accname = session[:wkopportunity].try(:[], :oppname) %>
-	<%	accId = session[:wkopportunity].try(:[], :account_id) %>
-	<%	accArr = options_for_wktime_account(true, 'A', controller.additionalAccountType) %>
+	<%
+		accname = session[:wkopportunity].try(:[], :oppname)
+		sales_stage = session[:wkopportunity].try(:[], :sales_stage)
+		contactId =session[controller_name].try(:[], :contact_id)
+		accountId =session[controller_name].try(:[], :account_id)
+		filterSession =session[controller_name].try(:[], :polymorphic_filter)
+	%>
 	<fieldset>
 		<div style="float:right">
 			<%= link_to l(:label_new_item, l(:label_opportunity)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
 		</div>
-		<table>
-			<tr>
-				<th><label for='name' style="float:left;"><%= l(:label_opportunity_name) %></label></th>
-				<td><%= text_field_tag 'oppname', accname.blank? ? "" : accname, :size => 30, :style=> "float: left;" %></td>
-				<th><label style="float:left;padding-left: 10px;"><%= l(:label_account_name) %></label></th>
-				<td><%=h select_tag('account_id', options_for_select(accArr,  :selected => accId.nil? ? accArr : accId), :style=> "float: left;") %></td>
-			</tr>
-		</table>
+		<div style="display:flex;flex-wrap:wrap;">
+			<div>
+				<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :filter_session => filterSession, :project_id => nil, :pjtChanged => false, :isapply => false, :isproject => false, :isAll => true, :blankOptionForPjt => false, :blankForActDD => true, :blankForContactDD => true, :isFilter => true, :loadSIDD => false } %>
+			</div>
+			<div>
+				<table>
+					<tr>
+						<th><label style="float:left;padding-left: 5px;"><%= l(:label_txn_sales_stage) %></label></th>
+						<td><%= select_tag('sales_stage', options_for_select(options_for_enum_select('SS', sales_stage, true)), :style=> "float: left;") %></td>
+						<th><label for='name' style="float:left;padding-left: 10px;"><%= l(:label_opportunity_name) %></label></th>
+						<td><%= text_field_tag 'oppname', accname.blank? ? "" : accname, :size => 20, :style=> "float: left;" %></td>
+					</tr>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<p><%= render :partial => 'wkopportunity/date_range' %></p>
 	</fieldset>
-	<p><%= render :partial => 'wkopportunity/date_range' %></p>
+
 <% end %>
 
 <% if @opportunity.present? %>

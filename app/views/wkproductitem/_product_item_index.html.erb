@@ -45,7 +45,7 @@
 				</td>&nbsp;
 			<% end %>
 			<%= l(:label_project) %>&nbsp;
-			<%=h select_tag("project_id", options_for_select(getProjects, :selected=> projectId)) %>&nbsp;
+			<%=h select_tag("project_id", options_for_select(getProjectArr, :selected=> projectId)) %>&nbsp;
 			<% if controller.getItemType == "A" %>
 				<label><%= check_box_tag('is_dispose', 1, isDisposed) %> <%= l(:label_disposed) %></label>&nbsp;
 			<% end %>

@@ -58,9 +58,9 @@
 							<td class="lbl-txt-align"><%=h projectName %></td>
 
 							<td class="lbl-txt-align"><%=h helperObj.getSIStatus.invert[entry.status]  %></td>
-							<td class="lbl-txt-align"><%=h entry.invoice_date  %></td>
-							<td class="lbl-txt-align"><%=h entry.start_date  %></td>
-							<td class="lbl-txt-align"><%=h entry.end_date  %></td>
+							<td class="lbl-txt-align"><%=h format_date(entry.invoice_date)  %></td>
+							<td class="lbl-txt-align"><%=h format_date(entry.start_date)  %></td>
+							<td class="lbl-txt-align"><%=h format_date(entry.end_date)  %></td>
 							<td class="lbl-txt-align"><%=h html_hours("%.2f" % entry.invoice_items.sum(:quantity))   %></td>
 							<td class="lbl-txt-align"><%= orgCurrency %><%=h html_hours("%.2f" % invoice_org_Amount) %></td>
 							<td class="lbl-txt-align"><%= currency %> <%=h html_hours("%.2f" % invoiceAmount) %></td>
@@ -73,10 +73,9 @@
 								</td>
 							<% end %>
 							<td class="lbl-txt-align">
-								<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :invoice_id => entry.id, :new_invoice => false, :preview_billing => false, :tab => controller.controller_name, id: entry.id},
-																							:title => l(:button_edit) %>
+								<%= link_to image_tag('edit.png'), {:controller => controller.redirect_controller, :action => 'edit', :invoice_id => entry.id, :new_invoice => false, :preview_billing => false, :tab => controller.redirect_controller, id: entry.id}, :title => l(:button_edit) %>
 								<% if isEditableInvoice(entry.id) && controller.deletePermission  %>
-									<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :invoice_id => entry.id, id: entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+									<%= link_to image_tag('delete.png'), {:controller => controller.redirect_controller, :action => 'destroy', :invoice_id => entry.id, id: entry.id, :tab => controller.redirect_controller},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
 								<% end %>
 							</td>
 						</tr>

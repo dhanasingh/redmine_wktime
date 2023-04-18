@@ -3,11 +3,15 @@
 	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds', :additionalContactType => controller.additionalContactType, :additionalAccountType => controller.additionalAccountType)}" %>";
 </script>
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
-<%	accArr = options_for_wktime_account(false, 'A', controller.additionalAccountType)
+<%
+	type = 'A'
+	accArr = options_for_wktime_account(false, type, controller.additionalAccountType)
 	if !@oppEditEntry.blank?
-		accArr = relatedValues(@oppEditEntry[0].parent_type, @oppEditEntry[0].parent_id, 'A', false, controller.additionalContactType, controller.additionalAccountType)
+		type = @oppEditEntry[0].present? && @oppEditEntry[0]&.parent_type == 'WkAccount' ? 'A' : 'C'
+		accArr = relatedValues(@oppEditEntry[0].parent_type, @oppEditEntry[0].parent_id, type, false, controller.additionalContactType, controller.additionalAccountType)
     elsif !params[:parentType].blank?
-		accArr = relatedValues(params[:parentType], params[:parentId], 'A', false, controller.additionalContactType, controller.additionalAccountType)
+		type = params[:parentType].present? && params[:parentType] == 'WkAccount' ? 'A' : 'C'
+		accArr = relatedValues(params[:parentType], params[:parentId], type, false, controller.additionalContactType, controller.additionalAccountType)
 	end
 	relHash = relatedHash
 	relHash.delete("WkOpportunity")
@@ -20,12 +24,11 @@
 	<table >
 		<tr>
 			<th align="left"><%= l(:label_opportunity_name)  %><span style="color:red;">*</span></th>
-			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_name", (!@oppEditEntry.blank? ? @oppEditEntry[0].name : ""), :style => "width:190px;") %></td>
-
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_name", (!@oppEditEntry.blank? ? @oppEditEntry[0].name : ""), :maxlength => 255, :style => "width:190px;") %></td>
 			<th align="left" style="padding-left:240px;"><%= l(:label_expected_date_to_close_project) %></th>
-			<td align="left" style="padding-left:40px;"><%= date_field_tag('expected_close_date',   Date.today, {:id => 'expected_close_date', :size => 12, :style => "width:160px;"}) + calendar_for('expected_close_date') %></td>
+			<td align="left" style="padding-left:40px;"><%= date_field_tag('expected_close_date', (!@oppEditEntry.blank? && !@oppEditEntry[0].close_date.blank? ? @oppEditEntry[0].close_date.to_date : Date.today), {:id => 'expected_close_date', :size => 12, :style => "width:160px;"}) + calendar_for('expected_close_date') %></td>
 		</tr>
-		<%  selectedSSId = @oppEditEntry.blank? ? nil : @oppEditEntry[0].sales_stage_id %>
+		<%  selectedSSId = @oppEditEntry.blank? ? nil : get_sales_stage(@oppEditEntry[0]) %>
 		<%  selectedOTId = @oppEditEntry.blank? ? nil : @oppEditEntry[0].opportunity_type_id %>
 		<tr>
 			<th align="left"><%= l(:label_txn_sales_stage) %></th>
@@ -36,18 +39,18 @@
 		</tr>
 
 		<tr>
-			<th align="left"><%= l(:label_opportunity_amount) %></th>
+			<th align="left"><%= l(:label_opportunity_amount) %><span style="color:red;">*</span></th>
 			<td align="left" style="padding-left:40px;">
 			<%=h select_tag("currency",options_for_select(wkexpense_helper.options_for_currency, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].currency : "") )) %>
-			<%=h text_field_tag("opp_amount", (!@oppEditEntry.blank? && !@oppEditEntry[0].amount.blank? ? @oppEditEntry[0].amount : ""), :style => "width:190px;") %></td>
+			<%=h text_field_tag("opp_amount", (!@oppEditEntry.blank? && !@oppEditEntry[0].amount.blank? ? @oppEditEntry[0].amount : ""), :maxlength => 10, :style => "width:190px;") %></td>
 
 			<th align="left" style="padding-left:240px;"><%= l(:label_probability) + " (%)" %> </th>
-			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_probability", (!@oppEditEntry.blank? && !@oppEditEntry[0].probability.blank? ? @oppEditEntry[0].probability : ""), :style => "width:190px;") %></td>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_probability", (!@oppEditEntry.blank? && !@oppEditEntry[0].probability.blank? ? @oppEditEntry[0].probability : ""), :maxlength => 255, :style => "width:190px;") %></td>
 		</tr>
 
 		<tr>
 			<th align="left"><%= l(:label_next_step) %></th>
-			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_next_step", (!@oppEditEntry.blank? && !@oppEditEntry[0].next_step.blank? ? @oppEditEntry[0].next_step : ""), :style => "width:190px;") %></td>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_next_step", (!@oppEditEntry.blank? && !@oppEditEntry[0].next_step.blank? ? @oppEditEntry[0].next_step : ""), :maxlength => 255, :style => "width:190px;") %></td>
 
 			<th align="left" style="padding-left:240px;"><%= l(:field_assigned_to) %></th>
 			<td align="left" style="padding-left:40px;"><%=h select_tag('assigned_user_id', options_for_select(groupOfUsers, :selected => (!@oppEditEntry.blank? && !@oppEditEntry[0].assigned_user_id.blank? ? @oppEditEntry[0].assigned_user_id : "")),:required => true) %></td>
@@ -66,7 +69,10 @@
 
 		<tr>
 		<th align="left" ><%= l(:field_description) %></th>
-		<td colspan="4" align="left" style="padding-left:40px;"><%= text_area_tag 'opp_description', (!@oppEditEntry.blank? && !@oppEditEntry[0].description.blank? ? @oppEditEntry[0].description : ""), :maxlength => 255, :style => "width:605px" %></td>
+		<td align="left" style="padding-left:40px;"><%= text_area_tag 'opp_description', (!@oppEditEntry.blank? && !@oppEditEntry[0].description.blank? ? @oppEditEntry[0].description : ""), :maxlength => 255, :style => "width:605px" %></td>
+
+		<th align="left" style="padding-left:240px;"><%= l(:label_created_date) %> </th>
+		<td align="left" style="padding-left:40px;"><%= @oppEditEntry[0]&.created_at&.localtime&.strftime("%Y-%m-%d") || '' if @oppEditEntry.present? %></td>
 
 		</tr>
 

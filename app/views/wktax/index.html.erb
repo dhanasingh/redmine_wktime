@@ -3,7 +3,7 @@
 
 <% name =session[controller_name].try(:[], :name) %>
 
- <%= form_tag({:controller => 'wktax', :action => 'index'}, :method => :post, :id => 'query_form') do %>
+ <%= form_tag({:controller => 'wktax', :action => 'index'}, :method => :get, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", controller_name %>
 	<fieldset>
 		<div style="float:right">

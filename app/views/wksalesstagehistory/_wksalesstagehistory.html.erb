@@ -1,0 +1,21 @@
+<label><%= l(:label_sales_stage_history) %></label>
+<div class="autoscroll">
+	<table class="list time-entries">
+		<thead>
+			<tr>
+                <th class="lbl-txt-align">#</th>
+                <th class="lbl-txt-align"><%= l(:label_txn_sales_stage) %></th>
+                <th class="lbl-txt-align"><%= l(:label_date) %></th>
+			</tr>
+		</thead>
+        <% currentObj.wkstatus.order('status_date DESC').each_with_index do |entry, index| %>
+            <tbody>
+                <tr>
+                    <td class="lbl-txt-align"><%= index+1 %></td>
+                    <td class="lbl-txt-align"><%= entry&.status.blank? ? "" : getSaleStageHash[entry.status.to_i] %></td>
+                    <td class="lbl-txt-align"><%= entry&.status_date&.localtime&.strftime("%Y-%m-%d %H:%M:%S") %></td>
+                </tr>
+            </tbody>
+        <% end %>
+	</table>
+</div>

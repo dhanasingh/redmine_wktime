@@ -230,7 +230,7 @@ include WkpayrollHelper
 				isUserBilling = false
 				# check issue has any rate if it didn't have rate then go with user rate
 				if rateHash.blank? || rateHash['rate'].blank? || rateHash['rate'] <= 0
-					rateHash = getUserRateHash(entry.user.wk_user)
+					rateHash = getUserRateHash(entry&.user&.wk_user)
 					@currency = rateHash['currency']
 					isUserBilling = true
 					# Even user also don't have the rate then skip that time entry from billing
@@ -946,7 +946,7 @@ include WkpayrollHelper
 			unless Setting.plugin_redmine_wktime[componetsId].blank?
 				Setting.plugin_redmine_wktime[componetsId].each do |element|
 					comp = element.split('|')
-					invoiceComponents << {name: comp[0], value: comp[1]}
+					invoiceComponents << {name: comp[0], value: comp[1] || ''}
 				end
 			end
 		end

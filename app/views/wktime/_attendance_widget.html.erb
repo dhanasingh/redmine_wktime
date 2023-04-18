@@ -170,7 +170,10 @@ var label_no_data = "<%= l(:label_no_data) %>";
 			</span>
 		</div>
 		<div class="drdn-content">
-			<h2 class="padding"><%= l(:label_notification_plural) + (unRead.present?  ? " (" + unRead.count.to_s + ")" : '')%></h2>
+			<div class="padding">
+				<span style="font-size: 20px;font-weight: bold;"><%= l(:label_notification_plural) + (unRead.present?  ? " (" + unRead.count.to_s + ")" : '')%></span>
+				<span id="mark_read" style="float: right;"><a style="color: blue;text-decoration: underline;" ><%= l(:label_mark_all_read) %></a></span>
+			</div>
 			<% if notifications.present? %>
 				<% notifications.each do |notification| %>
 					<% notifyTime = notification_helper.getnotifyDate(notification.created_at)

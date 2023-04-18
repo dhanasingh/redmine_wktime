@@ -142,7 +142,7 @@ include WkaccountprojectHelper
 	end
 
 
-    def setLimitAndOffset
+  def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -165,26 +165,20 @@ include WkaccountprojectHelper
 	end
 
 	def account_project_permission
-		project_id = params[:project_id]
-		params[:project_id] = (Project.all).first.identifier if params[:project_id].blank?
-		contact_id = params[:contact_id].blank? ? nil : WkCrmContact.where(:id => params[:contact_id])
-		contact_id = (contact_id.first).id unless contact_id.blank?
-		account_id = params[:account_id].blank? ? nil : WkAccount.where(:id => params[:account_id])
-		account_id = (account_id.first).id unless account_id.blank?
+		contact = WkCrmContact.where(id: params[:contact_id]).first
+		account = WkAccount.where(id: params[:account_id]).first
+		lead = WkLead.where(id: params[:lead_id]).first
 
-		if !showCRMModule
+		if params[:id].blank? && ((params[:contact_id].present? && contact.blank?) || (params[:account_id].present? && account.blank?) || (params[:lead_id].present? && lead.blank?))
 			render_403
 			return false
-		elsif project_id.blank? && contact_id.blank? && account_id.blank?
-			render_404
-			return false
-		elsif !params[:project_id].blank?
+		elsif params[:project_id].present?
 			find_project_by_project_id
 		end
 	end
 
 	def check_account_proj_module_permission
-		if params[:contact_id].blank? && params[:account_id].blank? && !params[:project_id].blank? && !User.current.allowed_to?(:view_accounts, @project)
+		if !showCRMModule || (@project.present? && !User.current.allowed_to?(:view_accounts, @project))
 			render_403
 			return false
 		end
@@ -214,7 +208,11 @@ include WkaccountprojectHelper
 	end
 
 	def set_filter_session
-		filters = [:contact_id, :account_id, :polymorphic_filter]
+		filters = [:contact_id, :account_id, :polymorphic_filter, :lead_id]
 		super(filters, {:project_id => params[:project_id]})
+	end
+
+	def addLeadDD
+		true
 	end
 end

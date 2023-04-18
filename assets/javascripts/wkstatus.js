@@ -139,6 +139,17 @@ $(document).ready(function(){
 	//Notification
 	$("#project-jump").after($("#notification"));
 	$("#notification").attr('title','notification');
+
+	//mark read notification	
+	$('#mark_read').click(function(){
+		url = "/wknotification/markReadNotification";
+		$.ajax({
+			url: url,
+			type: 'post',
+			success: function(data){ },
+			complete: function(){ $('.drdn.expanded').removeClass('expanded'); }
+		});
+	});
 });
 
 function spentTypeValue(elespent)

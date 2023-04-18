@@ -9,14 +9,14 @@
 	if !parentObject.blank?
 		ptype = parentObject.parent_type == "WkCrmContact" ? 'C' : 'A'
 		parentArr = relatedValues(parentObject.parent_type, parentObject.parent_id, ptype, false, controller.additionalContactType, controller.additionalAccountType)	
-    elsif !parentType.blank?
+  elsif !parentType.blank?
 		ptype = parentType == "WkCrmContact" ? 'C' : 'A'
-		parentArr = relatedValues(parentType, :parentId, ptype, false, controller.additionalContactType, controller.additionalAccountType)		
+		parentArr = relatedValues(parentType, nil, ptype, false, controller.additionalContactType, controller.additionalAccountType)
 	end
 	#parentArr.unshift(["",''])
 	relHash = wkcrm_helper.relatedHash
 	relHash.delete("WkOpportunity")
-	relHash.delete("WkLead")
+	relHash.delete("WkLead") if !controller.addLeadDD 
 	#unless index
 	#	relHash.delete("")
 	#end

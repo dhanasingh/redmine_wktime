@@ -26,7 +26,7 @@ module WkdashboardHelper
 							[l(:label_this_month), 'current_month'],
 							[l(:label_last_month), 'last_month'],
 							[l(:label_this_year), 'current_year']],
-							value.blank? ? 'current_week' : value)
+							value.blank? ? 'current_month' : value)
   end
 
   def showDashboard

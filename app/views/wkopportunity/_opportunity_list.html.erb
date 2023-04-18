@@ -34,7 +34,7 @@
 		    <td class="lbl-txt-align"><%=h entry.name  %></td>
 		<!--	<td class="lbl-txt-align"><%#=h entry.parent.name unless entry.parent.blank? %></td> -->
 			<td class="lbl-txt-align"><%=h relatedHash[entry.parent_type] %></td>
-			<td class="lbl-txt-align"><%=h entry.sales_stage_id.blank? ? "" : salestagehash[entry.sales_stage_id] %></td>
+			<td class="lbl-txt-align"><%=h opportunityHelper.get_sales_stage(entry).blank? ? "" : salestagehash[opportunityHelper.get_sales_stage(entry)] %></td>
 			<td class="lbl-txt-align"><%=h entry.currency + " "  %><%=h html_hours("%.2f" % entry.amount) %></td>
 			<td class="lbl-txt-align"><%=h entry.close_date.localtime.strftime("%Y-%m-%d") %></td>
 			<td class="lbl-txt-align"><%=h entry.assigned_user.name(:firstname_lastname)  unless entry.assigned_user.blank? %></td>

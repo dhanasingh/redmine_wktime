@@ -1,55 +1,38 @@
 module QueriesHelper
-	def column_value(column, item, value)
-    content =
-		case column.name
-		when :id
-		  link_to value, issue_path(item)
-		when :subject
-		  link_to value, issue_path(item)
-		when :parent
-		  value ? (value.visible? ? link_to_issue(value, :subject => false) : "##{value.id}") : ''
-		when :description
-		  item.description? ? content_tag('div', textilizable(item, :description), :class => "wiki") : ''
-		when :last_notes
-		  item.last_notes.present? ? content_tag('div', textilizable(item, :last_notes), :class => "wiki") : ''
-		when :done_ratio
-		  progress_bar(value)
-		when :relations
-      content_tag(
-        'span',
-			value.to_s(item) {|other| link_to_issue(other, :subject => false, :tracker => false)}.html_safe,
-			:class => value.css_classes_for(item))
-		when :hours, :estimated_hours, :total_estimated_hours
-		  format_hours(value)
-		when :spent_hours
-		  link_to_if(value > 0, format_hours(value), project_time_entries_path(item.project, :issue_id => "#{item.id}"))
-		when :total_spent_hours
-		  link_to_if(value > 0, format_hours(value), project_time_entries_path(item.project, :issue_id => "~#{item.id}"))
-		when :attachments
-		  value.to_a.map {|a| format_object(a)}.join(" ").html_safe
-	# ============= ERPmine_patch Redmine 5.0  =====================
-		when :inventory_item_id
-			formProductItem(item)
-		when :selling_price
-			val = item.selling_price * item.quantity
-			value = val.blank? ? 0.00 : ("%.2f" % val)
-		when :resident_id
-			val = item.resident.name
-			value = val
-		when :resident_type
-			value = item.resident.location.name
-		when :apartment_id
-			value = item.apartment.blank? ? "" : item.apartment.asset_property.name
-		when :bed_id
-			value = item.bed.blank? ? "" : item.bed.asset_property.name
-   # =============================
-		else
-		  format_object(value)
-		end
-    call_hook(:helper_queries_column_value,
-              {:content => content, :column => column, :item => item, :value => value})
 
-    content
+	def self.included(base)
+		base.send(:include, InstanceMethods)
+
+		base.class_eval do
+			unloadable
+			alias_method :column_value_without_wktime_projects, :column_value
+			alias_method :column_value, :column_value_with_wktime_projects
+		end
+	end
+
+	module InstanceMethods
+		def column_value_with_wktime_projects(column, item, value)
+			case column.name
+		# ============= ERPmine_patch Redmine 5.0  =====================
+			when :inventory_item_id
+				formProductItem(item)
+			when :selling_price
+				val = item.selling_price * item.quantity
+				value = val.blank? ? 0.00 : ("%.2f" % val)
+			when :resident_id
+				val = item.resident.name
+				value = val
+			when :resident_type
+				value = item.resident.location.name
+			when :apartment_id
+				value = item.apartment.blank? ? "" : item.apartment.asset_property.name
+			when :bed_id
+				value = item.bed.blank? ? "" : item.bed.asset_property.name
+		# =============================
+			else
+				column_value_without_wktime_projects(column, item, value)
+			end
+		end
 	end
 
 	def render_query_totals(query)
@@ -98,4 +81,18 @@ module QueriesHelper
 		value = item&.inventory_item&.product_type == 'I' ? val+' - '+product_items : val +' - '+ assetObj.name
 	end
 	# =============================
+
+	# Renders the list of queries for the sidebar
+	def render_sidebar_queries(klass, project)
+	# ============= ERPmine_patch Redmine 5.0  =====================
+		spent_type = session[:timelog] && session[:timelog][:spent_type]
+		kclassName =  spent_type == "M" || spent_type == "A" ? WkMaterialEntryQuery : (spent_type == 'E' ? WkExpenseEntryQuery : klass)
+		queries = sidebar_queries(kclassName, project)
+	# =============================
+
+		out = ''.html_safe
+		out << query_links(l(:label_my_queries), queries.select(&:is_private?))
+		out << query_links(l(:label_query_plural), queries.reject(&:is_private?))
+		out
+	end
 end

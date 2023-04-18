@@ -2,7 +2,7 @@
 <%= render partial: "wkproduct/render_inventory_tabs" %>
 
 <% name =session[controller_name].try(:[], :name) %>
- <%= form_tag({:controller => 'wkbrand', :action => 'index'}, :method => :post, :id => 'query_form') do %>
+ <%= form_tag({:controller => 'wkbrand', :action => 'index'}, :method => :get, :id => 'query_form') do %>
 		 <%= hidden_field_tag "searchlist", controller_name %>
 	  <fieldset>
 			<%= hidden_field_tag 'tab', "wkbrand" %>

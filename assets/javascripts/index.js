@@ -2,7 +2,7 @@ var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, pay
 	blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl,
 	blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl,
 	wklocationUrl,  wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkassetUrl, wkassetdepreciationUrl, wkgrpPermissionUrl, wkSchedulingUrl,
-	userCurrentUrl, wkSurveyUrl, wkleavereqUrl, wknotificationUrl, wkskillUrl, wkreferralsUrl, wkdeliveryUrl;
+	userCurrentUrl, wkSurveyUrl, wkleavereqUrl, wknotificationUrl, wkskillUrl, wkreferralsUrl, wkdeliveryUrl, salesquoteUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -141,6 +141,7 @@ $(document).ready(function() {
 	changeProp('tab-wkskill',wkskillUrl);
 	changeProp('tab-wkreferrals',wkreferralsUrl);
 	changeProp('tab-wkdelivery',wkdeliveryUrl);
+	changeProp('tab-wksalesquote',salesquoteUrl);
 
 	showHidePartNumber();
 	$('#automatic_product_item').change(function(){
@@ -359,7 +360,7 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, bla
 	if(dropdown != null && dropdown.options != null){
 		dropdown.options.length = 0;
 		if(needBlankOption){
-			dropdown.options[0] = new Option(blankText, "0", false, false)
+			dropdown.options[0] = new Option(blankText, "", false, false)
 		}
 		for(i=0; i < items.length-1; i++){
 			index = items[i].indexOf(',');
@@ -458,7 +459,12 @@ function accProjChanged(uid, fldId, isparent, blankOptions)
 		var parentDD = document.getElementById('related_to');
 		parentType = parentDD.options[parentDD.selectedIndex].value;
 	} else {
-		parentType = fldId == 'contact_id' && parentId != "" ? 'WkCrmContact' : ( fldId == 'account_id' && parentId != "" ? 'WkAccount' : '');
+		if(fldId == 'contact_id' && parentId != "")
+			parentType = 'WkCrmContact'
+		else if( fldId == 'lead_id' && parentId != "")
+			parentType = 'WkLead';
+		else
+			parentType = 'WkAccount';
 	}
 	var needBlankOption = blankOptions;
 	var projDropdown = document.getElementById("project_id");
@@ -1027,6 +1033,8 @@ function getprojects(ele, isAccProj, isSIProj){
 		case '2': ddeleID = 'contact_id'
 		break;
 		case '3': ddeleID = 'account_id'
+		break;
+		case '4': ddeleID = 'lead_id'
 		break;
 		default : ddeleID = ele.id
 	}

@@ -136,19 +136,3 @@
 </fieldset>
 </div>
 </div>
-	
-<div id="invcomp-dlg" title="<%= l(:button_add) + " " + l(:label_txn_purchase) + " " + l(:label_component) %>">
-	<table>
-		<tr>
-			<th align="left"><label><%= l(:field_name) %></label></th>
-			<td><%= text_area_tag 'inv_copm_name','', :size => "23*10", :width => "150px" %> 
-		</tr>
-		<tr>
-			<th align="left"><label><%= l(:field_value) %></label></th>
-			<td><%= text_area_tag 'inv_copm_value','', :size => "23*10", :width => "150px" %> 
-		</tr>
-		<tr>
-			<%= hidden_field_tag :hdnAction, "" %>
-		</tr>
-	</table>
-</div>

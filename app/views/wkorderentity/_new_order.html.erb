@@ -25,7 +25,7 @@
 <%= form_tag({:controller => controller_name, :action => 'edit'}, :method => :get, :id => 'query_form') do %>
 <%=h hidden_field_tag("new_invoice",   true )  %>
 <%=h hidden_field_tag("isAccBilling",   isAccBilling )  %>
-<%= render partial: "wkbilling/index_filters", locals: { :contact_id => nil, :account_id => nil, :filter_session => 2, :project_id => nil, :pjtChanged => controller.needChangedProject, :isapply => false, :isproject => controller.showProjectDD, :isAll => false, :blankOptionForPjt => controller.needBlankProject, :blankForActDD => false, :blankForContactDD => false, :rfq_id => nil, :needQuotePoDD => true, :isFilter => false, :loadSIDD => false } %>
+<%= render partial: "wkbilling/index_filters", locals: { :contact_id => params[:contact_id] || nil, :account_id => params[:account_id] || nil, :filter_session => params[:filter_session] || 2, :project_id => nil, :pjtChanged => controller.needChangedProject, :isapply => false, :isproject => controller.showProjectDD, :isAll => false, :blankOptionForPjt => controller.needBlankProject, :blankForActDD => false, :blankForContactDD => false, :rfq_id => nil, :needQuotePoDD => true, :isFilter => false, :loadSIDD => false, lead_id: params[:lead_id] || nil } %>
 <div style="clear:both;"></div>
 <table>
 <%#= render partial: "wkcrm/view_polymorphic", locals: { parentObject:  nil , :parentType => "", :parentId => "", :index => false, :needParentProject => true, :padding => nil, :needblankType => false } %>

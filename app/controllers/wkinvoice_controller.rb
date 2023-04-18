@@ -17,34 +17,13 @@
 
 class WkinvoiceController < WkorderentityController
 
-	accept_api_auth :index, :edit, :update, :getInvProj, :getAccountProjIds
+	accept_api_auth :index, :edit, :update, :getInvProj, :getAccountProjIds, :export
 	@@invmutex = Mutex.new
 
 	def newOrderEntity(parentId, parentType)
-		newInvoice(parentId, parentType)
-	end
-
-	def newInvoice(parentId, parentType)
 		invoiceFreq = getInvFreqAndFreqStart
 		invIntervals = getIntervals(params[:start_date].to_date, params[:end_date].to_date, invoiceFreq["frequency"], invoiceFreq["start"], true, false)
-		if !params[:project_id].blank? && params[:project_id] != '0'
-			@projectsDD = Project.where(:id => params[:project_id].to_i).pluck(:name, :id)
-			@issuesDD = Issue.where(:project_id => params[:project_id].to_i).pluck(:subject, :id)
-			setTempEntity(invIntervals[0][0], invIntervals[0][1], parentId, parentType, params[:populate_items], params[:project_id])
-		elsif (!params[:project_id].blank? && params[:project_id] == '0') || params[:isAccBilling] == "true"
-			accountProjects = WkAccountProject.where(:parent_type => parentType, :parent_id => parentId.to_i)
-			unless accountProjects.blank?
-				@projectsDD = accountProjects[0].parent.projects.pluck(:name, :id)
-				setTempEntity(invIntervals[0][0], invIntervals[0][1], parentId, parentType, params[:populate_items], params[:project_id])
-			else
-				client = parentType.constantize.find(parentId)
-				flash[:error] = l(:warn_billable_project_not_configured, :name => client.name)
-				redirect_to :action => 'new'
-			end
-		else
-			flash[:error] = l(:warning_select_project)
-			redirect_to :action => 'new'
-		end
+		setupNewInvoice(parentId, parentType, invIntervals[0][0], invIntervals[0][1])
 	end
 
 	def saveOrderInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
@@ -386,20 +365,21 @@ class WkinvoiceController < WkorderentityController
 		lastArray = invIntervals.length - 1
 		todate = invIntervals[lastArray][1]
 		timeEntries = WkInvoiceItem.getGenerateEntries(todate.to_date, fromDate.to_date, parent_id, parent_type, params[:projectID], TimeEntry, "time_entries")
-		data1 = timeEntries.map{|e| {id: e.id, acc_name: (e&.name || e&.c_name), proj_name: e&.project&.name, subject: e.issue.to_s, usr_name: e.user.name, spent_on: e.spent_on, hours: e.hours}}
-		listHeader1 = { acc_cont_name: l(:field_account), project_name: l(:label_project), issue: l(:label_invoice_name), user: l(:label_user), date: l(:label_date), hour: l(:field_hours) }
+
+		data1 = timeEntries.map{|e| {id: e.id, acc_name: (e&.name || e&.c_name), proj_name: e&.project&.name, subject: e.issue.to_s, usr_name: e&.user&.name, activity: e&.activity.to_s, spent_on: e.spent_on, hours: e.hours}}
+		listHeader1 = { acc_cont_name: l(:field_account), project_name: l(:label_project), issue: l(:label_invoice_name), user: l(:label_user), activity: l(:label_activity_type), date: l(:label_date), hour: l(:field_hours) }
 
 		materialEntries = WkInvoiceItem.getGenerateEntries(todate.to_date, fromDate.to_date, parent_id, parent_type, params[:projectID], WkMaterialEntry, "wk_material_entries")
-		data2 = materialEntries.map{|e| {id: e.id, acc_name: (e&.name || e&.c_name), project: e&.project&.name, issue: e.issue.to_s, spent_on: e.spent_on, product: e.inventory_item&.product_item&.product&.name, selling_price: e.currency.to_s+" "+e.selling_price.to_s, quantity: e.quantity }}
-		listHeader2 = { acc_cont_name: l(:field_account), project_name: l(:label_project), issue: l(:label_invoice_name), date: l(:label_date), product_name: l(:label_product), selling_price: l(:label_selling_price), quantity: l(:field_quantity)}
+		data2 = materialEntries.map{|e| {id: e.id, acc_name: (e&.name || e&.c_name), project: e&.project&.name, issue: e.issue.to_s, activity: e&.activity.to_s, spent_on: e.spent_on, product: e.inventory_item&.product_item&.product&.name, selling_price: e.currency.to_s+" "+e.selling_price.to_s, quantity: e.quantity }}
+		listHeader2 = { acc_cont_name: l(:field_account), project_name: l(:label_project), issue: l(:label_invoice_name), activity: l(:label_activity_type), date: l(:label_date), product_name: l(:label_product), selling_price: l(:label_selling_price), quantity: l(:field_quantity)}
 
 		schudleEntries = WkInvoiceItem.getFcItems(invIntervals[0][0].to_date, todate.to_date, params[:projectID], parent_id, parent_type)
 		data3 = schudleEntries.map{|e| { acc_name: (e&.name || e&.c_name), project: e&.project&.name, issue: e&.milestone.to_s, spent_on: e.bill_date, amount: e&.currency+" "+e&.amount.to_s}}
 		listHeader3 = { acc_cont_name: l(:field_account), project_name: l(:label_project), issue: l(:label_invoice_name), date: l(:label_date), amount: l(:field_amount)}
 
-		listHeader4 = { acc_cont_name: l(:field_account), project_name: l(:label_project), issue: l(:label_invoice_name), user: l(:label_user), date: l(:label_date), amount: l(:field_amount)}
+		listHeader4 = { acc_cont_name: l(:field_account), project_name: l(:label_project), issue: l(:label_invoice_name), user: l(:label_user), activity: l(:label_activity_type), date: l(:label_date), amount: l(:field_amount)}
 		expenseEntries = WkInvoiceItem.getGenerateEntries(todate.to_date, fromDate.to_date, parent_id, parent_type, params[:projectID], WkExpenseEntry, "wk_expense_entries")
-		data4 = expenseEntries.map{|e| {id: e.id, acc_name: (e&.name || e&.c_name), proj_name: e&.project&.name, subject: e.issue.to_s, usr_name: e.user&.name, spent_on: e.spent_on, amount: e&.currency+" "+e&.amount.to_s}}
+		data4 = expenseEntries.map{|e| {id: e.id, acc_name: (e&.name || e&.c_name), proj_name: e&.project&.name, subject: e.issue.to_s, usr_name: e.user&.name, activity: e&.activity.to_s, spent_on: e.spent_on, amount: e&.currency+" "+e&.amount.to_s}}
 
 		data = []
 		data << {data: data1, header: listHeader1, type: "time_entries", title: l(:label_select_time_entries)} if data1.length > 0
@@ -452,6 +432,10 @@ class WkinvoiceController < WkorderentityController
 	end
 
 	def addExpenseType
+		true
+	end
+
+	def showQuantityPopup
 		true
 	end
 end

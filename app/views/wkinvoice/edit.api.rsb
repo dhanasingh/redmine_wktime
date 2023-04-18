@@ -27,7 +27,7 @@ api.invoice do
         api.quantity @invoiceItem ? invItem["quantity"] : invItem["item_quantity"]
         api.hd_item_type invItem["item_type"]
         api.currency invItem["currency"]
-        api.original_currency invItem["original_currency"]
+        api.original_currency @invoiceItem ? invItem["original_currency"] : invItem["currency"]
         api.original_amount @invoiceItem ? invItem["original_amount"] : invItem["item_amount"]
       end
     end
