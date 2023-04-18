@@ -1,20 +1,17 @@
-= Webinar on ERPmine – Billing , April 25th, 2023, 5 PM India (11:30 AM GMT)
+= Webinar on ERPmine – Billing ,  April 25th, 2023, 5 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
 https://us02web.zoom.us/meeting/register/tZ0vdO6rpj8iGd2T-SawIjawTvi_P3FnFT9O
 
 *Topics* :
-- Project Survey
-- General Survey
-- User survey
-- feedback survey
-- Employee Performance Review
-- Exit interview
-- Survey Reviewer
-- Recurring Survey
-- Survey Response Trending Chart
-- Notification
-- Mobile app
+* Billing Projects
+* Invoice Setup
+* Contract Setup
+* Preview Unbilled Invoice
+* Generate Invoice
+* Accept Payment
+* Reports
+* Mobile app
 -----
 
 = ERPmine
@@ -163,11 +160,16 @@ We would like to thank Agilex Cyber Management Solutions for partially sponsored
 
 	*Training* *Videos*:
 
-		https://www.youtube.com/watch?v=CHAgSMmkKBE
+		https://www.youtube.com/watch?v=CUsSOdnNq70
 
 		https://www.youtube.com/watch?v=hTgDepFzGXY
 
 		https://www.youtube.com/watch?v=5IgBbhrVF4k
+
+		https://www.youtube.com/watch?v=ik4jgTMtbvU
+
+		https://www.youtube.com/watch?v=weZk70ReZXA
+		
 
 	*For* *more*:
 
