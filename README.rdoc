@@ -4,17 +4,17 @@ Please click here to register if interested,
 https://us02web.zoom.us/meeting/register/tZ0vdO6rpj8iGd2T-SawIjawTvi_P3FnFT9O
 
 *Topics* :
-● Project Survey
-● General Survey
-● User survey
+- Project Survey
+- General Survey
+- User survey
 - feedback survey
 - Employee Performance Review
 - Exit interview
-● Survey Reviewer
-● Recurring Survey
-● Survey Response Trending Chart
-● Notification
-● Mobile app
+- Survey Reviewer
+- Recurring Survey
+- Survey Response Trending Chart
+- Notification
+- Mobile app
 -----
 
 = ERPmine

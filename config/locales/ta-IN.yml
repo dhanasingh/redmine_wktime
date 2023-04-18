@@ -1164,18 +1164,18 @@ ta-IN:
   label_new_interview: புதிய நேர்காணல்
   label_edit_interview: நேர்காணல் திருத்து
 
-  error_product_qty_greater_avail_qty: Product quantity cannot be greater than available quantity
-  label_sales_quote: Sales Quote
-  label_sales_quote_items: Sales Quote Items
-  label_new_sales_quote: New Sales Quote
-  label_sales_quote_no_prefix: Sales Quote Number Prefix
-  label_add_all_rows: Add All Rows
-  label_delete_all_rows: Delete All Rows
-  warn_add_all_rows: Are you sure you want to add all rows from Project?
-  warn_delete_all_rows: Are you sure you want to delete all rows?
-  label_sales_quote_components: Sales Quote Components
-  label_terms_cond: Terms and Conditions
-  label_mark_all_read: Mark All Read
-  chkbox_sales_quote_closed_issues: Include Closed Issues for Sales Quote
-  label_sales_stage_history: Sales Stage History
-  label_created_date: Created Date
+  error_product_qty_greater_avail_qty: தயாரிப்பு அளவு கிடைக்கப்பெறும் அளவை விட அதிகமாக இருக்கக்கூடாது
+  label_sales_quote: விற்பனை மேற்கோள்
+  label_sales_quote_items: விற்பனை மேற்கோள் பொருள்
+  label_new_sales_quote: புதிய விற்பனை மேற்கோள்
+  label_sales_quote_no_prefix: விற்பனை மேற்கோள் எண் முன்னொட்டு
+  label_add_all_rows: அனைத்து வரிசைகளையும் சேர்
+  label_delete_all_rows: அனைத்து வரிசைகளையும் நீக்கு
+  warn_add_all_rows: திட்டப்பணியிலிருந்து அனைத்து வரிசைகளையும் சேர்க்க நிச்சயமாக விரும்புகிறீர்களா?
+  warn_delete_all_rows: அனைத்து வரிசைகளையும் நீக்க நிச்சயமாக விரும்புகிறீர்களா?
+  label_sales_quote_components: விற்பனை மேற்கோள் கூறுகள்
+  label_terms_cond: விதிமுறைகள் மற்றும் நிபந்தனைகள்
+  label_mark_all_read: படித்த அனைத்தையும் குறியிடு
+  chkbox_sales_quote_closed_issues: விற்பனை மேற்கோளுக்கான மூடிய சிக்கல்களைச் சேர்க்கவும்
+  label_sales_stage_history: விற்பனை நிலை வரலாறு
+  label_created_date: உருவாக்கப்பட்ட தேதி
