@@ -117,6 +117,7 @@ For more information on features, please refer to the user guide
 * *Features*
     - Add Sales Quote module.
     - Add "activity type" column in Generate Invoice popup page.
+    - Add language support for Portuguese.
 
 * *Bug* *fixes*
     - Save Custom query issue in spent time filter.
