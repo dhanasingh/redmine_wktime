@@ -282,14 +282,14 @@ de:
   label_auto_generate_invoice: Rechnung automatisch generieren
   label_invoice_no_prefix: Rechnungsnummernpräfix
   label_taxname: Steuerbezeichnung
-  label_rate: Rate
+  label_rate: Preis
   label_tax_detail: Steuerdetails
   label_new_tax: Neue Steuer
   label_invoice_name: Artikelbeschreibung
   label_item_type: Artikelart
   label_invoice_number: Rechnungsnummer
   label_invoice_items: Rechnungspositionen
-  label_billing_type: Fakturaart
+  label_billing_type: Einheit
   label_apply_tax: Steuern anwenden
   label_itemized_bill: Einzelteilrechnung
   label_invoice_items: Rechnungspositionen
@@ -465,7 +465,7 @@ de:
   label_trans_row_validmsg: Die Transaktion enthält mindestens zwei Zeilen.
   label_trans_total_validmsg: Transaktionsbelastung und -gutschrift stimmen nicht überein.
 
-  label_crm: CRM
+  label_crm: Kunden(CRM)
   label_lead_plural: Interessenten
   label_opportunity_plural: Chancen
   label_activity_plural: Aktivitäten
@@ -503,7 +503,7 @@ de:
   label_medium: Mittel
   label_call: Anruf
   label_meeting: Treffen
-  label_location: Ort
+  label_location: Plätze
   label_not_started: Nicht angefangen
   label_completed: Abgeschlossen
   label_pending_input: Ausstehende Eingabe
@@ -664,7 +664,7 @@ de:
   label_product_item: Produktartikel
   label_part_number: Artikelnummer
   label_inventory_information: Inventarinformationen
-  field_quantity: Menge
+  field_quantity: Summe
   field_selling_price: Preis
   button_transfer: Transferiere zu
   report_stock: Lager Bericht
@@ -996,8 +996,8 @@ de:
 
   #Asset dispose
   label_dispose: Entsorgung
-  label_dispose_asset: Anlage entsorgen/veräußern
-  label_dispose_amount: Menge entsorgen/veräußern
+  label_dispose_asset: Anlage entsorgt/veräußt
+  label_dispose_amount: Menge entsorgt/veräußt
   label_disposed: Entsorgt
   label_previous_asset_value: Vorheriger Vermögenswert
   label_last_depreciation: Letzte Abschreibung
@@ -1030,14 +1030,14 @@ de:
   label_invoice_generated: Rechnung generiert
   label_payment_received: Zahlung erhalten
   label_contract_signed: Vertrag unterzeichnet
-  label_rfq_created: RFQ Created
+  label_rfq_created: RFQ Preisanfrage erstellt
   label_quote_received: Angebot erhalten
-  label_po_generated: PO Generiert
+  label_po_generated: PO generiert
   label_supplier_invoice_received: Lieferantenrechnung erhalten
   label_supplier_payment_sent: Lieferantenzahlung gesendet
-  label_receive_goods: Waren erhalten
+  label_receive_goods: Ware erhalten
   label_survey_closed: Umfrage geschlossen
-  label_fill_survey: Umfrage ausfüllen
+  label_fill_survey: Umfrage ausgefüllt
   label_notification_plural: Benachrichtigungen
 
   # for mobile
@@ -1256,3 +1256,24 @@ de:
   label_hide_amount_in_words: Summe in Worten ausblenden
   label_new_interview: Nues Interview
   label_edit_interview: Interview bearbeiten
+
+  error_product_qty_greater_avail_qty: Die Produktmenge kann nicht größer sein als die verfügbare Menge
+  label_sales_quote: Verkaufsangebote
+  label_sales_quote_items: Angebotene Artikel
+  label_new_sales_quote: Neues Verkaufsangebot
+  label_sales_quote_no_prefix: Verkaufsangebot Präfix
+  label_add_all_rows: Alle Zeilen hinzfügen
+  label_delete_all_rows: Alle Zeilen löschen
+  warn_add_all_rows: Sind Sie sicher, dass Sie alle Zeilen aus dem Projekt hinzufügen möchten?
+  warn_delete_all_rows: Sind Sie sicher, dass Sie alle Zeilen löschen möchten?
+  label_sales_quote_components: Angebotskomponenten
+  label_terms_cond: Geschäftsbedingungen
+  label_mark_all_read: Alle gelesen markieren
+  chkbox_sales_quote_closed_issues: Geschlossene Tickets für Verkaufsangebot einschließen
+  label_sales_stage_history: Verlauf der Verkaufsphase
+  label_created_date: Erstellungsdatum
+
+  label_invoice_template_use: Eigenes Rechnungstemplate aktivieren
+  label_invoice_template_code: Eigenes Rechnungstemplate
+  
+  label_wk_item_search_global: Artikelsuche global möglich

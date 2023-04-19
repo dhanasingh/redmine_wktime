@@ -75,6 +75,12 @@
 				</tr>
 			<% end %>
 		<% end %>
+		<% if controller.addDescription %>
+			<tr>
+				<th align="left"><label><%= l(:field_description) %></label></th>
+				<td rowspan="1" colspan="8"><%= text_area_tag 'description', @invoice&.description || '', maxlength: 255, style: "width:600px; height:75px;" %></td>
+			</tr>
+		<% end %>
 	</table>
 
 	<% if !@invoiceItem.blank? %>

@@ -56,7 +56,7 @@ class WkLeaveReq < ActiveRecord::Base
   }
 
   scope :groupUser, ->(id){
-    joins(:user).where("users.id =  ? ", id )
+    joins(:user).where("wk_leave_reqs.user_id =  ? ", id )
   }
 
   scope :getEntry, ->(id){

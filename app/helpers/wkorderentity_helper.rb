@@ -110,7 +110,7 @@ include WkassetHelper
 		itemtype  = ''
 		case(type)
 		when 'i'
-			itemtype = invoice&.invoice_type == 'I' ? (billing_type == 'FC' ? l(:label_fixed_cost) : l(:field_hours)) : ''
+			itemtype = invoice&.invoice_type == 'I' ? (billing_type == 'FC' ? l(:label_fixed_cost) : l(:field_hours)) : l(:label_item)
 		when 'm'
 			itemtype = l(:label_material)
 		when 'a'
@@ -139,5 +139,31 @@ include WkassetHelper
     else
       inv_items.map{|i| [i&.asset_property.name.to_s()+' - '+i&.asset_property.rate.to_s()+' - '+rateper[i&.asset_property.rate_per].to_s(), i.product_item&.product&.id.to_s+', '+i&.id.to_s]}
     end
+	end
+
+	def getBillingRate(project_id, issue_id)
+		billing_rate = nil
+		# Project Billing Rate
+		wk_project = WkProject.where(project_id: project_id )
+		billing_rate = wk_project.first.billing_rate&.round(4) if wk_project.present?
+		@currency = wk_project.first.billing_currency
+		# Issue Billing Rate
+		if billing_rate.blank? || billing_rate <= 0
+			wk_issue = WkIssue.where(issue_id: issue_id )
+			billing_rate = wk_issue.first.rate&.round(4) if wk_issue.present?
+			@currency = wk_issue&.first&.currency
+		end
+		# User Billing Rate
+		if billing_rate.blank? || billing_rate <= 0
+			wk_user = WkUser.where(user_id: User.current.id )
+			billing_rate = wk_user.first.billing_rate&.round(4) if wk_user.present?
+			@currency = wk_user&.first&.billing_currency
+		end
+		billing_rate
+	end
+
+	def getIssueEstimatedHours(issue_id)
+		issue = Issue.where(id: issue_id)
+		estimated_hours = issue&.first&.total_estimated_hours || nil
 	end
 end

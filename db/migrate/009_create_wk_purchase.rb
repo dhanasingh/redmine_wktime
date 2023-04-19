@@ -27,8 +27,7 @@ class CreateWkPurchase < ActiveRecord::Migration[4.2]
 				execute <<-SQL
 				  DELETE from wk_invoice_items where project_id is null;
 				SQL
-				remove_index :wk_invoices, :invoice_number
-				add_index :wk_invoices, :invoice_number, :unique => true
+				remove_index :wk_invoice_items, :project_id
 				change_column :wk_invoice_items, :project_id, :integer, null: false
 			end
 		end

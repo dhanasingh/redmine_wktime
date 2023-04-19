@@ -49,11 +49,13 @@ include WkcrmHelper
 			filter_type = session[controller_name].try(:[], :polymorphic_filter)
 			contact_id = session[controller_name].try(:[], :contact_id)
 			account_id = session[controller_name].try(:[], :account_id)
+			lead_id = session[controller_name].try(:[], :lead_id)
 			projectId = params[:project_id]
 		else
 			filter_type = nil
 			contact_id = params[:contact_id]
 			account_id = params[:account_id]
+			lead_id = params[:lead_id]
 			projectId = params[:project_id]
 		end
 		if !projectId.blank?
@@ -69,6 +71,12 @@ include WkcrmHelper
 			sqlwhere += " and "  unless sqlwhere.blank?
 			sqlwhere += " wk_account_projects.parent_type = 'WkAccount' "
 			sqlwhere += " and wk_account_projects.parent_id = '#{account_id}' " unless account_id.blank?
+		end
+
+		if filter_type == '4' || (filter_type.blank? && lead_id.present?)
+			sqlwhere += " and "  unless sqlwhere.blank?
+			sqlwhere += " wk_account_projects.parent_type = 'WkLead' "
+			sqlwhere += " and wk_account_projects.parent_id = '#{lead_id}' " if lead_id.present?
 		end
 		entries = WkAccountProject.joins("INNER JOIN projects ON projects.id = project_id")
 		entries = entries.where(sqlwhere) unless sqlwhere.blank?

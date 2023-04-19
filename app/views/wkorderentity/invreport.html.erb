@@ -29,15 +29,25 @@
 					<td  width="25%"><%=h @invoice.invoice_number %></td>
 					<td  colspan ="3" width="25%"><%=h @invoice.invoice_date.to_formatted_s(:long) %></td>
 				</tr>
-				<tr style="width:100%;">
-					<th align="left" colspan="3" width="70%"><%= l(:label_cntrt_purchase_work_order) %></th>
-					<th align="left" colspan="3" width="30%"><%= l(:label_period) %></th>
-				</tr>
-				<tr style="width:100%;">
-					<% #accContract = @invoice.parent.contract(@invoiceItem[0].project) %>
-					<td align="left" colspan="3" width="70%"><%=h controller.getOrderContract(@invoice)%></td>
-					<td align="left" colspan="3" width="30%"><%=h @invoice.start_date.to_formatted_s(:long) + ' to ' + @invoice.end_date.to_formatted_s(:long) %></td>
-				</tr>
+				<% if controller.showContractSection %>
+					<tr style="width:100%;">
+						<th align="left" colspan="3" width="70%"><%= l(:label_cntrt_purchase_work_order) %></th>
+						<th align="left" colspan="3" width="30%"><%= l(:label_period) %></th>
+					</tr>
+					<tr style="width:100%;">
+						<td align="left" colspan="3" width="70%"><%=h controller.getOrderContract(@invoice)%></td>
+						<td align="left" colspan="3" width="30%"><%=h @invoice.start_date.to_formatted_s(:long) + ' to ' + @invoice.end_date.to_formatted_s(:long) %></td>
+					</tr>
+				<% end %>
+
+				<% if controller.addDescription %>
+					<tr style="width:50%; background-color: #f2f2f2">
+						<th align="left" colspan="6" width="30%"><%= l(:field_description) %></th>
+					</tr>
+					<tr style="width:50%;">
+						<td align="left" colspan="6" width="30%"><%= textilizable @invoice.description || '' %></td>
+					</tr>
+				<% end %>
 
 				<tr style="width:100%;">
 					<td colspan="6">
@@ -92,17 +102,18 @@
 				</tr>
 				<% if (Setting.plugin_redmine_wktime['wktime_hide_amount_in_words'].to_i != 1) %>
 					<tr style="width:100%;">
-						<td align="left" colspan="1" width="20%"><b><%= l(:label_amount_in_words) %></b></td>
-						<td align="left" colspan="5" width="35%"><%=h numberInWords(@invoiceItem.sum(:original_amount)) + " " + l(:label_only) + "." %></td>
+						<td align="left" colspan="6" width="30%"><b><%= l(:label_amount_in_words) + " : "%></b><%= numberInWords(@invoiceItem.sum(:original_amount)) + " " + l(:label_only) + "." %></td>
 					</tr>
 				<% end %>
-				<% if invoiceComp.present?
-						invoiceComp.each do |comp| %>
-							<tr style="width:100%;">
-								<td align="left" colspan="2" width="250px"><b><%= comp[:name] %></b></td>
-								<td align="left" colspan="4" width="500px"><%= comp[:value] %></td>
-							</tr>
-						<% end %>
+				<% if invoiceComp.present? %>
+					<tr style="width:50%; background-color: #f2f2f2">
+						<th align="left" colspan="6" width="30%"><%= l(:label_terms_cond)+ ":" %></th>
+					</tr>
+					<% invoiceComp.each do |comp| %>
+						<tr style="width:100%;">
+							<td align="left" colspan="6"><%= comp[:name] + " : " + comp[:value]%></td>
+						</tr>
+					<% end %>
 				<% end %>
 		</table>
 	</div>

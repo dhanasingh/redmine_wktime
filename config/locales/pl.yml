@@ -1277,3 +1277,19 @@ pl:
   label_hide_amount_in_words: Hide amount in words
   label_new_interview: New Interview
   label_edit_interview: Edit Interview
+
+  error_product_qty_greater_avail_qty: Product quantity cannot be greater than available quantity
+  label_sales_quote: Sales Quote
+  label_sales_quote_items: Sales Quote Items
+  label_new_sales_quote: New Sales Quote
+  label_sales_quote_no_prefix: Sales Quote Number Prefix
+  label_add_all_rows: Add All Rows
+  label_delete_all_rows: Delete All Rows
+  warn_add_all_rows: Are you sure you want to add all rows from Project?
+  warn_delete_all_rows: Are you sure you want to delete all rows?
+  label_sales_quote_components: Sales Quote Components
+  label_terms_cond: Terms and Conditions
+  label_mark_all_read: Mark All Read
+  chkbox_sales_quote_closed_issues: Include Closed Issues for Sales Quote
+  label_sales_stage_history: Sales Stage History
+  label_created_date: Created Date

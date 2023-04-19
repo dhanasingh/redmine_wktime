@@ -45,7 +45,7 @@
 				</tr>
 				<tr>
 					<th align="left"><%= l(:label_pin) %></th>
-					<td align="left" style="padding-left:10px;"><%=h text_field_tag("pin", address.blank?  ? "" : address.pin,:size =>25, :maxlength => 6, :disabled => disable) %> </td>
+					<td align="left" style="padding-left:10px;"><%=h text_field_tag("pin", address.blank?  ? "" : address.pin,:size =>25, :maxlength => 16, :disabled => disable) %> </td>
 				</tr>
 			</table>
 		</div>

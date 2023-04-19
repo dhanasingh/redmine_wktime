@@ -1,5 +1,6 @@
 class WklogmaterialController < TimelogController
   unloadable
+	prepend_before_action :change_params_controller
   before_action :require_login
 	accept_api_auth :loadSpentType, :index, :spent_log, :modifyProductDD, :create, :update
   helper :queries
@@ -141,4 +142,11 @@ class WklogmaterialController < TimelogController
   def time_entry_scope(options={})
     @query.results_scope(options)
   end
+
+	# for mobile log list page permission
+	def change_params_controller
+		if params[:format] == 'json' && !User.current.admin? && params[:controller] == 'wklogmaterial' && params[:action] == 'index'
+			params[:controller] = 'timelog'
+		end
+	end
 end

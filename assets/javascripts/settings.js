@@ -469,6 +469,14 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 				siinvlistbox.options[i].selected = true;
 			}						
 		}
+		var salesQuoteList=document.getElementById("settings_wktime_sq_components");
+		if(salesQuoteList != null)
+         { 
+			for(i = 0; i < salesQuoteList.options.length; i++)
+			{
+				salesQuoteList.options[i].selected = true;
+			}						
+		}
 		
 	});
 	

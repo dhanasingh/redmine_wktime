@@ -19,6 +19,8 @@ class WkleadController < WkcrmController
   unloadable
   include WktimeHelper
   include WkleadHelper
+  include WkaccountprojectHelper
+	include WksalesquoteHelper
   accept_api_auth :index, :edit, :update
 
 	def index
@@ -87,7 +89,11 @@ class WkleadController < WkcrmController
 
 	def edit
 		@lead = nil
-		@lead = WkLead.find(params[:lead_id]) unless params[:lead_id].blank?
+		if params[:lead_id].present?
+			@lead = WkLead.find(params[:lead_id])
+			@accountproject = formPagination(accountProjctList)
+			@invoiceEntries = formPagination(salesQuoteList(params[:lead_id], 'WkLead'))
+		end
 		@lead
 	end
 

@@ -140,7 +140,13 @@
 								<% # Martin Dube Contribution: show required field in Wktime custom field %>
 								<%= custom_field_label_tag "wktime", custom_value %>
 							</th>
-							<td></td>
+							<td>
+								<% if @editable %>
+									<%= custom_field_tag "wktime", custom_value %>
+								<% else %>
+									<%= custom_value.value %>
+								<% end %>
+							</td>
 						</tr>
 					<% end %>
 				<% end %>

@@ -56,7 +56,7 @@
 					  <td align="center">
 						  <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :inventory_item_id => inventoryID, :product_item_id => productItemID, id: inventoryID}, :title => l(:button_edit) %>
 						  <% if controller.hasDeletePermission %>
-							<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :inventory_item_id => inventoryID, :product_item_id => entry.product_item_id, :tab => controller.controller_name, id: inventoryID},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+							<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :inventory_item_id => inventoryID, :product_item_id => entry.product_item_id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
 						  <% end %>
 					  </td>
 				</tr>

@@ -6,7 +6,7 @@
 	<%= form_tag({:controller => controller_name, :action => 'index', :tab => controller_name}, :method => :get, :id => 'query_form') do %>
 	<fieldset>
 		<div style="float:right">
-			<%= link_to controller.getLabelNewInv, url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-add' %>&nbsp;
+			<%= link_to controller.getNewHeaderLbl, url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-add' %>&nbsp;
 			<%= render :partial => 'sidebar' if  controller_name == 'wkinvoice'%>
 		</div>
 		<%= hidden_field_tag "searchlist", controller_name %>
@@ -23,9 +23,10 @@
 			accountId =session[controller_name].try(:[], :account_id)
 			rfqId = session[controller_name].try(:[], :rfq_id)
 			filterSession =session[controller_name].try(:[], :polymorphic_filter)
-			projid =session[controller_name].try(:[], :project_id) %>
+			projid =session[controller_name].try(:[], :project_id)
+			leadID =session[controller_name].try(:[], :lead_id) %>
 
-			<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :rfq_id => rfqId, :filter_session => filterSession, :project_id => projid, :pjtChanged => controller.needChangedProject, :isapply => false, :isproject => true, :isAll => true, :blankOptionForPjt => true, :blankForActDD => true, :blankForContactDD => true, :needQuotePoDD => false, :isFilter => true, :loadSIDD => false } %>
+			<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :rfq_id => rfqId, :filter_session => filterSession, :project_id => projid, :pjtChanged => controller.needChangedProject, :isapply => false, :isproject => true, :isAll => true, :blankOptionForPjt => true, :blankForActDD => true, :blankForContactDD => true, :needQuotePoDD => false, :isFilter => true, :loadSIDD => false, lead_id: leadID } %>
 
 			<p style="float:left;"><%= render :partial => 'wkorderentity/date_range' %></p>
 		<p class="buttons">

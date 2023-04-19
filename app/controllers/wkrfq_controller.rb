@@ -130,15 +130,7 @@ class WkrfqController < WkbaseController
 	    render_403
 	    return false
 	  end
-    end
-	
-	def controller_name
-		if action_name == "edit"
-			"wkquote"
-		else
-			"wkrfq"
-		end
-	end
+  end
 	
 	def quoteList
 		rfqId = params[:rfq_id]

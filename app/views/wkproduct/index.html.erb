@@ -1,6 +1,6 @@
 <%= title l(:label_product) %>
 <%= render partial: "wkproduct/render_inventory_tabs" %>
-<%= form_tag({:controller => 'wkproduct', :action => 'index'}, :method => :post, :id => 'query_form') do %>
+<%= form_tag({:controller => 'wkproduct', :action => 'index'}, :method => :get, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", controller_name %>
 	<%=h hidden_field_tag('tab', controller_name) %>
 	<%

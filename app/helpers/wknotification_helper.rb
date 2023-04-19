@@ -74,7 +74,8 @@ module WknotificationHelper
 			notifyHash['url'] = {controller: @controller, action:'edit',lead_id: notification.source_id, id: notification.source_id}
 			notifyHash['icon'] = "fa fa-user-circle"
 		when 'opportunityStatusChanged'
-			notifyHash['text'] = l(:label_opportunity)+" "+notification.source.name.to_s+" "+l(:label_has_changed)+" "+getSaleStageHash[notification.source.sales_stage_id]
+			status_name = getSaleStageHash[get_sales_stage(notification.source)].present? ? getSaleStageHash[get_sales_stage(notification.source)] : ""
+			notifyHash['text'] = l(:label_opportunity)+" "+notification.source.name.to_s+" "+l(:label_has_changed)+" "+status_name
 			notifyHash['url'] = {controller:'wkopportunity', action:'edit',opp_id: notification.source_id, id: notification.source_id}
 			notifyHash['icon'] = "fa fa-file-text-o"
 		when 'salesActivityCompleted'

@@ -362,6 +362,25 @@ get 'wkcrm/getActRelatedIds', :to => 'wkcrm#getActRelatedIds'
 
 get 'wkcrm/getCrmUsers', to: 'wkcrm#getCrmUsers'
 
+
+# For CRM Sales Quote
+
+get 'wksalesquote', :to => 'wksalesquote#index'
+
+get 'wksalesquote/new', :to => 'wksalesquote#new'
+
+get 'wksalesquote/edit', :to => 'wksalesquote#edit'
+
+get 'wksalesquote/:id/edit', :to => 'wksalesquote#edit'
+
+post 'wksalesquote/update', :to => 'wksalesquote#update'
+
+delete 'wksalesquote/:id', :to => 'wksalesquote#destroy'
+
+get 'wksalesquote/invreport', :to => 'wksalesquote#invreport'
+
+get 'wksalesquote/export', :to => 'wksalesquote#export'
+
 # For Billing Invoice
 
 get 'wkinvoice', :to => 'wkinvoice#index'
@@ -400,7 +419,15 @@ get 'wkorderentity/get_product_tax', to: 'wkorderentity#get_product_tax'
 
 get 'wkorderentity/get_project_tax', to: 'wkorderentity#get_project_tax'
 
-get 'wkorderentity/getIssueDD', to: 'wkorderentity#getIssueDD'
+get 'wkinvoice/getIssueDD', to: 'wkinvoice#getIssueDD'
+
+get 'wksalesquote/getIssueDD', to: 'wksalesquote#getIssueDD'
+
+get 'wkquote/getIssueDD', to: 'wkquote#getIssueDD'
+
+get 'wkpurchaseorder/getIssueDD', to: 'wkpurchaseorder#getIssueDD'
+
+get 'wksupplierinvoice/getIssueDD', to: 'wksupplierinvoice#getIssueDD'
 
 get 'wkorderentity/checkQty', to: 'wkorderentity#checkQty'
 
@@ -654,8 +681,6 @@ get 'wkproductitem/:id/edit', :to => 'wkproductitem#edit'
 
 post 'wkproductitem/update', :to => 'wkproductitem#update'
 
-delete 'wkproductitem/:id', :to => 'wkproductitem#destroy'
-
 delete 'wkproductitem/destroy', :to => 'wkproductitem#destroy'
 
 get 'wkproductitem/transfer', :to => 'wkproductitem#transfer'
@@ -720,7 +745,7 @@ get 'wkasset/:id/edit', :to => 'wkasset#edit'
 
 post 'wkasset/update', :to => 'wkasset#update'
 
-delete 'wkasset/:id', :to => 'wkasset#destroy'
+delete 'wkasset/destroy', :to => 'wkasset#destroy'
 
 get 'wkasset/transfer', :to => 'wkasset#transfer'
 
@@ -868,6 +893,8 @@ get 'wknotification', :to => 'wknotification#index'
 post 'wknotification/update', :to => 'wknotification#update'
 
 get 'wknotification/updateUserNotification', to: 'wknotification#updateUserNotification'
+
+post 'wknotification/markReadNotification', to: 'wknotification#markReadNotification'
 
 # Others Routes
 # Base Controller

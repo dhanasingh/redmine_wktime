@@ -7,9 +7,11 @@
 	grpUrl="<%= "#{url_for(:controller => "wkreport", :action => 'getMembersbyGroup')}" %>";
 	var label_tax = "<%= l(:label_tax) %>";
 	var label_prod_item = "<%= l(:label_select_product_item) %>";
+	var delete_all_row = "<%= l(:warn_delete_all_rows) %>";
+	var controller_name = "<%= controller_name %>";
 </script>
 <%
-	itemHash = { 'i' => l(:label_invoice), 'c' =>  l(:label_credit) }
+	itemHash = { 'i' => l(:label_item), 'c' =>  l(:label_credit) }
 
 	if controller.addExpenseType
 		asset_hash = {'e' => l(:label_wkexpense)}
@@ -38,9 +40,9 @@
 	isDisable = false
 	isDisable = !isEditableInvoice(@invoice.id) unless @invoice.id.blank?
 	@productItemsDD.prepend([l(:label_select_product_item), ""])
-	@issuesDD.prepend([l(:label_select_product_item), ""])
+	@issuesDD.values.each{|value| value.prepend([l(:label_select_product_item), ""])} if @issuesDD.present?
 	if @invoiceItem.blank? && controller.isInvoiceController
-		invoiceItemDD = @issuesDD
+		invoiceItemDD = @issuesDD&.values&.first || []
 		model_name = "Issue"
 	else
 		invoiceItemDD = @productItemsDD
@@ -94,9 +96,11 @@
 							exchangeRate = getExchangeRate(entry.original_currency, entry.currency)
 							exchangeRate = exchangeRate.blank? ? 1 : exchangeRate
 							if ["i", "e"].include?(entry.item_type) && controller.isInvoiceController
-								invoiceItemDD = @issuesDD
+								invoiceItemDD = @issuesDD[entry.project_id] || []
 								selected_itemDD_val = entry.try(:invoice_item_id)
 								model_name = "Issue"
+								issueItem = invoiceItemDD.detect{|e| e[1] == selected_itemDD_val}
+								invoiceItemDD << [entry&.invoice_item&.subject || '', selected_itemDD_val] if !issueItem.present?
 							elsif ["m", "a"].include?(entry.item_type) && controller.isInvoiceController
 								invoiceItemDD = getItemDD(entry.item_type)
 								invoiceItemDD.prepend([l(:label_select_product_item), ""])
@@ -148,11 +152,11 @@
 								<%=h hidden_field_tag("hd_item_type_#{row_index.to_s}", entry.item_type )  %>
 							</td>
 							<td class="lbl-txt-align: center" headers="rate">
-								<%= entry.original_currency %> <%= text_field_tag "rate_#{row_index}", ("%.2f" % entry.rate) ,:maxlength => 14, :style => "width:85%;", :onchange => "addAmount(this.id)", :disabled => isDisable, class: "rates" %>
+								<%= entry.original_currency %> <%= text_field_tag "rate_#{row_index}", ("%.2f" % entry.rate) ,:maxlength => 14, :style => "width:85%;", required: true, :onchange => "addAmount(this.id)", :disabled => isDisable, class: "rates" %>
 							</td>
 							<td class="lbl-txt-align" style="display: flex;justify-content: center;align-items: center;" headers="quantity">
-								<%= text_field_tag "quantity_#{row_index}", ("%.2f" % entry.quantity unless entry.quantity.blank?), :maxlength => 14, :style => "width:83%;", :onchange => "addAmount(this.id)", :disabled => isDisable %>
-								<% if controller.isInvoiceController && ("i" == entry.item_type && accProject&.first&.billing_type == 'TM' || entry.item_type == "e" && entry.spent_fors.any?) %>
+								<%= text_field_tag "quantity_#{row_index}", ("%.2f" % entry.quantity unless entry.quantity.blank?), :maxlength => 14, required: true, :style => "width:83%;", :onchange => "addAmount(this.id)", :disabled => isDisable %>
+								<% if controller.showQuantityPopup && ("i" == entry.item_type && accProject&.first&.billing_type == 'TM' || entry.item_type == "e" && entry.spent_fors.any?) %>
 									&nbsp;<%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript:showQuantityDetails(#{entry.id},'#{entry.item_type}');" %>
 								<% end %>
 							</td>
@@ -189,7 +193,7 @@
 							exchangeRate = exchangeRate.blank? ? 1 : exchangeRate
 							amount = (value['item_amount'] * exchangeRate)
 							if ["i", "e"].include?(value['item_type']) && controller.isInvoiceController
-							invoiceItemDD = @issuesDD
+							invoiceItemDD = @issuesDD[value['project_id']] || []
 							selected_itemDD_val = value['issue_id'].to_s
 							model_name = "Issue"
 						elsif ["m", "a"].include?(value['item_type']) && controller.isInvoiceController
@@ -240,11 +244,11 @@
 								<%=h hidden_field_tag("hd_item_type_#{row_index.to_s}", value['item_type'] )  %>
 							</td>
 							<td class="lbl-txt-align: center" headers="rate" style="width: 11%">
-								<%=  @currency %> <%= text_field_tag "rate_#{row_index}", value['rate'] ,:maxlength => 14, :style => "width:85%;", :onchange => "addAmount(this.id)", :disabled => @preBilling %>
+								<%=  @currency %> <%= text_field_tag "rate_#{row_index}", value['rate'] ,:maxlength => 14, required: true, :style => "width:85%;", :onchange => "addAmount(this.id)", :disabled => @preBilling %>
 							</td>
 							<td class="lbl-txt-align" headers="quantity" style="width: 11%">
-								<%= text_field_tag "quantity_#{row_index}", value['item_quantity'], :maxlength => 14, :style => "width:83%;", :onchange => "addAmount(this.id)", :disabled => @preBilling %>
-								<% if ['i'].include?(value['item_type']) && value['billing_type'] == 'TM' || value['item_type'] == "e" %>
+								<%= text_field_tag "quantity_#{row_index}", value['item_quantity'], :maxlength => 14, required: true, :style => "width:83%;", :onchange => "addAmount(this.id)", :disabled => @preBilling %>
+								<% if controller.showQuantityPopup && (['i'].include?(value['item_type']) && value['billing_type'] == 'TM' || value['item_type'] == "e") %>
 									<%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript: showUnbillQtyDetails(#{value['project_id']}, #{value['issue_id'].to_i}, '#{@invoice.start_date}', '#{@invoice.end_date}', #{@invoice.parent_id}, '#{@invoice.parent_type}', '#{value['item_type']}');" %>
 								<% end %>
 							</td>
@@ -305,10 +309,10 @@
 						<%=h select_tag("item_type_#{row_index.to_s}", options_for_select(itemHash.invert), class: "item_types") %>
 					</td>
 					<td class="lbl-txt-align: center" headers="rate">
-						<%=  @currency %> <%= text_field_tag "rate_#{row_index}",   "" ,:maxlength => 14, :style => "width:85%;", :onchange => "addAmount(this.id)" %>
+						<%=  @currency %> <%= text_field_tag "rate_#{row_index}",   "" ,:maxlength => 14, required: true, :style => "width:85%;", :onchange => "addAmount(this.id)" %>
 					</td>
 					<td class="lbl-txt-align" headers="quantity">
-						<%= text_field_tag "quantity_#{row_index}", "", :maxlength => 14, :style => "width:83%;", :onchange => "addAmount(this.id)" %>
+						<%= text_field_tag "quantity_#{row_index}", "", :maxlength => 14, required: true, :style => "width:83%;", :onchange => "addAmount(this.id)" %>
 					</td>
 					<td style="text-align:right;" headers="original_amount">
 						<%= @currency %> <label id="original_amount_<%= row_index.to_s %>">0.00</label>
@@ -499,12 +503,16 @@
 <div class="wk-contextual">
 	<% if !@preBilling && !isDisable %>
 	<%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('invoiceTable', 'totalrow');",  :class => 'icon icon-add' } %>
+	<% if controller.addAllRows %>
+		<%= link_to l(:label_add_all_rows), request.params.merge(populate_items: '1'),  data: {:confirm => l(:warn_add_all_rows)},  class: 'icon icon-add' %>
+		<%= link_to l(:label_delete_all_rows), "#", { :onclick => "javascript:deleteAllRows('invoiceTable', 'totalrow');",  :class => 'icon icon-add'} %>
 	<% end %>
+<% end %>
 </div>
 <div style="clear:both"></div>
 <%=h hidden_field_tag("totalrow",  row_index-1 )  %>
 <%=h hidden_field_tag("taxrow",  tax_index-1 )  %>
-<%=h hidden_field_tag("invoice_id",  params[:loadUnBilled].present? ? params[:invoice_id] : @invoice.id )  %>
+<%=h hidden_field_tag("invoice_id",  (params[:loadUnBilled].present? || controller.addAllRows && params[:populate_items]) ? params[:invoice_id] : @invoice.id )  %>
 <%=h hidden_field_tag("parent_type", @invoice.parent_type)  %>
 <%=h hidden_field_tag("parent_id", @invoice.parent_id)  %>
 <%= hidden_field_tag("additional_item_type", call_hook(:modify_product_log_type)) %>

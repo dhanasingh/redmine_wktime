@@ -102,12 +102,12 @@ $(document).ready(function() {
 					var x = document.getElementsByName("custfield_img"+comment_row+"[]");
 					if( ((e_comments.val() != "" || custFldToolTip)  && (!commentInRow  || custFldToolTip )) || $("#attachment_" + comment_row + "_" + comment_col + " .attachments_fields").children().length > 0)
 					{
-						$(x[comment_col-1]).attr({src: "../plugin_assets/redmine_wktime/images/withcommant.png"});
+						$(x[comment_col-1]).attr({src: "/plugin_assets/redmine_wktime/images/withcommant.png"});
 
 					}
 					else
 					{
-						$(x[comment_col-1]).attr({src: "../plugin_assets/redmine_wktime/images/withoutcommant.png"});
+						$(x[comment_col-1]).attr({src: "/plugin_assets/redmine_wktime/images/withoutcommant.png"});
 					}
 					$(attachmentField).appendTo(attachmentDiv);
 					$( this ).dialog( "close" );
@@ -188,7 +188,7 @@ $(document).ready(function() {
 	}
 });
 
-$(window).load(function(){
+$(window).on('load', function () {
 	warnLeavingUnsavedTE(lblWarnUnsavedTE);
 });
 

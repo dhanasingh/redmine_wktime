@@ -34,7 +34,7 @@ class WkcrmController < WkbaseController
 		if params[:related_type] == "WkOpportunity"
 			relatedId = WkOpportunity.all.order(:name)
 		elsif params[:related_type] == "WkLead"
-			relatedId = WkLead.includes(:contact).where.not(:status => 'C').order("wk_crm_contacts.first_name, wk_crm_contacts.last_name")
+			relatedId = WkLead.includes(:contact).where.not(:status => 'C').where('wk_crm_contacts.contact_type' => 'C').order("wk_crm_contacts.first_name, wk_crm_contacts.last_name")
 		elsif params[:related_type] == "WkCrmContact"
 			#relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:contact_type => params[:contact_type]).order(:first_name, :last_name)
 			hookType = call_hook(:additional_type)
@@ -262,5 +262,17 @@ class WkcrmController < WkbaseController
 
 	def get_activity_label
 		l(:label_new_activity)
+	end
+
+	def getLabelInvNum
+		l(:label_quote_number)
+	end
+
+	def getDateLbl
+		l(:label_quote_date)
+	end
+
+	def isInvPaymentLink
+		false
 	end
 end

@@ -9,9 +9,15 @@
 	<%  billing_type = { 'TM'  => l(:label_time_material), 'FC' =>  l(:label_fixed_cost) } %>
 	<%= hidden_field_tag "accountProjectId", @accProjEntry.blank? ? "" : @accProjEntry.id %>
 	<%
-	if !params[:account_id].blank? || !params[:contact_id].blank?
-		parentId = params[:account_id].blank? ? params[:contact_id] : params[:account_id]
-		parentType = params[:account_id].blank? ? "WkCrmContact" : "WkAccount"
+	if params[:account_id].present?
+		parentId = params[:account_id]
+		parentType = "WkAccount"
+	elsif params[:contact_id].present?
+		parentId = params[:contact_id]
+		parentType = "WkCrmContact"
+	elsif params[:lead_id].present?
+		parentId = params[:lead_id]
+		parentType = "WkLead"
 	else
 		parentId = ""
 		parentType = ""
@@ -24,7 +30,7 @@
 		<%= render partial: "wkcrm/view_polymorphic", locals: { parentObject: @accProjEntry.blank? ? nil : @accProjEntry, :parentType => parentType, :parentId => parentId, :index => false, :needParentProject => false, :padding => nil, :needblankType => false } %>
 		<tr>
 			<th align="left"><label><%= l(:label_project) %></label></th>
-			<td style="padding-left:40px;"><%=h select_tag('project_id', options_for_select(projArr, :selected =>  @accProjEntry.blank?  ?  get_project_id(params[:project_id]) : @accProjEntry.project_id)) %></td>
+			<td style="padding-left:40px;"><%=h select_tag('project_id', options_for_select(projArr, :selected =>  @accProjEntry.blank?  ?  '' : @accProjEntry.project_id)) %></td>
 		</tr>
 		<tr>
 			<th align="left"><label><%= l(:label_itemized_bill) %></label></th>

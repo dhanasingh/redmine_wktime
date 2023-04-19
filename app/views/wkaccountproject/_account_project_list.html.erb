@@ -27,7 +27,7 @@
 	 <tbody>
        <% @accountproject.each do |entry| %>
 		 <tr>
-			<td class="lbl-txt-align"><%=h entry.parent_type == 'WkAccount' ? 'Account' : 'Contact'  %></td>
+			<td class="lbl-txt-align"><%=h relatedHash[entry.parent_type]  %></td>
 			<td class="lbl-txt-align"><%=h entry.parent.blank? ? "" : entry.parent.name  %></td>
 			<td class="lbl-txt-align"><%=h entry.project.blank? ? "" : entry.project.name  %></td>
 			<td class="lbl-txt-align"><%=h entry.billing_type == 'TM' ? l(:label_time_material) : l(:label_fixed_cost)  %></td>

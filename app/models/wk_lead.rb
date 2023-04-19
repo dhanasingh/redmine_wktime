@@ -26,6 +26,8 @@ class WkLead < ActiveRecord::Base
   has_one :candidate, class_name: "WkCandidate", foreign_key: "lead_id", dependent: :destroy
   has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
   accepts_nested_attributes_for :candidate, allow_destroy: true
+  has_many :billable_projects, as: :parent, class_name: "WkAccountProject", :dependent => :destroy
+  has_many :projects, through: :billable_projects
 
   before_save :update_status_update_on
   after_create_commit :send_notification
@@ -104,4 +106,8 @@ class WkLead < ActiveRecord::Base
   end
 
   scope :filter_pass_out, ->(pass_out){ where("wk_candidates.pass_out" => pass_out) }
+
+  def address
+	  contact.address unless contact.blank?
+  end
 end
