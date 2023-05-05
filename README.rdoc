@@ -1,15 +1,15 @@
-= Webinar on ERPmine – Billing ,  April 25th, 2023, 5 PM India (11:30 AM GMT)
+= Webinar on ERPmine – CRM ,  May 30th, 2023, 5 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
-https://us02web.zoom.us/meeting/register/tZ0vdO6rpj8iGd2T-SawIjawTvi_P3FnFT9O
+https://us02web.zoom.us/meeting/register/tZUocequpjMtG9cmbmd3gsRySXbZeM9SESWH
 
 *Topics* :
-* Billing Projects
-* Invoice Setup
-* Contract Setup
-* Preview Unbilled Invoice
-* Generate Invoice
-* Accept Payment
+* Lead
+* Account
+* Opportunity
+* Contact
+* Activities
+* Sales Quote
 * Reports
 * Mobile app
 -----
