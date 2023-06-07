@@ -1,17 +1,14 @@
-= Webinar on ERPmine – CRM ,  May 30th, 2023, 5 PM India (11:30 AM GMT)
+= Webinar on ERPmine – Accounting ,  June 27th, 2023, 5 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
-https://us02web.zoom.us/meeting/register/tZUocequpjMtG9cmbmd3gsRySXbZeM9SESWH
+https://us02web.zoom.us/meeting/register/tZcpfuuuqTIrG9LOsj7oH_kmZhj9cISDXaKR
 
 *Topics* :
-* Lead
-* Account
-* Opportunity
-* Contact
-* Activities
-* Sales Quote
-* Reports
-* Mobile app
+* Accounting Transactions
+* General Ledger
+* Financial Reports
+* Mobile app 
+
 -----
 
 = ERPmine
