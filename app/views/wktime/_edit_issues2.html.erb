@@ -28,7 +28,7 @@
 				<% if @editable %>
 					<%=h select_tag(isTemplate ? '__template__time_entry[][project_id]' : 'time_entry[][project_id]',
 					options_for_select(projects, :selected =>  project_id),
-					:onchange => "projectChanged(this,#{@row.to_s()});", :style=> "width:150px" ) %>
+					:onchange => "projectChanged(this,#{@row.to_s()});", :style=> "width:150px", class: 'issueDD' ) %>
 				<% else %>
 					<% if project.blank? %>
 						<% if entry.nil? %>
