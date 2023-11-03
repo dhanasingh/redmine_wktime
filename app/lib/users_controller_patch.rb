@@ -19,7 +19,7 @@ module UsersControllerPatch
 				if @user.save
 					Mailer.deliver_account_information(@user, @user.password) if params[:send_information]
 
-					# ============= ERPmine_patch Redmine 5.0  =====================
+					# ============= ERPmine_patch Redmine 5.1  =====================
 						#Below code for save wk users
 						erpmineUserSave
 						# To transfer attachments from Referral
@@ -63,8 +63,8 @@ module UsersControllerPatch
 			end
 
 			def update
-        is_updating_password = params[:user][:password].present? && (@user.auth_source_id.nil? || params[:user][:auth_source_id].blank?)
-        if is_updating_password
+        		is_updating_password = params[:user][:password].present? && (@user.auth_source_id.nil? || params[:user][:auth_source_id].blank?)
+        		if is_updating_password
 					@user.password, @user.password_confirmation = params[:user][:password], params[:user][:password_confirmation]
 				end
 				@user.safe_attributes = params[:user]
@@ -76,8 +76,8 @@ module UsersControllerPatch
 				if @user.save
 					@user.pref.save
 
-          Mailer.deliver_password_updated(@user, User.current) if is_updating_password
-				# ============= ERPmine_patch Redmine 5.0  =====================
+          		Mailer.deliver_password_updated(@user, User.current) if is_updating_password
+				# ============= ERPmine_patch Redmine 5.1  =====================
 					#Below code for save wk users
 					erpmineUserSave
 					#for attachment save
@@ -94,7 +94,7 @@ module UsersControllerPatch
 							flash[:notice] = l(:notice_successful_update)
 							redirect_to_referer_or edit_user_path(@user)
 						end
-            format.api  {render_api_ok}
+            			format.api  {render_api_ok}
 					end
 				else
 					@auth_sources = AuthSource.all
@@ -103,13 +103,13 @@ module UsersControllerPatch
 					@user.password = @user.password_confirmation = nil
 
 					respond_to do |format|
-            format.html {render :action => :edit}
-            format.api  {render_validation_errors(@user)}
+            			format.html {render :action => :edit}
+            			format.api  {render_validation_errors(@user)}
 					end
 				end
 			end
 
-	# ============= ERPmine_patch Redmine 4.2  =====================
+			# ============= ERPmine_patch Redmine 5.1  =====================
 			def erpmineUserSave
 				@user.erpmineuser.safe_attributes = params[:erpmineuser]
 				@user.erpmineuser.address_id = updateAddress
@@ -147,7 +147,7 @@ module UsersControllerPatch
 				end
 				addressId
 			end
-	# ===============================================
+			# ===============================================
 		end
 	end
 end
