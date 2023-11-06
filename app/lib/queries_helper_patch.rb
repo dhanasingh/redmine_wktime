@@ -1,16 +1,16 @@
 module QueriesHelper
 
-	def self.included(base)
-		base.send(:include, InstanceMethods)
+	# def self.included(base)
+	# 	base.send(:include, InstanceMethods)
 
-		base.class_eval do
-			unloadable
-			alias_method :column_value_without_wktime_projects, :column_value
-			alias_method :column_value, :column_value_with_wktime_projects
-		end
-	end
+	# 	base.class_eval do
+	# 		unloadable
+	# 		alias_method :column_value_without_wktime_projects, :column_value
+	# 		alias_method :column_value, :column_value_with_wktime_projects
+	# 	end
+	# end
 
-	module InstanceMethods
+	# module InstanceMethods
 		def column_value_with_wktime_projects(column, item, value)
 			case column.name
 		# ============= ERPmine_patch Redmine 5.1  =====================
@@ -33,7 +33,9 @@ module QueriesHelper
 				column_value_without_wktime_projects(column, item, value)
 			end
 		end
-	end
+		alias_method :column_value_without_wktime_projects, :column_value
+		alias_method :column_value, :column_value_with_wktime_projects
+	# end
 
 	def render_query_totals(query)
 		return unless query.totalable_columns.present?
