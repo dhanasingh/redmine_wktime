@@ -17,7 +17,6 @@
 module WkpublicholidayHelper
   include WktimeHelper
   include WkcrmenumerationHelper
-  include CalendarsHelper
 
   def selectLocation(model, locId)
     ddArray = Array.new
