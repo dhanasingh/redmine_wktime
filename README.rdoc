@@ -1,16 +1,16 @@
-= Webinar on ERPmine – Times and Expenses ,  Sep 26th, 2023, 5 PM India (11:30 AM GMT)
+= Webinar on ERPmine – Inventory ,  Nov 28th, 2023, 5 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
-https://us02web.zoom.us/meeting/register/tZAof-CrrD4rHNV3gmJsHTXa40N786Zgje4Y
+https://us02web.zoom.us/meeting/register/tZMpcuGspzkiGNweG8nlkM2udL28xKDaDbY_
 
 *Topics* :
-* Project based approvals
-* Minimum maximum validation on holidays
-* Issue logger on /off
-* Map on timesheet
-* Start / stop button on time entries
-* Timesheet Report
-*  Mobile App
+* Receive Goods (Shipments)
+* Product and items
+* Material Log
+* Invoice
+* Asset and depreciation
+* Disposed Asset
+* Asset and stock Report
 
 -----
 
