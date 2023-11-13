@@ -1139,13 +1139,13 @@ include ActionView::Helpers::TagHelper
 				wkattendance =  WkAttendance.find(entryvalues[0])
 				entrydate = wkattendance.start_time
 				start_local = entrydate.localtime
-				starttime = start_local.change({ hour: entryvalues[1].to_time.strftime("%H"), min: entryvalues[1].to_time.strftime("%M"), sec: entryvalues[1].to_time.strftime("%S") })
+				starttime = start_local.change({ hour: entryvalues[1].to_time.strftime("%H").to_i, min: entryvalues[1].to_time.strftime("%M").to_i, sec: entryvalues[1].to_time.strftime("%S").to_i })
 				oldendvalue = entryvalues[2]
 				if (params[:nightshift] == "true")
 					entryvalues[2] = "23:59"
 				end
 				if !entryvalues[2].blank?
-					endtime = start_local.change({ hour: entryvalues[2].to_time.strftime("%H"), min: entryvalues[2].to_time.strftime("%M"), sec: entryvalues[2].to_time.strftime("%S") })
+					endtime = start_local.change({ hour: entryvalues[2].to_time.strftime("%H").to_i, min: entryvalues[2].to_time.strftime("%M").to_i, sec: entryvalues[2].to_time.strftime("%S").to_i })
 				end
 				wkattendance.start_time = starttime
 				wkattendance.end_time = endtime

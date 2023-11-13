@@ -122,4 +122,8 @@ module WkdocumentHelper
     url = url_for(controller: "wkdocument", action: "download", id: attachment.id)
     (html_options[:editable] || html_options[:download]) ? link_to( text, url, html_options) : text
   end
+
+  def container_attachments_edit_path(container)
+    wk_object_attachments_edit_path container.class.name.underscore.pluralize, container.id
+  end
 end

@@ -3,7 +3,7 @@ module ContextMenusControllerPatch
 	  base.class_eval do
 
       def time_entries
-        # ============= ERPmine_patch Redmine 5.0  =====================
+        # ============= ERPmine_patch Redmine 5.1  =====================
         @options_by_custom_field = {}
         if session[:timelog][:spent_type] === "T"
         # =======================
@@ -16,7 +16,7 @@ module ContextMenusControllerPatch
             @time_entry = @time_entries.first
           end
 
-          @projects = @time_entries.collect(&:project).compact.uniq
+          @projects = @time_entries.filter_map(&:project).uniq
           @project = @projects.first if @projects.size == 1
           @activities = @projects.map(&:activities).reduce(:&)
 
@@ -24,6 +24,7 @@ module ContextMenusControllerPatch
           @can = {:edit => edit_allowed, :delete => edit_allowed}
           @back = back_url
 
+          @options_by_custom_field = {}
           if @can[:edit]
             custom_fields = @time_entries.map(&:editable_custom_fields).reduce(:&).reject(&:multiple?).select {|field| field.format.bulk_edit_supported}
             custom_fields.each do |field|
@@ -34,7 +35,7 @@ module ContextMenusControllerPatch
             end
           end
 
-        # ============= ERPmine_patch Redmine 5.0  =====================
+        # ============= ERPmine_patch Redmine 5.1  =====================
         elsif session[:timelog][:spent_type] === "E"
           @time_entries = WkExpenseEntry.where(id: params[:ids]).to_a
           @can = {:edit => true, :delete => true}

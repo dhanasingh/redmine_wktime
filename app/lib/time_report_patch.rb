@@ -3,13 +3,13 @@ module TimeReportPatch
     class TimeReport
       attr_reader :criteria, :columns, :hours, :total_hours, :periods
 
-      # ============= ERPmine_patch Redmine 5.0  =====================
+      # ============= ERPmine_patch Redmine 5.1  =====================
       def initialize(project, criteria, columns, time_entry_scope, options={})
         @options = options
         # ======================================
         @project = project
 
-        # ============= ERPmine_patch Redmine 5.0  =====================
+        # ============= ERPmine_patch Redmine 5.1  =====================
         @scope = time_entry_scope
         # ======================================
         @criteria = criteria || []
@@ -28,7 +28,7 @@ module TimeReportPatch
         unless @criteria.empty?
           time_columns = %w(tyear tmonth tweek spent_on)
           @hours = []
-          # ============= ERPmine_patch Redmine 5.0  =====================
+          # ============= ERPmine_patch Redmine 5.1  =====================
           scopeArr = @scope.attribute_names
           if scopeArr.include? "selling_price"
           # ======================================
@@ -36,8 +36,8 @@ module TimeReportPatch
             @scope.includes(:activity).
                 reorder(nil).
                 group(@criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).
-                joins(@criteria.collect{|criteria| @available_criteria[criteria][:joins]}.compact).
-            # ============= ERPmine_patch Redmine 5.0  =====================
+                joins(@criteria.filter_map{|criteria| @available_criteria[criteria][:joins]}).
+            # ============= ERPmine_patch Redmine 5.1  =====================
             sum("wk_material_entries.selling_price * wk_material_entries.quantity").each do |hash, selling_price|
               h = {'hours' => selling_price}
               (@criteria + time_columns).each_with_index do |name, i|
@@ -49,7 +49,7 @@ module TimeReportPatch
             @scope.includes(:activity).
               reorder(nil).
               group(@criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).
-              joins(@criteria.collect{|criteria| @available_criteria[criteria][:joins]}.compact).
+              joins(@criteria.filter_map{|criteria| @available_criteria[criteria][:joins]}).
               sum(:amount).each do |hash, amount|
                 h = {'hours' => amount}
                 (@criteria + time_columns).each_with_index do |name, i|
@@ -61,7 +61,7 @@ module TimeReportPatch
             @scope.
               reorder(nil).
               group(@criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).
-              joins(@criteria.collect{|criteria| @available_criteria[criteria][:joins]}.compact).
+              joins(@criteria.filter_map{|criteria| @available_criteria[criteria][:joins]}).
             # ==============================
               sum(:hours).each do |hash, hours|
                 h = {'hours' => hours}
@@ -70,7 +70,7 @@ module TimeReportPatch
                 end
                 @hours << h
               end
-          # ============= ERPmine_patch Redmine 5.0  =====================
+          # ============= ERPmine_patch Redmine 5.1  =====================
           end
           # ==============================
 
@@ -81,18 +81,18 @@ module TimeReportPatch
             when 'month'
               row['month'] = "#{row['tyear']}-#{row['tmonth']}"
             when 'week'
-              # ============= ERPmine_patch Redmine 5.0  =====================
+              # ============= ERPmine_patch Redmine 5.1  =====================
               row['week'] = "#{row['spent_on'].cwyear}-#{row['tweek']}" if row['spent_on'].present?
               # ==============================
             when 'day'
               row['day'] = "#{row['spent_on']}"
             end
           end
-          # ============= ERPmine_patch Redmine 5.0  =====================
-          min = @hours.collect {|row| row['spent_on']}.compact.min
+          # ============= ERPmine_patch Redmine 5.1  =====================
+          min = @hours.pluck('spent_on').min
           @from = min ? min.to_date : User.current.today
 
-          max = @hours.collect {|row| row['spent_on']}.compact.max
+          max = @hours.pluck('spent_on').max
           # ==============================
           @to = max ? max.to_date : User.current.today
 
@@ -122,7 +122,7 @@ module TimeReportPatch
       end
 
       def load_available_criteria
-        # ============= ERPmine_patch Redmine 5.0  =====================
+        # ============= ERPmine_patch Redmine 5.1  =====================
         scopeArr = @scope.attribute_names
         if scopeArr.include? "selling_price"
           model =  WkMaterialEntry
@@ -133,7 +133,7 @@ module TimeReportPatch
         end
         # ==================================
         @available_criteria = {
-        # ============= ERPmine_patch Redmine 5.0  =====================
+        # ============= ERPmine_patch Redmine 5.1  =====================
           'project' => {:sql => @options[:nonSpentTime].present? ? "coalesce(time_entries.project_id, issues.project_id)" : "#{model.table_name}.project_id",
         # ==================================
                       :klass => Project,
@@ -147,7 +147,7 @@ module TimeReportPatch
           'category' => {:sql => "#{Issue.table_name}.category_id",
                         :klass => IssueCategory,
                         :label => :field_category},
-          # ============= ERPmine_patch Redmine 5.0  =====================
+          # ============= ERPmine_patch Redmine 5.1  =====================
           'user' => {:sql => @options[:nonSpentTime].present? ? "coalesce(time_entries.user_id, issues.assigned_to_id)" : "#{model.table_name}.user_id",
           # ==================================
                       :klass => User,
@@ -157,7 +157,7 @@ module TimeReportPatch
                       :label => :label_tracker},
           'activity' => {:sql => "COALESCE(#{TimeEntryActivity.table_name}.parent_id, #{TimeEntryActivity.table_name}.id)",
                         :klass => TimeEntryActivity,
-          # ============= ERPmine_patch Redmine 5.0  =====================
+          # ============= ERPmine_patch Redmine 5.1  =====================
                         :label => :label_activity},
           'issue' => {:sql => @options[:nonSpentTime].present? ? "coalesce(time_entries.issue_id, issues.id)" :  "#{model.table_name}.issue_id",
           # ==================================
@@ -165,7 +165,7 @@ module TimeReportPatch
                       :label => :label_issue}
         }
 
-        # ============= ERPmine_patch Redmine 5.0  =====================
+        # ============= ERPmine_patch Redmine 5.1  =====================
         if scopeArr.include? "selling_price"
           hashval = {
                 'Product Item' => {:sql => "#{WkMaterialEntry.table_name}.inventory_item_id",
