@@ -738,14 +738,19 @@ class WkorderentityController < WkbillingController
 		end
 		pdf.ln
 		if invoiceComp.present?
-			pdf.SetFontStyle('B',10)
-			pdf.set_fill_color(230, 230, 230)
-			pdf.RDMCell(table_width, 7, l(:label_terms_cond) + ":", 1, 0, '', 1)
-			pdf.set_fill_color(255, 255, 255)
-			pdf.ln
+			if addDescription
+				pdf.SetFontStyle('B',10)
+				pdf.set_fill_color(230, 230, 230)
+				pdf.RDMCell(table_width, 7, l(:label_terms_cond) + ":", 1, 0, '', 1)
+				pdf.set_fill_color(255, 255, 255)
+				pdf.ln
+			end
 			pdf.SetFontStyle('',10)
 			invoiceComp.each do |comp|
-				pdf.RDMCell(table_width, 5, comp[:name] + ":  " + comp[:value], 1, 0, '', 1)
+				pdf.SetFontStyle('B',10)
+				pdf.RDMCell(100, 5, comp[:name], 1, 0, '', 1)
+				pdf.SetFontStyle('',10)
+				pdf.RDMCell(table_width - 100, 5, comp[:value], 1, 0, '', 1)
 				pdf.ln
 			end
 		end
