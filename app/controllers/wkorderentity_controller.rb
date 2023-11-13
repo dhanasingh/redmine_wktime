@@ -582,7 +582,7 @@ class WkorderentityController < WkbillingController
 	end
 
 	def getCustomerAddress(invoice)
-		invoice.parent.name + "\n" + (invoice.parent.address.blank? ? "" : invoice.parent.address.fullAddress) + (invoice&.parent_type == 'WkAccount' && invoice&.parent&.tax_number ? "\n" + "GST No: " + invoice&.parent&.tax_number.to_s : "")
+		invoice.parent.name + "\n" + (invoice.parent.address.blank? ? "" : invoice.parent.address.fullAddress) + (invoice&.parent_type == 'WkAccount' && invoice&.parent&.tax_number.present? ? "\n" + "GST No: " + invoice&.parent&.tax_number.to_s : "")
 	end
 
 	def getAutoPostModule
