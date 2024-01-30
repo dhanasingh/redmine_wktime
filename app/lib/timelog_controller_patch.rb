@@ -701,6 +701,13 @@ module TimelogControllerPatch
 			end
 		end
 
+		# ============= BUGFIX undefined method filenam_for_export =====================
+
+		def filename_for_export(query, prefix)
+			timestamp = Time.now.strftime('%Y%m%d%H%M%S')
+			"#{prefix}_#{query.parameterize}_#{timestamp}"
+		end
+
 	end
 	end
 end
