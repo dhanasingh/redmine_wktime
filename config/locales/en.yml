@@ -1265,3 +1265,10 @@ en:
   chkbox_sales_quote_closed_issues: Include Closed Issues for Sales Quote
   label_sales_stage_history: Sales Stage History
   label_created_date: Created Date
+  
+  label_emerg_contact_type: Emergency contact type
+  label_state_insurance: State insurance ID
+  label_marital_status: Marital status
+  label_dept_section: Department section
+   
+  

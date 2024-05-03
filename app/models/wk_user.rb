@@ -23,7 +23,8 @@ class WkUser < ActiveRecord::Base
   safe_attributes 'role_id', 'id1','id2', 'id3', 'join_date', 'birth_date', 'termination_date',  'gender', 'bank_name','account_number',
   'bank_code', 'loan_acc_number', 'tax_id', 'ss_id', 'custom_number1', 'custom_number2','custom_date1', 'custom_date2', 'is_schedulable',
   'billing_rate', 'billing_currency', 'location_id', 'department_id', 'address_id', 'shift_id', 'created_by_user_id', 'updated_by_user_id',
-  'source_id', 'source_type', 'retirement_account'
+  'source_id', 'source_type', 'retirement_account', 'marital_id', 'state_insurance','employee_id', 'emerg_type_id',
+  'emergency_contact', 'dept_section_id', 'notes'
 
   belongs_to :user
   belongs_to :role
@@ -43,6 +44,7 @@ class WkUser < ActiveRecord::Base
       self.tax_id = crypt.encrypt_and_sign(self.tax_id) if self.tax_id.present?
       self.ss_id = crypt.encrypt_and_sign(self.ss_id) if self.ss_id.present?
       self.retirement_account = crypt.encrypt_and_sign(self.retirement_account) if self.retirement_account.present?
+      self.state_insurance = crypt.encrypt_and_sign(self.state_insurance) if self.state_insurance.present?
       self
     end
   end
