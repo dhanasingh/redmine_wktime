@@ -1,16 +1,16 @@
-= Webinar on ERPmine – CRM , Mar 26th, 2024, 5 PM India (11:30 AM GMT)
+= Webinar on ERPmine – Survey , May 28th, 2024, 5 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
-https://us02web.zoom.us/meeting/register/tZAvcu6pqjMjEtU4RCzGam1B1BRFdN91xfYU
+https://us02web.zoom.us/meeting/register/tZUvcu-hpzooH9OrvWepO9PA8upnyRn5O9xD
 
 *Topics* :
-* Lead
-* Account
-* Opportunity
-* Contact
-* Activities
-* Sales Quote
-* Reports
+* Project Survey
+* General Survey
+* User survey
+* Survey Reviewer
+* Recurring Survey
+* Survey Response Trending Chart
+* Notification
 * Mobile App
 -----
 
