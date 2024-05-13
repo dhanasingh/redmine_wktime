@@ -16,12 +16,15 @@ module WkgrouppermissionHelper
       "HR" => l(:label_hr),
       "" => l(:label_general)
     }
-    addMod = call_hook(:helper_permission_modules)
-		if addMod.present?
-			addMod = eval(addMod)
-      puts addMod
-      modules =  modules.merge(addMod)
-    end
+    call_hook(:helper_permission_modules, {modules: modules})
+    # addMod = call_hook(:helper_permission_modules, {modules: modules})
+		# if addMod.present?
+		# 	# addMod = eval(addMod)
+    #   puts "-------------------addMod---Start-------------------------------------"
+    #   puts addMod.inspect
+    #   puts "-------------------addMod----End------------------------------------"
+    #   modules =  modules.merge(addMod)
+    # end
     modules
   end
 end
