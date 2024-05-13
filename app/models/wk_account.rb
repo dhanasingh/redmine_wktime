@@ -17,6 +17,22 @@
 
 class WkAccount < ActiveRecord::Base
   unloadable
+  include Redmine::SafeAttributes
+
+  safe_attributes(
+    'name',
+    'account_type',
+    'account_bllling',
+    'address_id',
+    'activity_id',
+    'account_category',
+    'account_number',
+    'tax_number',
+    'industry',
+    'description',
+    'annual_revenue',
+    'location_id'
+  )
   belongs_to :address, :class_name => 'WkAddress', :dependent => :destroy
   has_many :billable_projects, as: :parent, class_name: "WkAccountProject", :dependent => :destroy
   has_many :invoices, as: :parent, class_name: "WkInvoice", :dependent => :restrict_with_error
