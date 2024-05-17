@@ -67,7 +67,7 @@ module ReportPf
 			total[:eeTot] += emp_share
 			total[:erTot] += emr_share
 			total[:epsTot] += eps_share
-			pf_data[key][:uan] =decrypt_values( entry.retirement_account)
+			pf_data[key][:uan] = entry.retirement_account
 			pf_data[key][:name] = entry.firstname.to_s + " "+entry.lastname.to_s
 			pf_data[key][:basic] = basic.round()
 			pf_data[key][:eps] = wages.round()

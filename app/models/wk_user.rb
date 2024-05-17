@@ -33,20 +33,20 @@ class WkUser < ActiveRecord::Base
   belongs_to :address, :foreign_key => 'address_id', :dependent => :destroy, :class_name => 'WkAddress'
   belongs_to :source, polymorphic: true
   belongs_to :shift, class_name: "WkShift"
-
-  before_update :encrypt_user_credentials
+  belongs_to :emerg_type, :class_name => 'WkCrmEnumeration'
+  belongs_to :dept_section, :class_name => 'WkCrmEnumeration'
+  belongs_to :marital, :class_name => 'WkCrmEnumeration'
+  before_save :encrypt_user_credentials
 
   def encrypt_user_credentials
-    if self.id_previously_changed?
+    # if self.id_previously_changed?
       key = YAML::load_file(Rails.root+'plugins/redmine_wktime/config/config.yml')
       crypt = ActiveSupport::MessageEncryptor.new(key['encryption_key'])
-      self.account_number = crypt.encrypt_and_sign(self.account_number) if self.account_number.present?
-      self.tax_id = crypt.encrypt_and_sign(self.tax_id) if self.tax_id.present?
-      self.ss_id = crypt.encrypt_and_sign(self.ss_id) if self.ss_id.present?
-      self.retirement_account = crypt.encrypt_and_sign(self.retirement_account) if self.retirement_account.present?
-      self.state_insurance = crypt.encrypt_and_sign(self.state_insurance) if self.state_insurance.present?
-      self
-    end
+      self.account_number = crypt.encrypt_and_sign(self.account_number) if account_number_changed?
+      self.tax_id = crypt.encrypt_and_sign(self.tax_id) if tax_id_changed?
+      self.ss_id = crypt.encrypt_and_sign(self.ss_id) if ss_id_changed?
+      # self
+    # end
   end
 
   def self.decrypt_user_credentials(userID, columnName)

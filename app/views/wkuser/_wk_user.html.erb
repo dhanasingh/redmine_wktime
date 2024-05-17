@@ -49,14 +49,8 @@
 			<p><%= user_fields.text_field :emergency_contact, :disabled => disable %></p>
 			<p><%= user_fields.select :emerg_type_id, emergContactTypeArr, {label:l(:label_emerg_contact_type)}, :disabled => disable %></p>
 			<p><%= user_fields.text_field :employee_id, label:l(:label_employee_id), :disabled => disable %></p>
-			<% if !@user&.id&.present? %>
-				<p><%= user_fields.text_field :state_insurance, label:l(:label_state_insurance), :disabled => disable %></p>
-			<% else %>
-				<p>
-					<%= user_fields.text_field :state_insurance, :value => @user.erpmineuser&.state_insurance.present? ? WkUser.showEncryptdData(@user&.id, 'state_insurance') : '', label:l(:label_state_insurance), :disabled => true %>
-					<%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript: showDetails('#{@user&.id}', '#{'state_insurance'}', '#{l(:label_state_insurance)}', #{disable});"%>
-				</p>
-			<% end %>
+			<p><%= user_fields.text_field :state_insurance, label:l(:label_state_insurance), :disabled => disable %></p>
+
 			<p><%= user_fields.select :location_id, locationArr, {}, :disabled => disable %></p>
 			<p><%= user_fields.select :department_id, departmentArr, {}, :disabled => disable %></p>
 			<p><%= user_fields.select :dept_section_id, dept_section_arr, {label:l(:label_dept_section)}, :disabled => disable %></p>
@@ -88,14 +82,7 @@
 					<%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript: showDetails('#{@user&.id}', '#{'ss_id'}',  '#{l(:field_ss)}', #{disable});" %>
 				</p>
 			<% end %>
-			<% if !@user&.id&.present? %>
 				<p><%= user_fields.text_field :retirement_account, label:l(:field_retirement_account),:disabled => disable %></p>
-			<% else %>
-				<p>
-					<%= user_fields.text_field :retirement_account, :value => @user.erpmineuser&.retirement_account.present? ? WkUser.showEncryptdData(@user&.id, 'retirement_account') : '',label:l(:field_retirement_account), :disabled => true %>
-					<%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript: showDetails('#{@user&.id}', '#{'retirement_account'}', '#{l(:field_retirement_account)}', #{disable});" %>
-				</p>
-			<% end %>
 			<p><%= user_fields.text_area :notes, :disabled => disable %></p>
 			<p><%= user_fields.text_field :id1, :disabled => disable %></p>
 			<p><%= user_fields.text_field :id2, :disabled => disable %></p>

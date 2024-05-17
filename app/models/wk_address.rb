@@ -40,6 +40,8 @@ class WkAddress < ActiveRecord::Base
   has_many :wk_accounts, foreign_key: "address_id", class_name: "WkAccount"
   has_many :wk_contacts, foreign_key: "address_id", class_name: "WkCrmContact"
   has_many :wk_leads, foreign_key: "address_id", class_name: "WkLead"
+  has_one :wk_user, foreign_key: "address_id", class_name: "WkUser"
+  has_one :user, through: :wk_user
   validate :hasAnyValues
 
   def hasAnyValues
