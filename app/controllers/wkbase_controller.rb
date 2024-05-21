@@ -19,6 +19,7 @@ class WkbaseController < ApplicationController
 	unloadable
 	before_action :require_login
 	before_action :clear_sort_session, :unseen
+	before_action :check_update_user_permissions, :only => [:updateWkuserData, :getWkuserData, :updateWkuserVal]
 	accept_api_auth :getUserPermissions, :updateClockInOut, :my_account, :get_groups, :saveIssueTimeLog
 	helper :sort
   helper :custom_fields
@@ -371,6 +372,12 @@ class WkbaseController < ApplicationController
 		render json: {data: data}
 	end
 
+	def check_update_user_permissions
+		unless User.current.admin? && (['tax_id', 'account_number', 'ss_id'].include?(params[:columnName]))
+			render json: {error: l(:notice_not_authorized)}
+		end
+	end
+
 	def loadPurchaseDD
 		false
 	end
@@ -378,7 +385,7 @@ class WkbaseController < ApplicationController
 	def addLeadDD
 		false
 	end
-	
+
 	def redirect_controller
 		if ['wklead', 'wkcrmaccount', 'wkcrmcontact'].include?controller_name
 			'wksalesquote'

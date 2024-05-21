@@ -39,14 +39,11 @@ class WkUser < ActiveRecord::Base
   before_save :encrypt_user_credentials
 
   def encrypt_user_credentials
-    # if self.id_previously_changed?
-      key = YAML::load_file(Rails.root+'plugins/redmine_wktime/config/config.yml')
-      crypt = ActiveSupport::MessageEncryptor.new(key['encryption_key'])
-      self.account_number = crypt.encrypt_and_sign(self.account_number) if account_number_changed?
-      self.tax_id = crypt.encrypt_and_sign(self.tax_id) if tax_id_changed?
-      self.ss_id = crypt.encrypt_and_sign(self.ss_id) if ss_id_changed?
-      # self
-    # end
+    key = YAML::load_file(Rails.root+'plugins/redmine_wktime/config/config.yml')
+    crypt = ActiveSupport::MessageEncryptor.new(key['encryption_key'])
+    self.account_number = crypt.encrypt_and_sign(self.account_number) if account_number_changed?
+    self.tax_id = crypt.encrypt_and_sign(self.tax_id) if tax_id_changed?
+    self.ss_id = crypt.encrypt_and_sign(self.ss_id) if ss_id_changed?
   end
 
   def self.decrypt_user_credentials(userID, columnName)
@@ -67,12 +64,8 @@ class WkUser < ActiveRecord::Base
   end
 
   def self.updateWkUser(userID, columnName, value)
-    decryptVal = ''
-    key = YAML::load_file(Rails.root+'plugins/redmine_wktime/config/config.yml')
-    crypt = ActiveSupport::MessageEncryptor.new(key['encryption_key'])
     usrdata = self.where(user_id: userID).first
-    decryptVal = crypt.encrypt_and_sign(value) if value.present?
-    usrdata["#{columnName}"] = decryptVal
+    usrdata["#{columnName}"] = value
     usrdata.save
   end
 end
