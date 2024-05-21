@@ -23,10 +23,6 @@ User.class_eval do
 	def erpmineuser
 		self.wk_user ||= WkUser.new(:user => self)
 	end
-
-	def erpmineaddress
-		self.address ||= WkAddress.new(:user => self)
-	end
 end
 
 Issue.class_eval do
