@@ -19,12 +19,18 @@ api.user do
     api.shift @user&.erpmineuser&.shift&.name
     api.location @user&.erpmineuser&.location&.name
     api.department @user&.erpmineuser&.department&.name
+    api.dept_section_id @user&.erpmineuser&.dept_section_id&.name
     api.billing_rate @user&.erpmineuser&.billing_rate
     api.is_schedulable @user&.erpmineuser&.is_schedulable
     api.billing_currency @user&.erpmineuser&.billing_currency
     api.join_date @user&.erpmineuser&.join_date
     api.birth_date @user&.erpmineuser&.birth_date
     api.termination_date @user&.erpmineuser&.termination_date
+    api.marital_id @user&.erpmineuser&.marital&.name
+	  api.emergency_contact @user&.erpmineuser&.emergency_contact
+	  api.emerg_type_id @user&.erpmineuser&.emerg_type&.name
+	  api.state_insurance @user&.erpmineuser&.state_insurance
+	  api.employee_id @user&.erpmineuser&.employee_id
     api.gender @user&.erpmineuser&.gender
     api.custom_date1 @user&.erpmineuser&.custom_date1
     api.custom_date2 @user&.erpmineuser&.custom_date2
@@ -42,6 +48,7 @@ api.user do
     api.id3 @user&.erpmineuser&.id3
     api.custom_number1 @user&.erpmineuser&.custom_number1
     api.custom_number2 @user&.erpmineuser&.custom_number2
+    api.notes @user&.erpmineuser&.notes
     api.address @user&.erpmineuser&.address
   end
   render_api_custom_values @user.visible_custom_field_values, api
