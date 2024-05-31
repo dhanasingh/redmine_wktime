@@ -21,9 +21,11 @@ class WkAccountProject < ActiveRecord::Base
   include Redmine::SafeAttributes
 
   safe_attributes(
-    'parent_id',
-    'parent_type',
-    'project_id'
+    "parent_id",
+    "parent_type",
+    "project_id",
+    "itemized_bill",
+    "billing_type"
   )
 
   belongs_to :project
