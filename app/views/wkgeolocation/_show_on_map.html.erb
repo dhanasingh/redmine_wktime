@@ -27,7 +27,7 @@
     when "assets"
       locations = entries.map{|entry|
       (!entry.inventory_item_id) ? ["",""] :
-      [ entry.try(:longitude) || "", entry.try(:latitude) || "", l(:label_product)+":"+entry.try(:product_name)+"\n"+l(:field_name)+": "+entry.try(:asset_name)+"\n"+l(:label_rate)+": "+(entry.rate ? entry.try(:rate).to_s : "")+"\n"+ l(:label_location)+": "+(entry.location_name ? entry.try(:location_name) : "")]
+      [ entry.try(:longitude) || "", entry.try(:latitude) || "", l(:label_product)+":"+entry.try(:product_name)+"\n"+l(:field_name)+": "+entry.try(:asset_name)+"\n"+l(:label_rate)+": "+(entry.rate ? entry.try(:rate).to_s : "")+"\n"+ l(:field_location)+": "+(entry.location_name ? entry.try(:location_name) : "")]
       }
     when "activity"
       locations = entries.map{|entry|

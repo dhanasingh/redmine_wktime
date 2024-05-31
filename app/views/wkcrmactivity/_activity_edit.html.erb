@@ -133,7 +133,7 @@
 						:selected => !@activityEntry.blank? ? mm : 00))%>
 				</td>
 				<% unless @isReferral %>
-					<th align="left" style="padding-left:150px;"><label id="lblLocation"><%= l(:label_location) %></label></th>
+					<th align="left" style="padding-left:150px;"><label id="lblLocation"><%= l(:field_location) %></label></th>
 					<td align="left" style="padding-left:40px;">
 						<%=h text_field_tag("location", !@activityEntry.blank? && !@activityEntry[0].location.blank? ? @activityEntry[0].location :  "",
 							:style => "width:190px;", maxlength: 255) %>

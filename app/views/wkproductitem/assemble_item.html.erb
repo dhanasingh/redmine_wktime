@@ -39,7 +39,7 @@
     <%= hidden_field_tag 'item_avail_quantity'%>
     <table style="width: 100%;">
       <tr>
-        <th><%= l(:label_location) %></th>
+        <th><%= l(:field_location) %></th>
         <td><%= select_tag('location_id', options_for_select(locationArr), style: "width:200px;", onchange: "productChanged('product', 'product_item', #{User.current.id}, true, false, null, 'location_id'); ") %></td>
       </tr>
       <tr>

@@ -10,16 +10,16 @@
 	dateVal = params[:date]
 %>
 <% scheduleasHash = {'' => "", 'W' => l(:label_work), 'O' => l(:label_day_off)} %>
-<label><%= l(:label_location) %></label>&nbsp;
+<label><%= l(:field_location) %></label>&nbsp;
 <%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, true), :disabled => false, :style => "width:120px;") %>&nbsp;
 
-<label> <%= l(:label_department) %></label>&nbsp;
+<label> <%= l(:field_department) %></label>&nbsp;
 <%=h select_tag('department_id', options_for_select(options_for_enum_select('DP', depId, true)), :style => "width:120px;") %>&nbsp;
 
 <label><%= l(:label_user) %></label>&nbsp;
 <%= text_field_tag 'name', params[:name], :size => 30 %>&nbsp;
 
-<label><%= l(:label_shift) %></label>&nbsp;
+<label><%= l(:field_shift) %></label>&nbsp;
 <%=h select_tag('shift_id', options_for_select(shiftArr, :selected => shiftId.blank? ? shiftArr : shiftId), :style => "width:120px;") %>&nbsp;<br><br>
 
 <label><%= l(:label_day_off) %></label>&nbsp;

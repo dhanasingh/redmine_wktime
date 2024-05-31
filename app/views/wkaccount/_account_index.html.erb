@@ -9,7 +9,7 @@
 		<table>
 			<tr>
 				<%=h hidden_field_tag('tab', controller_name) %>
-				<th><label for='location'><%= l(:label_location) %></label></th>
+				<th><label for='location'><%= l(:field_location) %></label></th>
 					<td><%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', session[controller_name].try(:[], :location_id), true)) %></td>
 				<th><label for='name' style="padding-left: 10px;"><%= controller.getAccountLbl %></label></th>
 					<td><%= text_field_tag 'accountname', session[controller_name].try(:[], :accountname), :size => 30 %></td>

@@ -1,11 +1,11 @@
 <fieldset class="box tabular">
 	<table>
 		<tr>
-			 <th><%= l(:label_location) %>:</th>
+			 <th><%= l(:field_location) %>:</th>
 			 <td>
 				<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, true), :disabled => false, :style => "float:left; width:120px;") %>
 			 </td> 
-			 <th><%= l(:label_department) %>:</th>
+			 <th><%= l(:field_department) %>:</th>
 			 <td>
 				<%=h select_tag('department_id', options_for_select(options_for_enum_select('DP', departmentId, true)), :style => "float:left; width:120px;") %>
 			 </td> 
