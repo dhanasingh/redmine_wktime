@@ -479,7 +479,7 @@ pl:
   label_lead: Lead
   label_content_information: "Dane %{value}"
   label_website: Strona
-  label_department: Dział
+  field_department: Dział
   label_assigned: Przypisany
   label_in_process: W trakcie
   label_converted: Skonwertowany
@@ -506,7 +506,7 @@ pl:
   label_medium: Średni
   label_call: Połączenie
   label_meeting: Spotkanie
-  label_location: Lokalizacja
+  field_location: Lokalizacja
   label_not_started: Nie rozpoczęte
   label_completed: Skończone
   label_pending_input: Oczekujące dane wejściowe
@@ -733,7 +733,7 @@ pl:
   label_depreciation_freq_warning: "Uwaga: Każde obniżenie frekwencji usunie ostatnie zastosowane obniżenie"
   label_scheduling: Planowanie
   label_schedule_preference: Preferencje harmonogramu
-  label_shift: Zmiana
+  field_shift: Zmiana
   label_role_adjusted: Roli
   label_new_shift: Nowa zmiana
   label_required_staff: Wymagany personel
@@ -1293,3 +1293,8 @@ pl:
   chkbox_sales_quote_closed_issues: Include Closed Issues for Sales Quote
   label_sales_stage_history: Sales Stage History
   label_created_date: Created Date
+  
+  label_emerg_contact_type: Emergency contact type
+  label_state_insurance: State insurance ID
+  label_marital_status: Marital status
+  label_dept_section: Department section

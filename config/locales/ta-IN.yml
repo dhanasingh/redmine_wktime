@@ -216,7 +216,7 @@ ta-IN:
   label_wages_rule: தமிழ்நாடு கடைகள் மற்றும் நிறுவன விதிகள், 1948 இன் விதி 11 இன் துணை விதி (5) ஐப் பார்க்கவும்
   label_wages_period: ஊதிய காலம் மாதம்
   label_address: முகவரி
-  label_gender: பாலினம்
+  field_gender: பாலினம்
   label_ytd_description: YTD - ஆண்டு முதல் தேதி வரை %{start} வரை%{end}
   label_component: கூறு
   label_factor: காரணி
@@ -422,7 +422,7 @@ ta-IN:
   label_lead: இழுது
   label_content_information: "%{value} தகவல்"
   label_website: இணையதளம்
-  label_department: துறை
+  field_department: துறை
   label_assigned: ஒதுக்கப்படும்
   label_in_process: செயல்பாட்டில்
   label_converted: மாற்றப்பட்டது
@@ -449,7 +449,7 @@ ta-IN:
   label_medium: நடுத்தரம்
   label_call: அழைப்பு
   label_meeting: கூட்டம்
-  label_location: இடம்
+  field_location: இடம்
   label_not_started: தொடங்கவில்லை
   label_completed: முடிந்தது
   label_pending_input: உள்ளீடு நிலுவையில்
@@ -654,7 +654,7 @@ ta-IN:
   label_depreciation_freq_warning: "குறிப்பு: தேய்மானம் அதிர்வெண் எந்த மாற்றமும் கடந்த பயன்படுத்தப்படும் தேய்மானம் நீக்கிவிடும்"
   label_scheduling: அட்டவணை படுத்தல்
   label_schedule_preference: அட்டவணை விருப்பம்
-  label_shift: மாற்று
+  field_shift: மாற்று
   label_role_adjusted: பாத்திரங்கள்
   label_required_staff: தேவையான பணியாளர்கள்
   label_count: எண்ணிக்கை
@@ -662,7 +662,7 @@ ta-IN:
   label_schedule_details: அட்டவணை விவரங்கள்
   label_shift_scheduling: மாற்று அட்டவணை
   field_is_schedulable: அட்டவணை படுத்து
-  field_id1: விருப்ப எண்1 மற்றும்
+  field_id1: விருப்ப எண்1 
   field_id2: விருப்ப எண்2
   field_id3: விருப்ப எண்3
   field_join_date: சேரும் தேதி
@@ -1179,3 +1179,18 @@ ta-IN:
   chkbox_sales_quote_closed_issues: விற்பனை மேற்கோளுக்கான மூடிய சிக்கல்களைச் சேர்க்கவும்
   label_sales_stage_history: விற்பனை நிலை வரலாறு
   label_created_date: உருவாக்கப்பட்ட தேதி
+
+  label_emerg_contact_type: அவசர தொடர்பு வகை
+  label_state_insurance: மாநில காப்பீட்டு எண்
+  label_marital_status: திருமண நிலை
+  label_dept_section: துறை பிரிவு
+  field_emergency_contact: அவசர தொடர்பு
+
+  field_bank_name: வங்கி பெயர்
+  field_account_number: வங்கி கணக்கு எண்
+  field_bank_code: வங்கி குறியீடு
+  field_termination_date: முடிவு தேதி
+  field_custom_number1: விருப்ப எண் 1
+  field_custom_number2: விருப்ப எண் 2
+  field_custom_date1: விருப்ப தேதி 1
+  field_custom_date2: விருப்ப தேதி 2

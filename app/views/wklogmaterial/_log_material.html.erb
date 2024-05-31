@@ -129,7 +129,7 @@
 
 <table id="materialtable" style="padding-left:65px; display:none;">
 	<tr>
-		<th align="right" ><%= l(:label_location) %><span style="color:red;">*</span></th>
+		<th align="right" ><%= l(:field_location) %><span style="color:red;">*</span></th>
 		<td align="left">
 			<%=h select_tag('location_id', options_for_select(locationArr, :selected => (locationId.blank? ? locationArr : locationId) ), :style => "width:155px;", :onchange => "productChanged('product', 'product_item', #{User.current.id}, true, false, 'log_type', 'location_id'); ", :disabled => disable) %>
 		</td>

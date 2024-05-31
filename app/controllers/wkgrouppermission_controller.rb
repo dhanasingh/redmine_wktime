@@ -10,7 +10,7 @@ class WkgrouppermissionController < ApplicationController
 		# entries = entries.like(params[:name]) if params[:name].present?
 		# formPagination(entries)
 		@groupPermission = nil
-		@permission = WkPermission.order(:modules)
+		@permission = WkPermission.order(:modules, :id)
 		@groups = Group.all.sort
 		#@group = Group.find(params[:filter_group_id].to_i)
 		@groupPermission = WkGroupPermission.where(:group_id => params[:group_id].to_i) unless params[:group_id].blank?

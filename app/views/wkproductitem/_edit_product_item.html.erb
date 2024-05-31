@@ -52,7 +52,7 @@
 	</fieldset>
 
 	<% if isChecked('asset_save_geo_location') && params[:controller] == 'wkasset'%>
-			<% 	locations = [!invntItem ? ["", ""] : [ invntItem.asset_property.try(:longitude) || '', invntItem.asset_property.try(:latitude) || '', l(:field_name)+": "+invntItem.asset_property.name+"\n"+l(:label_rate)+": "+invntItem.asset_property.rate.to_s+" "+invntItem.asset_property.rate_per+"\n"+l(:label_location)+": "+(invntItem.location_id ? invntItem.location_id.to_s : "")]]
+			<% 	locations = [!invntItem ? ["", ""] : [ invntItem.asset_property.try(:longitude) || '', invntItem.asset_property.try(:latitude) || '', l(:field_name)+": "+invntItem.asset_property.name+"\n"+l(:label_rate)+": "+invntItem.asset_property.rate.to_s+" "+invntItem.asset_property.rate_per+"\n"+l(:field_location)+": "+(invntItem.location_id ? invntItem.location_id.to_s : "")]]
 					locations = [["", ""]] if locations.length == 0
 			%>
 		<div >

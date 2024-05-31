@@ -17,6 +17,17 @@
 
 class WkAccountProject < ActiveRecord::Base
   unloadable
+
+  include Redmine::SafeAttributes
+
+  safe_attributes(
+    "parent_id",
+    "parent_type",
+    "project_id",
+    "itemized_bill",
+    "billing_type"
+  )
+
   belongs_to :project
   #belongs_to :account, :class_name => 'WkAccount'
   belongs_to :parent, :polymorphic => true

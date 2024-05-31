@@ -476,7 +476,7 @@ de:
   label_lead: Interessent
   label_content_information: "%{value} Information"
   label_website: Webseite
-  label_department: Abteilung
+  field_department: Abteilung
   label_assigned: Zugewiesen
   label_in_process: In Bearbeitung
   label_converted: Umgewandelt
@@ -503,7 +503,7 @@ de:
   label_medium: Mittel
   label_call: Anruf
   label_meeting: Treffen
-  label_location: Ort
+  field_location: Ort
   label_not_started: Nicht angefangen
   label_completed: Abgeschlossen
   label_pending_input: Ausstehende Eingabe
@@ -730,7 +730,7 @@ de:
   label_depreciation_freq_warning: "Hinweis: Bei jeder Änderung der Abschreibungshäufigkeit werden die zuletzt angewendeten Abschreibungen gelöscht."
   label_scheduling: Planung
   label_schedule_preference: Zeitplaneinstellung
-  label_shift: Schicht
+  field_shift: Schicht
   label_role_adjusted: Rollen
   label_new_shift: Neue Schicht
   label_required_staff: Erforderliches Personal
@@ -1272,3 +1272,8 @@ de:
   chkbox_sales_quote_closed_issues: Include Closed Issues for Sales Quote
   label_sales_stage_history: Sales Stage History
   label_created_date: Created Date
+
+  label_emerg_contact_type: Emergency contact type
+  label_state_insurance: State insurance ID
+  label_marital_status: Marital status
+  label_dept_section: Department section

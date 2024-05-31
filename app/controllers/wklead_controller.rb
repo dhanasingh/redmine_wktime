@@ -68,7 +68,7 @@ class WkleadController < WkcrmController
 				@leadEntries = entries
 			end
 			format.csv do
-				headers = { name: l(:field_name), status: l(:field_status), acc_name: l(:label_account_name), location: l(:label_location), phone: l(:label_work_phone), email: l(:field_mail), modified: l(:field_status_modified_by), Updated: l(:field_updated_on) }
+				headers = { name: l(:field_name), status: l(:field_status), acc_name: l(:label_account_name), location: l(:field_location), phone: l(:label_work_phone), email: l(:field_mail), modified: l(:field_status_modified_by), Updated: l(:field_updated_on) }
 				data = entries.map do |e|
 					{ name: e&.contact&.name, status: getLeadStatusHash[e.status], acc_name: (e&.account&.name || ''),  location: (e&.contact&.location&.name || ''), phone: (e&.contact&.address&.work_phone || ''), email: (e&.contact&.address&.email || ''), modified: e.created_by_user.name(:firstname_lastname), Updated: e.updated_at.localtime.strftime("%Y-%m-%d %H:%M:%S")}
 				end

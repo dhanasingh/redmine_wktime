@@ -467,7 +467,7 @@ pt-BR:
   label_lead: Lead
   label_content_information: "%{value} informações"
   label_website: Site
-  label_department: Departamento
+  field_department: Departamento
   label_assigned: atribuído
   label_in_process: Em processo
   label_converted: Convertido
@@ -494,7 +494,7 @@ pt-BR:
   label_medium: Médio
   label_call: Chamada
   label_meeting: Reunião
-  label_location: Localização
+  field_location: Localização
   label_not_started: Não iniciado
   label_completed: Concluído
   label_pending_input: entrada pendente
@@ -721,7 +721,7 @@ pt-BR:
   label_depreciation_freq_warning: "Observação: Qualquer alteração na frequência de depreciação excluirá as últimas depreciações aplicadas"
   label_scheduling: Agendamento
   label_schedule_preference: Preferência de horário
-  label_shift: Turno
+  field_shift: Turno
   label_role_adjusted: funções
   label_new_shift: Novo turno
   label_required_staff: Equipe necessária
@@ -1265,3 +1265,8 @@ pt-BR:
   chkbox_sales_quote_closed_issues: Include Closed Issues for Sales Quote
   label_sales_stage_history: Sales Stage History
   label_created_date: Created Date
+
+  label_emerg_contact_type: Emergency contact type
+  label_state_insurance: State insurance ID
+  label_marital_status: Marital status
+  label_dept_section: Department section

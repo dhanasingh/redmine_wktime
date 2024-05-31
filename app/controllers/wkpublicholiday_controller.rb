@@ -62,7 +62,7 @@ class WkpublicholidayController < WkbaseController
 				render :layout => !request.xhr?
 			end
 			format.csv do
-				headers = {date: l(:label_date), location: l(:label_location), description: l(:label_wk_description)}
+				headers = {date: l(:label_date), location: l(:field_location), description: l(:label_wk_description)}
 				data = entries.map{|e| {date: e.holiday_date, location: e&.location&.name, description: e.description}}
 				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "hoildays.csv")
 			end

@@ -13,6 +13,7 @@ User.class_eval do
 	has_one :wk_user, :dependent => :destroy, :class_name => 'WkUser'
 	has_many :shift_schdules, :dependent => :destroy, :class_name => 'WkShiftSchedule'
 	belongs_to :supervisor, :class_name => 'User', :foreign_key => 'parent_id'
+	has_one :address, through: :wk_user
 
 	safe_attributes 'parent_id', 'lft', 'rgt'
   acts_as_attachable :view_permission => :view_files,
@@ -312,16 +313,16 @@ module FttePatch
 			  if ((valid_ERP_perm || isSupervisor) && action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
 			  return true
 			  end
-		  
+
 			  if (action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
 			  (context.allows_to?(:log_time) || context.allows_to?(:edit_time_entries) || context.allows_to?(:edit_own_time_entries))
 			  end
 			  # =============================
-		  
+
 			  return false unless context.allows_to?(action)
 			  # Admin users are authorized for anything else
 			  return true if admin?
-		  
+
 			  roles = roles_for_project(context)
 			  return false unless roles
 			  roles.any? do |role|
@@ -341,7 +342,7 @@ module FttePatch
 			elsif options[:global]
 			  # Admin users are always authorized
 			  return true if admin?
-		  
+
 			  # ======= ERPmine_patch Redmine 5.1 ==========
 			  if ((valid_ERP_perm || isSupervisor) && action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
 				return true
@@ -587,7 +588,7 @@ Redmine::Plugin.register :redmine_wktime do
   name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
   description 'ERPmine is an ERP for Service Industries. It has the following modules: Time & Expense, Attendance, Payroll, CRM, Billing, Accounting, Purchasing, Inventory, Asset , Reports, Dashboards and Survey'
-  version '4.7.1'
+  version '4.7.2'
   url 'https://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
 

@@ -6,7 +6,7 @@ task :replace_encryption_key => [:environment] do
 		old_key = data['encryption_key']
 		data['encryption_key'] = new_key
 		File.open(Rails.root+'plugins/redmine_wktime/config/config.yml', 'w') { |f| YAML.dump(data, f) }
-		data = {WkUser: ['account_number', 'tax_id', 'ss_id', 'retirement_account']}
+		data = {WkUser: ['account_number', 'tax_id', 'ss_id']}
 		data.each do |key, value|
 			model = key.to_s.constantize
 			model.all.each do |u|

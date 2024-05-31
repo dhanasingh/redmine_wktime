@@ -5,7 +5,7 @@
 			<tr>
 				<% if controller.is_referral %>
 					<% activityHeaders = getReferralHeaders(entries) || [] %>
-					<%= sort_header_tag('location_name', :caption => l(:label_location), class: "lbl-txt-align") %>
+					<%= sort_header_tag('location_name', :caption => l(:field_location), class: "lbl-txt-align") %>
 					<%= sort_header_tag('lead_name', :caption => l(:field_name), class: "lbl-txt-align") %>
 					<%= sort_header_tag('status', :caption => l(:field_status), class: "lbl-txt-align") %>
 					<th class="lbl-txt-align"><%= l(:label_degree) %></th>
@@ -18,7 +18,7 @@
 					<%= sort_header_tag('lead_name', :caption => l(:field_name), class: "lbl-txt-align") %>
 					<%= sort_header_tag('status', :caption => l(:field_status), class: "lbl-txt-align") %>
 					<%= sort_header_tag('acc_name', :caption => l(:label_account_name), class: "lbl-txt-align") %>
-					<%= sort_header_tag('location_name', :caption => l(:label_location), class: "lbl-txt-align") %>
+					<%= sort_header_tag('location_name', :caption => l(:field_location), class: "lbl-txt-align") %>
 					<th class="lbl-txt-align"><%= l(:label_work_phone) %></th>
 					<th class="lbl-txt-align"><%= l(:field_mail) %></th>
 					<%= sort_header_tag('updated_by_user_id', :caption => l(:field_status_modified_by), class: "lbl-txt-align") %>

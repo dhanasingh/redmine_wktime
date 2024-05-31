@@ -479,7 +479,7 @@ fr:
   label_lead: Lead
   label_content_information: "%{value} Information"
   label_website: Website
-  label_department: Department
+  field_department: Department
   label_assigned: Assigned
   label_in_process: In Process
   label_converted: Converted
@@ -506,7 +506,7 @@ fr:
   label_medium: Medium
   label_call: Call
   label_meeting: Meeting
-  label_location: Location
+  field_location: Location
   label_not_started: Not Started
   label_completed: Completed
   label_pending_input: Pending Input
@@ -733,7 +733,7 @@ fr:
   label_depreciation_freq_warning: "Note: Any change to the depreciation frequency will delete last applied depreciations"
   label_scheduling: Scheduling
   label_schedule_preference: Schedule Preference
-  label_shift: Shift
+  field_shift: Shift
   label_role_adjusted: Rôles
   label_new_shift: New Shift
   label_required_staff: Required Staff
@@ -1278,3 +1278,8 @@ fr:
   chkbox_sales_quote_closed_issues: Include Closed Issues for Sales Quote
   label_sales_stage_history: Sales Stage History
   label_created_date: Created Date
+
+  label_emerg_contact_type: Emergency contact type
+  label_state_insurance: State insurance ID
+  label_marital_status: Marital status
+  label_dept_section: Department section

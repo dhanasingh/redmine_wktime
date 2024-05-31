@@ -667,7 +667,7 @@ end
 		elsif params[:controller] == "wkcrmenumeration" || params[:controller] == "wktax" || params[:controller] == "wkexchangerate" || params[:controller] == "wklocation" || params[:controller] == "wkgrouppermission" || params[:controller] == "wknotification"
 			tabs = [
 				{:name => 'wkcrmenumeration', :partial => 'wktime/tab_content', :label => :label_enumerations},
-				{:name => 'wklocation', :partial => 'wktime/tab_content', :label => :label_location},
+				{:name => 'wklocation', :partial => 'wktime/tab_content', :label => :field_location},
 				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax},
 				{:name => 'wkexchangerate', :partial => 'wktime/tab_content', :label => :label_rate},
 				{:name => 'wkgrouppermission', :partial => 'wktime/tab_content', :label => :label_permissions},

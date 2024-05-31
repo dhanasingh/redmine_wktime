@@ -17,15 +17,37 @@
 
 class WkAddress < ActiveRecord::Base
   unloadable
+
+  include Redmine::SafeAttributes
+
+  safe_attributes(
+    'address1',
+    'address2',
+    'work_phone',
+    'home_phone',
+    'mobile',
+    'email',
+    'fax',
+    'city',
+    'country',
+    'state',
+    'pin',
+    'department',
+    'website',
+    'longitude',
+    'latitude'
+  )
   has_many :wk_accounts, foreign_key: "address_id", class_name: "WkAccount"
   has_many :wk_contacts, foreign_key: "address_id", class_name: "WkCrmContact"
   has_many :wk_leads, foreign_key: "address_id", class_name: "WkLead"
+  has_one :wk_user, foreign_key: "address_id", class_name: "WkUser"
+  has_one :user, through: :wk_user
   validate :hasAnyValues
-  
+
   def hasAnyValues
 	errors.add(:base, (l(:label_address)  + " " + l('activerecord.errors.messages.blank'))) if address1.blank? && address2.blank? && work_phone.blank? && home_phone.blank? && mobile.blank? && email.blank? && fax.blank? && city.blank? && country.blank? && state.blank? && pin.blank? && department.blank? && department.blank? && id.blank? && longitude.blank? && latitude.blank?
   end
-  
+
   def fullAddress
 	fullAdd = (address1.blank? ? "" : address1 + "\n") + (address2.blank? ? "" : address2 + "\n")  + (city.blank? ? "" : city) + " " +  (state.blank? ? "" : state) + "\n" + (pin.blank? ? "" : pin.to_s )  + "\n" + (country.blank? ? "" : country)
 	fullAdd
