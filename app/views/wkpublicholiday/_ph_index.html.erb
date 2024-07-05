@@ -106,7 +106,18 @@ $('#commit-keywords').on('click', 'a.delete-commit-keywords', function(e){
 });
 $('#commit-keywords').on('click', 'a.add-commit-keywords', function(e){
   e.preventDefault();
-  var row = $('#commit-keywords tr.commit-keywords:last');
-  row.clone().insertAfter(row).find('input, select').val('');
+	let row = $('#commit-keywords tr.commit-keywords:last');
+	row = row.clone();
+	row.find('input, select').val('');
+	const dd = row.find('select');
+	dd.each(function(){
+		const parent = $(this).parent('div');
+		if(parent.length > 0){
+			$(parent).before(this);
+			$(parent).remove();
+			$(this).dropdown();
+		}
+	});
+	$('tr.commit-keywords:last').after(row);
 });
 <% end %>

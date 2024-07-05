@@ -84,8 +84,6 @@
 	});
 	$('#commit-keywords').on('click', 'a.add-commit-keywords', function(e){
 		e.preventDefault();
-		// var row = $('#commit-keywords tr.commit-keywords:last');
-		// row.clone().insertAfter(row).find('input, select').val('');
 		let row = $('#commit-keywords tr.commit-keywords:last');
 		row = row.clone();
 		row.find('input, select').val('');
