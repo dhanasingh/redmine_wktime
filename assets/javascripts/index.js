@@ -156,7 +156,7 @@ $(document).ready(function() {
 	});
 
 	// for searchable dopdown
-	if($("#referred_by").length > 0) $("#referred_by").select2();
+	if($("select#referred_by").length > 0) $("#referred_by").select2();
 
 	$("#assembleItem" ).dialog({
 		modal: true,
