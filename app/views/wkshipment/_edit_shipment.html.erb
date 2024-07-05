@@ -6,7 +6,7 @@
 	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds', :additionalContactType => controller.additionalContactType, :additionalAccountType => controller.additionalAccountType)}" %>";
 	invoiceUrl="<%= "#{url_for(:controller => controller_name, :action => 'getSupplierInvoices')}" %>";
 </script>
-<%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
+<%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'wkshipment_edit') do %>
 	<% unless @shipment.blank? %>
 		<%=h hidden_field_tag("parent_id",  @shipment.parent_id )  %>
 		<%=h hidden_field_tag("parent_type",  @shipment.parent_type )  %>
