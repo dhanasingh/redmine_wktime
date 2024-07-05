@@ -140,7 +140,7 @@ $(document).ready(function(){
 	$("#project-jump").after($("#notification"));
 	$("#notification").attr('title','notification');
 
-	//mark read notification	
+	//mark read notification
 	$('#mark_read').click(function(){
 		url = "/wknotification/markReadNotification";
 		$.ajax({
@@ -300,15 +300,15 @@ function signAttendance(str)
   var offSet = d.getTimezoneOffset();
 	if( str == 'start' )
 	{
-	  document.getElementById('clockin' ).style.display = "none";
-	  document.getElementById('clockout').style.display = "block";
-	  $("#clockINOUT").attr('title','Clock out');
+		$('#clockin').hide();
+		$('#clockout').show();
+	  $("#clockINOUT").prop('title','Clock out');
 	}
 	else
 	{
-	  document.getElementById('clockin' ).style.display = "block";
-	  document.getElementById('clockout').style.display = "none";
-	  $("#clockINOUT").attr('title','Clock in');
+		$('#clockin').show();
+		$('#clockout').hide();
+	  $("#clockINOUT").prop('title','Clock in');
 	}
 	var clkInOutUrl = document.getElementById('clockinout_url').value;
 	var data = { startdate : datevalue, str: str, offSet: offSet };

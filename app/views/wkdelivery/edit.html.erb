@@ -20,7 +20,7 @@
 		invoiceArr = WkInvoice.get_invoice_numbers(@shipment&.parent_type || 'WkAccount', @shipment&.parent_id || (accArr.present? ? accArr[0][1] : ''), 'I').collect {|i| [i.invoice_number, i.id]  }
 		invoiceArr.unshift(["",''])
 	%>
-<%= form_tag({controller: controller_name, action: 'update'}, method: :post, id: 'query_form') do %>
+<%= form_tag({controller: controller_name, action: 'update'}, method: :post, id: 'wkdelivery_edit') do %>
 	<%= hidden_field_tag("invoice_id", @shipment&.invoice_id )  %>
 	<%= hidden_field_tag("material_id", @materialID )  %>
 	<table>

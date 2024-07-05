@@ -25,8 +25,8 @@
 			  </td>
 			   <td>
 				<%= text_field_tag("rate[]", entry.ex_rate, :id => nil, :style => "width:200px;", :required => true) %>
-			  </td>      
-			 
+			  </td>
+
 			  <td class="buttons">
 				<%= link_to(l(:button_delete), '#',
 							:class => 'delete-commit-keywords icon-only icon-del',
@@ -73,18 +73,29 @@
 <p><%= submit_tag l(:button_save) %></p>
 <% end %>
 
-<%= javascript_tag do %>
-$('#commit-keywords').on('click', 'a.delete-commit-keywords', function(e){
-  e.preventDefault();
-  if ($('#commit-keywords tbody tr.commit-keywords').length > 1) {
-    $(this).parents('#commit-keywords tr').remove();
-  } else {
-    $('#commit-keywords tbody tr.commit-keywords').find('input, select').val('');
-  }
-});
-$('#commit-keywords').on('click', 'a.add-commit-keywords', function(e){
-  e.preventDefault();
-  var row = $('#commit-keywords tr.commit-keywords:last');
-  row.clone().insertAfter(row).find('input, select').val('');
-});
-<% end %>
+<script>
+	$('#commit-keywords').on('click', 'a.delete-commit-keywords', function(e){
+		e.preventDefault();
+		if ($('#commit-keywords tbody tr.commit-keywords').length > 1) {
+			$(this).parents('#commit-keywords tr').remove();
+		} else {
+			$('#commit-keywords tbody tr.commit-keywords').find('input, select').val('');
+		}
+	});
+	$('#commit-keywords').on('click', 'a.add-commit-keywords', function(e){
+		e.preventDefault();
+		let row = $('#commit-keywords tr.commit-keywords:last');
+		row = row.clone();
+		row.find('input, select').val('');
+		const dd = row.find('select');
+		dd.each(function(){
+			const parent = $(this).parent('div');
+			if(parent.length > 0){
+				$(parent).before(this);
+				$(parent).remove();
+				$(this).dropdown();
+			}
+		});
+		$('tr.commit-keywords:last').after(row);
+	});
+</script>
