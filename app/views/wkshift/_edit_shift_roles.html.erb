@@ -7,7 +7,7 @@
 <table class="list" id="commit-keywords">
   <thead>
     <tr>
-		<th></th>
+		<th></th>		
 		<th><%= l(:field_role) %></th>
 		<th><%= l(:label_count) %></th>
 		<th class="buttons"></th>
@@ -20,18 +20,18 @@
 				<td>
 					<%= hidden_field_tag "shift_role_id[]",  entry.id  %>
 					<% actualIds = actualIds.blank? ? entry.id.to_s  : (actualIds + "," + entry.id.to_s) %>
-				</td>
+				</td>				
 			    <td>
-					<%=h select_tag('role_id[]', options_for_select(roleArr, :selected => entry.role_id), :required => true, :style => "width:150px;") %>
+					<%=h select_tag('role_id[]', options_for_select(roleArr, :selected => entry.role_id), :required => true, :style => "width:150px;") %>	
 			    </td>
 			    <td>
 					<%= text_field_tag "staff_count[]",  entry.staff_count, :style => "width:150px;", :required => true  %>
-				</td>
-
+				</td>			        
+			 
 				<td class="buttons">
 					<%= link_to(l(:button_delete), '#',
 							:class => 'delete-commit-keywords icon-only icon-del',
-							:title => l(:button_delete)) %>
+							:title => l(:button_delete)) %>					
 				</td>
 			</tr>
 		<% end %>
@@ -39,14 +39,14 @@
 		<tr class="commit-keywords">
 			<td>
 				<%= hidden_field_tag "shift_role_id[]",  ""  %>
-			</td>
+			</td>			
 			<td>
-				<%=h select_tag('role_id[]', options_for_select(roleArr), :required => true, :style => "width:150px;") %>
+				<%=h select_tag('role_id[]', options_for_select(roleArr), :required => true, :style => "width:150px;") %>	
 			</td>
 			<td>
 				<%= text_field_tag "staff_count[]",  "", :style => "width:150px;", :required => true  %>
-			</td>
-
+			</td>	
+	 
 			<td class="buttons">
 				<%= link_to(l(:button_delete), '#',
 							:class => 'delete-commit-keywords icon-only icon-del',
@@ -54,10 +54,10 @@
 			</td>
 		</tr>
 	<% end %>
-    <tr>
+    <tr>      
 	  <td></td>
 	  <td></td>
-      <td></td>
+      <td></td>      
       <td class="buttons">
         <%= link_to(l(:button_add), '#',
                     :class => 'add-commit-keywords icon-only icon-add',
@@ -82,18 +82,7 @@ $('#commit-keywords').on('click', 'a.delete-commit-keywords', function(e){
 });
 $('#commit-keywords').on('click', 'a.add-commit-keywords', function(e){
   e.preventDefault();
-	let row = $('#commit-keywords tr.commit-keywords:last');
-	row = row.clone();
-	row.find('input, select').val('');
-	const dd = row.find('select');
-	dd.each(function(){
-		const parent = $(this).parent('div');
-		if(parent.length > 0){
-			$(parent).before(this);
-			$(parent).remove();
-			$(this).dropdown();
-		}
-	});
-	$('tr.commit-keywords:last').after(row);
+  var row = $('#commit-keywords tr.commit-keywords:last');
+  row.clone().insertAfter(row).find('input, select').val('');
 });
 <% end %>
