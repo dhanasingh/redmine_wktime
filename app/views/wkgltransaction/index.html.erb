@@ -14,14 +14,14 @@
 		<div style="float:right">
 			<%= link_to l(:label_new_item, l(:label_transaction)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
 		</div>
-		<div class="wk-contextual">
-			<b><label style="float:left;padding-top: 5px;"><%= l(:label_ledger) %>:</label></b>
-				<%=h select_tag("txn_ledger", options_for_select([['','']]+@ledgers, :selected => ledgerid.nil? ? @ledgers : ledgerid ), :style => "width:200px; float:left;", onchange: '$("#query_form").submit()') %>
-			<b><label style="float:left; padding-left: 10px;padding-top: 5px;"><%= l(:field_type) %>:</label></b>
-			<%=h select_tag("trans_type", options_for_select(transactionType.invert, :selected => trans_type ), :style => "width:150px;float:left;") %>
+		<div class="wk-contextual" style="text-align: left;">
+			<b><label style="padding-top: 5px;"><%= l(:label_ledger) %>:</label></b>
+				<%=h select_tag("txn_ledger", options_for_select([['','']]+@ledgers, :selected => ledgerid.nil? ? @ledgers : ledgerid ), :style => "width:200px; ", onchange: '$("#query_form").submit()') %>
+			<b><label style="padding-left: 10px;padding-top: 5px;"><%= l(:field_type) %>:</label></b>
+			<%=h select_tag("trans_type", options_for_select(transactionType.invert, :selected => trans_type ), :style => "width:150px;") %>
 			<span id="trans_summary">
-			<b><label  style="float:left; padding-left: 10px;padding-top: 5px;"><%= l(:label_summary_by) %>:</label></b>
-				<%=h select_tag("summary_trans", options_for_select(detailsTransaction, :selected => summary_trans), :style => "float:left;") %>
+			<b><label  style=" padding-left: 10px;padding-top: 5px;"><%= l(:label_summary_by) %>:</label></b>
+				<%=h select_tag("summary_trans", options_for_select(detailsTransaction, :selected => summary_trans)) %>
 			</span>&nbsp;
 		</div>
 		<p><%= render :partial => 'wkgltransaction/date_range' %></p>
