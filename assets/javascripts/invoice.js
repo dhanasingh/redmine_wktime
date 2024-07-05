@@ -151,7 +151,7 @@ $(document).ready(function() {
 			});
 
 			$("[id^='project_id_']").change(function(){
-				//load itemDD				
+				//load itemDD
 				url = "/"+controller_name+"/getIssueDD";
 				data = {project_id: $(this).val() };
 				let row = parseInt((this.name).split('_').pop());
@@ -235,16 +235,25 @@ function invoiceAddRow(tableId, rowCount){
 		$rowClone.find("input:text").val("");
 		$rowClone.find("td").each(function(){
 			$(this).children().each(function(){
-				var id = $(this).attr("id") || null;
+				const dd = $(this).find('select');
+				const parent = $(dd).parent('div');
+				if(dd.length > 0 && parent.length > 0){
+					ele = dd;
+					$(parent).before(dd);
+					$(parent).remove();
+				}else{
+					ele = this;
+				}
+				var id = $(ele).attr("id") || null;
 				if(id) {
 					var index = parseInt(id.split("_").pop());
 					id = id.split("_");
 					id.splice(-1,1);
 					var prefix = id.join("_") + "_";
-					$(this).attr("id", prefix+(index + 1));
-					$(this).attr("name", prefix+(index + 1));
+					$(ele).attr("id", prefix+(index + 1));
+					$(ele).attr("name", prefix+(index + 1));
 					if(prefix == "item_type_" || tableId == "deliveryTable") {
-						$(this).attr("disabled", false);
+						$(ele).attr("disabled", false);
 					}
 				}
 			});
@@ -918,8 +927,8 @@ function removeTaxRows(){
 	//Remving product tax rows
 	let prodIDs = [];
 	$(".productItemsDD").each(function(){
-		let id = (this.value).split(',').shift() || null;
-		let row = parseInt((this.name).split('_').pop());
+		let id = (this.value || '').split(',').shift() || null;
+		let row = parseInt((this.name || '').split('_').pop());
 		let projectID = $("#project_id_"+row).val();
 		if($('#invoice_type').val() == "SI" || ["m", "a"].includes($("#item_type_"+row).val()) && id && !prodIDs.includes(id)){
 			prodIDs.push(id);
@@ -1136,5 +1145,5 @@ function deleteAllRows(tableId, totalrow){
 			row_id = table.rows.length - 2;
 			deleteRow(tableId, totalrow);
 		}
-	}	
+	}
 }
