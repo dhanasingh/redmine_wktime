@@ -33,7 +33,7 @@
 					<% if controller.is_referral %>
 						<td class="lbl-txt-align"><%=h entry.contact.location_id.blank? ? "" : entry.contact&.location&.name %></td>
 						<td class="lbl-txt-align"><%=h entry.contact&.name %></td>
-						<td class="lbl-txt-align"><%=h getLeadStatusHash[entry.status] %></td>
+						<td class="lbl-txt-align colorcode-bg-setup col-status-<%=getLeadStatusHash[entry.status].split.map(&:capitalize).join('_')%>"><%=h getLeadStatusHash[entry.status] %></td>
 						<td class="lbl-txt-align"><%= entry&.candidate&.degree %></td>
 						<td class="lbl-txt-align"><%= entry&.candidate&.pass_out %></td>
 						<td class="lbl-txt-align"><%= entry&.referred&.name %></td>
@@ -44,7 +44,7 @@
 						<% end %>
 					<% else %>
 						<td class="lbl-txt-align"><%=h entry.contact&.name %></td>
-						<td class="lbl-txt-align"><%=h getLeadStatusHash[entry.status] %></td>
+						<td class="lbl-txt-align colorcode-bg-setup col-status-<%=getLeadStatusHash[entry.status].split.map(&:capitalize).join('_')%>"><%=h getLeadStatusHash[entry.status] %></td>
 						<td class="lbl-txt-align"><%=h entry.account.blank? ? "" : entry.account.name %></td>
 						<td class="lbl-txt-align"><%=h entry.contact.location_id.blank? ? "" : entry.contact&.location&.name %></td>
 						<td class="lbl-txt-align"><%=h entry.contact.address.blank? ? "" : entry.contact&.address&.work_phone %></td>

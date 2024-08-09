@@ -35,7 +35,7 @@ end
                     <%=h link_to entry.name, url_for(helperObj.get_survey_url(urlhash, params, "survey")) %>
                 <% end %>
             </td>
-            <td><%=h helperObj.getSurveyStatus.invert[entry.status] %></td>
+            <td class="colorcode-bg-setup col-status-<%=helperObj.getSurveyStatus.invert[entry.status]%>"><%=h helperObj.getSurveyStatus.invert[entry.status] %></td>
             <td class="lbl-txt-align">
                 <% if !entry.hide_response && (["O","C"].include? entry.status) %>
                     <%= link_to image_tag("withoutcommant.png", :plugin => "redmine_wktime"),

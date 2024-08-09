@@ -19,7 +19,7 @@
 				<td class="lbl-txt-align"><%= entry.startDate %></td>
 				<td class="lbl-txt-align"><%= entry.endDate %></td>
 				<td class="lbl-txt-align"><%= (entry.created_at)&.to_date %></td>
-				<td class="lbl-txt-align"><%= status %></td>
+				<td class="lbl-txt-align colorcode-bg-setup col-status-<%=status%>"><%= status %></td>
 				<td align="center">
 					<%= link_to image_tag('edit.png'), {:controller => controller_name, :action => 'edit', :id => entry.id,
 						:tab => controller_name}, :title => l(:button_edit) %>

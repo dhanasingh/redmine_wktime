@@ -20,7 +20,7 @@
 			<td class="lbl-txt-align"><%=h personTypeLabelHash[entry.entity_type] %></td>
 			<td class="lbl-txt-align"><%=h entry&.parent&.name %></td>
 			<td class="lbl-txt-align"><%=h entry.payment_date.strftime("%Y-%m-%d") %></td>
-			<td class="lbl-txt-align"><%=h getPayTypeHash[entry.payment_type_id] %></td>
+			<td class="lbl-txt-align colorcode-bg-setup col-status-<%=entry.payment_type_id%>"><%=h getPayTypeHash[entry.payment_type_id] %></td>
 			<td class="lbl-txt-align"><%= entry.payment_items[0].original_currency unless entry.payment_items[0].blank?%> <%=h html_hours("%.2f" % entry.payment_original_amount) unless entry.payment_original_amount.blank?   %></td>
 			<td class="lbl-txt-align"><%= entry.payment_items[0].currency unless entry.payment_items[0].blank?%> <%=h html_hours("%.2f" % entry.payment_amount) unless entry.payment_amount.blank?   %></td>
 			<td class="lbl-txt-align">

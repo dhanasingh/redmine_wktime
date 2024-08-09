@@ -11,6 +11,39 @@ var userList = new Array();
 var rSubEmailUrl = "";
 var rAppEmailUrl = "";
 
+//For Colorcode in Sidebar-white theme
+var colorcode_statuses = {
+  Empty: 1,
+  New: 0,
+  Rejected: 2,
+  Submitted: 4,
+  Approved: 3,
+  Cancelled: 1,
+  Assigned: 4,
+  In_Process: 5,
+  Converted: 3,
+  Recycled: 1,
+  Dead: 2,
+  Planned: 0,
+  Not_Held: 2,
+  Held: 3,
+  Open: 6,
+  Closed: 1,
+  Contra: 0,
+  Payment: 1,
+  Receipt: 2,
+  Journal: 3,
+  Sales: 4,
+  Credit_Note: 5,
+  Purchase: 6,
+  Debit_Note: 7,
+  Fulfilled: 4,
+  Delivered: 3,
+  Archived: 2,
+  In_Transit: 5,
+  Loading: 4
+};
+
 $(document).ready(function() {
 	$( "#reminder-email-dlg" ).dialog({
 		autoOpen: false,
