@@ -1,14 +1,16 @@
-= Webinar on ERPmine – Referral and Skills , June 25th, 2024, 5 PM India (11:30 AM GMT)
+= Webinar on ERPmine – Time and Expeses , Aug 27th, 2024, 5 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
-https://us02web.zoom.us/meeting/register/tZAvd-uqqT4pGNftzRCvjG8nHGIYKo7LTRzz
+https://us02web.zoom.us/meeting/register/tZ0ud-6qpjIoG9VzeBXPO5dBgPusi1UbcRzB
 
 *Topics* :
-* Referral Information
-* Job Interviews
-* Candidate Documents
-* Employees Skill Sets
-* Project Skill Set
+*  Project based approvals
+*  Minimum maximum validation on holidays
+*  Issue logger on /off
+*  Map on time sheet
+*  Start / stop button on time entries
+*  Timesheet Report
+*  Mobile App
 
 -----
 
