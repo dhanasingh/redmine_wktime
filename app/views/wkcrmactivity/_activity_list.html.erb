@@ -39,7 +39,7 @@
 						<% end %>
 						<% if !show_on_map && controller.is_referral %><td class="lbl-txt-align"><%= entry&.interview_type&.name %></td><% end %>
 						<td class="lbl-txt-align"><%=h entry.name %></td>
-						<td class="lbl-txt-align colorcode-bg-setup col-status-<%=(controller.is_referral ? rf_status[entry.status] : (['M', 'C'].include?(entry.activity_type) ? meetCallStatusHash[entry.status] : taskStatusHash[entry.status]))&.split&.map(&:capitalize)&.join('_')%>">
+						<td class="lbl-txt-align colorcode-bg-setup col-status-<%=(controller.is_referral ? entry.status: (['M', 'C'].include?(entry.activity_type) ? entry.status : entry.status)) %>">
 							<%= controller.is_referral ? rf_status[entry.status] : (["M", "C"].include?(entry.activity_type) ? meetCallStatusHash[entry.status] : taskStatusHash[entry.status]) %>
 						</td>
 						<% if !show_on_map %>

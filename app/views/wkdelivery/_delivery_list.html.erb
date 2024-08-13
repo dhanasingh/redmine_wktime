@@ -16,7 +16,7 @@
 		    <td class="lbl-txt-align"><%= entry.serial_number  %></td>
 				<td class="lbl-txt-align"><%= entry.parent.name  %></td>
 				<td class="lbl-txt-align"><%= entry.shipment_date  %></td>
-				<td class="lbl-txt-align colorcode-bg-setup col-status-<%=getDeliveryStatus[entry.current_status]&.split&.map(&:capitalize)&.join('_')%>"><%= getDeliveryStatus[entry.current_status] %></td>
+				<td class="lbl-txt-align colorcode-bg-setup col-status-<%= entry.current_status %>"><%= getDeliveryStatus[entry.current_status] %></td>
 				<td class="lbl-txt-align"><%= entry.delivery_items[0].currency unless entry.delivery_items[0].blank?%> <%= html_hours("%.2f" % entry.delivery_items.sum('total_quantity * selling_price'))  %></td>
 				<td class="lbl-txt-align">
 				<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :delivery_id => entry.id, id: entry.id, :tab => controller.controller_name},

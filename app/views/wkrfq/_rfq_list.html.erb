@@ -16,7 +16,7 @@
           <tr>
 			  <td class="lbl-txt-align"><%=h entry.id %></td>
 		      <td class="lbl-txt-align"><%=h entry.name %></td>
-			  <td class="lbl-txt-align colorcode-bg-setup col-status-<%=getRfqStatusHash[entry.status].capitalize%>"><%=h getRfqStatusHash[entry.status]  %></td>
+			  <td class="lbl-txt-align colorcode-bg-setup col-status-<%= entry.status %>"><%=h getRfqStatusHash[entry.status]  %></td>
 			  <td class="lbl-txt-align"><%=h entry.start_date %></td>
 			  <td class="lbl-txt-align"><%=h entry.end_date  %></td>
 			  <td align="center">

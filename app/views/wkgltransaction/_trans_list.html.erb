@@ -41,7 +41,7 @@
 			end
 			%>
 			<tr class="trlist" data-toggle="tooltip" data-container="body" data-placement="bottom" title="<%=entry.comment%>">
-				<td class="lbl-txt-align colorcode-bg-setup col-status-<%=transTypeHash[entry.trans_type].split.map(&:capitalize).join('_')%>"><%=h transTypeHash[entry.trans_type]  %></td>
+				<td class="lbl-txt-align colorcode-bg-setup col-status-<%= entry.trans_type %>"><%=h transTypeHash[entry.trans_type]  %></td>
 				<td class="lbl-txt-align"><%=h entry.trans_date %></td>
 				<td class="lbl-txt-align"><%=h @partLedgerName %></td>
 				<td class="lbl-txt-align"><%=h  "%.2f" % @dbAmount unless @dbAmount.blank? %></td>
