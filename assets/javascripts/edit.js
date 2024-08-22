@@ -88,12 +88,12 @@ $(document).ready(function() {
 					}
 					updateCustomField();
 					custFldToolTip = getCustFldToolTip();
-					if(	!commentInRow && e_comments.val() != "")
+					if(	edits.length > 0 && !commentInRow && e_comments.val() != "")
 					{
-						edits[comment_col-1].title = e_comments.val() + "," +custFldToolTip;
+						edits[comment_col-1].title = (e_comments.val() || '') + "," +(custFldToolTip || '');
 
 					}
-					else
+					else if(	edits.length > 0)
 					{
 						edits[comment_col-1].title = custFldToolTip;
 
