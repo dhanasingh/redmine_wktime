@@ -14,8 +14,8 @@ th{
 
 <%= form_with model: @skills, method: "post", url: {action: "save", project_id: params[:project_id]} do |f| %>
 	<%= f.hidden_field :id  %>
-	<%= f.hidden_field :source_id, value: @skills&.source_id || isProjSkill ? get_project_id : user_id, id: "source_id" %>
-	<%= f.hidden_field :source_type, value: @skills&.source_type || isProjSkill ? "Project" : "User" %>
+	<%= f.hidden_field :source_id, value: (@skills&.source_id || (isProjSkill ? get_project_id : user_id)), id: "source_id" %>
+	<%= f.hidden_field :source_type, value: @skills&.source_type || (isProjSkill ? "Project" : "User") %>
 	<fieldset class="box tabular">
 		<table>
 			<tr>

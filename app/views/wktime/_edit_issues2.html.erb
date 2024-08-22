@@ -122,11 +122,11 @@
 	%>
 
 	<% if controller.showActivityDD %>
-		<td class="issue" align="left" width="75px">
+		<td class="issue" align="left" width="150px">
 		<% if @editable %>
 			<%=h select_tag(isTemplate ? '__template__time_entry[][activity_id]' : 'time_entry[][activity_id]',
 			activities.blank? ? nil : options_for_select(activities, :selected => entry.nil? ? defActivity : entry.activity_id),
-			:style=> "width:75px" ) %>
+			:style=> "width:150px" ) %>
 		<% else %>
 			<%= activity.blank? ? entry.activity_id : activity.name unless entry.nil?%>
 		<% end %>

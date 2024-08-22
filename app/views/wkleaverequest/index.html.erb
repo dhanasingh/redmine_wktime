@@ -14,18 +14,28 @@
 		<%= hidden_field_tag("searchlist", controller_name) %>
 		<%= hidden_field_tag('tab', controller_name) %>
 		<% period = session[:wkleaverequest].try(:[], :period) %>
-		<% if isLeaveReqAdmin %>
-			<label><%=l(:label_group_plural)%></label>&nbsp;
-			<%= select_tag('group_id', options_for_select( [["", 0]] + (@groups.collect {|p| [p.name, p.id ]}),
-						:selected => group_id), :onchange => "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>&nbsp;
-			<label><%=l(:label_member)%></label>&nbsp;
-			<%= select_tag('user_id', options_for_select( [[l(:all_users_for_select), 0]] + @members, :selected => userID),
-						:style=> "width:200px;") %>&nbsp;
-		<% end %>
-		<label><%= l(:label_leave_type) %></label>&nbsp;
-		<%= select_tag('leave_type', options_for_select(get_leave_type.unshift(['','']), session[controller_name].try(:[], :leave_type))) %>&nbsp;
-		<label><%= l(:field_status) %></label>&nbsp;
-		<%= select_tag('lveStatus', options_for_select(statusList.invert, session[controller_name].try(:[], :lveStatus))) %>&nbsp;
+		<div style="display:flex; flex-wrap:wrap;">
+			<% if isLeaveReqAdmin %>
+			<div>
+				<label><%=l(:label_group_plural)%></label>&nbsp;
+				<%= select_tag('group_id', options_for_select( [["", 0]] + (@groups.collect {|p| [p.name, p.id ]}),
+							:selected => group_id), :onchange => "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>&nbsp;
+			</div>
+			<div>	
+				<label><%=l(:label_member)%></label>&nbsp;
+				<%= select_tag('user_id', options_for_select( [[l(:all_users_for_select), 0]] + @members, :selected => userID),
+							:style=> "width:200px;") %>&nbsp;
+			</div>
+			<% end %>
+			<div>
+				<label><%= l(:label_leave_type) %></label>&nbsp;
+				<%= select_tag('leave_type', options_for_select(get_leave_type.unshift(['','']), session[controller_name].try(:[], :leave_type))) %>&nbsp;
+			</div>
+			<div>
+				<label><%= l(:field_status) %></label>&nbsp;
+				<%= select_tag('lveStatus', options_for_select(statusList.invert, session[controller_name].try(:[], :lveStatus))) %>&nbsp;
+		  </div>
+		</div>
 		<fieldset id="date-range" class="collapsible">
 			<legend onclick="toggleFieldset(this);" class="icon icon-expanded"><%= l(:label_date_range) %></legend>
 			<div>

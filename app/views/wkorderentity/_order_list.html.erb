@@ -57,7 +57,7 @@
 							<td class="lbl-txt-align"><%=h entry.parent.name  %></td>
 							<td class="lbl-txt-align"><%=h projectName %></td>
 
-							<td class="lbl-txt-align"><%=h helperObj.getSIStatus.invert[entry.status]  %></td>
+							<td class="lbl-txt-align colorcode-bg-setup col-status-<%= entry.status %>"><%=h helperObj.getSIStatus.invert[entry.status]  %></td>
 							<td class="lbl-txt-align"><%=h format_date(entry.invoice_date)  %></td>
 							<td class="lbl-txt-align"><%=h format_date(entry.start_date)  %></td>
 							<td class="lbl-txt-align"><%=h format_date(entry.end_date)  %></td>
@@ -88,12 +88,12 @@
 								toCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 								amount = getExchangedAmount(@currency, value['amount'])
 							%>
-							<tr class="<%= cycle("odd", "even") %>">
+							<tr class="<%= cycle("odd", "even") %> col-status-<%=(value['status'] == 'o' ? 'open' : 'closed').capitalize%>">
 								<td class="lbl-txt-align"><%=h l(:label_unbilled)  %></td>
 								<!-- <td class="lbl-txt-align"><%#=h value['parent_type'] == 'WkAccount' ? 'Account' : 'Contact'  %></td> -->
 								<td class="lbl-txt-align"><%=h value['name']  %></td>
 								<td class="lbl-txt-align"><%=h value['project'] %></td>
-								<td class="lbl-txt-align"><%=h (value['status'] == 'o' ? 'open' : 'closed')  %></td>
+								<td class="lbl-txt-align col-status"><%=h (value['status'] == 'o' ? 'open' : 'closed')  %></td>
 								<td class="lbl-txt-align"><%=h Date.today  %></td>
 								<td class="lbl-txt-align"><%=h value['start_date']  %></td>
 								<td class="lbl-txt-align"><%=h value['end_date']  %></td>
