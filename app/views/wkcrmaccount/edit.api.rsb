@@ -6,6 +6,7 @@ api.wk_account do
 		api.account_billing @accountEntry.account_billing
 		api.account_category @accountEntry.account_category
 		api.location_id @accountEntry.location_id
+		api.tax_number  @accountEntry.tax_number
 		api.description @accountEntry.description
 			api.address(
 			id: @accountEntry.address.id, address1: @accountEntry.address.address1, address2: @accountEntry.address.address2,
