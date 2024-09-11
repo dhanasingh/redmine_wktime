@@ -15,7 +15,7 @@
 	<thead>
 		</tr>
 			<tr>
-					<th class="lbl-txt-align"><%=  l(:label_date_range) %></th>
+					<%= sort_header_tag('trans_date', :caption => l(:label_date_range), class: "lbl-txt-align", title: "") %>
 					<th class="lbl-txt-align"><%= l(:label_debit) %></th>
 					<th class="lbl-txt-align"><%= l(:label_credit) %></th>
 					<th class="lbl-txt-align"><%= l(:label_closing_balance) %></th>
@@ -24,12 +24,12 @@
 	</thead>
 	<tbody>
 		<% @summaryHash.each do |key, value| %>
-			<% getSummeryamount(key, value) %>
+			<% # getSummeryamount(key, value) %>
 			<tr>
 				<td class="lbl-txt-align"><%=h key %></td>
 				<td class="lbl-txt-align"><%=h "%.2f" % value[:DT].to_f %></td>
 				<td class="lbl-txt-align"><%=h "%.2f" % value[:CT].to_f %></td>
-				<td class="lbl-txt-align"><%=h "%.2f" % @closeBal.abs %></td>
+				<td class="lbl-txt-align"><%=h "%.2f" % value[:CB].abs %></td>
 				<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'index', :summary_by => 'days', :from => value[:beginning_date], :to => value[:end_date], :is_summary_edit => true, :summary_period => 2, :txn_ledger => value[:ledger_id], :tab => controller.controller_name},   :title => l(:button_edit)  %> </td>
 			</tr>
 		<% end %>

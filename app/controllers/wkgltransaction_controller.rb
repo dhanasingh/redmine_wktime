@@ -67,9 +67,12 @@ class WkgltransactionController < WkaccountingController
 					summary_by = getDatePart('trans_date','year')
 					alice_name = getDatePart('trans_date','year', 'tyear')
 				end
+
 				trans_date = transaction.minimum(:trans_date) - 1 unless transaction.minimum(:trans_date).blank?
 				@transDate = @from.blank? ? trans_date : @from -1
-				order_val = alice_name.split(',').map{|item| (item.split('as').last).strip().to_s + " DESC"}
+				sort_direction = params[:sort].present? ? (params[:sort].split(':')[1] || "asc") : "desc"
+
+				order_val = alice_name.split(',').map{|item| (item.split('as').last).strip().to_s + " #{sort_direction}"}
 				transaction = transaction.group(" #{summary_by}, detail_type, ledger_id")
 					.select(" #{alice_name}, detail_type, ledger_id, sum(amount) as amount").order("#{order_val.join(',')}")
 				@summaryHash = Hash.new
@@ -102,6 +105,14 @@ class WkgltransactionController < WkaccountingController
 						@summaryHash[key][:ledger_id] = entry.ledger_id
 					end
 				end
+				
+				dup_summary = sort_direction == "desc" ? @summaryHash.to_a.reverse.to_h : @summaryHash
+				dup_summary.each do |key, value|
+					getSummeryamount(key, value)
+					@summaryHash[key][:CB] = @closeBal
+				end
+				@summaryHashFirstKey = dup_summary.keys.first
+				
 			else
 				formPagination(transaction.reorder(sort_clause))
 				isSubCr = isSubtractCr(@selectedLedger.ledger_type)
@@ -118,8 +129,8 @@ class WkgltransactionController < WkaccountingController
 			formPagination(transaction.reorder(sort_clause))
 		end
 		transaction
-  end
-
+  	end
+	
     def edit
 	    @transEntry = nil
 		@transDetails = nil
@@ -163,9 +174,11 @@ class WkgltransactionController < WkaccountingController
 
 					end
 					wktxnDetail.ledger_id = params["txn_particular_#{i}"]
-					if (params["txn_debit_#{i}"].blank? || params["txn_debit_#{i}"].to_i == 0) && (params["txn_credit_#{i}"].blank? || params["txn_credit_#{i}"].to_i == 0)
+					#if (params["txn_debit_#{i}"].blank? || params["txn_debit_#{i}"].to_i == 0) && (params["txn_credit_#{i}"].blank? || params["txn_credit_#{i}"].to_i == 0)
+					if (params["txn_debit_#{i}"].blank? || params["txn_debit_#{i}"].to_f == 0) && (params["txn_credit_#{i}"].blank? || params["txn_credit_#{i}"].to_f == 0)
 						next
-					elsif params["txn_debit_#{i}"].blank? || params["txn_debit_#{i}"].to_i == 0
+					#elsif params["txn_debit_#{i}"].blank? || params["txn_debit_#{i}"].to_i == 0
+					elsif params["txn_debit_#{i}"].blank? || params["txn_debit_#{i}"].to_f == 0
 						wktxnDetail.detail_type = 'c'
 						wktxnDetail.amount = params["txn_credit_#{i}"]
 					else
@@ -233,7 +246,7 @@ class WkgltransactionController < WkaccountingController
 				end
 			}
 		end
-  end
+	end
 
 	def validateTransaction
 		ret = true
@@ -298,8 +311,10 @@ class WkgltransactionController < WkaccountingController
 		end
 
 		for i in 1..params[:txntotalrow].to_i
-			txnDebitTotal = txnDebitTotal + params["txn_debit_#{i}"].to_i if !params["txn_debit_#{i}"].blank?
-			txnCreditTotal = txnCreditTotal + params["txn_debit_#{i}"].to_i if !params["txn_debit_#{i}"].blank?
+			#txnDebitTotal = txnDebitTotal + params["txn_debit_#{i}"].to_i if !params["txn_debit_#{i}"].blank?
+			#txnCreditTotal = txnCreditTotal + params["txn_debit_#{i}"].to_i if !params["txn_debit_#{i}"].blank?
+			txnDebitTotal = txnDebitTotal + params["txn_debit_#{i}"].to_f if !params["txn_debit_#{i}"].blank?
+			txnCreditTotal = txnCreditTotal + params["txn_debit_#{i}"].to_f if !params["txn_debit_#{i}"].blank?
 		end
 
 		if ret
@@ -338,7 +353,7 @@ class WkgltransactionController < WkaccountingController
 			$temptxnDetail = @tempwktxnDetail
 			$tempTransaction = wkgltransaction
 		end
-
+		
 		ret
 	end
 
