@@ -174,10 +174,8 @@ class WkgltransactionController < WkaccountingController
 
 					end
 					wktxnDetail.ledger_id = params["txn_particular_#{i}"]
-					#if (params["txn_debit_#{i}"].blank? || params["txn_debit_#{i}"].to_i == 0) && (params["txn_credit_#{i}"].blank? || params["txn_credit_#{i}"].to_i == 0)
 					if (params["txn_debit_#{i}"].blank? || params["txn_debit_#{i}"].to_f == 0) && (params["txn_credit_#{i}"].blank? || params["txn_credit_#{i}"].to_f == 0)
 						next
-					#elsif params["txn_debit_#{i}"].blank? || params["txn_debit_#{i}"].to_i == 0
 					elsif params["txn_debit_#{i}"].blank? || params["txn_debit_#{i}"].to_f == 0
 						wktxnDetail.detail_type = 'c'
 						wktxnDetail.amount = params["txn_credit_#{i}"]
@@ -311,8 +309,6 @@ class WkgltransactionController < WkaccountingController
 		end
 
 		for i in 1..params[:txntotalrow].to_i
-			#txnDebitTotal = txnDebitTotal + params["txn_debit_#{i}"].to_i if !params["txn_debit_#{i}"].blank?
-			#txnCreditTotal = txnCreditTotal + params["txn_debit_#{i}"].to_i if !params["txn_debit_#{i}"].blank?
 			txnDebitTotal = txnDebitTotal + params["txn_debit_#{i}"].to_f if !params["txn_debit_#{i}"].blank?
 			txnCreditTotal = txnCreditTotal + params["txn_debit_#{i}"].to_f if !params["txn_debit_#{i}"].blank?
 		end
@@ -353,8 +349,6 @@ class WkgltransactionController < WkaccountingController
 			$temptxnDetail = @tempwktxnDetail
 			$tempTransaction = wkgltransaction
 		end
-		
-		ret
 	end
 
 	def destroy

@@ -507,7 +507,6 @@ function tallyAmount(fldId)
 		var oldrowlength = oldtable.rows.length;
 		if(addclm > 2 && addclm == oldrowlength )
 		{
-			alert("invoiceAddRow");
 			invoiceAddRow('txnTable', 'txntotalrow');
 		}
 		updateAmount();
