@@ -379,7 +379,7 @@ include WkaccountingHelper
 		@debitTotal += value[:DT].to_f
 		@creditTotal += value[:CT].to_f
 		diff = isSubCr ? (value[:DT].to_f - value[:CT].to_f) : (value[:CT].to_f - value[:DT].to_f)
-		if key == @summaryHash.keys.first
+		if key == @summaryHashFirstKey
 			@closeBal = diff + openingBalance.to_f
 		else 
 			@closeBal = diff + @closeBal
