@@ -349,6 +349,8 @@ class WkgltransactionController < WkaccountingController
 			$temptxnDetail = @tempwktxnDetail
 			$tempTransaction = wkgltransaction
 		end
+
+		ret
 	end
 
 	def destroy
