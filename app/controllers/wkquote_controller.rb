@@ -16,18 +16,18 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkquoteController < WksupplierorderentityController
-  unloadable
+
   menu_item :wkrfq
-  
+
   @@quotemutex = Mutex.new
-  
+
 	def editOrderEntity
 		super
 		if params[:invoice_id].present?
 			@rfgQuoteEntry = WkRfqQuote.find(@invoice.rfq_quote&.id) if @invoice&.rfq_quote.present?
 		end
 	end
-	
+
 	def newSupOrderEntity(parentId, parentType)
 		msg = ""
 		unless params[:rfq_id].blank?
@@ -37,69 +37,69 @@ class WkquoteController < WksupplierorderentityController
 			redirect_to :action => 'new'
 		end
 	end
-	
-	# Synchronize the quote insert because maintain the sequence of invoice num key 
+
+	# Synchronize the quote insert because maintain the sequence of invoice num key
 	def saveOrderInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
-		begin			
-			@@quotemutex.synchronize do						
-				addInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)				
-			end				
+		begin
+			@@quotemutex.synchronize do
+				addInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
+			end
 		rescue => ex
 		  logger.error ex.message
 		end
-	end	
-	
+	end
+
 	def saveOrderRelations
 		isWon = params[:quote_won].blank? ? nil : params[:quote_won]
 		winNote = params[:winning_note].blank? ? "" : params[:winning_note]
 		saveRfqQuotes(params[:rfq_quote_id], params[:rfq_id].to_i, @invoice.id, isWon, winNote)
 	end
 
-	
+
 	def getInvoiceType
 		'Q'
 	end
-	
+
 	def getLabelInvNum
 		l(:label_quote_number)
 	end
-	
+
 	def getLabelNewInv
 		l(:label_new_quote)
 	end
-	
+
 	def getHeaderLabel
 		l(:label_quotes)
 	end
-	
+
 	def getItemLabel
 		l(:label_quote_items)
 	end
-	
+
 	def getDateLbl
 		l(:label_quote_date)
 	end
-	
+
 	def addQuoteFields
 		true
 	end
-	
+
 	def getAdditionalDD
 		"wkquote/quoteadditionaldd"
 	end
-	
+
 	def editInvNumber
 		true
 	end
-	
+
 	def getOrderNumberPrefix
 		'wktime_quote_no_prefix'
 	end
-	
+
 	def getNewHeaderLbl
 		l(:label_new_quote)
 	end
-	
+
 	def getOrderContract(invoice)
 		contractStr = nil
 		rfq = invoice.rfq_quote.rfq
@@ -108,7 +108,7 @@ class WkquoteController < WksupplierorderentityController
 		end
 		contractStr
 	end
-	
+
 	def getOrderComponetsId
 		'wktime_quote_components'
 	end

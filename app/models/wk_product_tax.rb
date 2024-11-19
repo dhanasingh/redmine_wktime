@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkProductTax < ActiveRecord::Base
-  unloadable
+class WkProductTax < ApplicationRecord
+
   belongs_to :product, :class_name => 'WkProduct'
   belongs_to :tax, :class_name => 'WkTax'
 end

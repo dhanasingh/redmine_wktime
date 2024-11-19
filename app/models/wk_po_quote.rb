@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkPoQuote < ActiveRecord::Base
-  unloadable
+class WkPoQuote < ApplicationRecord
+
   belongs_to :purchase_order , :class_name => 'WkInvoice'
   belongs_to :quote , :class_name => 'WkInvoice'
   after_create_commit :send_notification
@@ -34,7 +34,7 @@ class WkPoQuote < ActiveRecord::Base
     joins(:user).where("users.id = ? OR (users.parent_id = ?)", User.current.id, User.current.id)
   }
 
-  scope :getPurchaseOrder, -> { 
+  scope :getPurchaseOrder, -> {
     where(:quote_id => nil)
    }
 end

@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkPoSupplierInvoice < ActiveRecord::Base
-  unloadable
+class WkPoSupplierInvoice < ApplicationRecord
+
   belongs_to :purchase_order , :class_name => 'WkInvoice'
   belongs_to :supplier_invoice , foreign_key: "supplier_inv_id", :class_name => 'WkInvoice'
   has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy

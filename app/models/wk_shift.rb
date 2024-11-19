@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkShift < ActiveRecord::Base
+class WkShift < ApplicationRecord
 
 	has_many :shift_roles, foreign_key: "shift_id", class_name: "WkShiftRole", :dependent => :restrict_with_error
 	has_many :shift_schedules, foreign_key: "shift_id", class_name: "WkShiftSchedule", :dependent => :restrict_with_error

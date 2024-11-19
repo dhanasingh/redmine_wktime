@@ -1,5 +1,5 @@
 class WkrfqController < WkbaseController
-  unloadable
+
   include WktimeHelper
   include WkorderentityHelper
   include WkrfqHelper
@@ -43,7 +43,7 @@ class WkrfqController < WkbaseController
 			}
 		end
     end
-	
+
 	def formPagination(entries, sectiontype)
 		@entry_count = entries.count
         setLimitAndOffset()
@@ -53,16 +53,16 @@ class WkrfqController < WkbaseController
 			@invoiceEntries = entries.order(:id).limit(@limit).offset(@offset)
 		end
 	end
-	
+
 	def edit
 	    @rfqEntry = nil
 	    unless params[:rfq_id].blank?
 		   @rfqEntry = WkRfq.find(params[:rfq_id])
 			quoteList()
 		end
-	end	
-    
-	def update	
+	end
+
+	def update
 		if params[:rfq_id].blank?
 		  rfq = WkRfq.new
 		else
@@ -81,7 +81,7 @@ class WkrfqController < WkbaseController
 		    flash[:error] = rfq.errors.full_messages.join("<br>")
 		end
     end
-	
+
 	def destroy
 		#WkRfq.find(params[:rfq_id].to_i).destroy
 		#flash[:notice] = l(:notice_successful_delete)
@@ -92,9 +92,9 @@ class WkrfqController < WkbaseController
 			flash[:error] = rfq.errors.full_messages.join("<br>")
 		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
-	end	
-  
-   	def setLimitAndOffset		
+	end
+
+   	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -107,49 +107,49 @@ class WkrfqController < WkbaseController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
 	end
-	
+
 	def deletePermission
 		validateERPPermission("A_PUR_PRVLG")
 	end
-	
+
 	def check_perm_and_redirect
 		unless check_permission
 			render_403
 			return false
 		end
 	end
-	
-	def check_permission		
-		return validateERPPermission("B_PUR_PRVLG") || validateERPPermission("A_PUR_PRVLG") 
+
+	def check_permission
+		return validateERPPermission("B_PUR_PRVLG") || validateERPPermission("A_PUR_PRVLG")
 	end
-	
+
 	def check_pur_admin_and_redirect
-	  unless validateERPPermission("A_PUR_PRVLG") 
+	  unless validateERPPermission("A_PUR_PRVLG")
 	    render_403
 	    return false
 	  end
   end
-	
+
 	def quoteList
 		rfqId = params[:rfq_id]
 		invIds = getInvoiceIds(rfqId, 'Q', false)
 		invEntries = WkInvoice.includes(:invoice_items).where( :id => invIds)
 		formPagination(invEntries, "quote")
 	end
-	
+
 	def getLabelInvNum
 		l(:label_quote_number)
 	end
-	
+
 	def getDateLbl
 		l(:label_quote_date)
 	end
-	
+
 	def isInvPaymentLink
 		false
-	end  
+	end
 
 	def set_filter_session
 		filters = [:rfq_name, :rfq_date]

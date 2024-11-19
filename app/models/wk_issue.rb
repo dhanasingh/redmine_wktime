@@ -15,11 +15,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkIssue < ActiveRecord::Base
+class WkIssue < ApplicationRecord
   include Redmine::SafeAttributes
   belongs_to :project
   belongs_to :issue
   # attr_protected :others, :issue_id, :project_id
-  
+
   safe_attributes 'project_id', 'issue_id', 'currency', 'rate', 'rate_per'
 end

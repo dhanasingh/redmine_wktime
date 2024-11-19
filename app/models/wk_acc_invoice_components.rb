@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkAccInvoiceComponents < ActiveRecord::Base
+class WkAccInvoiceComponents < ApplicationRecord
 
     belongs_to :invoice_comp, class_name: 'WkInvoiceComponents', foreign_key: 'invoice_component_id'
     belongs_to :acc_project, class_name: 'WkAccountProject', foreign_key: 'account_project_id'

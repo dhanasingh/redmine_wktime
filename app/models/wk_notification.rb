@@ -15,9 +15,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkNotification < ActiveRecord::Base
+class WkNotification < ApplicationRecord
   has_many :wk_user_notifications, foreign_key: "notify_id", class_name: "WkUserNotification", :dependent => :destroy
-  
+
   scope :getActiveNotification, -> { where(active: true) }
   scope :getUnseletedActions, ->(actionName){ where.not(name: actionName, active: false) }
 

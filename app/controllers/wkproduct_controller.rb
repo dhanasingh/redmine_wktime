@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkproductController < WkinventoryController
-  unloadable
+
   before_action :require_login
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :category, :updateCategory]
 
@@ -56,22 +56,22 @@ class WkproductController < WkinventoryController
 			}
 		end
     end
-	
+
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
 		@productEntries = entries.limit(@limit).offset(@offset)
 	end
-	
+
 	def edit
 	    @productEntry = nil
 	    unless params[:product_id].blank?
 		   @productEntry = WkProduct.find(params[:product_id])
 		   @applicableTaxes = @productEntry.taxes.map { |r| r.id }
-		end 
-	end	
-    
-	def update	
+		end
+	end
+
+	def update
 		if params[:product_id].blank?
 		  product = WkProduct.new
 		else
@@ -87,10 +87,10 @@ class WkproductController < WkinventoryController
 		product.ledger_id = params[:ledger_id]
 		if product.save()
 			unless product.id.blank?
-				taxId = params[:tax_id]	
+				taxId = params[:tax_id]
 				WkProductTax.where(:product_id => product.id).where.not(:tax_id => taxId).delete_all()
 				unless taxId.blank?
-					taxId.collect{ |id| 
+					taxId.collect{ |id|
 						istaxid = WkProductTax.where("product_id = ? and tax_id = ? ", product.id, id).count
 						unless istaxid > 0
 							productTax = WkProductTax.new
@@ -99,7 +99,7 @@ class WkproductController < WkinventoryController
 							if !productTax.save()
 								errorMsg = productTax.errors.full_messages.join("<br>")
 							end
-						end						
+						end
 					}
 				end
 			end
@@ -110,7 +110,7 @@ class WkproductController < WkinventoryController
 		    flash[:error] = product.errors.full_messages.join("<br>")
 		end
     end
-	
+
 	def destroy
 		product = WkProduct.find(params[:product_id].to_i)
 		if product.destroy
@@ -122,7 +122,7 @@ class WkproductController < WkinventoryController
 	end
 
 	def category
-		entries = WkProductCategory.all	
+		entries = WkProductCategory.all
 		formPagination(entries)
 	end
 
@@ -137,23 +137,23 @@ class WkproductController < WkinventoryController
 			end
 			category.name = params[:name][i]
 			category.description = params[:description][i]
-			category.save()			
+			category.save()
 		end
-		
-		if !arrId.blank?			
+
+		if !arrId.blank?
 			WkProductCategory.where(:id => arrId).destroy_all
 		end
-		
+
 		redirect_to :controller => 'wkproduct',:action => 'category' , :tab => 'wkproduct'
 		flash[:notice] = l(:notice_successful_update)
-	end  
+	end
 
 	def set_filter_session
 		filters = [:category_id, :name]
 		super(filters)
 	end
-  
-	def setLimitAndOffset		
+
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -166,6 +166,6 @@ class WkproductController < WkinventoryController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
 	end
 end

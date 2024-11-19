@@ -16,18 +16,18 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class Wkexpense < Wktime
-  unloadable
-  
+
+
   self.table_name = "wkexpenses"
-  
+
   validates_numericality_of :amount, :allow_nil => true, :message => :invalid
-  
+
   #hours function of Wktime(base class) is overrided to use amount column of Wkexpense
-  
+
   def validate_wktime
     errors.add :amount, :invalid if amount && (amount < 0)
-  end  
-  
+  end
+
   def hours=(h)
     write_attribute :amount, (h.is_a?(String) ? (h.to_i || h) : h)
   end

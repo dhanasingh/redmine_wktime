@@ -15,22 +15,22 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkimportattendanceController < WkattendanceController	
-unloadable 
+class WkimportattendanceController < WkattendanceController
+
 
 include WkimportattendanceHelper
 
 before_action :require_login
 before_action :check_ta_admin_and_redirect, :only => [:new]
 require 'csv'
-	
+
 	def new
 	end
-	
+
 	def show
 		file = params[:file]
 		unless file.blank?
-			filePath = file.path 
+			filePath = file.path
 			begin
 				isSuccess = importAttendance(filePath, false)
 			rescue Exception => e
@@ -42,12 +42,12 @@ require 'csv'
 			redirect_to :action => 'new'
 		end
 	end
-	
+
 	def check_ta_admin_and_redirect
 		unless validateERPPermission('A_TE_PRVLG')
 			render_403
 			return false
 		end
 	end
-	
+
 end

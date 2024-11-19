@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkInvoice < ActiveRecord::Base
-  unloadable
+class WkInvoice < ApplicationRecord
+
   #belongs_to :account, :class_name => 'WkAccount'
   belongs_to :parent, :polymorphic => true
   belongs_to :modifier , :class_name => 'User'

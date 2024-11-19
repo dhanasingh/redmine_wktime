@@ -434,7 +434,7 @@ module FttePatch
       # base.send(:include)
 
     base.class_eval do
-        unloadable
+
 				# ============= ERPmine_patch Redmine 5.1  =====================
 			def base_scope(options={})
 				if options[:nonSpentTime].present?

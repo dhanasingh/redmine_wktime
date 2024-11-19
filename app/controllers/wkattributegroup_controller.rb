@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkattributegroupController < WkinventoryController
-   unloadable
+
    menu_item :wkproduct
    before_action :require_login
    before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :edit_product_attribute, :updateProductAttribute]
@@ -42,7 +42,7 @@ class WkattributegroupController < WkinventoryController
 		end
 		entries = entries.reorder(sort_clause)
 		respond_to do |format|
-			format.html {        
+			format.html {
 				@groupEntries = formPagination(entries)
 			}
 			format.csv{
@@ -52,23 +52,23 @@ class WkattributegroupController < WkinventoryController
 			}
 		end
     end
-	
+
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
 		pageEntries = entries.limit(@limit).offset(@offset)
 		pageEntries
 	end
-	
+
 	def edit
 	    @groupEntry = nil
 	    unless params[:group_id].blank?
 		   @groupEntry = WkAttributeGroup.find(params[:group_id])
 		   @groupAttrEntries = formPagination(@groupEntry.product_attributes)
-		end 
-	end	
-    
-	def update	
+		end
+	end
+
+	def update
 		if params[:group_id].blank?
 		  attrGroup = WkAttributeGroup.new
 		else
@@ -84,7 +84,7 @@ class WkattributegroupController < WkinventoryController
 		    flash[:error] = attrGroup.errors.full_messages.join("<br>")
 		end
     end
-	
+
 	def destroy
 		attrGroup = WkAttributeGroup.find(params[:group_id].to_i)
 		if attrGroup.destroy
@@ -94,15 +94,15 @@ class WkattributegroupController < WkinventoryController
 		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end
-	
+
 	def edit_product_attribute
 		@attributeEntry = nil
 		@groupEntry = WkAttributeGroup.find(params[:group_id].to_i)
 	    unless params[:product_attribute_id].blank?
 		   @attributeEntry = WkProductAttribute.find(params[:product_attribute_id])
-		end 
+		end
 	end
-	
+
 	def updateProductAttribute
 		if params[:product_attribute_id].blank?
 		  productAttr = WkProductAttribute.new
@@ -120,7 +120,7 @@ class WkattributegroupController < WkinventoryController
 		    flash[:error] = product.errors.full_messages.join("<br>")
 		end
 	end
-	
+
 	def destroyProductAttribute
 		productAttr = WkProductAttribute.find(params[:product_attribute_id].to_i)
 		groupId = productAttr.group_id
@@ -131,8 +131,8 @@ class WkattributegroupController < WkinventoryController
 		end
 		redirect_back_or_default :action => 'edit' , :tab => 'wkattributegroup', :group_id => groupId
 	end
-  
-   def setLimitAndOffset		
+
+   def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -145,7 +145,7 @@ class WkattributegroupController < WkinventoryController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
 	end
 
 	def set_filter_session

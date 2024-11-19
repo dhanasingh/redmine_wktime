@@ -15,15 +15,15 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkAttendance < ActiveRecord::Base
-  unloadable
+class WkAttendance < ApplicationRecord
+
   include Redmine::SafeAttributes
-  
+
   belongs_to :user
-  
+
   acts_as_customizable
   # attr_protected :user_id
   safe_attributes 'start_time', 'end_time'
-  
+
   validates_presence_of :user_id
 end

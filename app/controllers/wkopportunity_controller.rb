@@ -1,5 +1,5 @@
 class WkopportunityController < WkcrmController
-  unloadable
+
   menu_item :wklead
   include WktimeHelper
 	include WkopportunityHelper

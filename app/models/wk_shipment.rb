@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkShipment < ActiveRecord::Base
-  unloadable
+class WkShipment < ApplicationRecord
+
   #belongs_to :account, :class_name => 'WkAccount'
   belongs_to :parent, :polymorphic => true
   has_many :inventory_items, foreign_key: "shipment_id", class_name: "WkInventoryItem", :dependent => :destroy
@@ -24,7 +24,7 @@ class WkShipment < ActiveRecord::Base
   belongs_to :gl_transaction , :class_name => 'WkGlTransaction', :dependent => :destroy
   belongs_to :supplier_invoice, foreign_key: "supplier_invoice_id", class_name: "WkInvoice"
   #belongs_to :purchase_order, foreign_key: "purchase_order_id", class_name: "WkInvoice"
-  belongs_to :product, foreign_key: "product_id", class_name: "WkProduct" 
+  belongs_to :product, foreign_key: "product_id", class_name: "WkProduct"
   after_create_commit :send_notification
   has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
   has_many :delivery_items, foreign_key: "shipment_id", class_name: "WkDeliveryItem", :dependent => :destroy
@@ -44,5 +44,5 @@ class WkShipment < ActiveRecord::Base
   def current_status
     self ? self&.wkstatus&.last&.status : ''
   end
-  
+
 end

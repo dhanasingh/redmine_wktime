@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkPermission < ActiveRecord::Base
-  unloadable
+class WkPermission < ApplicationRecord
+
 
   has_many :grpPermission, foreign_key: "permission_id", :class_name => 'WkGroupPermission', :dependent => :destroy
   has_many :group , :through => :grpPermission

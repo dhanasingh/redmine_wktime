@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkreferralsController < WkleadController
-	unloadable
+
   before_action :require_login, :check_module_permission
   before_action :check_perm_and_redirect, only: [:update, :destroy]
   before_action :check_permission, only: :getEmpDetails

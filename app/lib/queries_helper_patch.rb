@@ -4,7 +4,7 @@ module QueriesHelper
 	# 	base.send(:include, InstanceMethods)
 
 	# 	base.class_eval do
-	# 		unloadable
+	#
 	# 		alias_method :column_value_without_wktime_projects, :column_value
 	# 		alias_method :column_value, :column_value_with_wktime_projects
 	# 	end
@@ -54,7 +54,7 @@ module QueriesHelper
 
 	def query_to_csv(items, query, options={})
 		columns = query.columns
-	  
+
 		Redmine::Export::CSV.generate(encoding: params[:encoding], field_separator: params[:field_separator]) do |csv|
 		  # csv header fields
 		  csv << columns.map {|c| c.caption.to_s}

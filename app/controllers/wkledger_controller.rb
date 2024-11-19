@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkledgerController < WkaccountingController
-  unloadable
+
   menu_item :wkgltransaction
   before_action :check_ac_admin_and_redirect, :only => [:update, :destroy]
   before_action :check_perm_and_redirect, :only => [:index, :edit]
@@ -57,11 +57,11 @@ class WkledgerController < WkaccountingController
       end
 		end
   end
-	
+
 	def edit
 		@ledgersDetail = WkLedger.where(:id => params[:ledger_id].to_i)
 	end
-	
+
 	def update
 		wkledger = nil
 		errorMsg = nil
@@ -72,7 +72,7 @@ class WkledgerController < WkaccountingController
 		end
 		wkledger.name = params[:name]
 		wkledger.ledger_type = params[:ledger_type] unless params[:ledger_type].blank?
-		wkledger.currency = Setting.plugin_redmine_wktime['wktime_currency'] 
+		wkledger.currency = Setting.plugin_redmine_wktime['wktime_currency']
 		wkledger.opening_balance = params[:opening_balance].blank? ? 0 : params[:opening_balance]
 		wkledger.owner = wkledger.ledger_type =='SY' ? 's' : 'u'
 		unless wkledger.save()
@@ -82,11 +82,11 @@ class WkledgerController < WkaccountingController
 		    redirect_to :controller => 'wkledger',:action => 'index' , :tab => 'wkledger'
 		    flash[:notice] = l(:notice_successful_update)
 		else
-			flash[:error] = errorMsg 
+			flash[:error] = errorMsg
 		    redirect_to :controller => 'wkledger',:action => 'edit'
 		end
 	end
-	
+
 	def destroy
 		ledger = WkLedger.find(params[:ledger_id].to_i)
 		if ledger.ledger_type == 'SY'
@@ -98,19 +98,19 @@ class WkledgerController < WkaccountingController
 		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end
-	
+
 	def set_filter_session
 		filters = [:ledger_type, :name]
 		super(filters)
 	end
-	
+
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
 		@ledgers = entries.order(:id).limit(@limit).offset(@offset)
 	end
-	
-	def setLimitAndOffset		
+
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -123,7 +123,7 @@ class WkledgerController < WkaccountingController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
 	end
 
 end

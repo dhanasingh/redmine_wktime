@@ -15,9 +15,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkGlSalary < ActiveRecord::Base
-  unloadable
+class WkGlSalary < ApplicationRecord
+
   include Redmine::SafeAttributes
-  
+
   belongs_to :gl_transaction, foreign_key: "gl_transaction_id", class_name: "WkGlTransaction", :dependent => :destroy
 end

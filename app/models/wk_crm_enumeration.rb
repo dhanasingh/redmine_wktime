@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkCrmEnumeration < ActiveRecord::Base
+class WkCrmEnumeration < ApplicationRecord
   before_save :check_default
   validates_presence_of :name
   has_many :skillsets, class_name: :WkSkill, foreign_key: :skill_set_id, dependent: :destroy

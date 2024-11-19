@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkAttributeGroup < ActiveRecord::Base
-  unloadable
+class WkAttributeGroup < ApplicationRecord
+
   has_many :products, foreign_key: "attribute_group_id", class_name: "WkProduct", :dependent => :restrict_with_error
   has_many :product_attributes, foreign_key: "group_id", class_name: "WkProductAttribute", :dependent => :destroy
 end

@@ -15,12 +15,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkSalaryComponents < ActiveRecord::Base
+class WkSalaryComponents < ApplicationRecord
   Redmine::SafeAttributes
   has_many :salaries, foreign_key: "salary_component_id", class_name: "WkSalary"
   has_many :salary_comp_deps, foreign_key: "salary_component_id", class_name: "WkSalCompDependent", dependent: :destroy
   accepts_nested_attributes_for :salary_comp_deps, allow_destroy: true
-  
+
   def self.getReimburseID
     self.where({component_type: 'r'}).first&.id
   end

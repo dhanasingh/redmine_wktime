@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkgltransactionController < WkaccountingController
-  unloadable
+
   include WkgltransactionHelper
 	accept_api_auth :index, :edit, :update
 
@@ -105,14 +105,14 @@ class WkgltransactionController < WkaccountingController
 						@summaryHash[key][:ledger_id] = entry.ledger_id
 					end
 				end
-				
+
 				dup_summary = sort_direction == "desc" ? @summaryHash.to_a.reverse.to_h : @summaryHash
 				dup_summary.each do |key, value|
 					getSummeryamount(key, value)
 					@summaryHash[key][:CB] = @closeBal
 				end
 				@summaryHashFirstKey = dup_summary.keys.first
-				
+
 			else
 				formPagination(transaction.reorder(sort_clause))
 				isSubCr = isSubtractCr(@selectedLedger.ledger_type)
@@ -130,7 +130,7 @@ class WkgltransactionController < WkaccountingController
 		end
 		transaction
   	end
-	
+
     def edit
 	    @transEntry = nil
 		@transDetails = nil

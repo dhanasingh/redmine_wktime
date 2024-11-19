@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkexpenseController < WktimeController
-  unloadable
+
 
   menu_item :wktime
   before_action :find_optional_project, :only => [:reportdetail, :report]
