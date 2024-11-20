@@ -1,6 +1,7 @@
-module TimeReportPatch
+module LoadPatch::TimeReportPatch
   module Redmine::Helpers
     class TimeReport
+
       attr_reader :criteria, :columns, :hours, :total_hours, :periods
 
       # ============= ERPmine_patch Redmine 5.1  =====================
@@ -196,5 +197,6 @@ module TimeReportPatch
         @available_criteria
       end
     end
+
   end
 end

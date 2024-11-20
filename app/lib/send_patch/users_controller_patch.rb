@@ -1,6 +1,7 @@
-module UsersControllerPatch
+module SendPatch::UsersControllerPatch
 	def self.included(base)
 		base.class_eval do
+
 			helper :attachments
 			helper WkdocumentHelper
 			include WkdocumentHelper
