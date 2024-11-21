@@ -22,7 +22,7 @@ module SendPatch::ImportPatch
             item.unique_id = row_value(row, 'unique_id') if use_unique_id?
 
             if object = build_object(row, item)
-              # ======= ERPmine_patch Redmine 5.1 ==========
+              # ======= ERPmine_patch Redmine 6.0 ==========
               if type == 'TimeEntryImport'
                 wktime_helper = Object.new.extend(WktimeHelper)
                 errorMsg = wktime_helper.statusValidation(object)

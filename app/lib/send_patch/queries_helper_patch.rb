@@ -32,7 +32,7 @@ module SendPatch::QueriesHelperPatch
 				return unless query.totalable_columns.present?
 
 				totals = query.totalable_columns.map do |column|
-					# ============= ERPmine_patch Redmine 5.1  =====================
+			# ============= ERPmine_patch Redmine 6.0  =====================
 					if [:quantity, :selling_price].include? column.name
 						product_type = session[:timelog][:spent_type] == "M" ? 'I' : session[:timelog][:spent_type]
 						query[:filters]['product_type'] = {"operator":"=","values" => product_type}
@@ -51,14 +51,14 @@ module SendPatch::QueriesHelperPatch
 					csv << columns.map {|c| c.caption.to_s}
 					# csv lines
 					items.each do |item|
-					# ============= ERPmine_patch Redmine 5.1  =====================
+			# ============= ERPmine_patch Redmine 6.0  =====================
 					csv << columns.map {|c| [:inventory_item_id].include?(c.name) ? wk_csv_content(item) : csv_content(c, item)}
 					# =============================
 					end
 				end
 			end
 
-			# ============= ERPmine_patch Redmine 5.1  =====================
+  		# ============= ERPmine_patch Redmine 6.0  =====================
 			def wk_csv_content(item)
 				formProductItem(item)
 			end
@@ -77,7 +77,7 @@ module SendPatch::QueriesHelperPatch
 
 			# Renders the list of queries for the sidebar
 			def render_sidebar_queries(klass, project)
-				# ============= ERPmine_patch Redmine 5.1  =====================
+			#	============= ERPmine_patch Redmine 6.0  =====================
 				spent_type = session[:timelog] && session[:timelog][:spent_type]
 				kclassName =  spent_type == "M" || spent_type == "A" ? WkMaterialEntryQuery : (spent_type == 'E' ? WkExpenseEntryQuery : klass)
 				queries = sidebar_queries(kclassName, project)

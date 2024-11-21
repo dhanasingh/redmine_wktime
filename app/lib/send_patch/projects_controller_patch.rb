@@ -8,7 +8,7 @@ module SendPatch::ProjectsControllerPatch
 				@project.safe_attributes = params[:project]
 
 				if @project.save
-					# ============= ERPmine_patch Redmine 5.1 =====================
+					# ============= ERPmine_patch Redmine 6.0 =====================
 					 @project.erpmineproject.safe_attributes = params[:erpmineproject]
 					 @project.erpmineproject.save
 					# =============================
@@ -19,7 +19,7 @@ module SendPatch::ProjectsControllerPatch
 						format.html do
 							flash[:notice] = l(:notice_successful_create)
 							if params[:continue]
-								attrs = {:parent_id => @project.parent_id}.reject {|k,v| v.nil?}
+								attrs = {:parent_id => @project.parent_id}.compact
 								redirect_to new_project_path(attrs)
 							else
 								redirect_to settings_project_path(@project)
@@ -45,7 +45,7 @@ module SendPatch::ProjectsControllerPatch
 			def update
 				@project.safe_attributes = params[:project]
 				if @project.save
-					# ============= ERPmine_patch Redmine 5.1 =====================
+					# ============= ERPmine_patch Redmine 6.0 =====================
 					 @project.erpmineproject.safe_attributes = params[:erpmineproject]
 					 @project.erpmineproject.save
 					# =============================
@@ -75,7 +75,7 @@ module SendPatch::ProjectsControllerPatch
 
 			 	@project_to_destroy = @project
 				if api_request? || params[:confirm] == @project_to_destroy.identifier
-				# ============= ERPmine_patch Redmine 5.1 =====================
+				# ============= ERPmine_patch Redmine 6.0 =====================
 					wktime_helper = Object.new.extend(WktimeHelper)
 					ret = wktime_helper.getStatus_Project_Issue(nil,@project_to_destroy.id)
 					if ret

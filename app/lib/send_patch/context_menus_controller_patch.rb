@@ -3,7 +3,7 @@ module SendPatch::ContextMenusControllerPatch
     base.class_eval do
 
       def time_entries
-        # ============= ERPmine_patch Redmine 5.1  =====================
+        # ============= ERPmine_patch Redmine 6.0  =====================
         @options_by_custom_field = {}
         if session[:timelog][:spent_type] === "T"
         # =======================
@@ -35,7 +35,7 @@ module SendPatch::ContextMenusControllerPatch
             end
           end
 
-        # ============= ERPmine_patch Redmine 5.1  =====================
+        # ============= ERPmine_patch Redmine 6.0  =====================
         elsif session[:timelog][:spent_type] === "E"
           @time_entries = WkExpenseEntry.where(id: params[:ids]).to_a
           @can = {:edit => true, :delete => true}

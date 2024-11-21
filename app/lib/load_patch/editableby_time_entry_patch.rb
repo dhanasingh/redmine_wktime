@@ -3,7 +3,7 @@ module LoadPatch::EditablebyTimeEntryPatch
 		base.class_eval do
 
 			def editable_by?(usr)
-				# === ERPmine_patch Redmine 5.1 for supervisor edit =====
+				# === ERPmine_patch Redmine 6.0 for supervisor edit =====
 				wktime_helper = Object.new.extend(WktimeHelper)
 				if ((!user.blank? && wktime_helper.isSupervisorForUser(user.id)) && wktime_helper.canSupervisorEdit)
 					true
