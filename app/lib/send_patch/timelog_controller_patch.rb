@@ -489,16 +489,13 @@ module SendPatch::TimelogControllerPatch
 					@time_entries = TimeEntry.where(:id => params[:id] || params[:ids]).
 						preload(:project => :time_entry_activities).
 						preload(:user).to_a
-					raise ActiveRecord::RecordNotFound if @time_entries.empty?
 					raise Unauthorized unless @time_entries.all? {|t| t.editable_by?(User.current)}
 			# ============= ERPmine_patch Redmine 6.0  =====================
 				elsif session[:timelog][:spent_type] === "E"
 					@time_entries = WkExpenseEntry.where(:id => params[:id] || params[:ids])
-					raise ActiveRecord::RecordNotFound if @time_entries.empty?
 				else
 					@time_entries = WkMaterialEntry.where(:id => params[:id] || params[:ids])
-					raise ActiveRecord::RecordNotFound if @time_entries.empty?
-				end
+				raise ActiveRecord::RecordNotFound if @time_entries.empty?
 				# ===================================
 					@projects = @time_entries.filter_map(&:project).uniq
 				@project = @projects.first if @projects.size == 1
