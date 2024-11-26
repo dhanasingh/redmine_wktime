@@ -12,7 +12,7 @@
 		<fieldset>
 			<legend><%= l(:label_filter_plural) %></legend>
 			<div style='float:right'>
-				<%= link_to l(:"label_title_end_process"), "javascript:runperiodDatePicker()" %>&nbsp;
+				<%= link_to sprite_icon('document', l(:"label_title_end_process")), "javascript:runperiodDatePicker()" %>&nbsp;
 				<%= render :partial => "wkattendance/sidebar" %>
 			</div>
 			<label for='status'><%= l(:field_status) %></label>
@@ -23,8 +23,7 @@
 			<label for='name'><%= l(:label_user) %></label>
 			<%= text_field_tag 'name', controller.getSession(:name), :size => 30 %>
 			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-			<%= link_to l(:button_clear), {:tab => controller_name, clear: true},
-				:class => 'icon icon-reload' %>
+			<%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
 		</fieldset>
 		<%= hidden_field_tag("tab", controller_name) %>
 		<%= hidden_field_tag("searchlist", controller_name) %>

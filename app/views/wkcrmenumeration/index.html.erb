@@ -8,7 +8,7 @@
 	<%	enumerationType = session[controller_name].try(:[], :enumType) %>
 	<fieldset>
 		<div style="float:right">
-			<%= link_to l(:label_new_enumeration), url_for(:controller => controller_name, :action => 'edit', :enum_id => ""), :class => 'icon icon-add' %>
+			<%= link_to sprite_icon('add', l(:label_new_enumeration)), url_for(:controller => controller_name, :action => 'edit', :enum_id => ""), :class => 'icon icon-add' %>
 		</div>
 		<table>
 			<tr>
@@ -17,7 +17,7 @@
 				<th><label style="float:left; padding-left: 10px;"><%= l(:field_type) %></label></th>
 					<td><%=h select_tag('enumType', options_for_select(enumType.invert,  :selected => enumerationType.nil? ? "" : enumerationType ), :style=> "float: left;") %></td>
 				<td><%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %></td>
-				<td><%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload', :style=>"float:left;" %></td>
+				<td><%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload', :style=>"float:left; " %></td>
 			</tr>
 		</table>
 	</fieldset>

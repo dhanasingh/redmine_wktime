@@ -27,7 +27,7 @@
         <td class="lbl-txt-align"><%= e.selling_price %></td>
         <td class="lbl-txt-align"><%= e.quantity %></td>
         <td class="lbl-txt-align">
-          <%= link_to l(:label_details), {controller: 'timelog', action: 'edit', id: e.id, spent_type: 'M'}, class: 'icon icon-report' %>
+          <%= link_to sprite_icon('document', l(:label_details)), {controller: 'timelog', action: 'edit', id: e.id, spent_type: 'M'}, class: 'icon' %>
         </td>
       </tr>
     <%end%>

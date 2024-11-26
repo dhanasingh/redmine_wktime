@@ -29,10 +29,10 @@
       <%= select_year(@year, :prefix => "year", :discard_type => true) %>&nbsp;
     </div>
     <p>
-      <%= link_to_function l(:button_apply), '$("#schedule_form").submit()', :class => 'icon icon-checked' %>&nbsp;
-      <%= link_to l(:button_clear), {project_id: @project, set_filter: 1, clear: true }, class: 'icon icon-reload' %>&nbsp;
+      <%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', class: 'icon icon-checked' %>&nbsp;
+      <%= link_to sprite_icon('reload', l(:button_clear)), {project_id: @project, set_filter: 1, clear: true }, class: 'icon icon-reload' %>&nbsp;
       <% if @schedulesShift %>
-        <%= link_to l(:label_schedule_shifts), 'javascript:scheduleFormSubmission();', :name => 'generate', :class => 'icon icon-report' %>
+        <%= link_to sprite_icon('document', l(:label_schedule_shifts)), 'javascript:scheduleFormSubmission();', :name => 'generate', :class => 'icon' %>
       <% end %>
     </p>
   </fieldset>

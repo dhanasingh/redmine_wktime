@@ -33,8 +33,8 @@
 					<td class="lbl-txt-align"><%=h  checked_image entry.is_default?  %></td>
 					<td class="lbl-txt-align"><%=h  checked_image entry.is_main?  %></td>
 				<% end %>
-				<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller_name, :action => 'edit', :location_id => entry.id, id: entry.id, :tab => 'wklocation'}, :title => l(:button_edit) %>
-								<%= link_to image_tag('delete.png'), {:controller => controller_name, :action => 'destroy', :location_id => entry.id, id: entry.id, :tab => 'wklocation'},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
+				<td class="lbl-txt-align"><%= link_to sprite_icon('edit'), {:controller => controller_name, :action => 'edit', :location_id => entry.id, id: entry.id, :tab => 'wklocation'}, :title => l(:button_edit) %>
+								<%= link_to sprite_icon('del'), {:controller => controller_name, :action => 'destroy', :location_id => entry.id, id: entry.id, :tab => 'wklocation'},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
 			</tr>
 		<% end %>
 		</tbody>

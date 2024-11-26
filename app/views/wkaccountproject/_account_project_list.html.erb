@@ -35,9 +35,9 @@
 			<td class="lbl-txt-align"><%=h checked_image entry.itemized_bill?  %></td>
 			<td class="lbl-txt-align"><%=h checked_image entry.include_expense?  %></td>
 
-			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => 'wkaccountproject', :action => 'edit', :project_id => entry.project.identifier, :acc_project_id => entry.id, id: entry.id},
+			<td class="lbl-txt-align"><%= link_to sprite_icon('edit'), {:controller => 'wkaccountproject', :action => 'edit', :project_id => entry.project.identifier, :acc_project_id => entry.id, id: entry.id},
                                        :title => l(:button_edit) %>
-			<%= link_to image_tag('delete.png'), {:controller => 'wkaccountproject', :action => 'destroy', :project_id => entry.project.identifier, :account_project_id => entry.id, id: entry.id},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
+			<%= link_to sprite_icon('del'), {:controller => 'wkaccountproject', :action => 'destroy', :project_id => entry.project.identifier, :account_project_id => entry.id, id: entry.id},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
 		 </tr>
 	<% end %>
    </tbody>

@@ -6,7 +6,7 @@
 					parentArr = options_for_wktime_account(false, controller.getOrderAccountType, controller.additionalAccountType)
 					parentAccountId = parentArr[0][1].to_i if !parentArr.blank?
 				%>
-				<%= link_to l(:label_new_item, controller.getLabelNewPayment), url_for(:controller => controller_name, :action => 'edit', :load_payment => true, :related_to => "WkAccount", :related_parent => parentAccountId, :project_id => 0), :class => 'icon icon-add' %>
+				<%= link_to sprite_icon('add', l(:label_new_item, controller.getLabelNewPayment)), url_for(:controller => controller_name, :action => 'edit', :load_payment => true, :related_to => "WkAccount", :related_parent => parentAccountId, :project_id => 0), :class => 'icon icon-add' %>
 			</div>
 			<%= hidden_field_tag "searchlist", controller_name %>
 			<%=h hidden_field_tag('tab', controller_name) %>

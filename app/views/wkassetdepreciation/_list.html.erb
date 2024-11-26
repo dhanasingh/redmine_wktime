@@ -26,10 +26,10 @@
 				<td class="lbl-txt-align"><%=h html_hours("%.2f" % entry.depreciation_amount) %></td>
 				<td class="lbl-txt-align"><%=h html_hours("%.2f" % (entry.actual_amount.to_f - entry.depreciation_amount.to_f) ) %></td>
 				<td align="center">
-					<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :depreciation_id => entry.id, id: entry.id, :tab => controller.controller_name},
+					<%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'edit', :depreciation_id => entry.id, id: entry.id, :tab => controller.controller_name},
 										   :title => l(:button_edit) %>
 					<% if controller.hasDeletePermission %>
-						<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :depreciation_id => entry.id, id: entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+						<%= link_to sprite_icon('del'), {:controller => controller.controller_name, :action => 'destroy', :depreciation_id => entry.id, id: entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
 					<% end %>
 				</td>
 		</tr>

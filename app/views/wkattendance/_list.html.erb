@@ -37,7 +37,7 @@
 					end
 				end %>
 				<td align="center">
-					<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :user_id => entry.user_id,
+					<%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'edit', :user_id => entry.user_id,
 						:accrual_on => lastAccrualOn, :tab => controller.controller_name},
 																							:title => l(:button_edit) %>
 				</td>

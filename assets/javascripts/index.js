@@ -1138,7 +1138,7 @@ function renderData(resData, options={}){
 
 			$.each((el || {}), function(key, value){
 				if(key == 'icon'){
-					content += "<td class='td'><a class='icon icon-report' href='"+value+ "'>"+ details +"</a></td>";
+					content += "<td class='td'><a class='icon' href='"+value+ "'>"+ details +"</a></td>";
 				}
 				else{
 					content += "<td class='td'>" +value+ "</td>";

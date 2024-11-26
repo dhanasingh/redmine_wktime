@@ -2,7 +2,7 @@
 <div>
 	<% if !controller.is_referral || controller.is_referral && controller.deletePermission %>
 		<div class="wk-contextual">
-			<%= link_to controller.get_activity_label, url_for(:controller => 'wkcrmactivity', :action => 'edit', :parentType => currentObj.class.name, :parentId => currentObj.id, :controller_from => controller_name, :action_from => action_name, id: nil), :class => 'icon icon-add' %>
+			<%= link_to sprite_icon('add', controller.get_activity_label), url_for(:controller => 'wkcrmactivity', :action => 'edit', :parentType => currentObj.class.name, :parentId => currentObj.id, :controller_from => controller_name, :action_from => action_name, id: nil), :class => 'icon icon-add' %>
 		</div>
 	<% end %>
 	<% status = ['H', 'C', 'D'] %>

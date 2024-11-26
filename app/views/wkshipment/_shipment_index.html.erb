@@ -6,7 +6,7 @@
 	<fieldset>
 		<legend><%= l(:label_filter_plural) %></legend>
 		<div style="float:right">
-			<%= link_to l(:label_new_shipment), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+			<%= link_to sprite_icon('add', l(:label_new_shipment)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
 		</div>
 		<%= hidden_field_tag "searchlist", controller_name %>
 		<%=h hidden_field_tag('tab', controller_name) %>
@@ -25,9 +25,8 @@
 
 			<p style="float:left;"><%= render :partial => 'wkshipment/date_range' %></p>
 		<div>
-			<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
-			<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name}, :class => 'icon icon-checked' %>
-			<%= link_to l(:button_clear), {:tab => 'wkshipment', clear: true}, :class => 'icon icon-reload' %>
+			<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
+			<%= link_to sprite_icon('reload', l(:button_clear)), {tab: 'wkshipment', clear: true}, class: 'icon icon-reload' %>
 		</div>
 	</fieldset>
 <% end %>

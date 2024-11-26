@@ -5,7 +5,7 @@ module SendPatch::QueriesHelperPatch
 			# module InstanceMethods
 			def column_value_with_wktime_projects(column, item, value)
 				case column.name
-			# ============= ERPmine_patch Redmine 5.1  =====================
+			# ============= ERPmine_patch Redmine 6.0 =====================
 				when :inventory_item_id
 					formProductItem(item)
 				when :selling_price

@@ -1,6 +1,6 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <fieldset id="date-range" class="collapsible">
-<legend onclick="toggleFieldset(this);" class="icon icon-expanded"><%= l(:label_date_range) %></legend>
+<legend onclick="toggleFieldset(this);" class="icon icon-expanded"><%= sprite_icon("angle-down") %><%= l(:label_date_range) %></legend>
 <div>
 <% period = session[:wkopportunity].try(:[], :period) %>
 <div class="div-left">
@@ -22,8 +22,7 @@
 </fieldset>
 
 <p class="buttons">
-	<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
-	<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name}, :class => 'icon icon-checked' %>
-  <%= link_to l(:button_clear), {tab: controller_name, clear: true}, class:'icon icon-reload' %>
+	<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
+  <%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
 
 </p>

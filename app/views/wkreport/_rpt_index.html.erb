@@ -49,8 +49,8 @@
 	<%= render :partial => 'wkreport/date_range' %>
 	<%= hidden_field_tag "searchlist",  controller_name%>
 	<p class="buttons">
-		<%= link_to l(:button_apply), "javascript: openReportPopup();", :class => 'icon icon-checked' %>
-		<%= link_to l(:button_clear), {:tab => "wkreport", clear: true}, :class => 'icon icon-reload' %>
+		<%= link_to_function sprite_icon('checked', l(:button_apply)), "javascript: openReportPopup();", class: 'icon icon-checked' %>
+		<%= link_to sprite_icon('reload', l(:button_clear)), {tab: "wkreport", clear: true}, class: 'icon icon-reload' %>
 		<p style="padding-left:5px">
 			<%= l(:label_export_to) %>
 			<%= link_to l(:button_csv), "javascript: exportReport('csv');"%> |

@@ -23,7 +23,7 @@
  	<fieldset>
 		<legend><%= l(:label_filter_plural) %></legend>
 		<div style="float:right">
-			<%= link_to l(:label_new_depreciation), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-add' %>
+			<%= link_to sprite_icon('add', l(:label_new_depreciation)), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-add' %>
 		</div>
 		<table>
 			<% if validateERPPermission("V_INV") || validateERPPermission("D_INV") %>

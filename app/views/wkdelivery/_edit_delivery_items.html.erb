@@ -10,8 +10,8 @@
 </script>
 <div class="wk-contextual">
 	<h2 style="float:left;"><%= l(:label_item) %> </h2>
-	 <span id="populate_items"><%= link_to l(:label_populate_items), "#", { onclick: "javascript:populateInvoice()", class: 'icon icon-report'} if params[:delivery_id].blank? %></span>
-	<%= link_to l(:button_add_row), "#", { onclick: "javascript:invoiceAddRow('deliveryTable', 'totalrow');",  class: 'icon icon-add' } if params[:delivery_id].blank? %>
+	 <span id="populate_items"><%= link_to sprite_icon('document', l(:label_populate_items)), "#", { onclick: "javascript:populateInvoice()", class: 'icon'} if params[:delivery_id].blank? %></span>
+	<%= link_to sprite_icon('add', l(:button_add_row)), "#", { onclick: "javascript:invoiceAddRow('deliveryTable', 'totalrow');",  class: 'icon icon-add' } if params[:delivery_id].blank? %>
 </div>
 <div style="clear:both"></div>
 <div class="autoscroll">
@@ -51,7 +51,7 @@
 
 </div>
 <div class="wk-contextual">
-	<%= link_to l(:button_add_row), "#", { onclick: "javascript:invoiceAddRow('deliveryTable', 'totalrow');",  class: 'icon icon-add' } if params[:delivery_id].blank? %>
+	<%= link_to sprite_icon('add', l(:button_add_row)), "#", { onclick: "javascript:invoiceAddRow('deliveryTable', 'totalrow');",  class: 'icon icon-add' } if params[:delivery_id].blank? %>
 </div style="clear:both">
 <%= hidden_field_tag("totalrow",  row_index-1 )  %>
 <%= hidden_field_tag("delivery_id",  @shipment.id )  %>

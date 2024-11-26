@@ -26,6 +26,7 @@
 		<label style="padding-left: 5px;"><%=l(:label_group_plural)%></label>
 		<%=h select_tag('group_id', options_for_select( [["",""]] + (@groups.collect {|p| [p.name, p.id ]}), :selected => groupid), :style => "width:125px;") %>&nbsp
 		<%= submit_tag l(:button_apply), :class => 'button-small', :name => 'submit' %>
-		<%= link_to l(:button_clear), {tab: controller_name, clear: true}, :class => 'icon icon-reload' %>
+		<%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, :class => 'icon icon-reload' %>
 	</fieldset>
 <% end %>
+<%=  %>

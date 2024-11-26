@@ -17,7 +17,7 @@
 		actRelated = session[controller_name].try(:[], :related_to)
 		show_on_map = session[controller_name].try(:[], :show_on_map) %>
 		<div style="float:right">
-			<%= link_to controller.get_activity_label, url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+			<%= link_to sprite_icon('add', controller.get_activity_label), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
 		</div>
 		<table>
 			<th align="left" ><%= l(:label_activity_type) %>:</th>
@@ -26,8 +26,8 @@
 			<td align="left"><%=h select_tag("related_to", options_for_select(relatedArrhash, :selected => (!actRelated.blank? ? actRelated : "")), :style => "width:200px;") %></td>
 		</table>
 	<%= render :partial => 'wkcrmactivity/date_range' %>
-  <%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
-  <%= link_to l(:button_clear), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
+  <%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
+  <%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
   <% if isChecked('crm_save_geo_location') %>
     <label style="padding-left:5px">
       <%= check_box_tag('show_on_map', true, show_on_map || false, onclick: '$("#query_form").submit(); return false;') %>

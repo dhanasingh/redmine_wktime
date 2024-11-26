@@ -1,7 +1,7 @@
 <h2><%= l(:label_models) %></h2>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
  <div class="wk-contextual">
-        <%= link_to l(:label_new_model), url_for(:controller => controller_name, :action => 'edit_product_model', :brand_id => brand.id), :class => 'icon icon-add' %>
+        <%= link_to sprite_icon('add', l(:label_new_model)), url_for(:controller => controller_name, :action => 'edit_product_model', :brand_id => brand.id), :class => 'icon icon-add' %>
  </div>
 <% unless @productModelEntries.blank? %>
 	<div class="autoscroll">
@@ -23,9 +23,9 @@
 				<td class="lbl-txt-align"><%=h entry.product.name  %></td>
 				<td class="lbl-txt-align"><%=h entry.description %></td>
 				<td align="center">
-				 <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit_product_model', :product_model_id => entry.id, :brand_id => entry.brand_id, id: entry.id}, :title => l(:button_edit) %>
+				 <%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'edit_product_model', :product_model_id => entry.id, :brand_id => entry.brand_id, id: entry.id}, :title => l(:button_edit) %>
 				 <% if controller.hasDeletePermission %>
-					<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroyProductModel', :product_model_id => entry.id, :tab => controller.controller_name, id: entry.id},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+					<%= link_to sprite_icon('del'), {:controller => controller.controller_name, :action => 'destroyProductModel', :product_model_id => entry.id, :tab => controller.controller_name, id: entry.id},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
 				<% end %>
 				</td>
 			</tr>

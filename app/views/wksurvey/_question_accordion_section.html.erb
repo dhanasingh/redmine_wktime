@@ -15,7 +15,7 @@
                     </td>
                     <% unless isDisable%>
                         <td width="35%" align="right">
-                            <%=link_to (image_tag('delete.png') + l(:button_delete_question)), "javascript:deletequestion(" + qIndex.to_s + ",'" + (question.question_id).to_s + "');", :title => l(:button_delete) %>
+                            <%=link_to (sprite_icon('del') + l(:button_delete_question)), "javascript:deletequestion(" + qIndex.to_s + ",'" + (question.question_id).to_s + "');", :title => l(:button_delete) %>
                         </td>
                     <% end %>
                 </tr>
@@ -39,7 +39,7 @@
                     <th align="left"><%= l(:label_question_type) %></th>
                     <td>
                         <%=h select_tag('question_type_' + qIndex.to_s,
-                        options_for_select( getQuestionType, :selected => question.question_type), :disabled => isDisable, 
+                        options_for_select( getQuestionType, :selected => question.question_type), :disabled => isDisable,
                         :onchange => "question_type_changed('" + qIndex.to_s + "')") %>
                     </td>
                     <td id="lastColQuesType_<%= qIndex.to_s %>" align="right"></td>
@@ -60,8 +60,8 @@
                             <td align="left">
                                 <%=h text_field_tag(("questionChoices_" + (question.question_id).to_s + "_" + qIndex.to_s + "_" + (choice.choice_id).to_s + "_" + cIndex.to_s), choice.name, :disabled => isDisable, :size => "40%", :maxlength => 255) %>
                             <% unless isDisable%>
-                                <%=link_to image_tag('delete.png'), "javascript:deleterow(" + qIndex.to_s + "," +(question.question_id).to_s + "," + cIndex.to_s + "," + (choice.choice_id).to_s + ");", :title => l(:button_delete) %>
-                            <% end %>	
+                                <%=link_to sprite_icon('del'), "javascript:deleterow(" + qIndex.to_s + "," +(question.question_id).to_s + "," + cIndex.to_s + "," + (choice.choice_id).to_s + ");", :title => l(:button_delete) %>
+                            <% end %>
                             </td>
                         <% end %>
                         <td id="points_<%= qIndex.to_s %>" align="right">
@@ -70,24 +70,24 @@
                     </tr>
                     <% end %>
                 <% end %>
-                        
+
                 <% unless isDisable%>
                     <tr id="lastrow_<%=qIndex%>">
                         <td></td>
                         <td></td>
                             <td align="left">
-                                <%= link_to l(:button_add), "#", { :onclick => "javascript:addrows(" + qIndex.to_s + "," + (question.question_id).to_s + ");", :class => 'icon icon-add' } %>
+                                <%= link_to sprite_icon('add', l(:button_add)), "#", { :onclick => "javascript:addrows(" + qIndex.to_s + "," + (question.question_id).to_s + ");", :class => 'icon icon-add' } %>
                             </td>
                         <td></td>
                     </tr>
-                <% end %>	
+                <% end %>
             </table>
             </fieldset>
         <% end %>
     <% end %>
     <% unless isDisable%>
         <div id="add_link" class="wk-contextual">
-            <%= link_to l(:button_add_question), "#", { :onclick => "javascript:addquestion();", :class => 'icon icon-add' } %>
+            <%= link_to sprite_icon('add', l(:button_add_question)), "#", { :onclick => "javascript:addquestion();", :class => 'icon icon-add' } %>
         </div>
-    <% end %>	
+    <% end %>
 </div>

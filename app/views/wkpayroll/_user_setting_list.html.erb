@@ -32,7 +32,7 @@ th:first-child {
 			<b><label for='name' style="padding-left: 10px;"><%= l(:label_user) %>:</label></b>
 			<%= text_field_tag 'name', session[controller_name].try(:[], :name), :size => 30 %>
 			<%= submit_tag l(:button_apply), :class => "small", :name => "list" %>
-			<%= link_to l(:button_clear), {tab: 'payroll', clear: true}, class: 'icon icon-reload' %>
+			<%= link_to sprite_icon('reload', l(:button_clear)), {tab: 'payroll', clear: true}, class: 'icon icon-reload' %>
 		<% end %>
 	</fieldset>
 <% end %>
@@ -66,7 +66,7 @@ th:first-child {
 							<td class="rowcontent_<%=entry.user_id%>" style="text-align: center;" id="td_<%= compoment.id.to_s + '_' + entry.user_id.to_s %>"><%= factor %></td>
 						<% end %>
 						<td align="center">
-							<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'user_salary_settings', :user_id => entry.user_id, :tab => 'payroll'},
+							<%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'user_salary_settings', :user_id => entry.user_id, :tab => 'payroll'},
 															   :title => l(:button_edit) %>
 						</td>
 					</tr>

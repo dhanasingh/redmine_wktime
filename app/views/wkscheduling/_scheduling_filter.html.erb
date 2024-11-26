@@ -1,4 +1,4 @@
-<%  shiftArr = WkShift.where(:in_active => true, :is_schedulable => true).order(:name).pluck(:name, :id) 
+<%  shiftArr = WkShift.where(:in_active => true, :is_schedulable => true).order(:name).pluck(:name, :id)
 	shiftArr.unshift(["",''])
 %>
 <%= hidden_field_tag "searchlist", controller_name %>
@@ -30,6 +30,6 @@
 	<%= date_field_tag('date', dateVal.blank? ? Date.today.to_s : dateVal,:size => 15, :required => true, :maxlength => 15) %><%= calendar_for('date') %>&nbsp;
 	<p>
 		<%= submit_tag l(:button_apply), :class => "small", :name => nil %>&nbsp;
-		<%= link_to_function l(:button_clear), '$("#schedule_form").submit(); return false;', :class => 'icon icon-reload' %>
+		<%= link_to_function sprite_icon('reload', l(:button_clear)), '$("#schedule_form").submit(); return false;', class: 'icon icon-reload' %>
 	</p>
 <% end %>

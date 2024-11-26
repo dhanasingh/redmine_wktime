@@ -18,9 +18,9 @@
 		    <td class="lbl-txt-align"><%=h entry.name  %></td>
 			<td class="lbl-txt-align"><%=h ledgerType[entry.ledger_type] %></td>
 		<!--	<td class="lbl-txt-align"><%= entry.currency %>&nbsp;<%=h  html_hours("%.2f" % (entry.opening_balance.blank? ? 0 : entry.opening_balance) )  %></td> -->
-			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :ledger_id => entry.id, id: entry.id, :tab => controller.controller_name},   :title => l(:button_edit) %>
+			<td class="lbl-txt-align"><%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'edit', :ledger_id => entry.id, id: entry.id, :tab => controller.controller_name},   :title => l(:button_edit) %>
 			<% if validateERPPermission("A_ACC_PRVLG") && entry.ledger_type != 'SY' %>
-				<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :ledger_id => entry.id, id: entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+				<%= link_to sprite_icon('del'), {:controller => controller.controller_name, :action => 'destroy', :ledger_id => entry.id, id: entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
 			<% end %>
 			</td>
 		</tr>

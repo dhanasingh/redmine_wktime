@@ -5,7 +5,7 @@
 <div class="autoscroll">
     <% if checkEditSurveyPermission %>
         <div class="contextual">
-            <%= link_to l(:label_new_survey), url_for(:controller => "wksurvey", :action => "edit", :surveyForType => 'User', :surveyForID => User.current.id), :class => 'icon icon-add' %>
+            <%= link_to sprite_icon('add', l(:label_new_survey)), url_for(:controller => "wksurvey", :action => "edit", :surveyForType => 'User', :surveyForID => User.current.id), :class => 'icon icon-add' %>
         </div>
     <% end %>
 

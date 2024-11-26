@@ -1,7 +1,7 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
 <fieldset id="date-range" class="collapsible">
-<legend onclick="toggleFieldset(this);" class="icon icon-expanded"><%= l(:label_date_range) %></legend>
+<legend onclick="toggleFieldset(this);" class="icon icon-expanded"><%= sprite_icon("angle-down") %><%= l(:label_date_range) %></legend>
 <div>
 <% period = session[controller_name].try(:[], :period) %>
 <div class="div-left">
@@ -28,9 +28,9 @@
 </fieldset>
 
 <div>
-	<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
-	<%= link_to l(:button_clear), {:tab => 'wkassetdepreciation', clear: true}, :class => 'icon icon-reload' %>
+	<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
+  <%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
   <% if validateERPPermission("V_INV") || validateERPPermission("D_INV") %>
-	<%= link_to l(:label_apply_depreciation), 'javascript:depreciatonFormSubmission();', :name => 'generate', :class => 'icon icon-report' %>
+	<%= link_to sprite_icon('document', l(:label_apply_depreciation)), 'javascript:depreciatonFormSubmission();', :name => 'generate', :class => 'icon' %>
   <% end %>
 </div>

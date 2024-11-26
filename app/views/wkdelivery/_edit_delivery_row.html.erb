@@ -159,7 +159,7 @@
 
 		<td>
 			<% unless isDisable || !controller.hasDeletePermission %>
-				<%= link_to image_tag('delete.png'), "javascript:deleteRow('deliveryTable', 'totalrow');", id: row_index, data: {confirm: l(:text_are_you_sure)}, title: l(:button_delete) %>
+				<%= link_to sprite_icon('del'), "javascript:deleteRow('deliveryTable', 'totalrow');", id: row_index, data: {confirm: l(:text_are_you_sure)}, title: l(:button_delete) %>
 			<% end %>
 		</td>
 		<%= hidden_field_tag("org_currency_#{row_index}", entry.id ) %>

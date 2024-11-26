@@ -12,7 +12,7 @@
 	<% summary_trans =  params[:summary_by].blank? ? session[controller_name].try(:[], :summary_trans) : params[:summary_by] %>
 	<fieldset>
 		<div style="float:right">
-			<%= link_to l(:label_new_item, l(:label_transaction)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+			<%= link_to sprite_icon('add', l(:label_new_item, l(:label_transaction))), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
 		</div>
 		<div class="wk-contextual" style="text-align: left;">
 			<b><label style="padding-top: 5px;"><%= l(:label_ledger) %>:</label></b>
@@ -26,8 +26,8 @@
 		</div>
 		<p><%= render :partial => 'wkgltransaction/date_range' %></p>
 		<p class="buttons">
-			<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
-			<%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload' %>
+			<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
+			<%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
 			<% if ledgerid && @from && @to %>
 				<label style="padding-left:5px">
 					<%= check_box_tag('show_chart', 1, showChart, onclick: '$("#query_form").submit(); return false;') %>

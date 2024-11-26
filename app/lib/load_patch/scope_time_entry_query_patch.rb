@@ -53,7 +53,7 @@ module LoadPatch::ScopeTimeEntryQueryPatch
         end
       end
 
-      #========= ERPmine_patch Redmine 5.1 for get supervision condition string ======
+      #========= ERPmine_patch Redmine 6.0 for get supervision condition string ======
       def getSupervisorCondStr
         orgCondStatement = statement
         condStatement = orgCondStatement
