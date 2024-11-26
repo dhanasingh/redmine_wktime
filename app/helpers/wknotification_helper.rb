@@ -48,12 +48,12 @@ module WknotificationHelper
 			notifyHash['url'] = {controller:'wkcontract', action:'edit', contract_id: notification.source_id, id: notification.source_id}
 			notifyHash['icon'] = "fa fa-file-text-o"
 		when "nonSubmission"
-			notifyHash['text'] = l(:button_submit)+" "+ l(:label_timesheet_on)+" "+notification.source.begin_date.to_s
-			notifyHash['url'] = {controller:'wktime', action:'edit', startday: notification.source.begin_date, user_id: notification.source.user_id}
+			notifyHash['text'] = l(:button_submit)+" "+ l(:label_timesheet_on)+" "+notification&.source&.begin_date.to_s
+			notifyHash['url'] = {controller:'wktime', action:'edit', startday: notification&.source&.begin_date, user_id: notification.source.user_id}
 			notifyHash['icon'] = "fa fa-clock-o"
 		when 'timeApproved'
-			notifyHash['text'] =  l(:button_wk_approve)+" "+l(:label_timesheet_on)+" "+notification.source.begin_date.to_s+" "+l(:label_for)+" "+notification.source.user.name.to_s
-			notifyHash['url'] = {controller:'wktime', action:'edit', startday: notification.source.begin_date, user_id: notification.source.user_id}
+			notifyHash['text'] =  l(:button_wk_approve)+" "+l(:label_timesheet_on)+" "+notification&.source&.begin_date.to_s+" "+l(:label_for)+" "+notification.source.user.name.to_s
+			notifyHash['url'] = {controller:'wktime', action:'edit', startday: notification&.source&.begin_date, user_id: notification.source.user_id}
 			notifyHash['icon'] = "fa fa-clock-o"
 		when 'timeRejected'
 			notifyHash['text'] = l(:label_timesheet_rejected)+" "+l(:label_on)+" "+notification.source.submitted_on.to_s
