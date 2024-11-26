@@ -81,6 +81,8 @@ function bulk_edit(colID){
 	var button = $('#'+colID).attr('action');
 	if(button == 'Edit'){
 		$('#'+colID).attr('action', 'Update').removeClass().addClass("icon icon-save");
+		$('#'+colID).hide();
+		$('#saveIcon_'+colID).show();
 		$('[id^="td_'+colID+'_"]').each(function(){
 			var text = $(this).text();
 			var name = (this.id).substr(3)
@@ -121,7 +123,10 @@ function bulk_edit(colID){
 					$(this).parent().addClass('ajax-loading');
 				},
 				complete: function(){
+					console.log("==innnn")
 					$(this).parent().removeClass('ajax-loading');
+					$('#'+colID).show();
+					$('#saveIcon_'+colID).hide();
 				}
 			});
 		}

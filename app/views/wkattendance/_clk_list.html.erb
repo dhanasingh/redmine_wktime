@@ -18,7 +18,8 @@
 					<% if !show_on_map %>
 						<th class="lbl-txt-align"><label style="padding-right: 10px;"><%= l(:label_clock_in) %></label>
 							<% if validateERPPermission('A_ATTEND') %>
-								<a class="icon icon-edit" id="editIcon" style="cursor: pointer;" onClick=" bulkEdit();" action="Edit"></a>
+								<%= link_to_function sprite_icon('edit'), "bulkEdit()", class: "icon icon-edit", id: "editIcon", style: "cursor: pointer;", action: 'Edit' %>
+								<%= link_to_function sprite_icon('save'), "bulkEdit()", class: "icon icon-save", id: "saveIcon", style: "cursor: pointer;display: none;" %>
 							<% end %>
 						</th>
 						<th class="lbl-txt-align"><%= l(:label_clock_out) %></th>
