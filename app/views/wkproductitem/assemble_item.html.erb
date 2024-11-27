@@ -3,6 +3,7 @@
 <script type="text/javascript">
 	productModifyUrl="<%= "#{url_for(controller: "wklogmaterial", action: 'modifyProductDD')}" %>";
 	productItemUrl="<%= "#{url_for(controller: "wkproductitem", action: 'getItemDetails')}" %>";
+	delImg = '<%= sprite_icon("del") %>';
 </script>
 <h2><b><%= l(:label_assemble_item) %></b></h2>
 <%= form_tag({controller: controller_name, action: 'update'}, method: :post, id: 'query_form') do %>
