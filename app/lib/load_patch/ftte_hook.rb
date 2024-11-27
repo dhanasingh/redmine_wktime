@@ -1,4 +1,4 @@
-module Ftte
+module LoadPatch
 	class FtteHook < Redmine::Hook::ViewListener
 		#Hook code to put Supervisor dropdown in Admin -> User edit page
 		def view_users_form(context={})

@@ -1,4 +1,4 @@
-class WkProject < ActiveRecord::Base
+class WkProject < ApplicationRecord
 
     include Redmine::SafeAttributes
     belongs_to :project

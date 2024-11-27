@@ -36,7 +36,7 @@
 					<% if validateERPPermission('A_ATTEND') %>
 						<td class="buttons">
 
-								<%= link_to(l(:button_delete), '#',
+								<%= link_to(sprite_icon('del', l(:button_delete)), '#',
 									:class => 'delete-commit-keywords icon-only icon-del',
 									:title => l(:button_delete)) %>
 
@@ -66,7 +66,7 @@
 						text_field_tag "description[]",  ""  , :required => true, :style => "width:150px;"  %>
 					</td>
 						<td class="buttons">
-							<%= link_to(l(:button_delete), '#',
+							<%= link_to(sprite_icon('del', l(:button_delete)), '#',
 										:class => 'delete-commit-keywords icon-only icon-del',
 										:title => l(:button_delete)) %>
 						</td>
@@ -81,7 +81,7 @@
 				<td></td>
 				<% if validateERPPermission('A_ATTEND') %>
 					<td class="buttons">
-						<%= link_to(l(:button_add), '#',
+						<%= link_to(sprite_icon('add', l(:button_add)), '#',
 												:class => 'add-commit-keywords icon-only icon-add',
 												:title => l(:button_add)) %>
 					</td>

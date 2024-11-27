@@ -4,15 +4,15 @@
 			 <th><%= l(:field_location) %>:</th>
 			 <td>
 				<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, true), :disabled => false, :style => "float:left; width:120px;") %>
-			 </td> 
+			 </td>
 			 <th><%= l(:field_department) %>:</th>
 			 <td>
 				<%=h select_tag('department_id', options_for_select(options_for_enum_select('DP', departmentId, true)), :style => "float:left; width:120px;") %>
-			 </td> 
+			 </td>
 			 <% if isApply %>
 				<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
-				<td> <%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %></td>
+				<td> <%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %></td>
 			 <% end %>
 		</tr>
-	</table>	 	
+	</table>
 </fieldset>

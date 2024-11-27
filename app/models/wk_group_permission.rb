@@ -15,9 +15,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkGroupPermission < ActiveRecord::Base
-  unloadable
-  
+class WkGroupPermission < ApplicationRecord
+
+
    belongs_to :group , :class_name => 'Group'
    belongs_to :permission , :class_name => 'WkPermission'
    has_many :users, :through => :group

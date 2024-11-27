@@ -1,5 +1,5 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<script type="text/javascript"> 
+<script type="text/javascript">
     blgaccpjtsUrl = '<%=url_for(:controller => "wkaccountproject", :action => "index", :tab => "wkaccountproject")%>';
 	blgtaxUrl = '<%=url_for(:controller => "wktax", :action => "index", :tab => "wktax")%>';
 	blgexcrateUrl = '<%=url_for(:controller => "wkexchangerate", :action => "index", :tab => "wkexchangerate")%>';
@@ -8,7 +8,7 @@
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 
 <div class="contextual">
-	<%= link_to l(:label_new_billing_project), url_for(:project_id => params[:project_id], :controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+	<%= link_to sprite_icon('add', l(:label_new_billing_project)), url_for(:project_id => params[:project_id], :controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
 </div>
 <%= title l(:label_acc_projects) %>
 

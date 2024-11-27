@@ -1,9 +1,9 @@
 class WkexchangerateController < WkbillingController
-  unloadable
+
   menu_item :wkcrmenumeration
 
 	def index
-		entries = WkExCurrencyRate.all	
+		entries = WkExCurrencyRate.all
 		formPagination(entries)
 	end
 
@@ -19,24 +19,24 @@ class WkexchangerateController < WkbillingController
 			curExchanges.from_c = params[:from_currency][i]
 			curExchanges.to_c = params[:to_currency][i]
 			curExchanges.ex_rate = params[:rate][i]
-			curExchanges.save()			
+			curExchanges.save()
 		end
-		
-		if !arrId.blank?			
+
+		if !arrId.blank?
 			WkExCurrencyRate.where(:id => arrId).delete_all
 		end
-		
+
 		redirect_to :controller => 'wkexchangerate',:action => 'index' , :tab => 'wkexchangerate'
 		flash[:notice] = l(:notice_successful_update)
 	end
-	
+
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
 		@curentry = entries.limit(@limit).offset(@offset)
 	end
-	
-	def setLimitAndOffset		
+
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -49,7 +49,7 @@ class WkexchangerateController < WkbillingController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
 	end
 
 end

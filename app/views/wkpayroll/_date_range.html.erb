@@ -1,6 +1,6 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <fieldset id="date-range" class="collapsible">
-<legend onclick="toggleFieldset(this);" class="icon icon-expanded"><%= l(:label_date_range) %></legend>
+<legend onclick="toggleFieldset(this);" class="icon icon-expanded"><%= sprite_icon("angle-down") %><%= l(:label_date_range) %></legend>
 <div>
 <% period = session[controller_name].try(:[], :period) %>
 <div class="div-left">
@@ -27,12 +27,11 @@
 </fieldset>
 
 <p class="buttons">
-	<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
-	<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name}, :class => 'icon icon-checked' %>
-	<%= link_to l(:button_clear), {tab: 'payroll', clear: true}, class: 'icon icon-reload' %>
+	<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
+	<%= link_to sprite_icon('reload', l(:button_clear)), {tab: 'payroll', clear: true}, class: 'icon icon-reload' %>
   <% if validateERPPermission('A_PAYRL') %>
-  <%= link_to l(:label_generate_salary), 'javascript:payrollFormSubmission(true);', :name => 'generate', :class => 'icon icon-report' %>
-  <%= link_to l(:label_preview_salary), 'javascript:payrollFormSubmission(false);', :class => 'icon icon-report' %>
+  <%= link_to sprite_icon('document', l(:label_generate_salary)), 'javascript:payrollFormSubmission(true);', :name => 'generate', :class => 'icon' %>
+  <%= link_to sprite_icon('document', l(:label_preview_salary)), 'javascript:payrollFormSubmission(false);', :class => 'icon' %>
   <% end %>
 </p>
 

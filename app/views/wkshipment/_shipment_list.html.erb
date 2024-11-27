@@ -18,10 +18,10 @@
 			<td class="lbl-txt-align"><%= entry.shipment_date  %></td>
 			<td class="lbl-txt-align"><%= entry.inventory_items.shipment_item[0].currency unless entry.inventory_items.shipment_item[0].blank?%> <%= html_hours("%.2f" % entry.inventory_items.shipment_item.sum('(total_quantity*cost_price)+over_head_price'))  %></td>
 			<td class="lbl-txt-align">
-				<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :shipment_id => entry.id, id: entry.id, :tab => controller.controller_name},
+				<%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'edit', :shipment_id => entry.id, id: entry.id, :tab => controller.controller_name},
                                        :title => l(:button_edit) %>
 					<% if controller.hasDeletePermission %>
-						<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :shipment_id => entry.id, id: entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+						<%= link_to sprite_icon('del'), {:controller => controller.controller_name, :action => 'destroy', :shipment_id => entry.id, id: entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
 					 <% end %>
 			</td>
 		 </tr>

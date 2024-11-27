@@ -6,7 +6,7 @@
 	<%= form_tag({:controller => controller_name, :action => 'index', :tab => controller_name}, :method => :get, :id => 'query_form') do %>
 	<fieldset>
 		<div style="float:right">
-			<%= link_to controller.getNewHeaderLbl, url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-add' %>&nbsp;
+			<%= link_to sprite_icon('add', controller.getNewHeaderLbl), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-add' %>&nbsp;
 			<%= render :partial => 'sidebar' if  controller_name == 'wkinvoice'%>
 		</div>
 		<%= hidden_field_tag "searchlist", controller_name %>
@@ -30,12 +30,11 @@
 
 			<p style="float:left;"><%= render :partial => 'wkorderentity/date_range' %></p>
 		<p class="buttons">
-			<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
-			<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name}, :class => 'icon icon-checked' %>
-			<%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload' %>
+			<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
+			<%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
 			<% if controller.isInvGenUnbilledLink %>
-				<%= link_to l(:label_generate) + ' ' + l(:label_invoice), 'javascript:selectEntryPopup(false);', :name => 'generate', :class => 'icon icon-report' %>
-				<%= link_to_function l(:label_preview_invoice), "javascript:invoiceFormSubmission(true); ", :class => 'icon icon-report' %>
+				<%= link_to sprite_icon('document', l(:label_generate) + ' ' + l(:label_invoice)), 'javascript:selectEntryPopup(false);', :name => 'generate', :class => 'icon' %>
+				<%= link_to_function sprite_icon('document', l(:label_preview_invoice)), "javascript:invoiceFormSubmission(true); ", :class => 'icon' %>
 			<% end %>
 
 		</p>

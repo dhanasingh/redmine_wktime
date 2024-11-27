@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkProductCategory < ActiveRecord::Base
-  unloadable
+class WkProductCategory < ApplicationRecord
+
   has_many :products, foreign_key: "category_id", class_name: "WkProduct", :dependent => :restrict_with_error
-  
+
 end

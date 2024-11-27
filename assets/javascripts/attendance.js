@@ -45,6 +45,8 @@ function bulkEdit(){
             clockInEl = $('#clockin_'+splitVal[1]+'_'+splitVal[2]);
             clockOutEl = $('#clockout_'+splitVal[1]+'_'+splitVal[2]);
             $('#editIcon').attr('action', 'Update').removeClass().addClass("icon icon-save");
+            $('#editIcon').hide();
+            $('#saveIcon').show();
             $(this).parent('tr').removeClass("user locked");
             let userID = $('#userID_'+splitVal[1]+'_'+splitVal[2]).val();
             if(userID != current_user_id){

@@ -32,7 +32,7 @@ th:first-child {
 			<b><label for='name' style="padding-left: 10px;"><%= l(:label_user) %>:</label></b>
 			<%= text_field_tag 'name', session[controller_name].try(:[], :name), :size => 30 %>
 			<%= submit_tag l(:button_apply), :class => "small", :name => "list" %>
-			<%= link_to l(:button_clear), {tab: 'payroll', clear: true}, class: 'icon icon-reload' %>
+			<%= link_to sprite_icon('reload', l(:button_clear)), {tab: 'payroll', clear: true}, class: 'icon icon-reload' %>
 		<% end %>
 	</fieldset>
 <% end %>
@@ -46,7 +46,8 @@ th:first-child {
 						<th style="text-align: center;">
 							<label style="padding-right: 10px;"><%= compoment.name %></label>
 							<% if validateERPPermission('A_PAYRL') %>
-								<a class="icon icon-edit" style="cursor: pointer;" id="<%= compoment.id %>" onClick=" bulk_edit('<%= compoment.id %>');" action="Edit"></a>
+								<%= link_to_function sprite_icon('edit'), "bulk_edit(#{compoment.id})", class: "icon icon-edit", id: compoment.id, style: "cursor: pointer;", action: 'Edit' %>
+								<%= link_to_function sprite_icon('save'), "bulk_edit(#{compoment.id})", class: "icon icon-save", id: "saveIcon_"+compoment.id.to_s, style: "cursor: pointer;display: none;" %>
 							<% end %>
 						</th>
 					<% end %>
@@ -66,7 +67,7 @@ th:first-child {
 							<td class="rowcontent_<%=entry.user_id%>" style="text-align: center;" id="td_<%= compoment.id.to_s + '_' + entry.user_id.to_s %>"><%= factor %></td>
 						<% end %>
 						<td align="center">
-							<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'user_salary_settings', :user_id => entry.user_id, :tab => 'payroll'},
+							<%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'user_salary_settings', :user_id => entry.user_id, :tab => 'payroll'},
 															   :title => l(:button_edit) %>
 						</td>
 					</tr>

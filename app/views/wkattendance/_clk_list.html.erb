@@ -18,7 +18,8 @@
 					<% if !show_on_map %>
 						<th class="lbl-txt-align"><label style="padding-right: 10px;"><%= l(:label_clock_in) %></label>
 							<% if validateERPPermission('A_ATTEND') %>
-								<a class="icon icon-edit" id="editIcon" style="cursor: pointer;" onClick=" bulkEdit();" action="Edit"></a>
+								<%= link_to_function sprite_icon('edit'), "bulkEdit()", class: "icon icon-edit", id: "editIcon", style: "cursor: pointer;", action: 'Edit' %>
+								<%= link_to_function sprite_icon('save'), "bulkEdit()", class: "icon icon-save", id: "saveIcon", style: "cursor: pointer;display: none;" %>
 							<% end %>
 						</th>
 						<th class="lbl-txt-align"><%= l(:label_clock_out) %></th>
@@ -46,7 +47,7 @@
 								<%=h !entry.hours ? "0.0" : (entry.hours).round(2) %>
 						</td>
 						<td align="center">
-							<%= link_to image_tag('edit.png'), {controller: controller.controller_name, action: 'clockedit', user_id: entry.user_id, date: entry.entry_date, page: params[:page],tab: controller.controller_name, id: entry.id},
+							<%= link_to sprite_icon('edit'), {controller: controller.controller_name, action: 'clockedit', user_id: entry.user_id, date: entry.entry_date, page: params[:page],tab: controller.controller_name, id: entry.id},
 										title: l(:button_edit) %>
 						</td>
 					</tr>

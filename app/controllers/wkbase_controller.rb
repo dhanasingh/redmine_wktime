@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkbaseController < ApplicationController
-	unloadable
+
 	before_action :require_login
 	before_action :clear_sort_session, :unseen
 	before_action :check_update_user_permissions, :only => [:updateWkuserData, :getWkuserData, :updateWkuserVal]

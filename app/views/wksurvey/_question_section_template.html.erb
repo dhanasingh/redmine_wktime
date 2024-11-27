@@ -10,7 +10,7 @@
 				<%=h text_field_tag("questionName__QINDEX", "", :size => "40%", :maxlength => 255) %>&nbsp;
 			</td>
 			<td width="35%" align="right">
-				<%=link_to (image_tag('delete.png') + l(:button_delete_question)), "javascript:deletequestion(QINDEX,'')", :title => l(:button_delete) %>
+				<%=link_to (sprite_icon('del') + l(:button_delete_question)), "javascript:deletequestion(QINDEX,'')", :title => l(:button_delete) %>
 			</td>
 		</tr>
 		<tr class="revieweronly">
@@ -52,7 +52,7 @@
 			<td></td>
 			<td></td>
 			<td align="left">
-				<%= link_to l(:button_add), "#", { :onclick => "javascript:addrows(QINDEX, '');", :class => 'icon icon-add' } %>	
+				<%= link_to sprite_icon('add', l(:button_add)), "#", { :onclick => "javascript:addrows(QINDEX, '');", :class => 'icon icon-add' } %>
 			</td>
 			<td></td>
 		</tr>

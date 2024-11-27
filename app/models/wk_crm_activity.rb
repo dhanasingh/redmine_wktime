@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkCrmActivity < ActiveRecord::Base
-  unloadable
+class WkCrmActivity < ApplicationRecord
+
   belongs_to :parent, :polymorphic => true
   belongs_to :created_by_user, :class_name => 'User'
   belongs_to :assigned_user, :class_name => 'User'

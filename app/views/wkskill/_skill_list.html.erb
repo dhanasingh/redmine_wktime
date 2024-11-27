@@ -23,8 +23,8 @@
 				<td class="lbl-txt-align"><%= entry.experience %></td>
 				<% if isProjSkill %><td class="lbl-txt-align"><%= entry.user&.name %></td><% end %>
 				<td align="center">
-					<%= link_to "", {:action => 'edit', :id => entry.id, :tab => controller_name, project_id: params[:project_id]}, :title => l(:button_edit), class: "icon icon-edit" %>
-					<%= link_to "", {:action => 'destroy', :id => entry.id, :tab => controller_name, project_id: params[:project_id]},
+					<%= link_to sprite_icon('edit'), {:action => 'edit', :id => entry.id, :tab => controller_name, project_id: params[:project_id]}, :title => l(:button_edit), class: "icon icon-edit" %>
+					<%= link_to sprite_icon('del'), {:action => 'destroy', :id => entry.id, :tab => controller_name, project_id: params[:project_id]},
 						:data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete),
 						class: "icon icon-del" if get_proj_skill_permission %>
 				</td>

@@ -9,9 +9,9 @@
 			<label for='name'><%= l(:field_name) %>:</label>
 			<%= text_field_tag 'name', name, :size => 30 %>
 			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-			<%= link_to l(:button_clear), {tab: controller_name, clear: true}, :class => 'icon icon-reload' %>
+			<%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, :class => 'icon icon-reload' %>
 			<div style="float:right;">
-				<%= link_to l(:label_new_brand), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>&nbsp;
+				<%= link_to sprite_icon('add', l(:label_new_brand)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>&nbsp;
 				<%= render :partial => 'wkproduct/sidebar' %>
 			</div>
 		</fieldset>

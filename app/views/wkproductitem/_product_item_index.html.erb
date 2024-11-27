@@ -25,9 +25,9 @@
 		<fieldset style="font-wight: bold;">
 			<div style="float:right">
 				<% if controller.getItemType == "I" %>
-					<%= link_to l(:label_assemble_item), url_for(controller: controller_name, action: 'assemble_item', isAssemble: true), class: 'icon icon-add' %>
+					<%= link_to sprite_icon('add', l(:label_assemble_item)), url_for(controller: controller_name, action: 'assemble_item', isAssemble: true), class: 'icon icon-add' %>
 				<% end %>
-				<%= link_to controller.newItemLabel, url_for(:controller => controller_name, :action => 'edit', :newItem => true), :class => 'icon icon-add' %>
+				<%= link_to sprite_icon('add', controller.newItemLabel), url_for(:controller => controller_name, :action => 'edit', :newItem => true), :class => 'icon icon-add' %>
 			</div>
 			<%= l(:field_location) %>&nbsp;
 			<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, true)) %>&nbsp;
@@ -56,8 +56,8 @@
 				<% if controller.getItemType == "I" %>
 					<%= l(:label_text_search) %> <%= text_field_tag 'name', controller.getSession(:name), :size => 15 %>
 				<% end %>
-				<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>&nbsp;
-				<%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload' %>
+				<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>&nbsp;
+				<%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
 				<% if wktime_helper.isChecked('asset_save_geo_location') && params[:controller] == 'wkasset' %>
 					<label style="padding-left:5px">
 						<%= check_box_tag('show_on_map', true, showOnMap, onclick: '$("#query_form").submit(); return false;') %>

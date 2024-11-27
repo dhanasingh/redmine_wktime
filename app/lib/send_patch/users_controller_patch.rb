@@ -1,6 +1,7 @@
-module UsersControllerPatch
+module SendPatch::UsersControllerPatch
 	def self.included(base)
 		base.class_eval do
+
 			helper :attachments
 			helper WkdocumentHelper
 			include WkdocumentHelper
@@ -19,7 +20,7 @@ module UsersControllerPatch
 				if @user.save
 					Mailer.deliver_account_information(@user, @user.password) if params[:send_information]
 
-					# ============= ERPmine_patch Redmine 5.1  =====================
+					# ============= ERPmine_patch Redmine 6.0  =====================
 						#Below code for save wk users
 						erpmineUserSave
 						# To transfer attachments from Referral
@@ -77,7 +78,7 @@ module UsersControllerPatch
 					@user.pref.save
 
           		Mailer.deliver_password_updated(@user, User.current) if is_updating_password
-				# ============= ERPmine_patch Redmine 5.1  =====================
+				# ============= ERPmine_patch Redmine 6.0  =====================
 					#Below code for save wk users
 					erpmineUserSave
 					#for attachment save
@@ -109,7 +110,7 @@ module UsersControllerPatch
 				end
 			end
 
-			# ============= ERPmine_patch Redmine 5.1  =====================
+			# ============= ERPmine_patch Redmine 6.0  =====================
 			def erpmineUserSave
 				@user.erpmineuser.safe_attributes = params[:erpmineuser]
 				@user.erpmineuser.address_id = updateAddress

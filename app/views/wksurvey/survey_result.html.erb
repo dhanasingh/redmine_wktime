@@ -16,8 +16,10 @@
 		<table>
 			<tr>
 				<th style="text-align: left"><%= l(:label_clos_responses) %></th>
-				<td><%= select_tag('groupName', options_for_select(get_response_group_items, selected: params[:groupName]), onchange: '$("#result_form").submit()') %>
-				<%= link_to_function l(:button_apply), '$("#result_form").submit()', :class => 'icon icon-checked' %></td>
+				<td>
+					<%= select_tag('groupName', options_for_select(get_response_group_items, selected: params[:groupName]), onchange: '$("#result_form").submit()') %>
+					<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', class: 'icon icon-checked' %>
+				</td>
 			</tr>
 			<% if  params[:groupName].present? && @groupClosedDate.present? %>
 				<tr>

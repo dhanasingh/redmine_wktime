@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkSkill < ActiveRecord::Base
+class WkSkill < ApplicationRecord
   belongs_to :user
   belongs_to :skill_set, class_name: "WkCrmEnumeration"
   has_many :groups, through: :user

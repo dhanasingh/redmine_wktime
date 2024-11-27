@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WklocationController < WkbaseController
-  unloadable
+
   menu_item :wkcrmenumeration
   include WktimeHelper
   include WkdocumentHelper
@@ -60,14 +60,14 @@ class WklocationController < WkbaseController
 			}
 		end
   	end
-  
+
   	def edit
 		@locEntry = nil
 		unless params[:location_id].blank?
 			@locEntry = WkLocation.find(params[:location_id])
 		end
   	end
-  
+
   	def update
 		errorMsg = nil
 		if params[:location_id].blank? || params[:location_id].to_i == 0
@@ -94,11 +94,11 @@ class WklocationController < WkbaseController
 		    redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
 		    flash[:notice] = l(:notice_successful_update)
 		else
-			flash[:error] = errorMsg 
+			flash[:error] = errorMsg
 		    redirect_to :controller => controller_name,:action => 'edit', :location_id => locationObj.id
 		end
   	end
-  
+
   	def destroy
 		location = WkLocation.find(params[:location_id].to_i)
 		if location.destroy
@@ -113,21 +113,21 @@ class WklocationController < WkbaseController
 		filters = [:location_name, :location_type, :show_on_map]
 		super(filters)
 	end
-	
+
 	def check_perm_and_redirect
 		unless User.current.admin? || hasSettingPerm
 			render_403
 			return false
 		end
 	end
-	
+
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
 		@locationObj = entries.limit(@limit).offset(@offset)
 	end
-	
-	def setLimitAndOffset		
+
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -140,7 +140,7 @@ class WklocationController < WkbaseController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
 	end
 
 	def getlocations

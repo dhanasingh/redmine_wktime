@@ -1,8 +1,8 @@
 	<h2><b><%=l(:label_lead)%></b></h2>
 <div>
 	<div class="contextual">
-		<span><%= link_to "#{image_tag('edit.png')}#{l(:button_edit)}".html_safe, {:controller => controller.controller_name, :action => 'edit', :lead_id => @lead.id, :tab => controller.controller_name},   :title => l(:button_edit) %></span>
-		<span><%= link_to "#{image_tag('edit.png')}#{l(:button_convert_lead)}".html_safe, url_for(:controller => controller.controller_name, :action => 'convert', :lead_id => @lead.id, :tab => controller.controller_name), :data => {:confirm => l(:text_are_you_sure_want_to, l(:button_convert_lead))}%></span>
+		<span><%= link_to "#{sprite_icon('edit')}#{l(:button_edit)}".html_safe, {:controller => controller.controller_name, :action => 'edit', :lead_id => @lead.id, :tab => controller.controller_name},   :title => l(:button_edit) %></span>
+		<span><%= link_to "#{sprite_icon('edit')}#{l(:button_convert_lead)}".html_safe, url_for(:controller => controller.controller_name, :action => 'convert', :lead_id => @lead.id, :tab => controller.controller_name), :data => {:confirm => l(:text_are_you_sure_want_to, l(:button_convert_lead))}%></span>
 	</div>
 	<div style="clear:both;"></div>
 	<div id="account_form">

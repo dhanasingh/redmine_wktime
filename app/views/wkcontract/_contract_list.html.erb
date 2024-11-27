@@ -21,7 +21,7 @@
 					  <td class="lbl-txt-align"><%=h entry.start_date %></td>
 					  <td class="lbl-txt-align"><%=h entry.end_date %></td>
 					  <td align="center">
-						  <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :contract_id => entry.id, id: entry.id}, :title => l(:button_edit) %> <%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :contract_id => entry.id, id: entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+						  <%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'edit', :contract_id => entry.id, id: entry.id}, :title => l(:button_edit) %> <%= link_to sprite_icon('del'), {:controller => controller.controller_name, :action => 'destroy', :contract_id => entry.id, id: entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
 					  </td>
 				</tr>
 			<% end %>

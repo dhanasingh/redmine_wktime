@@ -17,7 +17,7 @@
 
 class WksurveyController < WkbaseController
 
-  unloadable
+
   before_action :require_login, :survey_url_validation, :check_perm_and_redirect
   before_action :check_permission , only: "survey_response"
   accept_api_auth :index, :save_survey, :find_survey_for, :survey, :update_survey, :survey_result, :survey_response

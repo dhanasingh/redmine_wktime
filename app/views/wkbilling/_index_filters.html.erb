@@ -44,7 +44,7 @@
 
 	});
 </script>
-<% 
+<%
 	contactArr = relatedValues('WkCrmContact', nil, controller.getOrderContactType, blankForContactDD, controller.additionalContactType, controller.additionalAccountType)
 	accountArr = options_for_wktime_account(blankForActDD, controller.getOrderAccountType, controller.additionalAccountType)
 	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name')
@@ -99,8 +99,11 @@
 
 
 <% if isapply %>
-		<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-		<%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload' %></td><td></td>
+		<td>
+			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
+			<%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
+		</td>
+		<td></td>
 <% end  %>
 
 <tr>

@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkdeliveryController < WkinventoryController
-  unloadable
+
   menu_item :wkproduct
 	before_action :require_login
 
@@ -46,23 +46,23 @@ class WkdeliveryController < WkinventoryController
 		elsif filter_type == '2' && contact_id.blank?
 			parentType = 'WkCrmContact'
 		end
-		
+
 		if filter_type == '3' && !account_id.blank?
 			parentType =  'WkAccount'
 			parentId = 	account_id
 		elsif filter_type == '3' && account_id.blank?
 			parentType =  'WkAccount'
 		end
-		
-		unless parentId.blank? 
+
+		unless parentId.blank?
 			sqlwhere = sqlwhere + " and wk_shipments.parent_id = '#{parentId}' "
 		end
-		
+
 		unless parentType.blank?
 			sqlwhere = sqlwhere + " and wk_shipments.parent_type = '#{parentType}'  "
 		end
-		
-		if !@from.blank? && !@to.blank?	
+
+		if !@from.blank? && !@to.blank?
 			sqlwhere = sqlwhere + " and wk_shipments.shipment_date between '#{@from}' and '#{@to}'  "
 		end
 
@@ -167,7 +167,7 @@ class WkdeliveryController < WkinventoryController
 					deliveryItem.org_selling_price = params["selling_price_#{i}"]
 				end
 				deliveryItem.currency = sysCurrency
-				deliveryItem.selling_price = getExchangedAmount(params["currency_#{i}"], params["selling_price_#{i}"]) 
+				deliveryItem.selling_price = getExchangedAmount(params["currency_#{i}"], params["selling_price_#{i}"])
 				deliveryItem.serial_number = params["serial_number_#{i}"]
 				deliveryItem.running_sn = params["running_sn_#{i}"]
 				deliveryItem.notes = params["notes_#{i}"]
@@ -184,8 +184,8 @@ class WkdeliveryController < WkinventoryController
 				end
 			end
 			i = i + 1
-		end		
-		if errorMsg.blank? 
+		end
+		if errorMsg.blank?
 			redirect_to action: 'index', controller: controller_name, tab: controller_name
 			flash[:notice] = l(:notice_successful_update)
 	  else
@@ -208,14 +208,14 @@ class WkdeliveryController < WkinventoryController
 		filters = [:period_type, :period, :contact_id, :account_id, :project_id, :polymorphic_filter, :from, :to, :delivery_status]
 		super(filters, {from: @from, to: @to})
 	end
-	
+
 	def formPagination(entries)
 		@entry_count = entries.count
     setLimitAndOffset()
 		@deliveryEntries = entries.limit(@limit).offset(@offset)
 	end
-	
-	def setLimitAndOffset		
+
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -228,13 +228,13 @@ class WkdeliveryController < WkinventoryController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
 	end
-	
+
 	def additionalContactType
 		false
 	end
-	
+
 	def additionalAccountType
 		false
 	end
@@ -250,7 +250,7 @@ class WkdeliveryController < WkinventoryController
 	def getAccountDDLbl
 		l(:field_account)
 	end
-		
+
 	def getShipmentType
 		'O'
 	end
@@ -262,11 +262,11 @@ class WkdeliveryController < WkinventoryController
 	def getAdditionalDD
 		"wkdelivery/deliveryadditionaldd"
 	end
-	
+
 	def textfield_size
 		6
 	end
-	
+
 	def populateProductItemDD
 		itemArr = ""
 		if params[:update_DD] =='inventory_item'
@@ -304,5 +304,5 @@ class WkdeliveryController < WkinventoryController
 		respond_to do |format|
 			format.text  { render :plain => invoiceArr }
 		end
-	end	
+	end
 end

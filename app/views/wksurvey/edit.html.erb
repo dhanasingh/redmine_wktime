@@ -1,6 +1,8 @@
 <%= javascript_include_tag 'survey', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-
+<script type="text/javascript">
+	delImg = '<%= sprite_icon("del") %>';
+</script>
 <% 	@isBlankSurvey = @survey.blank?
 	survey_name = @isBlankSurvey ? nil : @survey.name
 	status = @isBlankSurvey ? nil : @survey.status
@@ -92,7 +94,7 @@
 
 	<div>
 		<%= submit_tag l(:button_save), :id => 'wksurvey_save' %>
-		<%= link_to l(:button_email_user), "javascript:showConfirmationDlg();", :class => 'icon icon-email-add'%>
+		<%= link_to sprite_icon('email', l(:button_email_user)), "javascript:showConfirmationDlg();", :class => 'icon icon-email-add'%>
 	</div>
 <% end %>
 

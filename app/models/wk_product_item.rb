@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkProductItem < ActiveRecord::Base
-  unloadable
+class WkProductItem < ApplicationRecord
+
   belongs_to :product, :class_name => 'WkProduct'
   belongs_to :brand, :class_name => 'WkBrand'
   belongs_to :product_model, :class_name => 'WkProductModel'

@@ -23,8 +23,8 @@
 			<td class="lbl-txt-align"><%=h entry.address.work_phone unless entry.address.blank? %></td>
 			<td class="lbl-txt-align"><%=h entry.assigned_user.name(:firstname_lastname) unless  entry.assigned_user.blank? %></td>
 			<td class="lbl-txt-align"><%=h entry.updated_at.localtime.strftime("%Y-%m-%d") %></td>
-			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller_name, :action => 'edit', :contact_id => entry.id, :tab => controller_name}, :title => l(:button_edit) %>
-							<%= link_to image_tag('delete.png'), {:controller => controller_name, :action => 'destroy', :contact_id => entry.id, :tab => controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
+			<td class="lbl-txt-align"><%= link_to sprite_icon('edit'), {:controller => controller_name, :action => 'edit', :contact_id => entry.id, :tab => controller_name}, :title => l(:button_edit) %>
+							<%= link_to sprite_icon('del'), {:controller => controller_name, :action => 'destroy', :contact_id => entry.id, :tab => controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
 		</tr>
 	<% end %>
    </tbody>

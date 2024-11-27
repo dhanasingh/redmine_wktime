@@ -15,14 +15,14 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkInvoiceComponents < ActiveRecord::Base
-    
+class WkInvoiceComponents < ApplicationRecord
+
     has_many :acc_invoice_comps, foreign_key: "invoice_component_id", class_name: "WkAccInvoiceComponents", dependent: :destroy
 
     scope :getInvComp, ->{
         self.where(comp_type: 'IC')
     }
-    
+
     scope :getAccInvComp, ->(id){
         joins("LEFT JOIN wk_acc_invoice_components AIC on wk_invoice_components.id = AIC.invoice_component_id and (account_project_id IN (#{id}) OR AIC.id is NULL)")
         .select("wk_invoice_components.id as ic_id, wk_invoice_components.name, wk_invoice_components.value as ic_value, AIC.*")

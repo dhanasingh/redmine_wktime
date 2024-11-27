@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkSpentFor < ActiveRecord::Base
+class WkSpentFor < ApplicationRecord
   include Redmine::SafeAttributes
   belongs_to :spent_for, :polymorphic => true
   belongs_to :spent, :polymorphic => true

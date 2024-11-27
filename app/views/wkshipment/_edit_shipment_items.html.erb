@@ -11,7 +11,7 @@
 <%=h hidden_field_tag("project_id",  'null' )  %>
 <div class="wk-contextual">
 <h2 style="float:left;"><%= l(:label_item) %></h2>
-<%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('shipmentTable', 'totalrow');",  :class => 'icon icon-add' } %>
+<%= link_to sprite_icon('add', l(:button_add_row)), "#", { :onclick => "javascript:invoiceAddRow('shipmentTable', 'totalrow');",  :class => 'icon icon-add' } %>
 </div>
 <div style="clear:both"></div>
 <div class="autoscroll">
@@ -57,7 +57,7 @@
 
 </div>
 <div class="wk-contextual">
-	<%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('shipmentTable', 'totalrow');",  :class => 'icon icon-add' } %>
+	<%= link_to sprite_icon('add', l(:button_add_row)), "#", { :onclick => "javascript:invoiceAddRow('shipmentTable', 'totalrow');",  :class => 'icon icon-add' } %>
 </div style="clear: both;">
 <%=h hidden_field_tag("totalrow",  row_index-1 )  %>
 <%=h hidden_field_tag("shipment_id",  @shipment.id )  %>

@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkLocation < ActiveRecord::Base
-  unloadable
+class WkLocation < ApplicationRecord
+
   belongs_to :address, :class_name => 'WkAddress', :dependent => :destroy
   has_many :inventory_items, foreign_key: "location_id", class_name: "WkInventoryItem", :dependent => :restrict_with_error
   belongs_to :location_type, :class_name => 'WkCrmEnumeration'

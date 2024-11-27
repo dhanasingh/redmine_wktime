@@ -15,12 +15,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkHUserSalaryComponents < ActiveRecord::Base
-  unloadable
+class WkHUserSalaryComponents < ApplicationRecord
+
   include Redmine::SafeAttributes
-  
+
   belongs_to :user
   belongs_to :user_salary_component, :class_name => 'WkUserSalaryComponents', :foreign_key => 'user_salary_component_id'
-  
+
   # attr_protected :user_id, :user_salary_component_id
 end

@@ -21,7 +21,7 @@
         <% end %>
       </td>
       <td>
-        <%= link_to l(:button_delete), url_for(controller: "wkdocument", action: "destroy", id: attachment.id),
+        <%= link_to sprite_icon('del', l(:button_delete)), url_for(controller: "wkdocument", action: "destroy", id: attachment.id),
                       :method => :delete,
                       :data => {:confirm => l(:text_are_you_sure)},
                       :class => 'delete icon-only icon-del',

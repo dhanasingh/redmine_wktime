@@ -8,7 +8,7 @@
 <fieldset>
 	<legend><%= l(:label_filter_plural) %></legend>
   <div style="float:right">
-    <%= link_to l(:label_new_skill), url_for(action: 'edit', project_id: params[:project_id]),
+    <%= link_to sprite_icon('add', l(:label_new_skill)), url_for(action: 'edit', project_id: params[:project_id]),
       :class => 'icon icon-add' if params[:project_id].blank? || get_proj_skill_permission %>
   </div>
 	<%= form_tag({}, method: "get", id:"query_form") do %>
@@ -23,7 +23,7 @@
         <th><label style="padding-left: 10px;"><%= l(:label_min_exp_req) %></label></th>
         <td><%= text_field_tag "experience", experience %></td>
         <td><%= submit_tag l(:button_apply), class: "small", name: nil %></td>
-        <td><%= link_to l(:button_clear), {tab: controller_name, clear: true}, class: "icon icon-reload" %></td>
+        <td><%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %></td>
       </tr>
     </table>
 	<% end %>

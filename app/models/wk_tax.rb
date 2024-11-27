@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkTax < ActiveRecord::Base
-  unloadable
+class WkTax < ApplicationRecord
+
   has_many :wk_project_taxes, foreign_key: "tax_id", class_name: "WkAccProjectTax", :dependent => :destroy
   has_many :product_taxes, foreign_key: "tax_id", class_name: "WkProductTax", :dependent => :destroy
 end

@@ -15,12 +15,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkBillingSchedule < ActiveRecord::Base
-  unloadable
-  
+class WkBillingSchedule < ApplicationRecord
+
+
   belongs_to :account_project, :class_name => 'WkAccountProject', :foreign_key => 'account_project_id'
   belongs_to :invoice, :class_name => 'WkInvoice'
-  
+
   validates_presence_of :milestone, :bill_date, :currency
   validates_numericality_of :amount, :allow_nil => false, :message => :invalid
 end

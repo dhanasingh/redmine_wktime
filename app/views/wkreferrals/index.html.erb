@@ -9,7 +9,7 @@
     <% year = (1970..Time.now.year).to_a.reverse %>
     <% year.unshift(["",""]) %>
     <div style="float:right">
-      <%= link_to l(:label_new_referral), url_for(action: "edit"), class: "icon icon-add" %>
+      <%= link_to sprite_icon('add', l(:label_new_referral)), url_for(action: "edit"), class: "icon icon-add" %>
     </div>
     <table>
       <tr>
@@ -22,7 +22,7 @@
         <th><label style="padding-left: 10px;"><%= l(:label_pass_out) %></label></th>
         <td><%= select_tag "pass_out", options_for_select(year, selected: session[controller_name].try(:[], :pass_out)) %></td>
         <td><%= submit_tag l(:button_apply), class: "small", name: nil %></td>
-        <td><%= link_to l(:button_clear), {tab: controller_name, clear: true}, class: "icon icon-reload" %></td>
+        <td><%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %></td>
       </tr>
     </table>
   <% end %>

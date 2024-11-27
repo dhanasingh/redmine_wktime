@@ -223,7 +223,7 @@ $(document).ready(function() {
 					tr += '<td class="lbl-txt-align">'+$('#product_item :selected').text()+'</td>';
 					tr += '<td class="lbl-txt-align">'+quantity+'</td>';
 					tr += '<td class="lbl-txt-align">'+$('#location_id :selected').text();+'</td>';
-					tr += '<td><a title="Delete" href="javascript:deleteItemRow('+ index_no +');"><img src="/images/delete.png"> </a> </td>';
+					tr += '<td><a title="Delete" href="javascript:deleteItemRow('+ index_no +');">'+delImg+' </a> </td>';
 					tr += '</tr>';
 					$('#assembleItemTable > tbody:last-child').append(tr);
 					$(this).dialog("close");
@@ -1138,7 +1138,7 @@ function renderData(resData, options={}){
 
 			$.each((el || {}), function(key, value){
 				if(key == 'icon'){
-					content += "<td class='td'><a class='icon icon-report' href='"+value+ "'>"+ details +"</a></td>";
+					content += "<td class='td'><a class='icon' href='"+value+ "'>"+ details +"</a></td>";
 				}
 				else{
 					content += "<td class='td'>" +value+ "</td>";

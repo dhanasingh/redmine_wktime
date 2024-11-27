@@ -8,7 +8,7 @@
 <fieldset>
 	<legend><%= l(:label_filter_plural) %></legend>
 	<div style="float:right">
-		<%= link_to l(:label_new_leave_request), url_for(controller: controller_name, action: 'edit'), :class => 'icon icon-add' %>
+		<%= link_to sprite_icon('add', l(:label_new_leave_request)), url_for(controller: controller_name, action: 'edit'), :class => 'icon icon-add' %>
 	</div>
 	<%= form_tag({controller: controller_name, action: 'index'}, method: :get) do %>
 		<%= hidden_field_tag("searchlist", controller_name) %>
@@ -21,7 +21,7 @@
 				<%= select_tag('group_id', options_for_select( [["", 0]] + (@groups.collect {|p| [p.name, p.id ]}),
 							:selected => group_id), :onchange => "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>&nbsp;
 			</div>
-			<div>	
+			<div>
 				<label><%=l(:label_member)%></label>&nbsp;
 				<%= select_tag('user_id', options_for_select( [[l(:all_users_for_select), 0]] + @members, :selected => userID),
 							:style=> "width:200px;") %>&nbsp;
@@ -37,7 +37,7 @@
 		  </div>
 		</div>
 		<fieldset id="date-range" class="collapsible">
-			<legend onclick="toggleFieldset(this);" class="icon icon-expanded"><%= l(:label_date_range) %></legend>
+			<legend onclick="toggleFieldset(this);" class="icon icon-expanded"><%= sprite_icon("angle-down") %><%= l(:label_date_range) %></legend>
 			<div>
 				<%= radio_button_tag 'period_type', '1', !@free_period, :onclick => '$("#from,#to").attr("disabled", true); $("#period").removeAttr("disabled");' %>
 				<%= select_tag 'period', options_for_period_select(period),
@@ -56,7 +56,7 @@
 		</fieldset>
 		<div>
 			<%= submit_tag l(:button_apply), class: "small", name: nil %>
-			<%= link_to l(:button_clear), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
+			<%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
 		</div>
 	<% end %>
 </fieldset>

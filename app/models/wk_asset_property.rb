@@ -15,9 +15,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkAssetProperty < ActiveRecord::Base
-  unloadable
-  
+class WkAssetProperty < ApplicationRecord
+
+
   belongs_to :inventory_item, :class_name => 'WkInventoryItem'
   belongs_to :material_entry, foreign_key: "matterial_entry_id", class_name: "WkMaterialEntry"
   scope :available_assets,  -> { where(:matterial_entry_id => nil) }
@@ -31,7 +31,7 @@ class WkAssetProperty < ActiveRecord::Base
       )  AS D  ON D.inventory_item_id = ad.inventory_item_id  AND D.depreciation_date = ad.depreciation_date")
     .joins("LEFT JOIN wk_inventory_items AS it ON wk_asset_properties.inventory_item_id = it.id")
     .joins("LEFT JOIN wk_shipments AS s ON it.shipment_id = s.id")
-    .where("wk_asset_properties.inventory_item_id =#{inventory_item_id} AND (ad.depreciation_date IS NULL OR 
+    .where("wk_asset_properties.inventory_item_id =#{inventory_item_id} AND (ad.depreciation_date IS NULL OR
       ad.depreciation_date IS NOT NULL AND D.depreciation_date IS NOT NULL)")
     .select("wk_asset_properties.name, wk_asset_properties.id AS asset_property_id, wk_asset_properties.currency, is_disposed,
       disposed_rate, depreciation_amount,
@@ -40,7 +40,7 @@ class WkAssetProperty < ActiveRecord::Base
       CASE WHEN D.depreciation_date IS NULL THEN shipment_date ELSE D.depreciation_date END AS depreciation_date,
       CASE WHEN depreciation_amount IS NOT NULL THEN actual_amount - depreciation_amount
            WHEN wk_asset_properties.current_value IS NOT NULL THEN wk_asset_properties.current_value
-           ELSE it.cost_price + it.over_head_price 
+           ELSE it.cost_price + it.over_head_price
       END AS previous_value")
   }
 
@@ -50,5 +50,5 @@ class WkAssetProperty < ActiveRecord::Base
     userId = (WkPermission.permissionUser('V_INV') + WkPermission.permissionUser('D_INV')).uniq
     WkNotification.notification(userId, emailNotes, subject, assetProperty, "disposeAsset")
   end
-  
+
 end

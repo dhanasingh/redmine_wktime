@@ -88,7 +88,7 @@
 	</td>
 	<td>
 		<% unless isDisable || !controller.hasDeletePermission %>
-			<%= link_to image_tag('delete.png'), "javascript:deleteRow('shipmentTable', 'totalrow');", :id => row_index,
+			<%= link_to sprite_icon('del'), "javascript:deleteRow('shipmentTable', 'totalrow');", :id => row_index,
 				:data => {:confirm => l(:text_are_you_sure)},
 				:title => l(:button_delete) %>
 		<% end %>

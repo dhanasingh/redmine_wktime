@@ -57,7 +57,7 @@
 	<div id="billingschdules" class="autoscroll">
 	<div class="wk-contextual">
 		<h2 style="float:left;"><%= l(:label_billing_schedules) %></h2>
-		<%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('milestoneTable', 'mtotalrow');",  :class => 'icon icon-add' }%>
+		<%= link_to sprite_icon('add', l(:button_add_row)), "#", { :onclick => "javascript:invoiceAddRow('milestoneTable', 'mtotalrow');",  :class => 'icon icon-add' }%>
 	</div>
 	<div style="clear:both"></div>
 	<% row_index = 1 %>
@@ -96,7 +96,7 @@
 					<%= text_field_tag "billdate_#{row_index}",  entry.bill_date, :required => false  , :class => "date",  :style => "width:150px;" %>
 				</td>
 				<td>
-					<%= link_to image_tag('delete.png'), "javascript:deleteRow('milestoneTable', 'mtotalrow');", :id => row_index,
+					<%= link_to sprite_icon('del'), "javascript:deleteRow('milestoneTable', 'mtotalrow');", :id => row_index,
 							:data => {:confirm => l(:text_are_you_sure)},
 							:title => l(:button_delete) %>
 				</td>
@@ -124,7 +124,7 @@
 				<%= text_field_tag "billdate_#{row_index}",  ""  , :required => false, :class => "date",  :style => "width:150px;" %>
 			</td>
 			<td>
-				<%= link_to image_tag('delete.png'), "javascript:deleteRow('milestoneTable', 'mtotalrow');", :id => row_index,
+				<%= link_to sprite_icon('del'), "javascript:deleteRow('milestoneTable', 'mtotalrow');", :id => row_index,
 						:data => {:confirm => l(:text_are_you_sure)},
 						:title => l(:button_delete) %>
 			</td>
@@ -134,7 +134,7 @@
 	</tbody>
 	</table>
 	<div class="wk-contextual">
-		<%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('milestoneTable', 'mtotalrow');",  :class => 'icon icon-add' }%>
+		<%= link_to sprite_icon('add', l(:button_add_row)), "#", { :onclick => "javascript:invoiceAddRow('milestoneTable', 'mtotalrow');",  :class => 'icon icon-add' }%>
 	</div style="clear:both">
 	</div>
 	<div style="clear:both"></div>

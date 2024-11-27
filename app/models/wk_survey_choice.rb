@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkSurveyChoice < ActiveRecord::Base
+class WkSurveyChoice < ApplicationRecord
 
   has_many :wk_survey_answers, foreign_key: "survey_choice_id", class_name: "WkSurveyAnswer", :dependent => :destroy
   belongs_to :survey_question , :class_name => 'WkSurveyQuestion'

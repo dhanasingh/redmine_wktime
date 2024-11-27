@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkSurveyReview < ActiveRecord::Base
+class WkSurveyReview < ApplicationRecord
   belongs_to :survey_response, :class_name => 'WkSurveyResponse'
   belongs_to :survey_question, :class_name => 'WkSurveyQuestion'
   belongs_to :user

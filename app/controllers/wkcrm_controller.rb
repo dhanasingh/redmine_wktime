@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkcrmController < WkbaseController
-  unloadable
+
   before_action :require_login
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update]
   before_action :check_crm_admin_and_redirect, :only => [:destroy]

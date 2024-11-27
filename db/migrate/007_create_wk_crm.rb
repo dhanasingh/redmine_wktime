@@ -1,12 +1,9 @@
 #!/bin/env ruby
 # encoding: utf-8
 class CreateWkCrm < ActiveRecord::Migration[4.2]
-	class WkCrmEnumeration < ActiveRecord::Base
-		# attr_protected :id
-	end
-	
+
     def change
-		
+
 		create_table :wk_crm_enumerations do |t|
 		  t.string :name
 		  t.string :position
@@ -15,11 +12,11 @@ class CreateWkCrm < ActiveRecord::Migration[4.2]
 		  t.string :enum_type, :null => false
 		  t.timestamps null: false
 		end
-  
+
 		create_table :wk_crm_activities do |t|
 		  t.string :name
 		  t.string :status, :null => false, :limit => 3
-		  t.string :description	
+		  t.string :description
 		  t.datetime :start_date
 		  t.datetime :end_date
 		  t.datetime :status_update_on
@@ -33,7 +30,7 @@ class CreateWkCrm < ActiveRecord::Migration[4.2]
 		  t.references :updated_by_user, :class => "User"
 		  t.timestamps null: false
 		end
-		
+
 		create_table :wk_crm_contacts do |t|
 		  t.string :first_name
 		  t.string :last_name
@@ -50,7 +47,7 @@ class CreateWkCrm < ActiveRecord::Migration[4.2]
 		  t.timestamps null: false
 		end
 		add_index  :wk_crm_contacts, :address_id
-		
+
 		create_table :wk_leads do |t|
 		  t.string :status, :null => false, :limit => 3
 		  t.datetime :status_update_on
@@ -63,7 +60,7 @@ class CreateWkCrm < ActiveRecord::Migration[4.2]
 		  t.references :updated_by_user, :class => "User"
 		  t.timestamps null: false
 		end
-		
+
 		create_table :wk_opportunities do |t|
 		  t.string :name
 		  t.column :currency, :string, :limit => 5, :default => '$'
@@ -74,18 +71,18 @@ class CreateWkCrm < ActiveRecord::Migration[4.2]
 		  t.references :opportunity_type, :class => "wk_crm_enumerations", :null => true
 		  t.references :sales_stage, :class => "wk_crm_enumerations", :null => false
 		  t.references :lead_source, :class => "wk_crm_enumerations"
-		  t.string :probability 
+		  t.string :probability
 		  t.string :next_step
-		  t.string :description		  
+		  t.string :description
 		  t.references :created_by_user, :class => "User"
 		  t.references :updated_by_user, :class => "User"
 		  t.timestamps null: false
-		end		
-		
+		end
+
 		#add column in wk_address table
 		add_column :wk_addresses, :department, :string
 		add_column :wk_addresses, :website, :string
-		
+
 		#add column in wk_accounts table
 		add_reference :wk_accounts, :activity, :class => "wk_crm_activites", :null => true, index: true
 		add_column :wk_accounts, :account_category, :string
@@ -95,7 +92,7 @@ class CreateWkCrm < ActiveRecord::Migration[4.2]
 		add_reference :wk_accounts, :assigned_user, :class => "User"
 		add_reference :wk_accounts, :created_by_user, :class => "User"
 		add_reference :wk_accounts, :updated_by_user, :class => "User"
-		
+
 		enumValues = Hash.new
 		enumValues["LS"] = ['Cold Call', 'Existing Customer', 'Self Generated', 'Employee', 'Partner', 'Public Relations', 'Direct Mail', 'Conference', 'Trade Show', 'Web Site', 'Word Of Mouth', 'Email', 'Other']
 		enumValues["SS"] = ['Prospecting', 'Qualification', 'Needs Analysis', 'Value Proposition', 'Id.Decision Makers', 'Perception Analysis', 'Proposal/Price Quote', 'Negotiation/Review', 'Closed Won', 'Closed Lost']

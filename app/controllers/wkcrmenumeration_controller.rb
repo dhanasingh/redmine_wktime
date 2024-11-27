@@ -16,11 +16,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkcrmenumerationController < WkbaseController
-  unloadable
+
   include WktimeHelper
   before_action :require_login
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
-    
+
   accept_api_auth :getCrmEnumerations
   include WkcrmenumerationHelper
 
@@ -36,14 +36,14 @@ class WkcrmenumerationController < WkbaseController
 		entries = nil
 		if !enumName.blank? &&  !enumerationType.blank?
 			entries = WkCrmEnumeration.where(:enum_type => enumerationType).where("LOWER(name) like LOWER(?)", "%#{enumName}%")
-		elsif enumName.blank? &&  !enumerationType.blank? 
+		elsif enumName.blank? &&  !enumerationType.blank?
 			entries = WkCrmEnumeration.where(:enum_type => enumerationType)
 		elsif !enumName.blank? &&  enumerationType.blank?
 			entries = WkCrmEnumeration.where("LOWER(name) like LOWER(?)", "%#{enumName}%")
 		else
 			entries = WkCrmEnumeration.all
 		end
-		entries = entries.reorder(sort_clause)		
+		entries = entries.reorder(sort_clause)
 		respond_to do |format|
 			format.html {
 				formPagination(entries)
@@ -55,16 +55,16 @@ class WkcrmenumerationController < WkbaseController
 			}
 		end
     end
-  
+
     def edit
 		@enumEntry = nil
 		unless params[:enum_id].blank?
 			@enumEntry = WkCrmEnumeration.find(params[:enum_id].to_i)
 		end
 	end
-  
+
 	def update
-		wkcrmenumeration = nil 
+		wkcrmenumeration = nil
 		unless params[:enum_id].blank?
 			wkcrmenumeration = WkCrmEnumeration.find(params[:enum_id].to_i)
 		else
@@ -75,7 +75,7 @@ class WkcrmenumerationController < WkbaseController
 		wkcrmenumeration.active = params[:enumActive]
 		wkcrmenumeration.enum_type = params[:enumType]
 		wkcrmenumeration.is_default = params[:enumDefaultValue]
-		if wkcrmenumeration.valid?	
+		if wkcrmenumeration.valid?
 			wkcrmenumeration.save
 			redirect_to :controller => 'wkcrmenumeration',:action => 'index' , :tab => 'wkcrmenumeration'
 			flash[:notice] = l(:notice_successful_update)
@@ -84,19 +84,19 @@ class WkcrmenumerationController < WkbaseController
 			redirect_to :controller => 'wkcrmenumeration',:action => 'edit'
 		end
 	end
-  
+
 	def set_filter_session
 		filters = [:enumname, :enumType]
 		super(filters)
 	end
-	
+
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
 		@crmenum = entries.limit(@limit).offset(@offset)
 	end
-	
-	def setLimitAndOffset		
+
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -109,16 +109,16 @@ class WkcrmenumerationController < WkbaseController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
 	end
-	
+
 	def destroy
 		WkCrmEnumeration.find(params[:enum_id].to_i).destroy
-		
+
 		flash[:notice] = l(:notice_successful_delete)
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end
-	
+
 	def check_perm_and_redirect
 		unless User.current.admin? || hasSettingPerm
 			render_403

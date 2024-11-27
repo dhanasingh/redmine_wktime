@@ -3,7 +3,7 @@
 	<fieldset>
 		<% if checkEditSurveyPermission %>
 			<div style="float:right">
-					<%= link_to l(:label_new_survey), url_for(:project_id => params[:project_id], :controller => "wksurvey", :action => "edit"), :class => 'icon icon-add' %>
+					<%= link_to sprite_icon('add', l(:label_new_survey)), url_for(:project_id => params[:project_id], :controller => "wksurvey", :action => "edit"), :class => 'icon icon-add' %>
 			</div>
 		<% end %>
 		<table>
@@ -25,8 +25,8 @@
 			</tr>
 		</table>
 		<p style="padding-left:15px;">
-			<%= link_to_function l(:button_apply), '$("#filter_form").submit()', :class => 'icon icon-checked' %>
-			<%= link_to l(:button_clear), {tab: controller_name, clear: true}, :class => 'icon icon-reload' %>
+			<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#filter_form").submit()', class: 'icon icon-checked' %>
+			<%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, :class => 'icon icon-reload' %>
 		</p>
 	</fieldset>
 <% end %>

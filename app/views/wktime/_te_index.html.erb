@@ -10,9 +10,9 @@
 <% if @currentUser_loggable_projects.present? %>
 	<div class="contextual">
 	<% if (validateERPPermission('A_TE_PRVLG')) %>
-		<%= link_to l(:label_lock), url_for(:controller => controller_name, :action => 'lockte'), :class => 'icon icon-time-add' %>
+		<%= link_to sprite_icon('lock', l(:label_lock)), url_for(:controller => controller_name, :action => 'lockte'), :class => 'icon icon-lock' %>
 	<% end %>
-	<%= link_to l(:"button_new_#{controller_name}"), url_for(action: 'edit', user_id: User.current.id, startday: Date.today, prev_template: true), :class => 'icon icon-time-add' %>
+	<%= link_to sprite_icon('time-add', l(:"button_new_#{controller_name}")), url_for(action: 'edit', user_id: User.current.id, startday: Date.today, prev_template: true), :class => 'icon icon-time-add' %>
 	</div>
 <% end %>
 <% if !@manage_projects.blank? %>

@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkStatus < ActiveRecord::Base
+class WkStatus < ApplicationRecord
   belongs_to :status_for, :polymorphic => true
 
   validates_presence_of :status_date, :status

@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkassetdepreciationController < WkassetController
-  unloadable
+
   menu_item :wkproduct
   include WktimeHelper
   include WkinventoryHelper

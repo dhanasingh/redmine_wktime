@@ -52,7 +52,7 @@
 <div class="wk-contextual">
 	<h2 style="float:left;"><%= controller.getItemLabel %></h2>
 	<% if !@preBilling && !isDisable %>
-	<%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('invoiceTable', 'totalrow');",  :class => 'icon icon-add' } %>
+	<%= link_to sprite_icon('add', l(:button_add_row)), "#", { :onclick => "javascript:invoiceAddRow('invoiceTable', 'totalrow');",  :class => 'icon icon-add' } %>
 	<% end %>
 </div>
 
@@ -175,7 +175,7 @@
 							<% total = total + entry.amount %>
 							<td>
 								<% unless isDisable %>
-									<%= link_to image_tag('delete.png'), "javascript:deleteRow('invoiceTable', 'totalrow');", :id => row_index,
+									<%= link_to sprite_icon('del'), "javascript:deleteRow('invoiceTable', 'totalrow');", :id => row_index,
 										:data => {:confirm => l(:text_are_you_sure)},
 										:title => l(:button_delete) %>
 								<% end %>
@@ -262,7 +262,7 @@
 							<% total = total + amount %>
 							<td style="width: 5%">
 								<% if !@preBilling && !isDisable %>
-								<%= link_to image_tag('delete.png'), "javascript:deleteRow('invoiceTable', 'totalrow');", :id => row_index,
+								<%= link_to sprite_icon('del'), "javascript:deleteRow('invoiceTable', 'totalrow');", :id => row_index,
 										:data => {:confirm => l(:text_are_you_sure)},
 										:title => l(:button_delete), :disabled => @preBilling %>
 								<% end %>
@@ -323,7 +323,7 @@
 					<% org_total = 0 %>
 					<% total = 0 %>
 					<td>
-						<%= link_to image_tag('delete.png'), "javascript:deleteRow('invoiceTable', 'totalrow');", :id => row_index,
+						<%= link_to sprite_icon('del'), "javascript:deleteRow('invoiceTable', 'totalrow');", :id => row_index,
 								:data => {:confirm => l(:text_are_you_sure)},
 								:title => l(:button_delete) %>
 					</td>
@@ -502,10 +502,10 @@
 </div>
 <div class="wk-contextual">
 	<% if !@preBilling && !isDisable %>
-	<%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('invoiceTable', 'totalrow');",  :class => 'icon icon-add' } %>
+	<%= link_to sprite_icon('add', l(:button_add_row)), "#", { :onclick => "javascript:invoiceAddRow('invoiceTable', 'totalrow');",  :class => 'icon icon-add' } %>
 	<% if controller.addAllRows %>
-		<%= link_to l(:label_add_all_rows), request.params.merge(populate_items: '1'),  data: {:confirm => l(:warn_add_all_rows)},  class: 'icon icon-add' %>
-		<%= link_to l(:label_delete_all_rows), "#", { :onclick => "javascript:deleteAllRows('invoiceTable', 'totalrow');",  :class => 'icon icon-add'} %>
+		<%= link_to sprite_icon('add', l(:label_add_all_rows)), request.params.merge(populate_items: '1'),  data: {:confirm => l(:warn_add_all_rows)},  class: 'icon icon-add' %>
+		<%= link_to sprite_icon('del', l(:label_delete_all_rows)), "#", { :onclick => "javascript:deleteAllRows('invoiceTable', 'totalrow');",  :class => 'icon icon-add'} %>
 	<% end %>
 <% end %>
 </div>
@@ -518,10 +518,10 @@
 <%= hidden_field_tag("additional_item_type", call_hook(:modify_product_log_type)) %>
 <%= submit_tag l(:button_save), :hidden => false, :id => 'items_save', :onclick => "return saveEntity()", :disabled => (@preBilling) if !@preBilling %>
 <% if !@preBilling && controller.addUnbilledItems && @invPaymentItems.blank? && @invoice&.id.present? %>
-	&nbsp;&nbsp;<%= link_to l(:label_add_unbilled), request.params.merge(loadUnBilled: "true"),  :class => 'icon icon-report' %>
+	&nbsp;&nbsp;<%= link_to sprite_icon('document', l(:label_add_unbilled)), request.params.merge(loadUnBilled: "true"),  :class => 'icon' %>
 <% end %>
 <% if controller.isInvPaymentLink && !@invoiceItem.blank? && !@invoice.id.blank?%>
-	&nbsp;&nbsp;<%= link_to l(:label_pay_invoice), url_for(:controller => controller.getPaymentController, :action => 'edit', :load_payment => true, :related_to => @invoice.parent_type, :related_parent => @invoice.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
+	&nbsp;&nbsp;<%= link_to sprite_icon('document', l(:label_pay_invoice)), url_for(:controller => controller.getPaymentController, :action => 'edit', :load_payment => true, :related_to => @invoice.parent_type, :related_parent => @invoice.parent_id, :project_id => 0 ),  :class => 'icon' %>
 <% end %>
 <% unless @invoiceItem.blank? || @invoice.id.blank? %>
 	<% other_formats_links do |f| %>

@@ -1,5 +1,5 @@
 class WklogmaterialController < TimelogController
-  unloadable
+
 	prepend_before_action :change_params_controller
   before_action :require_login
 	accept_api_auth :loadSpentType, :index, :spent_log, :modifyProductDD, :create, :update

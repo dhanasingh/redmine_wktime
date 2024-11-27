@@ -35,8 +35,8 @@
 				:style=> "width:200px;") %>
 		<% end %>
 		<%= render :partial => 'wkattendance/date_range' %>
-		<%= link_to_function l(:button_apply), '$("#query_form").submit()', :class => 'icon icon-checked' %>&nbsp;
-		<%= link_to l(:button_clear), {tab: 'clock', clear: true}, class: 'icon icon-reload' %>
+		<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit()', class: 'icon icon-checked' %>&nbsp;
+		<%= link_to sprite_icon('reload', l(:button_clear)), {tab: 'clock', clear: true}, class: 'icon icon-reload' %>
 		<% if wktime_helper.isChecked('att_save_geo_location') %>
 			<label style="padding-left:5px">
 				<%= check_box_tag('show_on_map', true, showOnMap, onclick: '$("#query_form").submit(); return false;') %>

@@ -4,7 +4,7 @@
      'query_form') do %>
 		<fieldset>
 			<div style="float:right">
-				<%= link_to l(:label_new_contract), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+				<%= link_to sprite_icon('add', l(:label_new_contract)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
 			</div>
 			<%= hidden_field_tag "searchlist", controller_name %>
 			<%=h hidden_field_tag('tab', "wkcontract") %>
@@ -13,16 +13,6 @@
 				filterSession =session[controller_name].try(:[], :polymorphic_filter)
 				projid =session[controller_name].try(:[], :project_id) %>
 			<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :filter_session => filterSession, :project_id => projid, :pjtChanged => false, :isapply => true, :isproject => true, :isAll => true, :blankOptionForPjt => false, :blankForActDD => true, :blankForContactDD => true, :isFilter => true, :loadSIDD => false } %>
-			<%#	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>
-			<%#	projArr = options_for_wktime_project(projects,true) %>
-			<%#	accArr = options_for_wktime_account(true, 'A') %>
-			<!-- <label><%#= l(:label_account_name) %></label>
-				<%#=h select_tag('account_id', options_for_select(accArr, :selected => accid.nil? ? accArr : accid)) %>
-				<label><%#= l(:label_project) %></label>
-				<%#=h select_tag('project_id', options_for_select(projArr, :selected => projid.nil? ? projArr : projid)) %>
-				<%#= submit_tag l(:button_apply), :class => "small", :name => nil %>
-				<%#= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %> -->
-
 		</fieldset>
 	<% end %>
 

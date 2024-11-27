@@ -36,10 +36,10 @@
 					<td class="lbl-txt-align"><%=h entry.status_updater %></td>
 					<td align="center">
 					<%  #if entry.editable_by?(User.current) %>
-							<%= link_to image_tag("edit.png"), url,
+							<%= link_to sprite_icon('edit'), url,
 																								:title => l(:button_edit) %>
 						<% if entry.status.blank? || entry.status == "n" || entry.status == "r" %>
-							&nbsp;|&nbsp;<%= link_to image_tag("delete.png"), url.merge({action: "destroy"}),
+							&nbsp;|&nbsp;<%= link_to sprite_icon('del'), url.merge({action: "destroy"}),
 																:data => {:confirm => l(:text_are_you_sure)},
 																:method => :delete,
 																:title => l(:button_delete) %>

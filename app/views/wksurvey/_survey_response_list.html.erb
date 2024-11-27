@@ -12,7 +12,7 @@
             <b><%= l(:label_clos_responses) %></b>&nbsp;
             <%= select_tag('groupName', options_for_select(response_grp,
                 selected: params[:groupName].present? ? params[:groupName] : response_grp[0]), onchange: '$("#response_form").submit()') %>
-            <%= link_to_function l(:button_apply), '$("#response_form").submit()', :class => 'icon icon-checked' %>
+            <%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', class: 'icon icon-checked' %>
         </p>
     <% end %>
     </div>

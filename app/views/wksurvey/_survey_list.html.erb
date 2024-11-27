@@ -38,19 +38,19 @@ end
             <td class="colorcode-bg-setup col-status-<%= entry.status %>"><%=h helperObj.getSurveyStatus.invert[entry.status] %></td>
             <td class="lbl-txt-align">
                 <% if !entry.hide_response && (["O","C"].include? entry.status) %>
-                    <%= link_to image_tag("withoutcommant.png", :plugin => "redmine_wktime"),
+                    <%= link_to sprite_icon('list'),
                         url_for(helperObj.get_survey_url(urlhash, params, "survey_response")), :title => l(:label_survey_response) %>&emsp;
                 <% else %>&emsp;&emsp;&nbsp;
                 <% end %>
                 <% if (entry.status == "O" && helperObj.validateERPPermission("E_SUR")) || entry.status == "C" || helperObj.getResponseGroup(entry.id).present? %>
-                    <%= link_to image_tag("stats.png"), url_for(helperObj.get_survey_url(urlhash, params, "survey_result")),
+                    <%= link_to sprite_icon('stats'), url_for(helperObj.get_survey_url(urlhash, params, "survey_result")),
                         :title => l(:label_survey_result) %>&emsp;
                 <% else %>&emsp;&emsp;&nbsp;
                 <% end %>
                 <% if helperObj.checkEditSurveyPermission && params[:isIssue].blank? %>
-                    <%= link_to image_tag('edit.png'), url_for(helperObj.get_survey_url(urlhash, params, "edit")),
+                    <%= link_to sprite_icon('edit'), url_for(helperObj.get_survey_url(urlhash, params, "edit")),
                         :title => l(:button_edit) %>&emsp;
-                    <%= link_to image_tag('delete.png'), url_for(helperObj.get_survey_url(urlhash, params, "destroy")),
+                    <%= link_to sprite_icon('del'), url_for(helperObj.get_survey_url(urlhash, params, "destroy")),
                         :data => {:confirm => l(:text_are_you_sure)}, method: "delete", :title => l(:button_delete) %>
                 <% end %>
             </td>

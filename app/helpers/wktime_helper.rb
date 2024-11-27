@@ -430,7 +430,7 @@ def getColumnValues(matrix, totals, unitLabel,rowNumberRequired, j=0, includeCom
 						issueWritten = true
 						j += 1
 					end
-					col_values[hoursIndex+i] =  (entry.hours.blank? ? "" : ("%.2f" % entry.hours.to_s))
+					col_values[hoursIndex+i] =  (entry.hours.blank? ? "" : format_hours(entry.hours))
 					totals[i] += entry.hours unless entry.hours.blank?
 				end
 			end

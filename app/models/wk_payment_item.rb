@@ -15,17 +15,17 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkPaymentItem < ActiveRecord::Base
-  unloadable
+class WkPaymentItem < ApplicationRecord
+
   include Redmine::SafeAttributes
   belongs_to :payment, :class_name => 'WkPayment'
   belongs_to :modifier, :class_name => 'User'
   belongs_to :invoice, :class_name => 'WkInvoice'
   #belongs_to :gl_transaction , :class_name => 'WkGlTransaction', :dependent => :destroy
   scope :current_items, -> { where(is_deleted: false) }
-  
+
   # attr_protected :modifier_id
-  
+
   validates_presence_of :payment_id
   validates_numericality_of :amount, :allow_nil => true, :message => :invalid
 end

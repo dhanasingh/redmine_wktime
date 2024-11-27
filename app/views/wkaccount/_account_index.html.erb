@@ -4,7 +4,7 @@
 	<%= hidden_field_tag "searchlist", controller_name %>
 	<fieldset>
 		<div style="float:right">
-			<%= link_to l(:label_new_account), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+			<%= link_to sprite_icon('add', l(:label_new_account)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
 		</div>
 		<table>
 			<tr>
@@ -14,7 +14,7 @@
 				<th><label for='name' style="padding-left: 10px;"><%= controller.getAccountLbl %></label></th>
 					<td><%= text_field_tag 'accountname', session[controller_name].try(:[], :accountname), :size => 30 %></td>
 				<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
-				<td><%= link_to l(:button_clear), {tab: controller_name, clear: true}, class: 'icon icon-reload' %></td>
+				<td><%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %></td>
 			</tr>
 		</table>
 	</fieldset>

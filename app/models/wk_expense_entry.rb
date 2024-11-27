@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkExpenseEntry < TimeEntry
-  unloadable
+
   self.table_name = "wk_expense_entries"
 
   belongs_to :project

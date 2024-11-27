@@ -66,16 +66,16 @@
 							<td class="lbl-txt-align"><%= currency %> <%=h html_hours("%.2f" % invoiceAmount) %></td>
 							<td class="lbl-txt-align"><%=h entry&.modifier&.name  %></td>
 							<% if controller.isInvPaymentLink %>
-								<td class="lbl-txt-align">
+								<td class="lbl-txt-align" id="pay-link">
 									<% if entry.total_invoice_amount - entry.total_paid_amount > 0 %>
-										<%= link_to l(:label_pay_invoice), url_for(:controller => controller.getPaymentController, :action => 'edit', :load_payment => true, :related_to => entry.parent_type, :related_parent => entry.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
+										<%= link_to sprite_icon('document', l(:label_pay_invoice)), url_for(:controller => controller.getPaymentController, :action => 'edit', :load_payment => true, :related_to => entry.parent_type, :related_parent => entry.parent_id, :project_id => 0 ),  :class => 'icon' %>
 									<% end %>
 								</td>
 							<% end %>
 							<td class="lbl-txt-align">
-								<%= link_to image_tag('edit.png'), {:controller => controller.redirect_controller, :action => 'edit', :invoice_id => entry.id, :new_invoice => false, :preview_billing => false, :tab => controller.redirect_controller, id: entry.id}, :title => l(:button_edit) %>
+								<%= link_to sprite_icon('edit'), {:controller => controller.redirect_controller, :action => 'edit', :invoice_id => entry.id, :new_invoice => false, :preview_billing => false, :tab => controller.redirect_controller, id: entry.id}, :title => l(:button_edit) %>
 								<% if isEditableInvoice(entry.id) && controller.deletePermission  %>
-									<%= link_to image_tag('delete.png'), {:controller => controller.redirect_controller, :action => 'destroy', :invoice_id => entry.id, id: entry.id, :tab => controller.redirect_controller},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+									<%= link_to sprite_icon('del'), {:controller => controller.redirect_controller, :action => 'destroy', :invoice_id => entry.id, id: entry.id, :tab => controller.redirect_controller},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
 								<% end %>
 							</td>
 						</tr>
@@ -101,7 +101,7 @@
 								<td class="lbl-txt-align"><%= @currency %> <%=h html_hours("%.2f" % value['amount'] ) unless value['amount'].blank?  %></td>
 								<td class="lbl-txt-align"><%= toCurrency %> <%=h amount %></td>
 								<td class="lbl-txt-align"><%=h User.current.name  %></td>
-								<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :new_invoice => true, :related_to =>  value['parent_type'], :related_parent => value['parent_id'], :project_id => (value['isAccountBilling'] ? 0 : value['project_id']), :start_date => value['start_date'], :end_date => value['end_date'], :populate_items =>1, :preview_billing => true, :tab => controller.controller_name, id: value['id']},
+								<td class="lbl-txt-align"><%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'edit', :new_invoice => true, :related_to =>  value['parent_type'], :related_parent => value['parent_id'], :project_id => (value['isAccountBilling'] ? 0 : value['project_id']), :start_date => value['start_date'], :end_date => value['end_date'], :populate_items =>1, :preview_billing => true, :tab => controller.controller_name, id: value['id']},
 														:title => l(:button_edit) %>
 								</td>
 							</tr>

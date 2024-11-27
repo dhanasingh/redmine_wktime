@@ -15,16 +15,16 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class Wktime < ActiveRecord::Base
-unloadable
+class Wktime < ApplicationRecord
+
 include Redmine::SafeAttributes
 
   belongs_to :user
   belongs_to :submitter, :class_name => 'User', :foreign_key => 'submitter_id'
   belongs_to :updater, :class_name => 'User', :foreign_key => 'statusupdater_id'
-  
+
   acts_as_customizable
-  
+
   # attr_protected :user_id, :submitter_id, :statusupdater_id
   safe_attributes 'hours', 'notes', 'begin_date', 'status', 'submitted_on', 'statusupdate_on'
 
@@ -36,14 +36,14 @@ include Redmine::SafeAttributes
   def initialize(attributes=nil, *args)
     super
   end
-  
+
   def validate_wktime
     errors.add :hours, :invalid if hours && (hours < 0 || hours >= 1000)
 #    errors.add :user_id, :invalid if user.nil?
 #	errors.add :submitter_id, :invalid if submitter.nil?
 #    errors.add :statusupdater_id, :invalid if approver.nil?
   end
-  
+
   def hours=(h)
     write_attribute :hours, (h.is_a?(String) ? (h.to_hours || h) : h)
   end
@@ -63,7 +63,7 @@ include Redmine::SafeAttributes
 		  self.submitted_on = submitted_on.to_date
 		end
 	end
-	
+
 	def statusupdate_on=(date)
 		super
 		if statusupdate_on.is_a?(Time)

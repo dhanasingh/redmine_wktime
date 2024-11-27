@@ -1,2 +1,2 @@
-class WkSetting < ActiveRecord::Base
+class WkSetting < ApplicationRecord
 end

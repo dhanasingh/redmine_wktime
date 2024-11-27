@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkGlTransaction < ActiveRecord::Base
-  unloadable
+class WkGlTransaction < ApplicationRecord
+
   has_many :transaction_details, foreign_key: "gl_transaction_id", class_name: "WkGlTransactionDetail", :dependent => :destroy
   has_one :invoice, foreign_key: "gl_transaction_id", class_name: "WkInvoice"
   has_many :gl_salaries, foreign_key: "gl_transaction_id", class_name: "WkGlSalary", :dependent => :destroy
@@ -25,7 +25,7 @@ class WkGlTransaction < ActiveRecord::Base
   acts_as_attachable :view_permission => :view_files,
                     :edit_permission => :manage_files,
                     :delete_permission => :manage_files
-                    
+
   def trans_date=(date)
     super
     self.tyear = trans_date ? trans_date.year : nil

@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkLead < ActiveRecord::Base
-  unloadable
+class WkLead < ApplicationRecord
+
   has_many :activities, as: :parent, class_name: 'WkCrmActivity', :dependent => :destroy
   belongs_to :account, :class_name => 'WkAccount'
   belongs_to :created_by_user, :class_name => 'User'

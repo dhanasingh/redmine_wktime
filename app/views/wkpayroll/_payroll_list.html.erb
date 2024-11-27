@@ -33,7 +33,7 @@
    	deduction_total = 0
    	reimbursement = 0 %>
 	 <% @payrollEntries.each do |key, entry| %>
-		
+
 		<%  basic_total += entry[:BT] unless entry[:BT].blank? %>
 		<%  allowance_total += entry[:AT] unless entry[:AT].blank? %>
 		<%  deduction_total += entry[:DT] unless entry[:DT].blank? %>
@@ -50,9 +50,9 @@
 				<td class="lbl-txt-align"><%=h entry[:currency] %> &nbsp;<%=h html_hours("%.2f" % ((entry[:BT].blank? ? 0 : entry[:BT]) + (entry[:AT].blank? ? 0 : entry[:AT]))) %></td>
 				<td class="lbl-txt-align"><%=h entry[:currency] %>&nbsp;<%=h html_hours("%.2f" % (((entry[:BT].blank? ? 0 : entry[:BT]) + (entry[:AT].blank? ? 0 : entry[:AT])) -(entry[:DT].blank? ? 0 : entry[:DT]))) %></td>
 				<td style="text-align: center">
-                	<%= link_to image_tag('edit.png'), {controller: controller_name, action: 'edit', user_id: entry[:uID], salary_date: entry[:salDate], tab: "payroll", isPreview: @isPreview}, title: l(:button_edit) %>
+                	<%= link_to sprite_icon('edit'), {controller: controller_name, action: 'edit', user_id: entry[:uID], salary_date: entry[:salDate], tab: "payroll", isPreview: @isPreview}, title: l(:button_edit) %>
 					<% if !@isPreview && validateERPPermission('A_PAYRL') %>
-						<%= link_to image_tag('delete.png'), {controller: controller_name, action: 'destroy', user_id: entry[:uID], salary_date: entry[:salDate], tab: "payroll"}, data: {confirm: l(:text_are_you_sure)},
+						<%= link_to sprite_icon('del'), {controller: controller_name, action: 'destroy', user_id: entry[:uID], salary_date: entry[:salDate], tab: "payroll"}, data: {confirm: l(:text_are_you_sure)},
 						method: :delete, title: l(:button_delete) %>
 					<% end %>
 				</td>

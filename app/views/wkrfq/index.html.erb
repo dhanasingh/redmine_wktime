@@ -8,7 +8,7 @@
  <%= form_tag({:controller => 'wkrfq', :action => 'index'}, :method => :get, :id => 'query_form') do %>
 	<fieldset>
 		<div style="float:right">
-			<%= link_to l(:label_new_rfq), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+			<%= link_to sprite_icon('add', l(:label_new_rfq)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
 		</div>
 		<%= hidden_field_tag 'tab', "wkrfq" %>
 		<%= hidden_field_tag 'searchlist', "wkrfq" %>
@@ -19,7 +19,7 @@
 				<th><label style="padding-left: 10px;"><%= l(:label_date) %></label></th>
 				<td><%= date_field_tag('rfq_date', rfq_date, :size => 10) %> <%= calendar_for('rfq_date') %></td>
 				<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
-				<td><%= link_to l(:button_clear), {tab: controller_name, clear: true}, :class => 'icon icon-reload' %></td>
+				<td><%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, :class => 'icon icon-reload' %></td>
 			</tr>
 		</table>
 	</fieldset>

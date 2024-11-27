@@ -39,7 +39,7 @@ transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 	<% totaldebit = 0 %>
 	<% totalCredit = 0 %>
 	<div class="wk-contextual">
-		<%= link_to l(:button_add_row), "#", { :onclick => "javascript:txnAddrowValidation('txnTable');",  :class => 'icon icon-add' }%>
+		<%= link_to sprite_icon('add', l(:button_add_row)), "#", { :onclick => "javascript:txnAddrowValidation('txnTable');",  :class => 'icon icon-add' }%>
 	</div>
 	<div style="clear:both"></div>
 	<table id="txnTable" class="list time-entries">
@@ -77,7 +77,7 @@ transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 					<%= text_field_tag "txn_credit_#{row_index}",  (entry.detail_type == 'c' ? entry.amount : '')  , :required => false, :onchange => "tallyAmount(this.id)" ,   :style => "width:150px; text-align:right;" %>
 				</td>
 				<td>
-					<%= link_to image_tag('delete.png'), "javascript:deleteRow('txnTable', 'txntotalrow');", :id => row_index,
+					<%= link_to sprite_icon('del'), "javascript:deleteRow('txnTable', 'txntotalrow');", :id => row_index,
 							:data => {:confirm => l(:text_are_you_sure)},
 							:title => l(:button_delete) %>
 				</td>
@@ -107,7 +107,7 @@ transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 				<%= text_field_tag "txn_credit_#{row_index}", ""  , :required => false, :onchange => "tallyAmount(this.id)" ,   :style => "width:150px; text-align:right;" %>
 			</td>
 			<td>
-				<%= link_to image_tag('delete.png'), "javascript:deleteRow('txnTable', 'txntotalrow');", :id => row_index,
+				<%= link_to sprite_icon('del'), "javascript:deleteRow('txnTable', 'txntotalrow');", :id => row_index,
 						:data => {:confirm => l(:text_are_you_sure)},
 						:title => l(:button_delete) %>
 			</td>
@@ -133,7 +133,7 @@ transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 					<%= text_field_tag "txn_credit_#{row_index}",  ""   , :required => false, :onchange => "tallyAmount(this.id)",   :style => "width:150px; text-align:right;" %>
 				</td>
 				<td>
-					<%= link_to image_tag('delete.png'), "javascript:deleteRow('txnTable', 'txntotalrow');", :id => row_index,
+					<%= link_to sprite_icon('del'), "javascript:deleteRow('txnTable', 'txntotalrow');", :id => row_index,
 							:data => {:confirm => l(:text_are_you_sure)},
 							:title => l(:button_delete) %>
 				</td>
@@ -144,7 +144,7 @@ transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 	</tbody>
 	</table>
 	<div class="wk-contextual">
-		<%= link_to l(:button_add_row), "#", { :onclick => "javascript:txnAddrowValidation('txnTable');",  :class => 'icon icon-add' }%>
+		<%= link_to sprite_icon('add', l(:button_add_row)), "#", { :onclick => "javascript:txnAddrowValidation('txnTable');",  :class => 'icon icon-add' }%>
 	</div style="clear:both">
 	<table >
 	<tr>

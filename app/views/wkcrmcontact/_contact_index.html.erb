@@ -14,7 +14,7 @@
 	<%	locId = session[controller_name].try(:[], :location_id) %>
 	<fieldset>
 		<div style="float:right">
-			<%= link_to controller.lblNewContact, url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+			<%= link_to sprite_icon('add', controller.lblNewContact), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
 		</div>
 		<table>
 			<tr>
@@ -25,7 +25,9 @@
 				<th><label for='location' style="float:left;padding-left: 10px;"><%= l(:field_location) %></label></th>
 					<td><%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locId, true), :style=> "float: left;") %></td>
 				<td><%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %></td>
-				<td><%= link_to l(:button_clear), {tab: controller_name, clear: true}, class: 'icon icon-reload', :style=>"float:left; " %></td>
+				<td>
+					<%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload', :style=>"float:left; " %>
+				</td>
 			</tr>
 		</table>
 	</fieldset>
