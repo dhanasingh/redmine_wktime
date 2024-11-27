@@ -339,7 +339,7 @@ class WkinvoiceController < WkorderentityController
 		unbilledEntries.map do |entry|
 			items = {project_name: entry.project.name, issue: entry.issue.to_s, user: entry.user.name, date: entry.spent_on}
 			if params[:itemType] == 'i'
-				items[:hour] = entry.try(:hours)
+				items[:hour] = format_hours(entry.try(:hours) || "")
 			elsif params[:itemType] == 'e'
 				items[:amount] = entry.try(:currency)+entry.try(:amount).to_s
 			end
