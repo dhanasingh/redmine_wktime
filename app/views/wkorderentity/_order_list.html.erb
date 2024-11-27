@@ -66,7 +66,7 @@
 							<td class="lbl-txt-align"><%= currency %> <%=h html_hours("%.2f" % invoiceAmount) %></td>
 							<td class="lbl-txt-align"><%=h entry&.modifier&.name  %></td>
 							<% if controller.isInvPaymentLink %>
-								<td class="lbl-txt-align">
+								<td class="lbl-txt-align" id="pay-link">
 									<% if entry.total_invoice_amount - entry.total_paid_amount > 0 %>
 										<%= link_to sprite_icon('document', l(:label_pay_invoice)), url_for(:controller => controller.getPaymentController, :action => 'edit', :load_payment => true, :related_to => entry.parent_type, :related_parent => entry.parent_id, :project_id => 0 ),  :class => 'icon' %>
 									<% end %>
