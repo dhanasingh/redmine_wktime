@@ -319,7 +319,7 @@ class WkinvoiceController < WkorderentityController
 			spent = entry.spent
 			items = {project_name: spent.project.name, issue: spent&.issue&.subject.to_s, user: spent.user&.name, date: spent.spent_on}
 			if params[:itemType] == 'i'
-				items[:hour] = spent.try(:hours)
+				items[:hour] = format_hours(spent.try(:hours) || "")
 			elsif params[:itemType] == 'e'
 				items[:field_amount] = spent.try(:currency)+spent.try(:amount).to_s
 			end

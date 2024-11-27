@@ -2,7 +2,7 @@
 
 <%= javascript_include_tag 'edit', :plugin => "redmine_wktime" %>
 
-	<script type="text/javascript"> 
+	<script type="text/javascript">
 		lblPleaseSelect = '<%=l(:actionview_instancetag_blank_option) %>'
 		lblWarnUnsavedTE = '<%=l(:text_warn_on_leaving_unsaved) %>'
 		decSeparator = '<%=l(:general_csv_decimal_separator) %>';
@@ -10,7 +10,7 @@
 		submissionack="<%= Setting.plugin_redmine_wktime['wktime_submission_ack'] %>";
 		editUrl = '<%=raw(url_for(:controller => controller.controller_name, :action => "edit", :startday => @startday, :user_id => params[:user_id], :sheet_view => params[:sheet_view], :project_id => params[:project_id]))%>';
 		leavingMsg = '<%= l(:warning_leaving_message) %>';
-		
+
 		<% if !Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 1 %>
 				allowBlankIssue = true;
@@ -19,12 +19,14 @@
 			Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 1 %>
 				commentInRow = true;
 		<% end %>
-	
+		withCommantImg = '<%= image_tag('withcommant.png', plugin: 'redmine_wktime') %>';
+		withoutcommantImg = '<%= image_tag('withoutcommant.png', plugin: 'redmine_wktime') %>';
+
 	</script>
 
 	<div id="comment-dlg">
 	<!-- modified class .ui-widget-header to change the header color -->
-		<span id="_edit_comm_proj_">project</span>, 
+		<span id="_edit_comm_proj_">project</span>,
 		<span id="_edit_comm_iss_">issue</span>,
 		<span id="_edit_comm_act_">activity)</span>
 		<fieldset>
@@ -35,7 +37,7 @@
 		<% end %>
 		</fieldset>
 	</div>
-	
+
 	<div id="notes-dlg">
 		<fieldset>
 			<p> <label><%= l(:label_wk_reject_reason) %></label>
