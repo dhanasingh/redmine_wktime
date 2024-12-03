@@ -107,12 +107,11 @@ class WkgltransactionController < WkaccountingController
 				end
 
 				dup_summary = sort_direction == "desc" ? @summaryHash.to_a.reverse.to_h : @summaryHash
+				@summaryHashFirstKey = dup_summary.keys.first
 				dup_summary.each do |key, value|
 					getSummeryamount(key, value)
 					@summaryHash[key][:CB] = @closeBal
 				end
-				@summaryHashFirstKey = dup_summary.keys.first
-
 			else
 				formPagination(transaction.reorder(sort_clause))
 				isSubCr = isSubtractCr(@selectedLedger.ledger_type)
