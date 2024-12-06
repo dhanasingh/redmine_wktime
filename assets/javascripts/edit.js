@@ -813,13 +813,14 @@ function renameProperty(cell, tag, prefix, str, newStr){
 			renameIDName(children[j], prefix+str, prefix+newStr);
 		}else if(tag == 'input'){
 			renameIDName(children[j], prefix+str, prefix+newStr);
-			if(children[j].id == 'time_entry__issue_id'){
+			if(children[j].id == 'time_entry[][issue_id]'){
 				renameOnChange(children[j], str, newStr);
 			}
 		}else if(tag == 'a'){
 			renameHref(children[j], prefix+str, prefix+newStr);
 		}else if(tag == 'select'){
 			renameOnChange(children[j], prefix+str, prefix+newStr);
+			renameIDName(children[j], prefix+str, prefix+newStr);
 		} else if(tag == 'span' && children[j].className == "allAttach"){
 			renameAttachment(children[j], newStr);
 		}
@@ -851,9 +852,9 @@ function renameOnChange(child, index, newIndex){
 	var onchng = child.onchange;
 	var func = null;
 	var enterIsueIdChk = document.getElementById("enter_issue_id");
-	if(child.id == 'time_entry__project_id'){
+	if(child.name == 'time_entry[][project_id]'){
 		func = function(){projectChanged(this, row);};
-	}else if(child.id == 'time_entry__issue_id'){
+	}else if(child.name == 'time_entry[][issue_id]'){
 		if(enterIsueIdChk && enterIsueIdChk.checked){
 			func = function(){issueAutocomplete(this, row);};
 		}

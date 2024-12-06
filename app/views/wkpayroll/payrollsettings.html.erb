@@ -159,7 +159,7 @@
 			</tr>
 			<tr>
 				<td valign="justify" style="font-weight:normal">
-					<label style="padding-left: 90px;font-weight: normal;"><%= l(:label_dependent) %></label>
+					<label style="font-weight: normal;"><%= l(:label_dependent) %></label>
 					<%= hidden_field_tag("compDepID_INDEX","") %>
 				</td>
 				<td><%= select_tag('depID_INDEX', options_for_select(getSalaryCompNames.invert), class: "component depElements", style: "width: 125px") %></td>
