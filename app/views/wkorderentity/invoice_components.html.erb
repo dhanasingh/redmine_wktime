@@ -20,7 +20,7 @@
 			<tr>
 				<th><label><%= l(:label_invoice_components) %></label></th>
 				<td><%=  select_tag('invoice_components',
-					options_for_select(@invComps, selected: 'invoice_components'), multiple: true, style: "min-width:160px; height:100px;")%></td>
+					options_for_select(@invComps, selected: 'invoice_components'), multiple: true, style: "min-width:160px; height:100px;", class: 'multi-row')%></td>
 
 			</tr>
 			<tr>

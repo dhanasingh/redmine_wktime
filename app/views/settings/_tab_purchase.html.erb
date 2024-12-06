@@ -62,7 +62,7 @@
 		%>
 			<label><%= l(:label_quote_components) %></label>
 				<%=  select_tag('settings[wktime_quote_components]',
-					options_for_select(invComps, :selected => 'settings[wktime_quote_components]'), :multiple=> true, :style => "min-width:140px; height:100px;")%>	
+					options_for_select(invComps, :selected => 'settings[wktime_quote_components]'), :multiple=> true, :style => "min-width:140px; height:100px;", class: 'multi-row')%>	
 
 			</p>			
 			<p>
@@ -92,7 +92,7 @@
 		%>
 			<label><%= l(:label_po_components) %></label>
 				<%=  select_tag('settings[wktime_po_components]',
-					options_for_select(invComps, :selected => 'settings[wktime_po_components]'), :multiple=> true, :style => "min-width:140px; height:100px;")%>	
+					options_for_select(invComps, :selected => 'settings[wktime_po_components]'), :multiple=> true, :style => "min-width:140px; height:100px;", class: 'multi-row')%>	
 
 			</p>			
 			<p>
@@ -122,7 +122,7 @@
 		%>
 			<label><%= l(:label_si_components) %></label>
 				<%=  select_tag('settings[wktime_si_components]',
-					options_for_select(invComps, :selected => 'settings[wktime_si_components]'), :multiple=> true, :style => "min-width:140px; height:100px;")%>	
+					options_for_select(invComps, :selected => 'settings[wktime_si_components]'), :multiple=> true, :style => "min-width:140px; height:100px;", class: 'multi-row')%>	
 
 			</p>			
 			<p>

@@ -30,7 +30,7 @@
 		<table><tr>
 			<td><label><%= l(:label_basic) %></label></td>
 			<td><%=  select_tag('settings[basic]',
-					options_for_select(@payrollsettings['basic']), :multiple=> true, :style => "width:390px; height:18px;")%></td>
+					options_for_select(@payrollsettings['basic']), :multiple=> true, :style => "width:390px; height:18px;", class: 'multi-row')%></td>
 
 			</tr>
 			<tr>
@@ -43,7 +43,7 @@
 			<tr>
 			<td><label><%= l(:label_allowances) %></label></td>
 			<td><%=  select_tag('settings[allowances]',
-					options_for_select(@payrollsettings["allowances"]), :multiple=> true, :style => "width:390px; height:80px;")%></td>
+					options_for_select(@payrollsettings["allowances"]), :multiple=> true, :style => "width:390px; height:80px;", class: 'multi-row')%></td>
 
 			</tr>
 			<tr>
@@ -54,7 +54,7 @@
 			<tr>
 				<td><label><%= l(:label_deduction) %></label></td>
 				<td><%=  select_tag('settings[deduction]',
-					options_for_select(@payrollsettings["deduction"]), :multiple=> true, :style => "width:390px; height:80px;")%></td>
+					options_for_select(@payrollsettings["deduction"]), :multiple=> true, :style => "width:390px; height:80px;", class: 'multi-row')%></td>
 			</tr>
 			<tr>
 				<td></td><td><%= link_to l(:button_add), "javascript:payrollDialogAction('settings_deduction', 'Add');", :class => "button"%>  |
@@ -64,7 +64,7 @@
 			<tr>
 				<td><label><%= l(:label_calculated_fields) %></label></td>
 				<td><%=  select_tag('settings[calculated_fields]',
-					options_for_select(@payrollsettings["calculated_fields"]), :multiple=> true, :style => "width:390px; height:80px;")%></td>
+					options_for_select(@payrollsettings["calculated_fields"]), :multiple=> true, :style => "width:390px; height:80px;", class: 'multi-row')%></td>
 			</tr>
 			<tr>
 				<td></td>
@@ -76,7 +76,7 @@
 			</tr>
 			<tr>
 				<td><label><%= l(:label_reimbursements) %></label></td>
-				<td><%=  select_tag('settings[reimburse]', options_for_select(@payrollsettings["reimburse"]), :multiple=> true, :style => "width:390px; height:20px;")%></td>
+				<td><%=  select_tag('settings[reimburse]', options_for_select(@payrollsettings["reimburse"]), :multiple=> true, :style => "width:390px; height:20px;", class: 'multi-row')%></td>
 			</tr>
 			<tr>
 				<td></td>
