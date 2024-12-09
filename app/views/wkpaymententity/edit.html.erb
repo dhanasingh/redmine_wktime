@@ -97,3 +97,8 @@
 			<label><b><%= l(:label_no_data) %></b></label>
 		<% end %>
 	<% end %>
+<script>
+	$(document).ready(function(){
+		$('#hidden_pay_type_id').val($('#payment_type_id').val());
+	})
+</script>
