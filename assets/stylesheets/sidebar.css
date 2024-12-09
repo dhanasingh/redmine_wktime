@@ -2,7 +2,7 @@
 #wktimeStatus th, #wktimeStatus td{
     height: 0px;
   }
-  
+
   /* For User Payroll Settings */
   #userpayroll th:first-child { left: 62px;}
   #userpayroll{
@@ -13,4 +13,50 @@
   /* ERPmine logo */
   #top-menu #wkdashboard-icon {
     background-image: url('../images/erpmine-logo.png');
+}
+
+
+/* Sidebar White changes */
+#salaryCompDeps label {
+  margin-left: 0px;
+  width: unset;
+}
+
+#salaryCompDeps .ui.selection.dropdown {
+  min-width: 10em;
+}
+
+.ui-widget-content{
+  box-shadow: 0 2px 10px rgba(0,0,0,.2);
+}
+
+#product_item_form .splitcontent{
+  overflow: unset;
+}
+
+
+table.list #pay-link{
+  white-space: nowrap;
+}
+
+#issueTable {
+  display: block;
+}
+
+#issueTable, #wktimeStatus {
+  overflow: auto;
+}
+
+form#wkdelivery_edit table td , form#wkshipment_edit table td {
+  width: 250px;
+}
+
+form#query_form fieldset .wk-contextual {
+	text-align: left;
+	white-space: nowrap;
+	line-height:1.4em;
+	margin-top:5px;
+	margin-bottom:10px;
+	padding-left: 10px;
+	font-size:0.9em;
 }
