@@ -39,11 +39,7 @@ table.list #pay-link{
   white-space: nowrap;
 }
 
-#issueTable {
-  display: block;
-}
-
-#issueTable, #wktimeStatus {
+#wktimeStatus {
   overflow: auto;
 }
 
@@ -59,4 +55,21 @@ form#query_form fieldset .wk-contextual {
 	margin-bottom:10px;
 	padding-left: 10px;
 	font-size:0.9em;
+}
+
+form#wktime_edit {
+  display: flex;
+  flex-direction: column;
+  min-width: fit-content;
+}
+
+form#wktime_edit .wk-contextual,
+form#wktime_edit .contextual,
+form#wktime_edit .other-formats {
+  padding-right: 10px;
+}
+
+form#wktime_edit .contextual{
+  float: none;
+  text-align: right;
 }
