@@ -94,7 +94,7 @@ form#query_form  div#billingschdules.autoscroll {
   overflow: visible;
 }
 
-from#query_form .autoscroll {
+form#query_form .autoscroll {
   overflow-x: unset;
 }
 
@@ -104,4 +104,8 @@ from#query_form .autoscroll {
 
 .ui-dialog .ui-dialog-buttonpane button {
   margin-left: 10px;
+}
+
+#mapContainer #map {
+  position: unset !important;
 }
