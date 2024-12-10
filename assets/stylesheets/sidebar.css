@@ -69,7 +69,28 @@ form#wktime_edit .other-formats {
   padding-right: 10px;
 }
 
+form#wkdelivery_edit {
+  display: block;
+  min-width: fit-content;
+}
+
+table#deliveryTable.list.time-entries{
+  overflow: visible;
+}
+
+form#wkdelivery_edit div.autoscroll{
+  overflow: visible;
+}
+
 form#wktime_edit .contextual{
   float: none;
   text-align: right;
 }
+form#query_form  div#account_form  div.splitcontent {
+  overflow: visible;
+}
+
+form#query_form  div#billingschdules.autoscroll {
+  overflow: visible;
+}
+
