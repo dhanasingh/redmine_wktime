@@ -106,6 +106,6 @@ form#query_form .autoscroll {
   margin-left: 10px;
 }
 
-#mapContainer #map {
+table#wktimeHeader #mapContainer #map {
   position: unset !important;
 }
