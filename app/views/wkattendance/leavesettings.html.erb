@@ -53,7 +53,7 @@
   <p>
 		<label><%= l(:label_wk_leave) %></label>
 			<%=  select_tag('settings[leave_settings]',
-				options_for_select(leave, :selected => 'settings[leave_settings]'), :multiple=> true, :style => "min-width:200px; height:100px;")%>
+				options_for_select(leave, :selected => 'settings[leave_settings]'), :multiple=> true, :style => "min-width:200px; height:100px;", class: 'multi-row')%>
 
 		</p>
 		<p>

@@ -46,7 +46,7 @@ lblYear = "<%=l(:label_year) %>";
 		%>
 	<label><%= l(:label_wk_break_time) %></label>
 		<%=  select_tag('settings[wktime_break_time]',
-			options_for_select(breakTime, :selected => 'settings[wktime_break_time]'), :multiple=> true, :style => "width:200px; height:100px;")%>	
+			options_for_select(breakTime, :selected => 'settings[wktime_break_time]'), :multiple=> true, :style => "width:200px; height:100px;", class: 'multi-row')%>	
 
 	</p>			
 	<p>
@@ -251,7 +251,7 @@ lblYear = "<%=l(:label_year) %>";
 		<tbody>
 			<tr valign="top">
 				<td>					
-					<%= select_tag('settings[wktime_avialable_fields]', options_for_select(available_fields.invert), :multiple => true, :size=> 10, :style => "width:150px; ") %>
+					<%= select_tag('settings[wktime_avialable_fields]', options_for_select(available_fields.invert), :multiple => true, :size=> 10, :style => "width:150px;", class: 'multi-row') %>
 				</td>
 				<td valign="center">
 					<button type="button" onclick="listbox_moveacross('settings_wktime_avialable_fields', 'settings_wktime_fields_in_file')" id="rightmove" style="position:relative; top:40px;">&gt;&gt;</button>
@@ -259,7 +259,7 @@ lblYear = "<%=l(:label_year) %>";
 					<button type="button" onclick="listbox_moveacross('settings_wktime_fields_in_file', 'settings_wktime_avialable_fields')" id="rightmove" style="position:relative; top:50px;">&lt;&lt;</button>
 				</td>
 				<td>					
-					<%= select_tag('settings[wktime_fields_in_file]', options_for_select(fldInFiles.invert, :selected =>  @settings['wktime_fields_in_file'] ), :multiple => true, :size => 10, :style => "width:150px;") %>
+					<%= select_tag('settings[wktime_fields_in_file]', options_for_select(fldInFiles.invert, :selected =>  @settings['wktime_fields_in_file'] ), :multiple => true, :size => 10, :style => "width:150px;", class: 'multi-row') %>
 				</td>
 			</tr>
 		</tbody>

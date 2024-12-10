@@ -5,17 +5,18 @@
 <%= hidden_field_tag 'getspenttype_url', url_for(:controller => 'wklogmaterial', :action => 'loadSpentType') %>
 
 <!-- For SideBar theme -->
-<% if Setting.ui_theme.to_s.downcase == "sidebar" %>
+<% if Setting.ui_theme.to_s.downcase == "sidebar" || (["sidebar_white", "sidebar-white"].include?(Setting.ui_theme.to_s.downcase)) %>
     <%= stylesheet_link_tag 'sidebar', :plugin => "redmine_wktime" %>
     <%= javascript_tag do %>
         $(function() {
-            $("#top-menu .wkdashboard").attr("title", "ERPmine");
+            $("#top-menu .wkdashboard").prop("title", "ERPmine");
             var topMenus = [];
             $("#top-menu ul li a").each(function() {
-                var classNames = ($(this).attr('class')).split(" ");
+                var classNames = $(this).prop('class');
+                classNames = (classNames || "").split(" ");
                 var menuItem = classNames[0];
                 if(menuItem == "wkdashboard" && $("#main-menu ul").children("li").length > 0) {
-                    var firstMenu =$("#main-menu ul").children("li").find("a").first().attr("href");
+                    var firstMenu =$("#main-menu ul").children("li").find("a").first().prop("href");
                     if(firstMenu.match("^/wk") || firstMenu.match("^/rm")) {
                         $("."+menuItem).parent('li').addClass("active");
                     }

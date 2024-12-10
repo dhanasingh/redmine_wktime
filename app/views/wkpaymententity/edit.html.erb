@@ -70,7 +70,10 @@
 				<th align="left"><%= l(:label_payment_date) %></th>
 				<td align="left" style="padding-left:40px;"><%=h date_field_tag('payment_date',@payment.blank? ? Date.today : @payment.payment_date, :size => 10, :required => true) %> <%= calendar_for('payment_date') %></td>
 				<th align="left"><%= l(:label_payment_type) %></th>
-				<td align="left" style="padding-left:40px;"><%=h select_tag('payment_type_id', options_for_select(options_for_enum_select('PT', selectedPTId, false)),:required => true) %></td>
+				<td align="left" style="padding-left:40px;">
+					<%=h select_tag('payment_type_id', options_for_select(options_for_enum_select('PT', selectedPTId, false)),:required => true, onchange: "$('#hidden_pay_type_id').val(this.value)") %>
+					<%= hidden_field_tag "payment_type_id", selectedPTId, id: "hidden_pay_type_id" %>
+				</td>
 				<th align="left"><%= l(:label_reference_number) %></th>
 				<td align="left" style="padding-left:40px;"><%=h text_field_tag("reference_number",@payment.blank? ? '' : @payment.reference_number, :maxlength => 255) %> </td>
 			</tr>
@@ -94,3 +97,8 @@
 			<label><b><%= l(:label_no_data) %></b></label>
 		<% end %>
 	<% end %>
+<script>
+	$(document).ready(function(){
+		$('#hidden_pay_type_id').val($('#payment_type_id').val());
+	})
+</script>

@@ -497,8 +497,8 @@ module SendPatch::TimelogControllerPatch
 					@time_entries = WkMaterialEntry.where(:id => params[:id] || params[:ids])
 					raise ActiveRecord::RecordNotFound if @time_entries.empty?
 				# ===================================
-					@projects = @time_entries.filter_map(&:project).uniq
 				end
+				@projects = @time_entries.filter_map(&:project).uniq
 				@project = @projects.first if @projects.size == 1
 				rescue ActiveRecord::RecordNotFound
 				render_404

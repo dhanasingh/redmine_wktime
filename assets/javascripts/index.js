@@ -381,19 +381,19 @@ function projChanged(projDropdown, userid, needBlankOption){
 		url: userUrl,
 		type: 'get',
 		data: {project_id: id, user_id: userid, format:fmt},
-		success: function(data){ updateUserDD(data, userDropdown, userid, needBlankOption, false,"All Users"); },
+		success: function(data){ updateUserDD(data, userDropdown, userid, needBlankOption, false,"All Users", "0"); },
 		beforeSend: function(){ $this.addClass('ajax-loading'); },
 		complete: function(){ $this.removeClass('ajax-loading'); }
 	});
 }
-function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, blankText)
+function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, blankText, blankval="")
 {
 	var items = itemStr.split('\n');
 	var i, index, val, text, start;
 	if(dropdown != null && dropdown.options != null){
 		dropdown.options.length = 0;
 		if(needBlankOption){
-			dropdown.options[0] = new Option(blankText, "", false, false)
+			dropdown.options[0] = new Option(blankText, blankval, false, false)
 		}
 		for(i=0; i < items.length-1; i++){
 			index = items[i].indexOf(',');
@@ -463,7 +463,7 @@ function grpChanged(grpDropdown, userid, needBlankOption){
 		url: grpUrl,
 		type: 'get',
 		data: {user_id: userid, format:fmt,group_id:id},
-		success: function(data){ updateUserDD(data, userDropdown, userid, needBlankOption, false,"All Users"); },
+		success: function(data){ updateUserDD(data, userDropdown, userid, needBlankOption, false,"All Users", "0"); },
 		beforeSend: function(){ $this.addClass('ajax-loading'); },
 		complete: function(){ $this.removeClass('ajax-loading'); }
 	});
