@@ -94,3 +94,14 @@ form#query_form  div#billingschdules.autoscroll {
   overflow: visible;
 }
 
+from#query_form .autoscroll {
+  overflow-x: unset;
+}
+
+#comment-dlg .attachments_fields input.description {
+  width: auto;
+}
+
+.ui-dialog .ui-dialog-buttonpane button {
+  margin-left: 10px;
+}
