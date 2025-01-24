@@ -58,7 +58,8 @@ class WksurveyController < WkbaseController
     @edit_Choice_Entries = nil
     getSurveyForType(params)
     unless params[:survey_id].blank?
-      @edit_Question_Entries = WkSurvey.joins("LEFT JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id")
+		  sq_filter = call_hook(:survey_questions_filter, comp_id: @comp_id ) || ""
+      @edit_Question_Entries = WkSurvey.joins("LEFT JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id"+sq_filter[0])
       .where(:id => params[:survey_id].to_i).select("wk_survey_questions.id AS question_id, wk_survey_questions.name AS question_name,
         wk_survey_questions.question_type, is_reviewer_only, is_mandatory, not_in_report").order("question_id")
 
