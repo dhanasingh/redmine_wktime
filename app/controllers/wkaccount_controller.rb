@@ -37,8 +37,7 @@ class WkaccountController < WkcrmController
 		@account_entries = nil
 		location = WkLocation.where(:is_default => 'true').first
 
-		entries = WkAccount.joins("LEFT JOIN wk_locations AS L ON wk_accounts.location_id = L.id
-			LEFT JOIN wk_addresses AS A on wk_accounts.address_id = A.id")
+		entries = WkAccount.includes(:location, :address)
 
 		if accName.blank?
 			entries = entries.where(:account_type => getAccountType)
@@ -95,7 +94,7 @@ class WkaccountController < WkcrmController
   end
 
 	def edit
-	  @accountEntry = nil
+		@accountEntry = nil
 		unless params[:account_id].blank?
 			set_filter_session
 			@accountproject = formPagination(accountProjctList)
@@ -104,11 +103,11 @@ class WkaccountController < WkcrmController
 		end
 		respond_to do |format|
 			format.html do
-			  render :layout => !request.xhr?
+				render :layout => !request.xhr?
 			end
 			format.api
 		end
-  end
+	end
 
 	def update
 		wkaccount = accountSave

@@ -30,7 +30,7 @@ class WkexpenseController < WktimeController
 
 
   def getLabelforSpField
-	l(:field_amount)
+    l(:field_amount)
   end
 
   def getCFInRowHeaderHTML
@@ -42,46 +42,47 @@ class WkexpenseController < WktimeController
   end
 
   def getTFSettingName
-	"wkexpense_issues_filter_tracker"
+    "wkexpense_issues_filter_tracker"
   end
 
   def showSpentFor
-	false
+    false
   end
 
   def getUnit(entry)
-	entry.nil? ? number_currency_format_unit : entry[:currency]
+    entry.nil? ? number_currency_format_unit : entry[:currency]
   end
 
   def getUnitDDHTML
-	"wkexpense_currency"
+    "wkexpense_currency"
   end
 
   def getUnitLabel
-	l(:field_currency)
+    l(:field_currency)
   end
 
   def showWorktimeHeader
-	false
+    false
   end
 
   def enterCustomFieldInRow(row)
-	false
+    false
   end
 
   def maxHour
-	0
+    0
   end
+
   def minHour
-	0
+    0
   end
 
   def total_all(total)
-	total.nil? ? html_hours("%.2f" % 0.00) : html_hours("%.2f" % total)
+    total.nil? ? html_hours("%.2f" % 0.00) : html_hours("%.2f" % total)
   end
 
-   def report
-	@query = WkExpenseEntryQuery.build_from_params(params, :project => @project, :name => '_')
+  def report
+    @query = WkExpenseEntryQuery.build_from_params(params, :project => @project, :name => '_')
     scope = expense_entry_scope
     @report = WkexpenseHelper::WKExpenseReport.new(@project, @issue, params[:criteria], params[:columns], scope)
     respond_to do |format|
@@ -91,16 +92,16 @@ class WkexpenseController < WktimeController
   end
 
   def deleteEntry
-	respond_to do |format|
-		format.html {
-			if delete(params[:id])
-				flash[:notice] = l(:notice_successful_delete)
-			else
-				flash[:error] = l(:error_expense_entry_delete)
-			end
-			redirect_to :action => 'reportdetail', :project_id => params[:project]
-		}
-	end
+    respond_to do |format|
+      format.html {
+        if delete(params[:id])
+          flash[:notice] = l(:notice_successful_delete)
+        else
+          flash[:error] = l(:error_expense_entry_delete)
+        end
+        redirect_to :action => 'reportdetail', :project_id => params[:project]
+      }
+    end
   end
 
   def textfield_size
@@ -127,9 +128,9 @@ class WkexpenseController < WktimeController
 	0
   end
 
-	def getCurrency
+  def getCurrency
     wkCurrency = options_for_currency
-		currencies = wkCurrency.map { |cur| { value: cur[1], label: cur[0] }}
+    currencies = wkCurrency.map { |cur| { value: cur[1], label: cur[0] }}
     render json: currencies
   end
 
@@ -152,10 +153,10 @@ class WkexpenseController < WktimeController
     'WkExpenseEntry'
   end
 
-	def check_module_permission
-		unless showExpense
-			render_403
-		  return false
+  def check_module_permission
+    unless showExpense
+      render_403
+      return false
     end
   end
 
@@ -170,29 +171,30 @@ class WkexpenseController < WktimeController
 
 private
   def getSpecificField
-	"amount"
+    "amount"
   end
 
   def getEntityNames
-	["#{Wkexpense.table_name}", "#{WkExpenseEntry.table_name}"]
+    ["#{Wkexpense.table_name}", "#{WkExpenseEntry.table_name}"]
   end
 
   def getQuery(teQuery, ids, from, to, status)
-		spField = getSpecificField()
-		dtRangeForUsrSqlStr =  "(" + getAllWeekSql(from, to) + ") tmp1"
-		teSqlStr = "(" + teQuery + ") tmp2"
+    spField = getSpecificField()
+    dtRangeForUsrSqlStr =  "(" + getAllWeekSql(from, to) + ") tmp1"
+    teSqlStr = "(" + teQuery + ") tmp2"
     selectStr = "select tmp3.id, tmp3.user_id as user_id , tmp3.spent_on as spent_on, tmp3.#{spField} as #{spField}, tmp3.status as status, tmp3.status_updater as status_updater, tmp3.created_on as created_on, tmp3.currency as currency"
     query = " from (select tmp2.id, tmp1.id as user_id, tmp1.created_on, tmp1.selected_date as spent_on, " +
-				"case when tmp2.#{spField} is null then 0 else tmp2.#{spField} end as #{spField}, " +
-				"case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.currency, tmp2.status_updater from "
-		query = query + dtRangeForUsrSqlStr + " left join " + teSqlStr
-		query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids}) ) tmp3 "
-		query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id as usrid from wk_expense_entries t, users u "
-    query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id "
-		query = query + " left join users AS un on un.id = tmp3.user_id "
+        "case when tmp2.#{spField} is null then 0 else tmp2.#{spField} end as #{spField}, " +
+        "case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.currency, tmp2.status_updater from "
+    query = query + dtRangeForUsrSqlStr + " left join " + teSqlStr
+    query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids}) ) tmp3 "
+    query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id as usrid from wk_expense_entries t, users u "
+    query = query + " where u.id = t.user_id and u.id in (#{ids}) #{get_comp_condition('t')} #{get_comp_condition('u')}
+      group by t.user_id ) vw on vw.usrid = tmp3.user_id "
+    query = query + " left join users AS un on un.id = tmp3.user_id " + get_comp_condition('un')
     query = query + getWhereCond(status)
     return [selectStr, query]
-	end
+  end
 
   def findBySql(selectStr, query, orderStr)
 		spField = getSpecificField()
@@ -205,20 +207,27 @@ private
   end
 
   def getTEAllTimeRange(ids)
-	teQuery = "select v.startday as startday from (select #{getDateSqlString('t.spent_on')} as startday " +
-				"from wk_expense_entries t where user_id in (#{ids})) v group by v.startday order by v.startday"
-	teResult = WkExpenseEntry.find_by_sql(teQuery)
+    teQuery = "select v.startday as startday
+      from (
+        select #{getDateSqlString('t.spent_on')} as startday " +
+        "from wk_expense_entries t
+        where user_id in (#{ids}) #{get_comp_condition('t')}
+      ) v
+      group by v.startday order by v.startday"
+    WkExpenseEntry.find_by_sql(teQuery)
   end
 
   def findWkTEByCond(cond)
-	@wktimes = Wkexpense.where(cond)
+    @wktimes = Wkexpense.where(cond)
   end
 
   def getUserwkStatuses
     cond = getCondition('spent_on', @user.id, @startday, @startday+6)
     @userEntries = findEntriesByCond(cond)
-		@approvedwkStatuses = @userEntries.joins("LEFT JOIN wk_statuses ON wk_expense_entries.id = wk_statuses.status_for_id").where("status_for_type='WkExpenseEntry' and wk_statuses.status = 'a'").select("wk_expense_entries.*")
-	end
+    @approvedwkStatuses = @userEntries.joins("LEFT JOIN wk_statuses ON wk_expense_entries.id = wk_statuses.status_for_id #{get_comp_condition('wk_statuses')} ")
+      .where("status_for_type='WkExpenseEntry' and wk_statuses.status = 'a'")
+      .select("wk_expense_entries.*")
+  end
 
   def getApproverPermProj
     @approverEntries = []
@@ -227,71 +236,72 @@ private
     if approvableProj.present?
       cond = "spent_on BETWEEN '#{@startday}' AND '#{@startday+6}' AND user_id = #{@user.id} AND wk_expense_entries.project_id IN (#{approvableProj})"
       @approverEntries = findEntriesByCond(cond)
-      @approverwkStatuses = @approverEntries.joins("LEFT JOIN wk_statuses ON wk_expense_entries.id = wk_statuses.status_for_id").where("status_for_type='WkExpenseEntry' and wk_statuses.status = 'a' ")
+      @approverwkStatuses = @approverEntries.joins("LEFT JOIN wk_statuses ON wk_expense_entries.id = wk_statuses.status_for_id #{get_comp_condition('wk_statuses')} ")
+        .where("status_for_type='WkExpenseEntry' and wk_statuses.status = 'a' ")
     end
   end
 
   def findEntriesByCond(cond)
-	#WkExpenseEntry.joins(:project).joins(:activity).joins("LEFT OUTER JOIN issues ON issues.id = wk_expense_entries.issue_id").where(cond).order('projects.name, issues.subject, enumerations.name, wk_expense_entries.spent_on')
-	@renderer.getSheetEntries(cond, WkExpenseEntry, getFiletrParams)
+    #WkExpenseEntry.joins(:project).joins(:activity).joins("LEFT OUTER JOIN issues ON issues.id = wk_expense_entries.issue_id").where(cond).order('projects.name, issues.subject, enumerations.name, wk_expense_entries.spent_on')
+    @renderer.getSheetEntries(cond, WkExpenseEntry, getFiletrParams)
   end
 
   def setValueForSpField(teEntry,spValue,decimal_separator,entry)
-	teEntry.amount = spValue.blank? ? nil : spValue.gsub(decimal_separator, '.').to_f
-	teEntry.currency = getUnit(entry)
+    teEntry.amount = spValue.blank? ? nil : spValue.gsub(decimal_separator, '.').to_f
+    teEntry.currency = getUnit(entry)
   end
 
   def getWkEntity
-	Wkexpense.new
+    Wkexpense.new
   end
 
   def getTEEntry(id)
-	id.blank? ? WkExpenseEntry.new : WkExpenseEntry.find(id)
+    id.blank? ? WkExpenseEntry.new : WkExpenseEntry.find(id)
   end
 
   def deleteWkEntity(cond)
-	Wkexpense.where(cond).delete_all
+    Wkexpense.where(cond).delete_all
   end
 
   def delete(ids)
-	#WkExpenseEntry.delete(ids)
-	errMsg = false
-	@expense_entries = WkExpenseEntry.where(:id => ids)#WkExpenseEntry.find_by_sql("SELECT * FROM wk_expense_entries w where id = #{ids} ;")
-	destroyed = WkExpenseEntry.transaction do
-		@expense_entries.each do |t|
-			status = getExpenseEntryStatus(t.spent_on, t.user_id)
-			if !status.blank? && ('a' == status || 's' == status || 'l' == status)
-				 errMsg = false
-			else
-				errMsg = true
-				WkExpenseEntry.delete(ids)
-				break
-			end
-		end
-	end
-	errMsg
+    #WkExpenseEntry.delete(ids)
+    errMsg = false
+    @expense_entries = WkExpenseEntry.where(:id => ids)#WkExpenseEntry.find_by_sql("SELECT * FROM wk_expense_entries w where id = #{ids} ;")
+    destroyed = WkExpenseEntry.transaction do
+      @expense_entries.each do |t|
+        status = getExpenseEntryStatus(t.spent_on, t.user_id)
+        if !status.blank? && ('a' == status || 's' == status || 'l' == status)
+            errMsg = false
+        else
+          errMsg = true
+          WkExpenseEntry.delete(ids)
+          break
+        end
+      end
+    end
+    errMsg
   end
 
   def findTEEntries(ids)
-	WkExpenseEntry.find(ids)
+    WkExpenseEntry.find(ids)
   end
 
   def setTotal(wkEntity,total)
-	wkEntity.amount = total
+    wkEntity.amount = total
   end
 
   def setEntityLabel
-	l(:label_wkexpense)
+    l(:label_wkexpense)
   end
 
   def setTEProjects(projects)
-	expense_project_ids =  Setting.plugin_redmine_wktime['wkexpense_projects']
-	if(!expense_project_ids.blank? && expense_project_ids != [""])
-		#expense_projects = Project.find_all_by_id(expense_project_ids)
-		expense_projects = Project.find(expense_project_ids)
-		projects = projects & expense_projects
-	end
-	projects
+    expense_project_ids =  Setting.plugin_redmine_wktime['wkexpense_projects']
+    if(!expense_project_ids.blank? && expense_project_ids != [""])
+      #expense_projects = Project.find_all_by_id(expense_project_ids)
+      expense_projects = Project.find(expense_project_ids)
+      projects = projects & expense_projects
+    end
+    projects
   end
 
   def find_optional_project
@@ -304,11 +314,11 @@ private
   end
 
   def validateEntry(stDate)
-	errorMsg = nil
+    nil
   end
 
   def getTEName
-	"expense"
+    "expense"
   end
 
   # Returns the ExpenseEntry scope for index and report actions
@@ -321,38 +331,38 @@ private
   end
 
   def findTEEntryBySql(query)
-	WkExpenseEntry.find_by_sql(query)
+    WkExpenseEntry.find_by_sql(query)
   end
 
   def formQuery(wkSelectStr, sqlStr, wkSqlStr)
-	query =  wkSelectStr + " ,exp.currency" + sqlStr + " inner join wk_expense_entries exp on v1.id = exp.id " + wkSqlStr
+    wkSelectStr + " ,exp.currency" + sqlStr + " inner join wk_expense_entries exp on v1.id = exp.id #{get_comp_condition('exp')} " + wkSqlStr
   end
 
   def getUserCFFromSession
-	#return user custom field filters from session
-	session[:wkexpense][:filters]
+    #return user custom field filters from session
+    session[:wkexpense][:filters]
   end
 
   def getUserIdFromSession
-	#return user_id from session
-	session[:wkexpense][:user_id]
+    #return user_id from session
+    session[:wkexpense][:user_id]
   end
 
   def getStatusFromSession
-	session[:wkexpense][:status]
+    session[:wkexpense][:status]
   end
 
   def setUserIdsInSession(ids)
-	session[:wkexpense][:all_user_ids] = ids
+    session[:wkexpense][:all_user_ids] = ids
   end
 
   def getUserIdsFromSession
-	session[:wkexpense][:all_user_ids]
+    session[:wkexpense][:all_user_ids]
   end
 
-	def getLastPDFCell(list, entry)
-		list << [ entry.currency.to_s + " " + entry.amount.to_s , 40 ]
-		list
+  def getLastPDFCell(list, entry)
+    list << [ entry.currency.to_s + " " + entry.amount.to_s , 40 ]
+    list
   end
 
 	def getPDFFooter(pdf, row_Height)

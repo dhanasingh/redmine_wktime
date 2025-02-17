@@ -61,12 +61,12 @@ class WkbrandController < WkinventoryController
 	end
 
 	def edit
-	    @brandEntry = nil
-	    unless params[:brand_id].blank?
-		   @brandEntry = WkBrand.find(params[:brand_id])
-		   orderColumn = 'product_id, name'
-		   @productModelEntries = formPagination(@brandEntry.product_models, orderColumn)
-		   @brandProducts = @brandEntry.brand_products.map { |r| r.product_id }
+		@brandEntry = nil
+		unless params[:brand_id].blank?
+			@brandEntry = WkBrand.find(params[:brand_id])
+			orderColumn = 'product_id, name'
+			@productModelEntries = formPagination(@brandEntry.product_models, orderColumn)
+			@brandProducts = @brandEntry.brand_products.map { |r| r.product_id }
 		end
 	end
 
@@ -102,7 +102,7 @@ class WkbrandController < WkinventoryController
 		    redirect_to :controller => 'wkbrand',:action => 'index' , :tab => 'wkbrand'
 		    flash[:error] = brand.errors.full_messages.join("<br>")
 		end
-    end
+	end
 
 	def destroy
 		brand = WkBrand.find(params[:brand_id].to_i)
@@ -117,8 +117,8 @@ class WkbrandController < WkinventoryController
 	def edit_product_model
 		@modelEntry = nil
 		@brand = WkBrand.find(params[:brand_id].to_i)
-	    unless params[:product_model_id].blank?
-		   @modelEntry = WkProductModel.find(params[:product_model_id])
+		unless params[:product_model_id].blank?
+			@modelEntry = WkProductModel.find(params[:product_model_id])
 		end
 	end
 
@@ -160,7 +160,7 @@ class WkbrandController < WkinventoryController
 		redirect_back_or_default :action => 'edit' , :tab => 'wkbrand', :brand_id => brandId
 	end
 
-   def setLimitAndOffset
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?

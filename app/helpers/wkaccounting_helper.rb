@@ -54,11 +54,11 @@ include WktimeHelper
 			}
 		ledgerType
 	end
-	
+
 	def getSectionHeader(type)
 		getLedgerTypeHash[type].blank? ? l(:report_profit_loss) : getLedgerTypeHash[type]
 	end
-	
+
 	def getLedgerTypeGrpHash
 		ledgerTypeGrps = {
 			"CA" => ['BA', 'CS', 'DP', 'AD', 'SD', 'IN', 'MS'], #'SH',
@@ -69,26 +69,26 @@ include WktimeHelper
 		}
 		ledgerTypeGrps
 	end
-	
+
 	def incomeLedgerTypes
 		['SA','DI','II']
 	end
-	
+
 	def expenseLedgerTypes
 		['PA','DE','IE']
 	end
-	
+
 	def sourceOfFundLTypes
 		['C', 'L', 'CL', 'SP', 'SY']
 	end
-	
+
 	def appOfFundLTypes
 		 ['FA', 'CA']
 	end
-	
+
 	def getSubEntries(from, asOnDate, ledgerType)
 		subEntriesHash = nil
-		bsEndDate = ledgerType == 'PL' ? from -1  : asOnDate
+		bsEndDate = ledgerType == 'PL' ? from - 1  : asOnDate
 		unless getLedgerTypeGrpHash[ledgerType].blank?
 			subEntriesHash = Hash.new
 			getLedgerTypeGrpHash[ledgerType].each do |subType|
@@ -109,11 +109,11 @@ include WktimeHelper
 			plOpeningBal = getEachLedgerBSAmt(bsEndDate, ['SY']).blank? ? 0 : getEachLedgerBSAmt(bsEndDate, ['SY']).values[0]
 			subEntriesHash[l(:wk_label_opening)+ " " + l(:wk_field_balance)] = totalIncome - totalExpense + (defLedger[0].opening_balance.blank? ? 0 : defLedger[0].opening_balance) + plOpeningBal
 			subEntriesHash[l(:label_current)+ " " + l(:label_period)] = getPLfor(from, asOnDate)
-			
+
 		end
 		subEntriesHash
 	end
-	
+
 	def getPLfor(from, to)
 		totalIncome = 0
 		totalExpense = 0
@@ -121,7 +121,7 @@ include WktimeHelper
 			income = getEachLedgerSumAmt(from, to, [type])
 			totalIncome = totalIncome + income.values.inject(:+) unless income.blank?
 		end
-		
+
 		expenseLedgerTypes.each do |type|
 			expense = getEachLedgerSumAmt(from, to, [type])
 			totalExpense = totalExpense + expense.values.inject(:+) unless expense.blank?
@@ -129,7 +129,7 @@ include WktimeHelper
 		profit = totalIncome - totalExpense
 		profit
 	end
-	
+
 	def getEntriesTotal(entriesHash)
 		total = 0
 		entriesHash.each do |entry|
@@ -143,15 +143,15 @@ include WktimeHelper
 		end
 		total
 	end
-	
+
 	def getTransDetails(from, to)
 		WkGlTransactionDetail.includes(:ledger, :wkgltransaction).where('wk_gl_transactions.trans_date between ? and ?', from, to).references(:ledger,:wkgltransaction)
 	end
-	
+
 	def getBSProfitLoss(from, to)
 		WkGlTransactionDetail.includes(:ledger, :wkgltransaction).where('wk_gl_transactions.trans_date between ? and ?', from, to).references(:ledger,:wkgltransaction)
 	end
-	
+
 	def getEachLedgerBSAmt(asOnDate, ledgerType)
 		typeArr = ['c', 'd']
 		detailHash = Hash.new
@@ -168,7 +168,7 @@ include WktimeHelper
 		end
 		balHash
 	end
-	
+
 	def calculateBalance(creditHash, debitHash, ledgerType)
 		if isSubtractCr(ledgerType)
 			creditHash = inverseHashVal(creditHash)
@@ -178,7 +178,7 @@ include WktimeHelper
 		profitHash = creditHash.merge(debitHash){|key, oldval, newval| newval + oldval}
 		profitHash
 	end
-	
+
 	def isSubtractCr(ledgerType)
 		isSubtract = true
 		subLedTypeArr = []
@@ -192,7 +192,7 @@ include WktimeHelper
 		end
 		isSubtract
 	end
-	
+
 	def inverseHashVal(sourceHash)
 		targetHash = Hash.new
 		sourceHash.each do |key, val|
@@ -200,7 +200,7 @@ include WktimeHelper
 		end
 		targetHash
 	end
-	
+
 	def getEachLedgerSumAmt(from, to, ledgerType)
 		typeArr = ['c', 'd']
 		detailHash = Hash.new
@@ -216,7 +216,7 @@ include WktimeHelper
 		profitHash = calculateBalance(detailHash['c'], detailHash['d'], ledgerType[0])
 		profitHash
 	end
-	
+
 	def getTransType(crLedgerType, dbLedgerType)
 		transtype = nil
 		if (crLedgerType == 'C' || crLedgerType == 'BA') && (dbLedgerType == 'C' || dbLedgerType == 'BA')
@@ -234,7 +234,7 @@ include WktimeHelper
 		end
 		transtype
 	end
-	
+
 	def getEachLedgerCDAmt(from, to, ledgerType)
 		typeArr = ['c', 'd']
 		detailHash = Hash.new
@@ -251,7 +251,7 @@ include WktimeHelper
 			ledgers = WkLedger.where(:ledger_type => ledgerType)
 			isSubCr = isSubtractCr(ledgerType)
 			ledgers.each do |ledger|
-				key = ledger.name 
+				key = ledger.name
 				creditDebitHash[key] = Hash.new if creditDebitHash[key].blank?
 				if !detailHash['d'][ledger.id].blank? && !detailHash['c'][ledger.id].blank?
 					creditDebitDiff = (detailHash['d'][ledger.id]) - (detailHash['c'][ledger.id])
@@ -263,9 +263,9 @@ include WktimeHelper
 				end
 			end
 		end
-		creditDebitHash	
+		creditDebitHash
 	end
-	
+
 	def getTBSubEntries(from, to, ledgerType)
 		subEntriesHash = nil
 		unless getLedgerTypeGrpHash[ledgerType].blank?
@@ -289,7 +289,7 @@ include WktimeHelper
 					else
 						@creditTot += amount unless amount.blank?
 					end
-				end 
+				end
 			end
 		end
 		unless subHash.blank?
@@ -302,7 +302,7 @@ include WktimeHelper
 							@creditTot += amount unless amount.blank?
 						end
 					end
-				end 
+				end
 			end
 		end
 		creditDebitTotHash['debit'] = @debitTot

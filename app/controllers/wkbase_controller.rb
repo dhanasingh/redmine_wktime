@@ -98,41 +98,41 @@ class WkbaseController < ApplicationController
 		todate = session[controller_name].try( :[], :to)
 
 		if (period_type == '1' || (period_type.nil? && !period.nil?))
-		    case period.to_s
-			  when 'today'
+			case period.to_s
+			when 'today'
 				@from = @to = Date.today
-			  when 'yesterday'
+			when 'yesterday'
 				@from = @to = Date.today - 1
-			  when 'current_week'
+			when 'current_week'
 				@from = getStartDay(Date.today - (Date.today.cwday - 1)%7)
 				@to = @from + 6
-			  when 'last_week'
+			when 'last_week'
 				@from =getStartDay(Date.today - 7 - (Date.today.cwday - 1)%7)
 				@to = @from + 6
-			  when '7_days'
+			when '7_days'
 				@from = Date.today - 7
 				@to = Date.today
-			  when 'current_month'
+			when 'current_month'
 				@from = Date.civil(Date.today.year, Date.today.month, 1)
 				@to = (@from >> 1) - 1
-			  when 'last_month'
+			when 'last_month'
 				@from = Date.civil(Date.today.year, Date.today.month, 1) << 1
 				@to = (@from >> 1) - 1
-			  when '30_days'
+			when '30_days'
 				@from = Date.today - 30
 				@to = Date.today
-			  when 'current_year'
+			when 'current_year'
 				@from = Date.civil(Date.today.year, 1, 1)
 				@to = Date.civil(Date.today.year, 12, 31)
-	        end
+			end
 		elsif period_type == '2' || (period_type.nil? && (!fromdate.nil? || !todate.nil?))
-		    begin; @from = fromdate.to_s.to_date unless fromdate.blank?; rescue; end
-		    begin; @to = todate.to_s.to_date unless todate.blank?; rescue; end
-		    @free_period = true
+			begin; @from = fromdate.to_s.to_date unless fromdate.blank?; rescue; end
+			begin; @to = todate.to_s.to_date unless todate.blank?; rescue; end
+			@free_period = true
 		else
 			@from = Date.civil(Date.today.year, Date.today.month, 1)
 			@to = (@from >> 1) - 1
-	    end
+		end
 
 		@from, @to = @to, @from if @from && @to && @from > @to
 

@@ -56,7 +56,7 @@ class WkcrmenumerationController < WkbaseController
 		end
     end
 
-    def edit
+	def edit
 		@enumEntry = nil
 		unless params[:enum_id].blank?
 			@enumEntry = WkCrmEnumeration.find(params[:enum_id].to_i)

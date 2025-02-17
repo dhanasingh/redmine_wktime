@@ -8,7 +8,7 @@ include WktimeHelper
 		end
 		ratePerHash
 	end
-	
+
 	def getAssetTypeHash(needBlank)
 		assetType = { 'O'  => l(:label_own), 'R' =>  l(:label_rental), 'L' => l(:label_lease) }
 		if needBlank
@@ -16,7 +16,7 @@ include WktimeHelper
 		end
 		assetType
 	end
-	
+
 	def getCurrentAssetValue(asset, period)
 		latestDepreciation = WkAssetDepreciation.where("inventory_item_id = ? AND depreciation_date < ? AND depreciation_date NOT BETWEEN ? AND ? " , asset.id, period[1], period[0], period[1]).order(:depreciation_date =>:desc).first
 		if latestDepreciation.blank?

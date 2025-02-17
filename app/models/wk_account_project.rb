@@ -29,8 +29,13 @@ class WkAccountProject < ApplicationRecord
   )
 
   belongs_to :project
-  #belongs_to :account, :class_name => 'WkAccount'
+
   belongs_to :parent, :polymorphic => true
+  has_one :wkaccount, -> { where(:wk_account_projects => {parent_type: 'WkAccount'}) },
+    class_name: 'WkAccount', foreign_key: 'id', primary_key: 'parent_id'
+  has_one :wkcontact, -> { where(:wk_account_projects => {parent_type: 'WkCrmContact'}) },
+    class_name: 'WkCrmContact', foreign_key: 'id', primary_key: 'parent_id'
+
   has_many :wk_billing_schedules, foreign_key: "account_project_id", class_name: "WkBillingSchedule", :dependent => :destroy
   has_many :wk_acc_project_taxes, foreign_key: "account_project_id", class_name: "WkAccProjectTax", :dependent => :destroy
   has_many :taxes, through: :wk_acc_project_taxes

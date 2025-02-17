@@ -61,29 +61,29 @@ class WkattributegroupController < WkinventoryController
 	end
 
 	def edit
-	    @groupEntry = nil
-	    unless params[:group_id].blank?
-		   @groupEntry = WkAttributeGroup.find(params[:group_id])
-		   @groupAttrEntries = formPagination(@groupEntry.product_attributes)
+		@groupEntry = nil
+		unless params[:group_id].blank?
+			@groupEntry = WkAttributeGroup.find(params[:group_id])
+			@groupAttrEntries = formPagination(@groupEntry.product_attributes)
 		end
 	end
 
 	def update
 		if params[:group_id].blank?
-		  attrGroup = WkAttributeGroup.new
+			attrGroup = WkAttributeGroup.new
 		else
-		  attrGroup = WkAttributeGroup.find(params[:group_id])
+			attrGroup = WkAttributeGroup.find(params[:group_id])
 		end
 		attrGroup.name = params[:name]
 		attrGroup.description = params[:description]
 		if attrGroup.save()
-		    redirect_to :controller => 'wkattributegroup',:action => 'index' , :tab => 'wkattributegroup'
-		    flash[:notice] = l(:notice_successful_update)
+			redirect_to :controller => 'wkattributegroup',:action => 'index' , :tab => 'wkattributegroup'
+			flash[:notice] = l(:notice_successful_update)
 		else
-		    redirect_to :controller => 'wkattributegroup',:action => 'index' , :tab => 'wkattributegroup'
-		    flash[:error] = attrGroup.errors.full_messages.join("<br>")
+			redirect_to :controller => 'wkattributegroup',:action => 'index' , :tab => 'wkattributegroup'
+			flash[:error] = attrGroup.errors.full_messages.join("<br>")
 		end
-    end
+	end
 
 	def destroy
 		attrGroup = WkAttributeGroup.find(params[:group_id].to_i)
@@ -98,8 +98,8 @@ class WkattributegroupController < WkinventoryController
 	def edit_product_attribute
 		@attributeEntry = nil
 		@groupEntry = WkAttributeGroup.find(params[:group_id].to_i)
-	    unless params[:product_attribute_id].blank?
-		   @attributeEntry = WkProductAttribute.find(params[:product_attribute_id])
+		unless params[:product_attribute_id].blank?
+			@attributeEntry = WkProductAttribute.find(params[:product_attribute_id])
 		end
 	end
 
@@ -132,7 +132,7 @@ class WkattributegroupController < WkinventoryController
 		redirect_back_or_default :action => 'edit' , :tab => 'wkattributegroup', :group_id => groupId
 	end
 
-   def setLimitAndOffset
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?

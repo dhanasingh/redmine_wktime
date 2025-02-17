@@ -34,7 +34,7 @@ module WkattendanceHelper
 		else
 			getLeaveSettings.each do |element|
 				if issueIds!=''
-					issueIds = issueIds +','
+					issueIds = issueIds + ','
 				end
 			  listboxArr = element.split('|')
 			  issueIds = issueIds + listboxArr[0]
@@ -74,20 +74,48 @@ module WkattendanceHelper
 
 			defWorkTime = !Setting.plugin_redmine_wktime['wktime_default_work_time'].blank? ? Setting.plugin_redmine_wktime['wktime_default_work_time'].to_i : 8
 
-			qryStr = "select v2.id, v1.user_id, v1.created_on, v1.issue_id, v2.hours, ul.balance, " +
-					"ul.accrual_on, ul.used, ul.accrual, v3.spent_hours, wu.join_date " +
-					"from (select u.id as user_id, i.issue_id, u.status, u.type, u.created_on from users u , " +
-					"(select id as issue_id from issues where id in (#{strIssueIds})) i) v1 " +
-					"left join (select max(id) as id, user_id, issue_id, sum(hours) as hours from time_entries " +
-					"where spent_on between '#{from}' and '#{to}' group by user_id, issue_id) v2 " +
-					"on v2.user_id = v1.user_id and v2.issue_id = v1.issue_id " +
-					"left join (select user_id, sum(hours) as spent_hours from wk_attendances " +
-					"where start_time between '#{from}' and '#{to}' " +
-					"group by user_id) v3 on v3.user_id = v1.user_id " +
-					"left join wk_user_leaves ul on ul.user_id = v1.user_id and ul.issue_id = v1.issue_id " +
-					"and ul.accrual_on between '#{prev_mon_from}' and '#{prev_mon_to}' " +
-					"left join wk_users wu on wu.user_id = v1.user_id " +
-					"where v1.status = 1 and v1.type = 'User'"
+			# qryStr = "select v2.id, v1.user_id, v1.created_on, v1.issue_id, v2.hours, ul.balance, " +
+			# 		"ul.accrual_on, ul.used, ul.accrual, v3.spent_hours, wu.join_date " +
+			# 		"from (select u.id as user_id, i.issue_id, u.status, u.type, u.created_on from users u , " +
+			# 		"(select id as issue_id from issues where id in (#{strIssueIds})) i) v1 " +
+			# 		"left join (select max(id) as id, user_id, issue_id, sum(hours) as hours from time_entries " +
+			# 		"where spent_on between '#{from}' and '#{to}' group by user_id, issue_id) v2 " +
+			# 		"on v2.user_id = v1.user_id and v2.issue_id = v1.issue_id " +
+			# 		"left join (select user_id, sum(hours) as spent_hours from wk_attendances " +
+			# 		"where start_time between '#{from}' and '#{to}' " +
+			# 		"group by user_id) v3 on v3.user_id = v1.user_id " +
+			# 		"left join wk_user_leaves ul on ul.user_id = v1.user_id and ul.issue_id = v1.issue_id " +
+			# 		"and ul.accrual_on between '#{prev_mon_from}' and '#{prev_mon_to}' " +
+			# 		"left join wk_users wu on wu.user_id = v1.user_id " + get_comp_cond('v1') +
+			# 		"where v1.status = 1 and v1.type = 'User'"
+
+			qryStr = "select v2.id, v1.user_id, v1.created_on, v1.issue_id, v2.hours, ul.balance,
+					ul.accrual_on, ul.used, ul.accrual, v3.spent_hours, wu.join_date
+					from (
+						select u.id as user_id, i.issue_id, u.status, u.type, u.created_on
+						from users u , (
+							select id as issue_id
+							from issues
+							where id in (#{strIssueIds}) #{get_comp_cond('issues')}
+						) i
+						#{get_comp_cond('u', 'where')}
+					) v1
+					left join (
+						select max(id) as id, user_id, issue_id, sum(hours) as hours
+						from time_entries
+						where spent_on between '#{from}' and '#{to}' #{get_comp_cond('time_entries')}
+						group by user_id, issue_id
+					) v2 on v2.user_id = v1.user_id and v2.issue_id = v1.issue_id
+					left join (
+						select user_id, sum(hours) as spent_hours
+						from wk_attendances
+						where start_time between '#{from}' and '#{to}' #{get_comp_cond('wk_attendances')}
+						group by user_id
+					) v3 on v3.user_id = v1.user_id
+					left join wk_user_leaves ul on ul.user_id = v1.user_id and ul.issue_id = v1.issue_id
+						and ul.accrual_on between '#{prev_mon_from}' and '#{prev_mon_to}' #{get_comp_cond('ul')}
+					left join wk_users wu on wu.user_id = v1.user_id #{get_comp_cond('wu')}
+					where v1.status = 1 and v1.type = 'User'"
 
 			entries = TimeEntry.find_by_sql(qryStr)
 			if !entries.blank?
@@ -202,7 +230,9 @@ module WkattendanceHelper
 	end
 
 	def getLeaveQueryStr(from,to)
-		queryStr = "select * from wk_user_leaves WHERE issue_id in (#{getLeaveIssueIds}) and accrual_on between '#{from}' and '#{to}'"
+		queryStr = "select *
+			from wk_user_leaves
+			WHERE issue_id in (#{getLeaveIssueIds}) and accrual_on between '#{from}' and '#{to}' #{get_comp_cond('wk_user_leaves')} "
 		if !(validateERPPermission('A_ATTEND') || User.current.admin?)
 			queryStr = queryStr + " and user_id = #{User.current.id} "
 		end

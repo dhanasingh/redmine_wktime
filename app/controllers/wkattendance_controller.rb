@@ -42,14 +42,14 @@ class WkattendanceController < WkbaseController
 		if(getLeaveSettings.blank?)
 			selectStr = " select u.id as user_id, u.firstname, u.lastname, u.status, -1 as issue_id "
 			sqlStr = " from users u"
-			sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id" if getSession(:group_id).present?
-			sqlStr = sqlStr + " where u.type = 'User' "
+			sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id " + get_comp_condition('gu') if getSession(:group_id).present?
+			sqlStr = sqlStr + " where u.type = 'User' " + get_comp_condition('u')
 		else
 			listboxArr = getLeaveSettings[0].split('|')
 			issueId = listboxArr[0]
 			queries = getListQueryStr
 			selectStr = queries[0]
-			sqlStr = queries[1] + " where u.type = 'User' and (wu.termination_date is null or wu.termination_date >= '#{lastMonthStartDt}')"
+			sqlStr = queries[1] + " where u.type = 'User' and (wu.termination_date is null or wu.termination_date >= '#{lastMonthStartDt}') " + get_comp_condition('u')
 		end
 		if !validateERPPermission('A_ATTEND')
 			sqlStr = sqlStr + " and u.id = #{User.current.id} "
@@ -71,11 +71,11 @@ class WkattendanceController < WkbaseController
 				render :layout => !request.xhr?
 			end
 			format.api do
-				@leave_entries = WkUserLeave.find_by_sql(selectStr + sqlStr +orderStr)
+				@leave_entries = WkUserLeave.find_by_sql(selectStr + sqlStr + orderStr)
 			end
       format.csv do
 				headers = {user: l(:field_user)}
-				entries = WkUserLeave.find_by_sql(selectStr + sqlStr +orderStr)
+				entries = WkUserLeave.find_by_sql(selectStr + sqlStr + orderStr)
 				data = []
 				entries.each_with_index do |e, index|
 					dataCol = {user: e.user&.name}
@@ -139,13 +139,12 @@ class WkattendanceController < WkbaseController
 			(select 0 i union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) t2,
 			(select 0 i union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) t3,
 			(select 0 i union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9)t4)v,
-			(select u.id, u.firstname, u.lastname, u.created_on from users u where u.type = 'User'
-			) u
+			(select u.id, u.firstname, u.lastname, u.created_on from users u where u.type = 'User' #{get_comp_condition('u')}) u
 			WHERE  v.selected_date between '#{@from}' and '#{@to}' AND u.id in (#{ids})) vw
 			left join(
 				 select id, start_time, end_time, " + getConvertDateStr('start_time') + " entry_date, hours, user_id, s_longitude, s_latitude, e_longitude, e_latitude
 				 from wk_attendances
-				 WHERE " + getConvertDateStr('start_time') +" between '#{@from}' and '#{@to}' AND user_id in (#{ids})
+				 WHERE " + getConvertDateStr('start_time') +" between '#{@from}' and '#{@to}' AND user_id in (#{ids}) #{get_comp_condition('wk_attendances')}
 			) evw on (vw.selected_date = evw.entry_date and vw.id = evw.user_id) where vw.id in (#{ids}) AND vw.selected_date <= '#{Time.now.to_date}'"
 		orderStr = " ORDER BY " + (sort_clause.present? ? sort_clause.first : "vw.selected_date desc, vw.firstname")
 
@@ -155,10 +154,10 @@ class WkattendanceController < WkbaseController
 				render :layout => !request.xhr?
 			end
 			format.api do
-				@clk_entries = WkAttendance.find_by_sql(selectStr + sqlQuery +orderStr)
+				@clk_entries = WkAttendance.find_by_sql(selectStr + sqlQuery + orderStr)
 			end
 			format.csv do
-				entries = WkAttendance.find_by_sql(selectStr + sqlQuery +orderStr)
+				entries = WkAttendance.find_by_sql(selectStr + sqlQuery + orderStr)
 				headers = {user: l(:field_user), date: l(:field_start_date), clockin: l(:label_clock_in), clockout: l(:label_clock_in), hours: l(:field_hours) }
 				data = entries.map{|e|
 					{user: e&.user&.name, date: e&.entry_date&.to_date, startDate: e&.start_time&.localtime&.strftime('%R'),
@@ -172,7 +171,8 @@ class WkattendanceController < WkbaseController
 	def clockedit
 		sqlQuery = "select a.id,a.user_id, a.start_time, a.end_time, a.hours, u.firstname, u.lastname, s_longitude, s_latitude, e_longitude, e_latitude
 			FROM users u
-			left join wk_attendances a  on u.id = a.user_id and #{getConvertDateStr('a.start_time')} = '#{params[:date].to_date}' where u.id = '#{params[:user_id]}' ORDER BY a.start_time"
+			left join wk_attendances a  on u.id = a.user_id and #{getConvertDateStr('a.start_time')} = '#{params[:date].to_date} #{get_comp_condition('a')} '
+			where u.id = '#{params[:user_id]}' #{get_comp_condition('u')} ORDER BY a.start_time"
 		@wkattnEntries = WkAttendance.find_by_sql(sqlQuery)
 		respond_to do |format|
 			format.html {
@@ -354,10 +354,12 @@ class WkattendanceController < WkbaseController
 	def getQueryStr
 		queryStr = ''
 		accrualOn = params[:accrual_on].blank? ? Date.civil(Date.today.year, Date.today.month, 1) -1 : params[:accrual_on].to_s.to_date
-		queryStr = "select u.id as user_id, u.firstname, u.lastname, i.id as issue_id,w.balance, w.accrual, w.used, w.accrual_on, w.id from users u " +
-			"left join wk_users wu on u.id = wu.user_id " +
-			"cross join issues i left join wk_user_leaves w on w.user_id = u.id and w.issue_id = i.id
-			and w.accrual_on = '#{accrualOn}' "
+		queryStr = "select u.id as user_id, u.firstname, u.lastname, i.id as issue_id,w.balance, w.accrual, w.used, w.accrual_on, w.id
+			from users u " +
+			"left join wk_users wu on u.id = wu.user_id " + get_comp_condition('wu') +
+			"cross join issues i
+			left join wk_user_leaves w on w.user_id = u.id and w.issue_id = i.id and w.accrual_on = '#{accrualOn}' " + get_comp_condition('i') +
+			get_comp_condition('w')
 		queryStr
 	end
 
@@ -369,14 +371,14 @@ class WkattendanceController < WkbaseController
 			if index < 5
 				tAlias = "w#{index.to_s}"
 				listboxArr = element.split('|')
-				joinTableStr = joinTableStr + " left join wk_user_leaves #{tAlias} on #{tAlias}.user_id = u.id and #{tAlias}.issue_id = " + listboxArr[0] + " and #{tAlias}.accrual_on = '#{accrualOn}'"
+				joinTableStr = joinTableStr + " left join wk_user_leaves #{tAlias} on #{tAlias}.user_id = u.id and #{tAlias}.issue_id = " + listboxArr[0] + " and #{tAlias}.accrual_on = '#{accrualOn}' " + get_comp_condition("#{tAlias}")
 				selectColStr = selectColStr + ", (#{tAlias}.balance + #{tAlias}.accrual - #{tAlias}.used) as total#{index.to_s}"
 			end
 		end
-		queryStr = " from users u left join wk_users wu on u.id = wu.user_id " + joinTableStr
+		queryStr = " from users u left join wk_users wu on u.id = wu.user_id " + get_comp_condition('wu') + joinTableStr
 
 		if getSession(:group_id).present?
-			queryStr = queryStr + " left join groups_users gu on u.id = gu.user_id"
+			queryStr = queryStr + " left join groups_users gu on u.id = gu.user_id" + get_comp_condition('gu')
 		end
 		return [selectColStr, queryStr]
 	end
@@ -409,12 +411,12 @@ class WkattendanceController < WkbaseController
 		issueList
 	end
 
-  def check_perm_and_redirect
-	  unless check_permission
-	    render_403
-	    return false
-	  end
-  end
+	def check_perm_and_redirect
+		unless check_permission
+			render_403
+			return false
+		end
+	end
 
 	def check_permission
 		ret = false
@@ -430,13 +432,13 @@ class WkattendanceController < WkbaseController
 	end
 
 	def getProjectByIssue
-		project_id=""
+		project_id = ""
 		project_by_issue=""
 		if !params[:issue_id].blank?
 			issue_id = params[:issue_id]
 			issues = Issue.where(:id => issue_id.to_i)
 			project_id = issues[0].project_id
-			project_by_issue = issues[0].project_id.to_s + '|' + issues[0].project.name
+			project_by_issue = project_id.to_s + '|' + issues[0].project.name
 		end
 		respond_to do |format|
 			format.text  { render :plain => project_by_issue }
@@ -464,9 +466,9 @@ class WkattendanceController < WkbaseController
     setLimitAndOffset()
 		rangeStr = formPaginationCondition()
 		if model == WkUserLeave
-			@leave_entries = model.find_by_sql(selectStr + query +orderStr + rangeStr)
+			@leave_entries = model.find_by_sql(selectStr + query + orderStr + rangeStr)
 		else
-			@clk_entries = model.find_by_sql(selectStr + query +orderStr + rangeStr)
+			@clk_entries = model.find_by_sql(selectStr + query + orderStr + rangeStr)
 		end
 	end
 
