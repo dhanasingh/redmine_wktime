@@ -1,4 +1,5 @@
 module SendPatch::TimelogHelperPatch
+	include WktimeHelper
 	def self.included(base)
 		base.class_eval do
 
@@ -135,7 +136,7 @@ module SendPatch::TimelogHelperPatch
 							else
 								query = query.joins("LEFT JOIN (
 									SELECT customized_id AS id FROM custom_values
-									WHERE customized_type = 'Issue' AND (value != '')
+									WHERE customized_type = 'Issue' AND (value != '')"+get_comp_cond('custom_values')+"
 									GROUP BY customized_id
 									) AS CV ON CV.id = issues.id").where("CV.id IS NULL")
 							end

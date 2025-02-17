@@ -1993,6 +1993,6 @@ end
 
 	def get_comp_cond(table, cond = 'AND')
 		cond = call_hook(:get_comp_condition, comp_id: @comp_id, table: table, cond: cond) || []
-		cond[0] || ""
+		cond[] || ""
 	end
 end

@@ -28,6 +28,7 @@ class WkLead < ApplicationRecord
   accepts_nested_attributes_for :candidate, allow_destroy: true
   has_many :billable_projects, as: :parent, class_name: "WkAccountProject", :dependent => :destroy
   has_many :projects, through: :billable_projects
+  has_many :location, through: :contact
 
   before_save :update_status_update_on
   after_create_commit :send_notification
@@ -51,13 +52,13 @@ class WkLead < ApplicationRecord
 
   scope :hiring_employees, ->{
     joins(:contact)
-    .joins("LEFT JOIN wk_users ON wk_users.source_id = wk_leads.contact_id")
+    .joins("LEFT JOIN wk_users ON wk_users.source_id = wk_leads.contact_id" +get_comp_con('wk_users'))
     .where("wk_crm_contacts.contact_type" => "IC", "wk_leads.status" => "C", "wk_users.source_id" => nil)
   }
 
   def self.referrals(privilege, id=nil)
-    referrals = WkLead.joins("RIGHT JOIN wk_crm_contacts ON wk_crm_contacts.id = wk_leads.contact_id").
-    joins("LEFT JOIN wk_candidates ON wk_leads.id = lead_id").
+    referrals = WkLead.joins("RIGHT JOIN wk_crm_contacts ON wk_crm_contacts.id = wk_leads.contact_id " +get_comp_con('wk_crm_contacts')).
+    joins("LEFT JOIN wk_candidates ON wk_leads.id = lead_id"+get_comp_con('wk_candidates')).
     where("wk_crm_contacts.contact_type": "IC").
     order("wk_crm_contacts.updated_at desc")
     referrals = referrals.where(referred_by: User.current.id) unless privilege

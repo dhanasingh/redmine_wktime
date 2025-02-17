@@ -22,13 +22,14 @@ module ReportStock
 		sqlStr = " select p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as attribute_name, inv.stock_value, inv.stock_quantity, um.short_desc, projects.name as project_name, inv.currency
 					from wk_product_items pitm
 					inner join (select product_item_id, product_attribute_id, uom_id, project_id, currency, sum((cost_price * available_quantity) + over_head_price) as stock_value, sum(available_quantity) as stock_quantity
-					from wk_inventory_items where product_type='I' group by product_item_id, product_attribute_id, uom_id, project_id, currency) inv on (inv.product_item_id = pitm.id)
-					left join wk_products p on (p.id = pitm.product_id)
-					left join wk_product_models m on (m.id = pitm.product_model_id)
-					left join wk_brands b on (b.id = pitm.brand_id)
-					left join wk_product_attributes a on (a.id = inv.product_attribute_id)
-					left join wk_mesure_units um on (um.id = inv.uom_id)
-					left join projects on (projects.id = inv.project_id)"
+					from wk_inventory_items where product_type='I'"+get_comp_cond('wk_inventory_items')+" group by product_item_id, product_attribute_id, uom_id, project_id, currency
+          ) inv on (inv.product_item_id = pitm.id)
+					left join wk_products p on (p.id = pitm.product_id) "+get_comp_cond('p')+"
+					left join wk_product_models m on (m.id = pitm.product_model_id)"+get_comp_cond('m')+"
+					left join wk_brands b on (b.id = pitm.brand_id)"+get_comp_cond('b')+"
+					left join wk_product_attributes a on (a.id = inv.product_attribute_id)"+get_comp_cond('a')+"
+					left join wk_mesure_units um on (um.id = inv.uom_id)"+get_comp_cond('um')+"
+					left join projects on (projects.id = inv.project_id)"+get_comp_cond('projects')
 
 		if projId.to_i > 0
 			sqlStr = sqlStr + "where inv.project_id = #{projId} "

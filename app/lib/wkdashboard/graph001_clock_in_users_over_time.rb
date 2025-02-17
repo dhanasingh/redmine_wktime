@@ -1,6 +1,7 @@
 module Wkdashboard
   module Graph001ClockInUsersOverTime
     include WkcrmHelper
+    include WktimeHelper
 
     def chart_data(param={})
       data = {
@@ -29,7 +30,7 @@ module Wkdashboard
     private
 
     def getEntries(from)
-      WkAttendance.joins("LEFT JOIN groups_users ON groups_users.user_id = wk_attendances.user_id")
+      WkAttendance.joins("LEFT JOIN groups_users ON groups_users.user_id = wk_attendances.user_id"+get_comp_cond('groups_users'))
         .where("start_time BETWEEN ? AND ?", (getToDateTime(from)).beginning_of_day().utc, (getToDateTime(from)).end_of_day().utc)
     end
   end

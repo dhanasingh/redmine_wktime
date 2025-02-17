@@ -40,17 +40,18 @@ module Wkdashboard
     private
 
     def getAssets(to)
-      WkInventoryItem.joins("INNER JOIN wk_product_items pt ON (pt.id = wk_inventory_items.product_item_id AND wk_inventory_items.product_type = 'A')")
+      WkInventoryItem.joins("INNER JOIN wk_product_items pt ON (pt.id = wk_inventory_items.product_item_id AND wk_inventory_items.product_type = 'A'"+get_comp_cond('pt')+")")
       .joins("LEFT OUTER JOIN (
           SELECT MAX(depreciation_date) as depreciation_date, inventory_item_id
           FROM wk_asset_depreciations d
-          WHERE d.depreciation_date <= '#{to}' group by inventory_item_id
+          WHERE d.depreciation_date <= '#{to}'"+get_comp_cond('d')+" group by inventory_item_id
         ) md on (md.inventory_item_id = wk_inventory_items.id)")
         .joins("
-        LEFT OUTER JOIN wk_asset_depreciations dp on (md.inventory_item_id = dp.inventory_item_id and  md.depreciation_date = dp.depreciation_date)
-        LEFT OUTER JOIN wk_shipments s ON s.id = wk_inventory_items.shipment_id
+        LEFT OUTER JOIN wk_asset_depreciations dp on (md.inventory_item_id = dp.inventory_item_id and  md.depreciation_date = dp.depreciation_date "+get_comp_cond('dp')+")
+        LEFT OUTER JOIN wk_shipments s ON s.id = wk_inventory_items.shipment_id "+get_comp_cond('s')+"
         LEFT OUTER JOIN wk_asset_properties ap ON (ap.inventory_item_id = wk_inventory_items.id)
-        LEFT OUTER JOIN projects ON (projects.id = wk_inventory_items.project_id)")
+        "+get_comp_cond('ap')+"
+        LEFT OUTER JOIN projects ON (projects.id = wk_inventory_items.project_id "+get_comp_cond('projects')+")")
         .where("ap.id is not null and s.shipment_date <= '#{to}'")
     end
   end

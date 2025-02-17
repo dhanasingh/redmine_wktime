@@ -17,9 +17,7 @@ include WkassetHelper
 
 	def getRfqPoArray(needBlank, id, parent_type, parent_id)
 		rfqPoArr = Array.new
-		rfqObj = 	WkInvoice.joins("LEFT JOIN wk_po_quotes ON wk_po_quotes.purchase_order_id = wk_invoices.id ")
-		.joins("LEFT JOIN wk_rfq_quotes ON wk_rfq_quotes.quote_id=wk_po_quotes.quote_id")
-		.where("parent_id" => parent_id, "parent_type" => parent_type, "invoice_type" => 'PO', "wk_rfq_quotes.rfq_id" => id.present? ? id  : nil, "status" => 'o')
+		rfqObj = 	WkInvoice.left_joins(:po_quote, :rfq_quote).where("parent_id" => parent_id, "parent_type" => parent_type, "invoice_type" => 'PO', "wk_rfq_quotes.rfq_id" => id.present? ? id  : nil, "status" => 'o')
 		rfqPoArr = rfqObj.collect{|i| [i.invoice_number.to_s + " - " + i.confirm_num.to_s, i.id] }
 		rfqPoArr.unshift(["",'']) if needBlank
 		rfqPoArr
@@ -56,9 +54,9 @@ include WkassetHelper
 
 	def getRfqOrderSqlStr
 		sqlStr = "select rfq.id as rfq_id, rq.quote_id, rp.purchase_order_id, rs.supplier_inv_id from wk_rfqs rfq" +
-				" left join wk_rfq_quotes rq on (rfq.id = rq.rfq_id )" +
-				" left join wk_po_quotes rp on (rp.quote_id = rq.quote_id)"+
-				" left join wk_po_supplier_invoices rs on (rs.purchase_order_id = rp.purchase_order_id)"
+				" left join wk_rfq_quotes rq on (rfq.id = rq.rfq_id ) " + get_comp_cond('rq')+
+				" left join wk_po_quotes rp on (rp.quote_id = rq.quote_id) "+ get_comp_cond('rp')+
+				" left join wk_po_supplier_invoices rs on (rs.purchase_order_id = rp.purchase_order_id)"+ get_comp_cond('rs') + get_comp_cond('rfq','WHERE')
 	end
 
 	def saveRfqQuotes(id, rfqId, quoteId, isWon, winningNote)

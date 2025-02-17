@@ -46,8 +46,7 @@ class WklocationController < WkbaseController
 			entries = entries.where("LOWER(wk_locations.name) like LOWER(?) ", "%#{locationName}%")
 		end
 
-		entries = entries.joins("LEFT JOIN wk_addresses ON wk_locations.address_id = wk_addresses.id")
-			.joins("LEFT JOIN wk_crm_enumerations ON wk_locations.location_type_id = wk_crm_enumerations.id")
+		entries = entries.left_joins(:address, :location_type)
 		entries = entries.reorder(sort_clause)
 		respond_to do |format|
 			format.html {

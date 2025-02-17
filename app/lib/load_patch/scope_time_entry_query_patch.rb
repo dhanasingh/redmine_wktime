@@ -6,10 +6,10 @@ module LoadPatch::ScopeTimeEntryQueryPatch
       def base_scope(options={})
         if options[:nonSpentTime].present?
           TimeEntry.
-          joins("RIGHT JOIN issues ON time_entries.issue_id = issues.id").
-          joins("INNER JOIN projects ON projects.id = time_entries.project_id OR projects.id = issues.project_id").
-          joins("LEFT JOIN users ON users.id = time_entries.user_id AND users.type IN ('User', 'AnonymousUser')").
-          joins("LEFT JOIN enumerations ON enumerations.id = time_entries.activity_id AND enumerations.type IN ('TimeEntryActivity')").
+          joins("RIGHT JOIN issues ON time_entries.issue_id = issues.id "+get_comp_con('issues')).
+          joins("INNER JOIN projects ON projects.id = time_entries.project_id OR projects.id = issues.project_id"+get_comp_con('projects')).
+          joins("LEFT JOIN users ON users.id = time_entries.user_id AND users.type IN ('User', 'AnonymousUser')"+get_comp_con('users')).
+          joins("LEFT JOIN enumerations ON enumerations.id = time_entries.activity_id AND enumerations.type IN ('TimeEntryActivity')"+get_comp_con('enumerations')).
           where(custom_condition).
           where(TimeEntry.visible_condition(User.current))
         else

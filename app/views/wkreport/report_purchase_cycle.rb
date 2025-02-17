@@ -23,22 +23,22 @@ module ReportPurchaseCycle
 		sqlStr =  "select rfq.id as rfq_id, rfq.name as rfq_name, rfq.start_date as rfq_start, rq.quote_id," +
 		" q.invoice_date as quote_date, rq.won_date, poq.purchase_order_id, po.invoice_date po_date," +
 		" sipo.supplier_inv_id, si.invoice_date as si_date, CASE WHEN pay.paid_amount >= inv.invoice_amount THEN pay.payment_date ELSE null END as payment_date from wk_rfqs rfq" +
-		" left join wk_rfq_quotes rq on (rq.rfq_id = rfq.id and rq.is_won = #{booleanFormat(true)})" +
-		" left join wk_invoices q on  (q.id = rq.quote_id)" +
-		" left join wk_po_quotes poq on (rq.quote_id = poq.quote_id)" +
-		" left join wk_invoices po on (po.id = poq.purchase_order_id)" +
-		" left join wk_po_supplier_invoices sipo on (sipo.purchase_order_id = poq.purchase_order_id)" +
-		" left join wk_invoices si on (si.id = sipo.supplier_inv_id)" +
+		" left join wk_rfq_quotes rq on (rq.rfq_id = rfq.id and rq.is_won = #{booleanFormat(true)})" + get_comp_cond('rq')+
+		" left join wk_invoices q on  (q.id = rq.quote_id)" + get_comp_cond('q')+
+		" left join wk_po_quotes poq on (rq.quote_id = poq.quote_id)" +get_comp_cond('poq')+
+		" left join wk_invoices po on (po.id = poq.purchase_order_id)" +get_comp_cond('po')+
+		" left join wk_po_supplier_invoices sipo on (sipo.purchase_order_id = poq.purchase_order_id)" +get_comp_cond('sipo')+
+		" left join wk_invoices si on (si.id = sipo.supplier_inv_id)" +get_comp_cond('si')+
 		" left join (select sum(pmi.amount) as paid_amount, i.id as invoice_id," +
 		" max(p.payment_date) as payment_date from wk_invoices i" +
-		" inner join wk_payment_items pmi on(i.id=pmi.invoice_id and pmi.is_deleted= #{booleanFormat(false)})" +
-		" left join wk_payments p on(pmi.payment_id = p.id ) group by i.id  ) pay  on (pay.invoice_id = si.id )" +
+		" inner join wk_payment_items pmi on(i.id=pmi.invoice_id and pmi.is_deleted= #{booleanFormat(false)}" +get_comp_cond('pmi')+")"+
+		" left join wk_payments p on(pmi.payment_id = p.id ) "+get_comp_cond('p')+get_comp_cond('i',"where")+" group by i.id  ) pay  on (pay.invoice_id = si.id )" +
 		" left join (select i.invoice_date, sum(ii.amount) as invoice_amount," +
-		" i.id as invoice_id from wk_invoices i left join wk_invoice_items ii on(i.id=ii.invoice_id)" +
+		" i.id as invoice_id from wk_invoices i left join wk_invoice_items ii on(i.id=ii.invoice_id
+		"+get_comp_cond('ii')+")" + get_comp_cond('i',"where")+
 		" group by i.id, i.invoice_date) inv on (inv.invoice_id = si.id)" +
-		" where rfq.start_date between '#{from}' and '#{to}' "
+		" where rfq.start_date between '#{from}' and '#{to}'"+ get_comp_cond('rfq')
 		cycleEntries = WkRfq.find_by_sql(sqlStr)
-
 		wqTotal = wqCount = poTotal = poCount = siTotal = siCount = payTotal = payCount =  0
 		purchaseData = {}
 		cycleEntries.each_with_index do |entry, index|

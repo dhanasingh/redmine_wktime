@@ -3,6 +3,7 @@ module Wkdashboard
     include WkaccountingHelper
     include WkpayrollHelper
     include WkcrmHelper
+    include WktimeHelper
 
     def chart_data(param={})
       data = { graphName: l(:label_profit_loss), chart_type: "line", xTitle: l(:label_months), yTitle: l(:field_amount),
@@ -21,9 +22,8 @@ module Wkdashboard
       profits.each_with_index {|amt, index| profits[index] = amt + profits[index -1 ] if index != 0}
       data[:data1] = profits.first(month_count)
       data[:fields] = (Array.new(12){|indx| month_name(((@endDate.month - 1 - indx) % 12) + 1).first(3)}).reverse
-
-      expenseEntries = WkGlTransactionDetail.joins('LEFT OUTER JOIN wk_ledgers on wk_ledgers.id = wk_gl_transaction_details.ledger_id')
-        .joins('LEFT OUTER JOIN wk_gl_transactions on wk_gl_transactions.id = wk_gl_transaction_details.gl_transaction_id' )
+      expenseEntries = WkGlTransactionDetail.joins('LEFT OUTER JOIN wk_ledgers on wk_ledgers.id = wk_gl_transaction_details.ledger_id'+get_comp_cond('wk_ledgers'))
+        .joins('LEFT OUTER JOIN wk_gl_transactions on wk_gl_transactions.id = wk_gl_transaction_details.gl_transaction_id'+get_comp_cond('wk_gl_transactions'))
         .where('wk_ledgers.ledger_type IN (?) and wk_gl_transactions.trans_date between ? and ?', expenseLedgerTypes, getToDateTime(@startDate), getToDateTime(@endDate))
         .select(getDatePart('wk_gl_transactions.trans_date','year','trans_year'), getDatePart('wk_gl_transactions.trans_date','month','trans_month'),+
           'SUM(wk_gl_transaction_details.amount) AS sum_amount, wk_ledgers.id as ledger_id, wk_ledgers.ledger_type, wk_gl_transaction_details.detail_type')
@@ -82,9 +82,8 @@ module Wkdashboard
         @startDate = ('01/'+getFinancialStart.to_s+'/'+to.year.to_s).to_date
         @endDate = ('01/'+getFinancialStart.to_s+'/'+(to.year + 1).to_s).to_date - 1.second
       end
-
-      entries = WkGlTransactionDetail.joins('LEFT OUTER JOIN wk_ledgers AS l on l.id = wk_gl_transaction_details.ledger_id')
-        .joins('LEFT OUTER JOIN wk_gl_transactions AS gl on gl.id = wk_gl_transaction_details.gl_transaction_id' )
+      entries = WkGlTransactionDetail.joins('LEFT OUTER JOIN wk_ledgers AS l on l.id = wk_gl_transaction_details.ledger_id'+get_comp_cond('l'))
+        .joins('LEFT OUTER JOIN wk_gl_transactions AS gl on gl.id = wk_gl_transaction_details.gl_transaction_id'+get_comp_cond('gl') )
         .where('l.ledger_type IN (?) and gl.trans_date between ? and ?', incomeLedgerTypes, getToDateTime(@startDate), getToDateTime(@endDate))
         .group(getDatePart('gl.trans_date','year'), getDatePart('gl.trans_date','month'), +'l.id, l.ledger_type, wk_gl_transaction_details.detail_type')
         .order('trans_year, trans_month')
