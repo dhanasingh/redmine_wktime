@@ -70,12 +70,15 @@ module WkbillingHelper
 
 	#This method using on Invoice and Payment
 	def getProjArrays(parent_id, parent_type)
-		sqlStr = "left outer join projects on projects.id = wk_account_projects.project_id " + get_comp_cond('projects')
-		if !parent_id.blank? && !parent_type.blank?
-				sqlStr = sqlStr + " where wk_account_projects.parent_id = #{parent_id} and wk_account_projects.parent_type = '#{parent_type}' "
-		end
+		sqlStr = "left outer join projects on projects.id = wk_account_projects.project_id "+get_comp_cond('projects')
 
-		WkAccountProject.joins(sqlStr).select("projects.name as project_name, projects.id as project_id").distinct(:project_id)
+		query = WkAccountProject.joins(sqlStr).select("projects.name as project_name, projects.id as project_id").distinct(:project_id)
+		if !parent_id.blank? && !parent_type.blank?
+				# sqlStr = sqlStr + " where wk_account_projects.parent_id = #{parent_id} and wk_account_projects.parent_type = '#{parent_type}' "
+
+				query = query.where(parent_id: parent_id, parent_type: parent_type)
+		end
+    query
 	end
 
 	def personTypeLabelHash
