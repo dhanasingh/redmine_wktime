@@ -35,14 +35,14 @@ module ReportCashFlow
 			glTransaction = WkGlTransactionDetail.find_by_sql("SELECT sum(SL.amount) AS amount, SL.ledger_id FROM (
 				SELECT DISTINCT GLD1.ledger_id, GLD1.id,GLD1.gl_transaction_id, GLD1.detail_type, GLD1.amount
 				FROM wk_gl_transaction_details AS GLD1
-				INNER JOIN wk_ledgers AS L1 ON L1.id = GLD1.ledger_id
-				INNER JOIN wk_gl_transactions AS GLT1 ON GLT1.id = GLD1.gl_transaction_id
-				LEFT JOIN wk_gl_transaction_details AS GLD2 ON GLD2.gl_transaction_id = GLD1.gl_transaction_id AND GLD2.detail_type = '#{other_type}'
-				LEFT JOIN wk_ledgers AS L2 ON L2.id = GLD2.ledger_id
-				LEFT JOIN wk_gl_transactions AS GLT2 ON GLT2.id = GLD2.gl_transaction_id
+				INNER JOIN wk_ledgers AS L1 ON L1.id = GLD1.ledger_id "+ get_comp_cond('L1') +"
+				INNER JOIN wk_gl_transactions AS GLT1 ON GLT1.id = GLD1.gl_transaction_id "+ get_comp_cond('GLT1') +"
+				LEFT JOIN wk_gl_transaction_details AS GLD2 ON GLD2.gl_transaction_id = GLD1.gl_transaction_id AND GLD2.detail_type = '#{other_type}' "+ get_comp_cond('GLD2') +"
+				LEFT JOIN wk_ledgers AS L2 ON L2.id = GLD2.ledger_id "+ get_comp_cond('L2') +"
+				LEFT JOIN wk_gl_transactions AS GLT2 ON GLT2.id = GLD2.gl_transaction_id "+ get_comp_cond('GLT2') +"
 				WHERE GLD1.detail_type = '#{type}' and L1.ledger_type IN ('#{ledgerType}') and GLT1.trans_type IN ('R','P','PR','S')
 				AND ((L2.ledger_type IN ('BA', 'CS') and GLT2.trans_type IN  ('PR','S')) OR GLT2.trans_type IN  ('R','P'))
-				and GLT1.trans_date between '#{from}' and '#{to}'
+				and GLT1.trans_date between '#{from}' and '#{to}' "+ get_comp_cond('GLD1') +"
 			) AS SL
 			GROUP BY SL.ledger_id")
 			glTransaction.each{|entry| detailHash[type][entry.ledger_id] = entry.amount}

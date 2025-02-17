@@ -25,7 +25,7 @@ class WkUserLeave < ApplicationRecord
   safe_attributes 'balance', 'issue_id', 'accrual_on', 'used', 'accrual'
 
   scope :leaveAvailableHours, ->(issue_id, user_id){
-    joins("INNER JOIN (select  max(accrual_on) as accrual_on from wk_user_leaves) as LAH ON LAH.accrual_on = wk_user_leaves.accrual_on")
+    joins("INNER JOIN (select  max(accrual_on) as accrual_on from wk_user_leaves " + get_comp_con('wk_user_leaves', 'WHERE') + " ) as LAH ON LAH.accrual_on = wk_user_leaves.accrual_on")
     .where("user_id=#{user_id} and issue_id=#{issue_id}")
     .select("user_id, issue_id, balance, accrual, used")
   }
@@ -40,7 +40,7 @@ class WkUserLeave < ApplicationRecord
     .joins("inner join (select MAX(accrual_on) as accrual_on, user_id, issue_id
       from wk_user_leaves AS UL
       inner join users AS U ON U.id = UL.user_id AND U.type = 'User' AND U.status = 1
-      where UL.user_id=#{User.current.id}
+      where UL.user_id=#{User.current.id} " + get_comp_con('UL') + get_comp_con('U') +" 
       group by user_id, issue_id
       ) AS l on l.accrual_on = wk_user_leaves.accrual_on AND l.user_id = wk_user_leaves.user_id AND l.issue_id = wk_user_leaves.issue_id")
       .where("wk_user_leaves.user_id=#{User.current.id} AND wk_user_leaves.issue_id IN (?)", accrualLeaves)

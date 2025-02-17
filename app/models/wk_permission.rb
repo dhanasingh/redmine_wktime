@@ -30,9 +30,9 @@ class WkPermission < ApplicationRecord
   }
 
   def self.permissionUser(shortName)
-		userIds = WkPermission.joins("INNER JOIN wk_group_permissions AS GP ON wk_permissions.id = permission_id ")
-      .joins("INNER JOIN groups_users AS GU ON GP.group_id = GU.group_id")
-      .joins("INNER JOIN users ON GU.user_id = users.id")
+		userIds = WkPermission.joins(:grpPermission)
+      .joins("INNER JOIN groups_users AS GU ON wk_group_permissions.group_id = GU.group_id" + get_comp_con('GU'))
+      .joins("INNER JOIN users ON GU.user_id = users.id" + get_comp_con('users'))
       .where("short_name = ?", shortName)
       .select("users.id as user_id")
     userIds.pluck(:user_id)

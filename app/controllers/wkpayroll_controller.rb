@@ -125,10 +125,10 @@ class WkpayrollController < WkbaseController
 					SUM(CASE WHEN SA.component_type = 'b' THEN S.amount ELSE 0 END) AS basic_pay,
 					SUM(CASE WHEN SA.component_type = 'd' THEN S.amount ELSE 0 END) AS deduction_total
 				FROM wk_salaries AS S
-				INNER JOIN wk_salary_components AS SA ON SA.id = S.salary_component_id" + sql_contd +
+				INNER JOIN wk_salary_components AS SA ON SA.id = S.salary_component_id" + sql_contd + get_comp_condition('S') + get_comp_condition('SA') +
 				"GROUP BY S.user_id, S.salary_date
 			) AS SAL ON S.user_id = SAL.user_id AND S.salary_date = SAL.salary_date
-			LEFT JOIN users AS U ON U.id = S.user_id LEFT JOIN wk_users WU ON WU.user_id = U.id" + sql_contd + orderSQL)
+			LEFT JOIN users AS U ON U.id = S.user_id " + get_comp_condition('U') + " LEFT JOIN wk_users WU ON WU.user_id = U.id" + get_comp_condition('WU') + sql_contd + get_comp_condition('S') + orderSQL)
 
 		payroll_salaries.each do |entry|
 			payrollAmount << {:user_id => entry.user_id, :component_id => entry.salary_component_id, :amount => (entry.amount).round,
@@ -137,7 +137,7 @@ class WkpayrollController < WkbaseController
 	end
 
 	def form_payroll_entries(payrollAmount, userId)
-		usersDetails = User.joins("LEFT JOIN wk_users WU ON WU.user_id = users.id").where("users.id IN (#{userId})").select("users.*, WU.join_date")
+		usersDetails = User.joins("LEFT JOIN wk_users WU ON WU.user_id = users.id" + get_comp_condition('WU') ).where("users.id IN (#{userId})").select("users.*, WU.join_date")
 		salaryComponents = WkSalaryComponents.all
 		basic_Total = nil
 		allowance_total = nil
@@ -247,7 +247,7 @@ class WkpayrollController < WkbaseController
 	def user_salary_settings
 		userId = params[:user_id]
 		sqlStr = getUserSalaryQueryStr
-		sqlStr = sqlStr + "Where u.id = #{userId} and u.type = 'User'" +
+		sqlStr = sqlStr + "Where u.id = #{userId} and u.type = 'User'" + get_comp_condition('u') + 
 		"order by u.id, sc.component_type"
 		@userSalHash = getUserSalaryHash(userId, Date.today.at_end_of_month + 1, 'userSetting')
 		@userSalaryEntries = WkUserSalaryComponents.find_by_sql(sqlStr)
@@ -410,9 +410,9 @@ class WkpayrollController < WkbaseController
 		sqlStr = " from users u"
 		selectStr = " select u.id as user_id, u.firstname, u.lastname, u.status "
 		if group_id.to_i != 0
-			sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id"
+			sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id" + get_comp_condition('gu')
 		end
-		sqlStr = sqlStr + " where u.type = 'User' "
+		sqlStr = sqlStr + " where u.type = 'User' " + get_comp_condition('u')
 		if !validateERPPermission('A_PAYRL')
 			sqlStr = sqlStr + " and u.id = #{User.current.id} "
 		end

@@ -13,29 +13,29 @@ module ReportOrderToCash
     left join
     (select inv.parent_id, inv.parent_type, inv.inv_month, inv.inv_year, sum(inv.amount) as inv_amount, inv.inv_currency from
       (select ii.amount, ii.currency as inv_currency, ii.invoice_id, i.invoice_date,i.parent_type, i.parent_id, #{getDatePart('invoice_date','month','inv_month')},#{getDatePart('invoice_date','year','inv_year')} from wk_invoice_items ii
-      left join wk_invoices i on i.id = ii.invoice_id
-      where i.invoice_date between '#{from}' and '#{to}' and ii.credit_invoice_id is null and ii.credit_payment_item_id is null) as inv
+      left join wk_invoices i on i.id = ii.invoice_id " + get_comp_cond('i') + "
+      where i.invoice_date between '#{from}' and '#{to}' and ii.credit_invoice_id is null and ii.credit_payment_item_id is null " + get_comp_cond('ii') + ") as inv
       group by inv.parent_type, inv.parent_id, inv.inv_year, inv.inv_month,inv.inv_currency) as idt
     on(ac.parent_id=idt.parent_id and ac.parent_type=idt.parent_type and ac.month_val=idt.inv_month and ac.year_val=idt.inv_year)
     left join
     (select pay.parent_id, pay.parent_type, pay.pay_month, pay.pay_year, sum(pay.amount) as pay_amount,pay.pay_currency from
     (select ii.amount, ii.currency as pay_currency, ii.payment_id, i.payment_date,i.parent_type, i.parent_id, #{getDatePart('payment_date','month','pay_month')}, #{getDatePart('payment_date','year','pay_year')} from wk_payment_items ii
-    left join wk_payments i on i.id = ii.payment_id
+    left join wk_payments i on i.id = ii.payment_id " + get_comp_cond('i') + "
     where i.payment_date between '#{from}' and '#{to}' and ii.is_deleted = #{booleanFormat(false)}) as pay
     group by pay.parent_type, pay.parent_id, pay.pay_year, pay.pay_month,pay.pay_currency) as pdt
     on(ac.parent_id=pdt.parent_id and ac.parent_type=pdt.parent_type and ac.month_val=pdt.pay_month and ac.year_val=pdt.pay_year)
     left join
     (select sum(pii.amount) prv_invoice_amount, pvi.parent_type,pvi.parent_id from wk_invoice_items pii
-    left join wk_invoices pvi on pvi.id = pii.invoice_id where pvi.invoice_date < '#{from}' and pii.credit_invoice_id is null and pii.credit_payment_item_id is null
+    left join wk_invoices pvi on pvi.id = pii.invoice_id " + get_comp_cond('pvi') + " where pvi.invoice_date < '#{from}' and pii.credit_invoice_id is null and pii.credit_payment_item_id is null " + get_comp_cond('pii') + "
     group by pvi.parent_type,pvi.parent_id) oi
     on (oi.parent_type = ac.parent_type and oi.parent_id = ac.parent_id)
     left join
     (select sum(pii.amount) prv_payment_amount, pvi.parent_type,pvi.parent_id from wk_payment_items pii
-    left join wk_payments pvi on pvi.id = pii.payment_id where pvi.payment_date < '#{from}' and pii.is_deleted = #{booleanFormat(false)}
+    left join wk_payments pvi on pvi.id = pii.payment_id " + get_comp_cond('pvi') + " where pvi.payment_date < '#{from}' and pii.is_deleted = #{booleanFormat(false)} " + get_comp_cond('pii') + "
     group by pvi.parent_type,pvi.parent_id) op
     on (op.parent_type = ac.parent_type and op.parent_id = ac.parent_id)
-    left join wk_crm_contacts cc on (cc.id = ac.parent_id and ac.parent_type = 'WkCrmContact')
-    left join wk_accounts a on (a.id = ac.parent_id and ac.parent_type = 'WkAccount') "
+    left join wk_crm_contacts cc on (cc.id = ac.parent_id and ac.parent_type = 'WkCrmContact' " + get_comp_cond('cc') + ")
+    left join wk_accounts a on (a.id = ac.parent_id and ac.parent_type = 'WkAccount' " + get_comp_cond('a') + ") "
 
     parentIdHash = getProjectBillers(projId)
     if !projId.blank? && projId != '0'

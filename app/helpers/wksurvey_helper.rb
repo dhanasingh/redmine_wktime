@@ -89,14 +89,17 @@ module WksurveyHelper
     if checkEditSurveyPermission && survey_id.blank?
         survey = WkSurvey.all
     else
+		  groups_users_comp = call_hook(:add_comp_filter, table: 'groups_users', comp_id: @comp_id ) || ""
+		  surveys_comp = call_hook(:add_comp_filter, table: 'wk_surveys', comp_id: @comp_id ) || ""
+		  users_comp = call_hook(:add_comp_filter, table: 'users', comp_id: @comp_id ) || ""
         users = convertUsersIntoString()
         survey = WkSurvey.joins("INNER JOIN (
             SELECT wk_surveys.id, count(wk_surveys.id) count FROM wk_surveys
-            LEFT JOIN groups_users ON groups_users.group_id = wk_surveys.group_id
-            LEFT JOIN users ON users.id = groups_users.user_id
-            WHERE wk_surveys.status IN ('O', 'C') AND (groups_users.user_id = #{User.current.id} OR wk_surveys.group_id IS NULL)
-                OR (#{booleanFormat(checkSurveyPerm)} = #{booleanFormat(true)} AND is_review = #{booleanFormat(true)} AND users.id IN (#{users}))
-            GROUP BY wk_surveys.id
+            LEFT JOIN groups_users ON groups_users.group_id = wk_surveys.group_id " + get_comp_cond('groups_users') +
+            " LEFT JOIN users ON users.id = groups_users.user_id " + get_comp_cond('users') +
+            " WHERE wk_surveys.status IN ('O', 'C') AND (groups_users.user_id = #{User.current.id} OR wk_surveys.group_id IS NULL)
+                OR (#{booleanFormat(checkSurveyPerm)} = #{booleanFormat(true)} AND is_review = #{booleanFormat(true)} AND users.id IN (#{users})) " + get_comp_cond('wk_surveys') +
+            " GROUP BY wk_surveys.id
             ) AS S ON S.id = wk_surveys.id")
     end
     survey = survey.where(:id => survey_id) unless survey_id.blank?
@@ -275,8 +278,7 @@ module WksurveyHelper
         FROM wk_surveys AS S
         INNER JOIN wk_survey_questions AS SQ ON S.id = SQ.survey_id
         INNER JOIN wk_survey_choices AS SC ON SC.survey_question_id = SQ.id
-        WHERE SQ.id = #{question_id}
-        ORDER BY SC.id")
+        WHERE SQ.id = #{question_id} " + get_comp_cond('S') + get_comp_cond('SQ') + get_comp_cond('SC') + " ORDER BY SC.id")
 
       if question_choices.length > 0
         surveyed_employees_per_choice = WkSurvey.find_by_sql("SELECT COUNT(SR.user_id) AS emp_count, SC.id
@@ -285,7 +287,7 @@ module WksurveyHelper
           INNER JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id
           INNER JOIN wk_survey_answers AS SCC ON SC.id = SCC.survey_choice_id
           INNER JOIN wk_survey_responses AS SR ON SR.survey_id = S.id	AND SR.id = SCC.survey_response_id " +
-          " WHERE SQ.id = #{question_id} "+ surveyForQry + groupNameCond +
+          " WHERE SQ.id = #{question_id} "+ surveyForQry + groupNameCond + get_comp_cond('S') + get_comp_cond('SQ') + get_comp_cond('SC') + get_comp_cond('SCC') + get_comp_cond('SR') +
           "GROUP BY S.id, SQ.id, SC.id
           ORDER BY SC.id")
       else
@@ -294,7 +296,7 @@ module WksurveyHelper
         INNER JOIN wk_survey_questions AS SQ ON S.id = SQ.survey_id
         INNER JOIN wk_survey_answers AS SCC ON SQ.id = SCC.survey_question_id
         INNER JOIN wk_survey_responses AS SR ON SR.survey_id = S.id	AND SR.id = SCC.survey_response_id " +
-        " WHERE SQ.id = #{question_id} "+ surveyForQry + groupNameCond +
+        " WHERE SQ.id = #{question_id} "+ surveyForQry + groupNameCond + get_comp_cond('S') + get_comp_cond('SQ') + get_comp_cond('SCC') + get_comp_cond('SR') +
         "GROUP BY S.id, SQ.id")
       end
 

@@ -786,7 +786,9 @@ include ActionView::Helpers::TagHelper
 		#userIssues = Issue.includes(:project).joins("INNER JOIN custom_values cv on cv.customized_type = 'Issue' and cv.customized_id = issues.id and cv.custom_field_id = #{getSettingCfId('wktime_additional_assignee')} AND (cv.value = '#{userId}' OR issues.assigned_to_id = #{userId})")
 
 		#userIssues = Issue.includes(:project).joins("INNER JOIN wk_issue_assignees ia on ((ia.issue_id = issues.id and ia.user_id = #{userId}) OR issues.assigned_to_id = #{userId})")
-		userIssues = Issue.includes(:project).joins("INNER JOIN wk_issue_assignees ia on (ia.issue_id = issues.id and ia.user_id = #{userId}) ")
+
+		userIssues = WkIssueAssignee.joins(:issue)
+		userIssues = userIssues.includes(:project).where("wk_issue_assignees.user_id = #{userId} ")
 		assignedIssueUser = Issue.includes(:project).where(:assigned_to_id => userId)
 		issueAssignee = userIssues + assignedIssueUser
 		issueAssignee = issueAssignee.uniq
@@ -1072,7 +1074,7 @@ include ActionView::Helpers::TagHelper
 			label_te = getTELabel
 			user_cf_sql = @query.user_cf_statement('u') if !@query.blank?
 			queryStr = "select distinct u.*, w.id AS wktime_id from users u " +
-						"left outer join #{entityNames[0]} w on u.id = w.user_id " +
+						"left outer join #{entityNames[0]} w on u.id = w.user_id "+ get_comp_condition('w') +
 						"and (w.begin_date between '#{params[:from]}' and '#{params[:to]}') " #+
 						#"where u.id in (#{ids}) and w.status = 's'"
 			queryStr += " #{user_cf_sql} " if !user_cf_sql.blank?
@@ -1237,7 +1239,7 @@ include ActionView::Helpers::TagHelper
 	def getUserwkStatuses
 		cond = getCondition('spent_on', @user.id, @startday, @startday+6)
 		@userEntries = findEntriesByCond(cond)
-		@approvedwkStatuses = @userEntries.joins("LEFT JOIN wk_statuses ON time_entries.id = wk_statuses.status_for_id").where("status_for_type='TimeEntry' and wk_statuses.status = 'a'").select("time_entries.*")
+		@approvedwkStatuses = @userEntries.joins("LEFT JOIN wk_statuses ON time_entries.id = wk_statuses.status_for_id" + get_comp_condition('wk_statuses') ).where("status_for_type='TimeEntry' and wk_statuses.status = 'a'").select("time_entries.*")
 	end
 
 	def getApproverPermProj
@@ -1247,7 +1249,7 @@ include ActionView::Helpers::TagHelper
 		if approvableProj.present?
 			cond = "spent_on BETWEEN '#{@startday}' AND '#{@startday+6}' AND user_id = #{@user.id} AND time_entries.project_id IN (#{approvableProj})"
 			@approverEntries = findEntriesByCond(cond)
-			@approverwkStatuses = @approverEntries.joins("LEFT JOIN wk_statuses ON time_entries.id = wk_statuses.status_for_id").where("status_for_type='TimeEntry' and wk_statuses.status = 'a'").select("time_entries.*")
+			@approverwkStatuses = @approverEntries.joins("LEFT JOIN wk_statuses ON time_entries.id = wk_statuses.status_for_id" + get_comp_condition('wk_statuses') ).where("status_for_type='TimeEntry' and wk_statuses.status = 'a'").select("time_entries.*")
 		end
 	end
 
@@ -1477,7 +1479,7 @@ private
 					" #{approver ? apprPerm : ''}" + ')' +
 					" inner join users u on m.user_id = u.id" +
 					" inner join members m1 on p.id = m1.project_id and m1.user_id = #{user.id}"
-
+					queryStr += get_comp_condition('p', 'where') + get_comp_condition('m') + get_comp_condition('mr') + get_comp_condition('r') + get_comp_condition('u')
 			mngrs = User.find_by_sql(queryStr)
 			mngrs.each do |m|
 				mngrArr << m
@@ -1590,15 +1592,15 @@ private
 			sqlStr = "select t.* from " + entityNames[1] + " t inner join ( "
 			if ActiveRecord::Base.connection.adapter_name == 'SQLServer'
 				sqlStr += "select TOP " + noOfWeek.to_s + sDay + " as startday" +
-					" from  " + entityNames[1] + " t where user_id = " + user_id.to_s +
+					" from  " + entityNames[1] + " t where user_id = " + user_id.to_s + get_comp_condition('t') +
 					" group by " + sDay + " order by startday desc ) as v"
 			else
 				sqlStr += "select " + sDay + " as startday" +
-						" from  " + entityNames[1] + " t where user_id = " + user_id.to_s +
+						" from  " + entityNames[1] + " t where user_id = " + user_id.to_s + get_comp_condition('t') + 
 						" group by startday order by startday desc limit " + noOfWeek.to_s + ") as v"
 			end
 
-			sqlStr +=" on " + sDay + " = v.startday where user_id = " + user_id.to_s +
+			sqlStr +=" on " + sDay + " = v.startday where user_id = " + user_id.to_s + get_comp_condition('t') +
 					" order by t.project_id, t.issue_id, t.activity_id"
 
 			prev_entries = TimeEntry.find_by_sql(sqlStr)
@@ -2307,13 +2309,13 @@ private
 			end
 			sqlStr += "(select " + sDay + " as startday, "
 			sqlStr += " t.user_id, sum(t." + spField + ") as " + spField + " ,max(t.id) as id" + " from " + entityNames[1] + " t, users u" +
-				" where u.id = t.user_id and u.id in (#{ids})"
+				" where u.id = t.user_id and u.id in (#{ids})" + get_comp_condition('t') + get_comp_condition('u')
 			sqlStr += " and t.spent_on between '#{from}' and '#{to}'" unless from.blank? && to.blank?
 			sqlStr += " group by startday, user_id order by startday desc, user_id ) as v1"
 		end
 
-		wkSqlStr = " left outer join " + entityNames[0] + " w on v1.startday = w.begin_date and v1.user_id = w.user_id " +
-					"left outer join users un on un.id = w.statusupdater_id "
+		wkSqlStr = " left outer join " + entityNames[0] + " w on v1.startday = w.begin_date and v1.user_id = w.user_id " +  get_comp_condition('w') + 
+					"left outer join users un on un.id = w.statusupdater_id " +  get_comp_condition('un')
 
 		query = formQuery(wkSelectStr, sqlStr, wkSqlStr)
 	end
@@ -2330,8 +2332,8 @@ private
 				" left join " + teSqlStr
 		query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids})) tmp3 "
 		query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id as usrid from time_entries t, users u "
-		query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id "
-		query = query + " left join users AS un on un.id = tmp3.user_id "
+		query = query + " where u.id = t.user_id and u.id in (#{ids}) " + get_comp_condition('t') + get_comp_condition('u') + " group by t.user_id ) vw on vw.usrid = tmp3.user_id "
+		query = query + " left join users AS un on un.id = tmp3.user_id " + get_comp_condition('un')
 		query = query + getWhereCond(status)
 		return [selectStr, query]
 	end

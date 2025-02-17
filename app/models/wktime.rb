@@ -72,13 +72,13 @@ include Redmine::SafeAttributes
 	end
 
   def self.getUserGrp(userID)
-    grp_id = User.joins("INNER JOIN groups_users ON users.id = user_id").where("groups_users.user_id = #{userID}").select("groups_users.user_id, groups_users.group_id")
+    grp_id = User.joins("INNER JOIN groups_users ON users.id = user_id").where("groups_users.user_id = #{userID}" + get_comp_con('groups_users')).select("groups_users.user_id, groups_users.group_id")
     grp_id.pluck(:group_id)
   end
 
   def self.getAssignedIssues(user_id, groupIDs, project_id)
     issues = Issue.joins("INNER JOIN wk_issue_assignees ia on (ia.issue_id = issues.id and (ia.user_id = #{user_id} or ia.user_id in (#{groupIDs})))")
-    issues = issues.where("ia.project_id=#{project_id}") if project_id.present?
+    issues = issues.where("ia.project_id=#{project_id}" + get_comp_con('ia')) if project_id.present?
     issues
   end
 

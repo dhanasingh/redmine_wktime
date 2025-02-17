@@ -9,7 +9,7 @@
 		firstProduct = WkProduct.where(productSqlCond).order(:name).first
 		productId = firstProduct.id unless firstProduct.blank?
 	end
-	brandSql = 'id in (select brand_id from wk_brand_products where product_id = ' + productId.to_s + ')'
+	brandSql = 'id in (select brand_id from wk_brand_products where product_id = ' + productId.to_s + get_comp_cond('wk_brand_products') + ')'
 	parentArr = parentArray(controller.getItemType, true, false, nil, @parentEntry&.id || nil)
 %>
 <div class="splitcontent">

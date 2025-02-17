@@ -37,7 +37,7 @@ class WkMaterialEntry < TimeEntry
     where(WkMaterialEntry.visible_condition(args.shift || User.current, *args))
   }
   scope :left_join_issue, lambda {
-    joins("LEFT OUTER JOIN #{Issue.table_name} ON #{Issue.table_name}.id = #{WkMaterialEntry.table_name}.issue_id")
+    joins("LEFT OUTER JOIN #{Issue.table_name} ON #{Issue.table_name}.id = #{WkMaterialEntry.table_name}.issue_id" + get_comp_con(Issue.table_name))
   }
   scope :on_issue, lambda {|issue|
     joins(:issue).
@@ -71,15 +71,14 @@ class WkMaterialEntry < TimeEntry
   end
 
   scope :getMaterialInvoice, ->(id){
-    joins(:spent_for)
-    .joins("INNER JOIN wk_invoice_items ON wk_invoice_items.id = wk_spent_fors.invoice_item_id")
-    .joins("INNER JOIN wk_inventory_items ON wk_inventory_items.id = wk_material_entries.inventory_item_id")
+    joins(:spent_for, :inventory_item)
+    .joins("INNER JOIN wk_invoice_items ON wk_invoice_items.id = wk_spent_fors.invoice_item_id" + get_comp_con('wk_invoice_items'))
     .where("wk_invoice_items.invoice_id" => id, "wk_invoice_items.item_type" => 'm')
     .select("wk_material_entries.*, wk_inventory_items.location_id, wk_inventory_items.cost_price, wk_inventory_items.over_head_price, wk_inventory_items.serial_number as serial_no, wk_inventory_items.running_sn, wk_inventory_items.notes")
   }
 
   scope :getMaterialConsumption, ->(issue_id){
-    joins("INNER JOIN wk_inventory_items ON wk_inventory_items.id = wk_material_entries.inventory_item_id")
+    joins(:inventory_item)
     .where("issue_id =  ? AND wk_inventory_items.product_type = 'I'", issue_id)
   }
 end
