@@ -37,7 +37,7 @@ class WkExpenseEntry < TimeEntry
     where(WkExpenseEntry.visible_condition(args.shift || User.current, *args))
   }
   scope :left_join_issue, lambda {
-    joins("LEFT OUTER JOIN #{Issue.table_name} ON #{Issue.table_name}.id = #{WkExpenseEntry.table_name}.issue_id")
+    joins("LEFT OUTER JOIN #{Issue.table_name} ON #{Issue.table_name}.id = #{WkExpenseEntry.table_name}.issue_id" + get_comp_con(Issue.table_name))
   }
   scope :on_issue, lambda {|issue|
     joins(:issue).

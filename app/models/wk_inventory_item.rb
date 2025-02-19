@@ -68,10 +68,10 @@ class WkInventoryItem < ApplicationRecord
 
   scope :get_delivery_entry, ->{
     joins(:product_item, :product_attribute)
-    .joins("INNER JOIN wk_products ON wk_products.id = wk_product_items.product_id")
-    .joins("INNER JOIN wk_brands ON wk_brands.id = wk_product_items.brand_id")
-    .joins("INNER JOIN wk_product_models ON wk_product_models.id = wk_product_items.product_model_id")
-    .where("available_quantity > 0 AND (wk_inventory_items.product_type= 'I')")
+    .joins("INNER JOIN wk_products ON wk_products.id = wk_product_items.product_id" + get_comp_con('wk_products'))
+    .joins("INNER JOIN wk_brands ON wk_brands.id = wk_product_items.brand_id" + get_comp_con('wk_brands'))
+    .joins("INNER JOIN wk_product_models ON wk_product_models.id = wk_product_items.product_model_id" + get_comp_con('wk_product_models'))
+    .where("available_quantity > 0 AND (wk_inventory_items.product_type= 'I')" + get_comp_con('wk_inventory_items'))
   }
 
   scope :getProduct, ->{
