@@ -397,7 +397,7 @@ class WkbaseController < ApplicationController
 	end
 
 	def get_comp_condition(table, cond = 'AND')
-		cond = call_hook(:get_comp_condition, comp_id: @comp_id, table: table, cond: cond) || []
+		cond = call_hook(:get_comp_condition, table: table, cond: cond) || []
 		cond[0] || ""
 	end
 end
