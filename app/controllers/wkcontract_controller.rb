@@ -59,7 +59,7 @@ menu_item :wkinvoice
 		end
 		entries = WkContract.joins("LEFT JOIN (
 			SELECT id, name
-			FROM projects) AS projects ON projects.id = wk_contracts.project_id  #{get_comp_condition('projects')}
+			FROM projects #{get_comp_condition('projects', 'WHERE')}) AS projects ON projects.id = wk_contracts.project_id
 			LEFT JOIN wk_accounts a on (wk_contracts.parent_type = 'WkAccount' and wk_contracts.parent_id = a.id) #{get_comp_condition('a')}
 			LEFT JOIN wk_crm_contacts c on (wk_contracts.parent_type = 'WkCrmContact' and wk_contracts.parent_id = c.id) #{get_comp_condition('c')}"
 		).all

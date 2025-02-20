@@ -70,7 +70,7 @@ module WkbillingHelper
 
 	#This method using on Invoice and Payment
 	def getProjArrays(parent_id, parent_type)
-		sqlStr = "left outer join projects on projects.id = wk_account_projects.project_id "+get_comp_cond('projects')
+		sqlStr = "left outer join projects on projects.id = wk_account_projects.project_id " + get_comp_cond('projects')
 
 		query = WkAccountProject.joins(sqlStr).select("projects.name as project_name, projects.id as project_id").distinct(:project_id)
 		if !parent_id.blank? && !parent_type.blank?

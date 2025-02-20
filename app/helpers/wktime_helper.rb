@@ -1633,7 +1633,7 @@ end
 			end
 			sub_ord_projects = Project.find_by_sql("select distinct p.* from projects p " +
 							  "inner join members m on p.id = m.project_id " +
-							  "and m.user_id in (" + usrIds + ") and p.status = #{Project::STATUS_ACTIVE}" + get_comp_cond('projects', 'where') + get_comp_cond('members') + " order by (p.name)")
+							  "and m.user_id in (" + usrIds + ") and p.status = #{Project::STATUS_ACTIVE}" + get_comp_cond('p', 'where') + get_comp_cond('m') + " order by (p.name)")
 		end
 		sub_ord_projects
 	end

@@ -37,7 +37,7 @@ include WkassetHelper
 	end
 
 	def getInvoiceIds(rfqId, invoiceType, requireWonQuote)
-		sqlStr = getRfqOrderSqlStr + " where rfq.id = #{rfqId}"
+		sqlStr = getRfqOrderSqlStr + " where rfq.id = #{rfqId}" + get_comp_cond('rfq')
 		if requireWonQuote
 			sqlStr = sqlStr + " and rq.is_won = #{booleanFormat(true)} "
 		end
@@ -56,7 +56,7 @@ include WkassetHelper
 		sqlStr = "select rfq.id as rfq_id, rq.quote_id, rp.purchase_order_id, rs.supplier_inv_id from wk_rfqs rfq" +
 				" left join wk_rfq_quotes rq on (rfq.id = rq.rfq_id ) " + get_comp_cond('rq')+
 				" left join wk_po_quotes rp on (rp.quote_id = rq.quote_id) "+ get_comp_cond('rp')+
-				" left join wk_po_supplier_invoices rs on (rs.purchase_order_id = rp.purchase_order_id)"+ get_comp_cond('rs') + get_comp_cond('rfq','WHERE')
+				" left join wk_po_supplier_invoices rs on (rs.purchase_order_id = rp.purchase_order_id)"+ get_comp_cond('rs')
 	end
 
 	def saveRfqQuotes(id, rfqId, quoteId, isWon, winningNote)

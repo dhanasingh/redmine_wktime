@@ -171,7 +171,7 @@ class WkattendanceController < WkbaseController
 	def clockedit
 		sqlQuery = "select a.id,a.user_id, a.start_time, a.end_time, a.hours, u.firstname, u.lastname, s_longitude, s_latitude, e_longitude, e_latitude
 			FROM users u
-			left join wk_attendances a  on u.id = a.user_id and #{getConvertDateStr('a.start_time')} = '#{params[:date].to_date} #{get_comp_condition('a')} '
+			left join wk_attendances a  on u.id = a.user_id and #{getConvertDateStr('a.start_time')} = '#{params[:date].to_date}' #{get_comp_condition('a')}
 			where u.id = '#{params[:user_id]}' #{get_comp_condition('u')} ORDER BY a.start_time"
 		@wkattnEntries = WkAttendance.find_by_sql(sqlQuery)
 		respond_to do |format|

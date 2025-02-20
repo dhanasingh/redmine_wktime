@@ -86,7 +86,7 @@ class WkassetdepreciationController < WkassetController
 		sqlStr = " from wk_asset_depreciations dep " +
 			"LEFT OUTER JOIN wk_inventory_items iit ON iit.id = dep.inventory_item_id " + get_comp_condition('iit') +
 			"LEFT OUTER JOIN wk_shipments s ON s.id = iit.shipment_id " + get_comp_condition('s') +
-			"LEFT OUTER JOIN wk_asset_properties ap ON ap.inventory_item_id = iit.id " + get_comp_condition('wk_asset_properties') +
+			"LEFT OUTER JOIN wk_asset_properties ap ON ap.inventory_item_id = iit.id " + get_comp_condition('ap') +
 			"LEFT OUTER JOIN wk_product_items pit ON pit.id = iit.product_item_id " + get_comp_condition('pit') +
 			"LEFT OUTER JOIN wk_products p ON p.id = pit.product_id " + get_comp_condition('p')
 		sqlStr

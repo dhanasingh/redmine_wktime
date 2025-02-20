@@ -24,13 +24,13 @@ class WkAssetProperty < ApplicationRecord
   has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
 
   scope :disposeAsset, ->(inventory_item_id){
-    joins("LEFT JOIN wk_asset_depreciations AS ad ON ad.inventory_item_id = wk_asset_properties.inventory_item_id"+ get_comp_con('wk_asset_depreciations'))
+    joins("LEFT JOIN wk_asset_depreciations AS ad ON ad.inventory_item_id = wk_asset_properties.inventory_item_id"+ get_comp_con('ad'))
     .joins("LEFT JOIN (
       SELECT MAX(depreciation_date) AS depreciation_date, inventory_item_id
       FROM wk_asset_depreciations where inventory_item_id =#{inventory_item_id}
       "+ get_comp_con('wk_asset_depreciations')+" group by inventory_item_id
       )  AS D  ON D.inventory_item_id = ad.inventory_item_id  AND D.depreciation_date = ad.depreciation_date")
-    .joins("LEFT JOIN wk_inventory_items AS it ON wk_asset_properties.inventory_item_id = it.id"+ get_comp_con('wk_inventory_items'))
+    .joins("LEFT JOIN wk_inventory_items AS it ON wk_asset_properties.inventory_item_id = it.id"+ get_comp_con('it'))
     .joins("LEFT JOIN wk_shipments AS s ON it.shipment_id = s.id"+ get_comp_con('s'))
     .where("wk_asset_properties.inventory_item_id =#{inventory_item_id} AND (ad.depreciation_date IS NULL OR
       ad.depreciation_date IS NOT NULL AND D.depreciation_date IS NOT NULL)")
