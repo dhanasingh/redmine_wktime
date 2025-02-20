@@ -41,7 +41,7 @@ module SendPatch::TimelogControllerPatch
 						@entries = scope.offset(@offset).limit(@limit).preload(:custom_values => :custom_field).to_a
 					end
 					format.atom do
-						entries = scope.limit(Setting.feeds_limit.to_i).reorder("#{TimeEntry.table_name}.created_on DESC").to_a
+						entries = scope.limit(Setting.feeds_limit.to_i).to_a
 						render_feed(entries, :title => l(:label_spent_time))
 					end
 					format.csv do

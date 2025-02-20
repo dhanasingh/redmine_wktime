@@ -295,9 +295,7 @@ module WktimeHelper
 		max_height = row_height
 		col_values.each_with_index do |val, i|
 			col_x = pdf.GetX
-			if val.nil?
-                val =''
-            end
+			val = '' if val.present?
 			pdf.RDMMultiCell(col_widths[i], row_height, val, "T", 'L', 1)
 			max_height = max_height < pdf.getStringHeight(col_widths[i], val, "T") ? pdf.getStringHeight(col_widths[i], val, "T") : max_height
 			#max_height = (pdf.GetY - base_y) if (pdf.GetY - base_y) > max_height
@@ -454,28 +452,29 @@ def getTotalValues(totals, hoursIndex,unit)
 end
 
 
-	def render_table_header(pdf, columns, col_width, row_height, table_width)
-        # headers
-        pdf.SetFontStyle('B',8)
-        pdf.SetFillColor(230, 230, 230)
+	def render_table_header(pdf, query, col_width, row_height, table_width)
+		columns = query.inline_columns
+		# headers
+		pdf.SetFontStyle('B',8)
+		pdf.SetFillColor(230, 230, 230)
 
-        # render it background to find the max height used
-        base_x = pdf.GetX
-        base_y = pdf.GetY
-        max_height = wktime_to_pdf_write_cells(pdf, columns, col_width, row_height)
-        #pdf.Rect(base_x, base_y, table_width + col_id_width, max_height, 'FD');
+		# render it background to find the max height used
+		base_x = pdf.GetX
+		base_y = pdf.GetY
+		max_height = wktime_to_pdf_write_cells(pdf, columns, col_width, row_height)
+		#pdf.Rect(base_x, base_y, table_width + col_id_width, max_height, 'FD');
 		pdf.Rect(base_x, base_y, table_width, max_height, 'FD');
-        pdf.SetXY(base_x, base_y);
+		pdf.SetXY(base_x, base_y);
 
-        # write the cells on page
-        wktime_to_pdf_write_cells(pdf, columns, col_width, row_height)
-        issues_to_pdf_draw_borders(pdf, base_x, base_y, base_y + max_height,0, col_width)
-        pdf.SetY(base_y + max_height);
+		# write the cells on page
+		wktime_to_pdf_write_cells(pdf, columns, col_width, row_height)
+		issues_to_pdf_draw_borders(pdf, base_x, base_y, base_y + max_height,0, col_width)
+		pdf.SetY(base_y + max_height);
 
-        # rows
-        pdf.SetFontStyle('',8)
-        pdf.SetFillColor(255, 255, 255)
-    end
+		# rows
+		pdf.SetFontStyle('',8)
+		pdf.SetFillColor(255, 255, 255)
+	end
 
 	def render_header(pdf, entries, user, startday, row_height,title)
 		base_x = pdf.GetX

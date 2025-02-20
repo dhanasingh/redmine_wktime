@@ -20,7 +20,6 @@ function getEmpDetails(){
       },
       success: function(data){
         $('#ajax-indicator').hide();
-        console.log(data.contact);
         setDetails(data);
       }
     });
@@ -54,10 +53,10 @@ function setDetails(referral){
   elements.map((ele)=>{
     if(referral && referral[ele.type] && (referral[ele.type][ele.key] || ele.type == ele.key)){
       let value = ele.type == ele.key ? referral[ele.type] : referral[ele.type][ele.key];
-      $('#'+ele.id).val(value);
+      $('#' + ele.id).val(value).trigger('change');
     }
     else{
-      $('#'+ele.id).val(null);
+      $('#' + ele.id).val(null).trigger('change');
     }
   });
 }
