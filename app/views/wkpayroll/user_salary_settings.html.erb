@@ -15,7 +15,7 @@
 			key = entry.id.to_s + "_" + entry.user_id.to_s
 			factor = @userSalCompHash[key].present? ? (@userSalCompHash[key]).factor : 0.00
 			dependent_id = @userSalCompHash[key].present? ? (@userSalCompHash[key]).dependent_id : 0
-			salary_type = @userSalCompHash[key].present? ? (@userSalCompHash[key]).sc_salary_type : null
+			salary_type = @userSalCompHash[key].present? ? (@userSalCompHash[key]).sc_salary_type : nil
 		end
 		actualSalValHash[entry.sc_component_type].store entry.sc_id, @userSalHash[entry.user_id][entry.sc_id] unless @userSalHash[entry.user_id].blank?
 		salEntryByTypeHash[entry.sc_component_type] << [entry, isOverride, dependent_id, factor, salary_type] unless entry.sc_component_type.blank? || entry.sc_component_type == 'r'

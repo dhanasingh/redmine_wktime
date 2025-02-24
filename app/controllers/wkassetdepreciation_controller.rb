@@ -131,7 +131,7 @@ class WkassetdepreciationController < WkassetController
 			depreciationFreq = Setting.plugin_redmine_wktime['wktime_depreciation_frequency']
 			finacialPeriodArr = getFinancialPeriodArray(depreciation.depreciation_date, depreciation.depreciation_date, depreciationFreq, 1)
 			finacialPeriod = finacialPeriodArr[0]
-			assetLedgerId = depreciation.inventory_item.product_item.product.ledger_id
+			assetLedgerId = depreciation.inventory_item&.product_item&.product&.ledger_id
 			unless assetLedgerId.blank?
 				productDepAmtHash = { assetLedgerId => depreciation.depreciation_amount}
 				postDepreciationToAccouning([depreciation.id], [depreciation.gl_transaction_id], depreciation.depreciation_date, productDepAmtHash, depreciation.depreciation_amount, depreciation.currency)
