@@ -175,10 +175,11 @@
 	</table>
 </div>
 
-<%= render :partial => 'edit_issues', :locals => { :entries => @prev_template ? @prev_entries : @entries }%>
+	<div style="display: table;">
+		<%= render :partial => 'edit_issues', :locals => { :entries => @prev_template ? @prev_entries : @entries }%>
 
-<%= render :partial => 'edit_footer' %>
-
+		<%= render :partial => 'edit_footer' %>
+	</div>
 <% end %>
 
 <!-- Display Attachments Files -->
