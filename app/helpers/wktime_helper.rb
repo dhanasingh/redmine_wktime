@@ -295,7 +295,12 @@ module WktimeHelper
 		max_height = row_height
 		col_values.each_with_index do |val, i|
 			col_x = pdf.GetX
-			val = '' if val.present?
+			val = '' if val.blank?
+			if val.is_a?(String)
+				val = val
+			elsif val.is_a?(Object)
+				val = val.caption
+			end
 			pdf.RDMMultiCell(col_widths[i], row_height, val, "T", 'L', 1)
 			max_height = max_height < pdf.getStringHeight(col_widths[i], val, "T") ? pdf.getStringHeight(col_widths[i], val, "T") : max_height
 			#max_height = (pdf.GetY - base_y) if (pdf.GetY - base_y) > max_height
@@ -453,7 +458,7 @@ end
 
 
 	def render_table_header(pdf, query, col_width, row_height, table_width)
-		columns = query.inline_columns
+		columns = query.is_a?(Array) ? query : query.inline_columns
 		# headers
 		pdf.SetFontStyle('B',8)
 		pdf.SetFillColor(230, 230, 230)
