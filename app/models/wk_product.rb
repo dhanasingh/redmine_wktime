@@ -31,6 +31,7 @@ class WkProduct < ApplicationRecord
   has_many :taxes, through: :product_taxes
 
   validates_presence_of :category
+  validates_presence_of :uom
 
   scope :getProducts, ->(type){
     where(product_type: type).order(:name)
