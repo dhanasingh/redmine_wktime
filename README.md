@@ -84,21 +84,21 @@ This Plugin has the following modules:
 
 For more information on features, please refer to the user guide
 
-[http://erpmine.org/attachments/download/115/ERPmine-User-Guide_v4.5.pdf](http://erpmine.org/attachments/download/115/ERPmine-User-Guide_v4.5.pdf)
+[https://erpmine.org/attachments/download/115/ERPmine-User-Guide_v4.5.pdf](https://erpmine.org/attachments/download/115/ERPmine-User-Guide_v4.5.pdf)
 
 ## Installation
 
 - Unpack the zip file to the plugins folder of Redmine.
 
 - Run the following command to install the rufus-scheduler gem
-    ```sh
-    bundle install
-    ```
+  ```sh
+  bundle install
+  ```
 
 - Run the following command for db migration
-    ```sh
-    rake redmine:plugins:migrate NAME=redmine_wktime RAILS_ENV=production
-    ```
+  ```sh
+  rake redmine:plugins:migrate NAME=redmine_wktime RAILS_ENV=production
+  ```
 
 - Please make sure public/plugin_asset/redmine_wktime has proper access.
 
@@ -111,26 +111,26 @@ For more information on features, please refer to the user guide
 ## Uninstallation
 
 - When uninstalling the plugin, be sure to remove the db changes by running
-    ```sh
-    rake redmine:plugins:migrate NAME=redmine_wktime VERSION=0 RAILS_ENV=production
-    ```
+  ```sh
+  rake redmine:plugins:migrate NAME=redmine_wktime VERSION=0 RAILS_ENV=production
+  ```
 
-## Release Notes for v4.8.1
+## Release Notes for v4.8.2
 
-- Sidebar-white theme related changes
+- ERPmine cloud hosting related changes
 
 ## Compatibility Matrix
 
 | **Redmine** | **ERPmine** |
 |-------------|-------------|
-| 6.0.x       | 4.8, 4.8.1  |
-| 5.1.x       | 4.7.1, 4.7.2, 4.7.3, 4.7.4, 4.7.5 |
-| 5.0.x       | 4.5.2, 4.6, 4.7 |
-| 4.2.0       | 4.2.1, 4.3, 4.3.1, 4.4, 4.4.1, 4.5, 4.5.1 |
-| 4.1.1       | 4.0.2, 4.0.3, 4.0.4, 4.1, 4.1.1, 4.2 |
-| 4.1.0       | 3.9.1, 3.9.2, 3.9.3, 4.0 |
-| 4.0.x       | 3.4, 3.5, 3.6, 3.7, 3.8, 3.9 |
-| 3.4.x       | 2.9, 3.0, 3.1, 3.2, 3.3 |
+| 6.0.x | 4.8, 4.8.1, 4.8.2  |
+| 5.1.x | 4.7.1, 4.7.2, 4.7.3, 4.7.4, 4.7.5 |
+| 5.0.x | 4.5.2, 4.6, 4.7 |
+| 4.2.0 | 4.2.1, 4.3, 4.3.1, 4.4, 4.4.1, 4.5, 4.5.1 |
+| 4.1.1 | 4.0.2, 4.0.3, 4.0.4, 4.1, 4.1.1, 4.2 |
+| 4.1.0 | 3.9.1, 3.9.2, 3.9.3, 4.0 |
+| 4.0.x | 3.4, 3.5, 3.6, 3.7, 3.8, 3.9 |
+| 3.4.x | 2.9, 3.0, 3.1, 3.2, 3.3 |
 
 ## Customization
 
@@ -143,7 +143,7 @@ Kancheepuram Dist
 Tamilnadu - 603103
 India
 
-Website: [http://www.adhisoftware.co.in](http://www.adhisoftware.co.in)
+Website: [https://www.adhisoftware.co.in](https://www.adhisoftware.co.in)
 Email: info@adhisoftware.co.in
 Phone: +91 44 27470401
 
