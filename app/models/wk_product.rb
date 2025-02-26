@@ -32,6 +32,8 @@ class WkProduct < ApplicationRecord
 
   validates_presence_of :category
   validates_presence_of :uom
+  validates_presence_of :attribute_group
+  validates_presence_of :category
 
   scope :getProducts, ->(type){
     where(product_type: type).order(:name)
