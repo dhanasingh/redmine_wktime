@@ -19,12 +19,12 @@ class WkPublicHoliday < ApplicationRecord
 
   belongs_to :location, class_name: 'WkLocation'
   scope :getHolidays, ->(userID, holiday){
-    joins("INNER JOIN wk_users ON wk_users.location_id = wk_public_holidays.location_id")
+    joins("INNER JOIN wk_users ON wk_users.location_id = wk_public_holidays.location_id" + get_comp_con('wk_users'))
     .where("wk_users.user_id = #{userID} AND holiday_date = '#{holiday}'")
   }
 
   def self.publicHolidayDetails(from, to, userID)
-    WkPublicHoliday.joins("INNER JOIN wk_users ON wk_users.user_id = '#{userID}'")
+    WkPublicHoliday.joins("INNER JOIN wk_users ON wk_users.user_id = '#{userID}'" + get_comp_con('wk_users'))
     .where("(wk_public_holidays.location_id = wk_users.location_id OR wk_public_holidays.location_id IS NULL) AND holiday_date BETWEEN ? AND ?", from, to)
   end
 end

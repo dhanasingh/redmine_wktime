@@ -22,6 +22,9 @@ class WkPermission < ApplicationRecord
   has_many :group , :through => :grpPermission
   has_many :users, :through => :group
 
+  before_create :create_record
+  before_update :update_record
+
   scope :getPermissions, -> {
     joins(:grpPermission, :users)
     .select("count(wk_permissions.id), wk_permissions.short_name")
@@ -30,11 +33,20 @@ class WkPermission < ApplicationRecord
   }
 
   def self.permissionUser(shortName)
-		userIds = WkPermission.joins("INNER JOIN wk_group_permissions AS GP ON wk_permissions.id = permission_id ")
-      .joins("INNER JOIN groups_users AS GU ON GP.group_id = GU.group_id")
-      .joins("INNER JOIN users ON GU.user_id = users.id")
+		userIds = WkPermission.joins(:grpPermission)
+      .joins("INNER JOIN groups_users AS GU ON wk_group_permissions.group_id = GU.group_id" + get_comp_con('GU'))
+      .joins("INNER JOIN users ON GU.user_id = users.id" + get_comp_con('users'))
       .where("short_name = ?", shortName)
       .select("users.id as user_id")
     userIds.pluck(:user_id)
+  end
+
+  def create_record
+    self.updated_at = Date.current
+    self.created_at = Date.current
+  end
+
+  def update_record
+    self.updated_at = Date.current
   end
 end

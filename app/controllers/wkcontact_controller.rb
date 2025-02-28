@@ -35,29 +35,40 @@ class WkcontactController < WkcrmController
 		accountId =  session[controller_name].try(:[], :account_id)
 		locationId = session[controller_name].try(:[], :location_id)
 
-		wkcontact = WkCrmContact.joins("LEFT JOIN wk_accounts AS A ON wk_crm_contacts.account_id = A.id
-			LEFT JOIN wk_locations AS L on wk_crm_contacts.location_id = L.id
-			LEFT JOIN users AS U on wk_crm_contacts.assigned_user_id = U.id")
+		wkcontact = WkCrmContact.joins("LEFT JOIN wk_accounts AS A ON wk_crm_contacts.account_id = A.id #{get_comp_condition('A')}
+			LEFT JOIN wk_locations AS L on wk_crm_contacts.location_id = L.id  #{get_comp_condition('L')}
+			LEFT JOIN users AS U on wk_crm_contacts.assigned_user_id = U.id  #{get_comp_condition('U')} ")
 
 		location = WkLocation.where(:is_default => 'true').first
 		if !contactName.blank? &&  !accountId.blank?
 			if accountId == 'AA'
-				wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id").where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where.not(:account_id => nil).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
+				wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id #{get_comp_condition('wk_crm_contacts')}")
+				.where(:contact_type => getContactType, wk_leads: { status: ['C', nil] })
+				.where.not(:account_id => nil)
+				.where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 			else
-				wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id").where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => accountId).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
+				wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id #{get_comp_condition('wk_leads')}")
+				.where(:contact_type => getContactType, wk_leads: { status: ['C', nil] })
+				.where(:account_id => accountId)
+				.where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 			end
 
 		elsif contactName.blank? &&  !accountId.blank?
 			if accountId == 'AA'
-				wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id").where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where.not(:account_id => nil)
+				wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id #{get_comp_condition('wk_leads')}")
+				.where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where.not(:account_id => nil)
 			else
 				wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id").where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => accountId)
 			end
 
 		elsif !contactName.blank? &&  accountId.blank?
-			wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id").where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => nil).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
+			wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id #{get_comp_condition('wk_leads')}")
+			.where(:contact_type => getContactType, wk_leads: { status: ['C', nil] })
+			.where(:account_id => nil)
+			.where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 		else
-			wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id").where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => nil)
+			wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id #{get_comp_condition('wk_leads')}")
+			.where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => nil)
 		end
 		if (!locationId.blank? || !location.blank?) && locationId != "0"
 			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i
@@ -141,7 +152,7 @@ class WkcontactController < WkcrmController
 	def set_filter_session
 		filters = [:contactname, :account_id, :location_id]
 		super(filters)
-    end
+	end
 
 	def formPagination(entries)
 		@entry_count = entries.count

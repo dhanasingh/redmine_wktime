@@ -62,7 +62,7 @@ class WkTimeEntryQuery < Query
 	
 	private
 	
-	def sql_for_user_custom_field(field, operator, value, custom_field_id, alias_num, tblAlias)		
+	def sql_for_user_custom_field(field, operator, value, custom_field_id, alias_num, tblAlias)
 		db_table = CustomValue.table_name
 		db_field = 'value'
 		filter = @available_filters[field]

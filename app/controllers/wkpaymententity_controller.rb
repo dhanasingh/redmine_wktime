@@ -46,11 +46,11 @@ class WkpaymententityController < WkbillingController
 
 		sqlStr =
 			" from wk_payments p left join (select sum(original_amount) as payment_original_amount, sum(amount) as payment_amount," +
-			" payment_id from wk_payment_items where is_deleted = #{booleanFormat(false)} group by payment_id) pmi" +
+			" payment_id from wk_payment_items where is_deleted = #{booleanFormat(false)} " + get_comp_condition('wk_payment_items') + " group by payment_id) pmi" +
 			" on(pmi.payment_id = p.id)" +
-			" left join wk_accounts a on (p.parent_type = 'WkAccount' and p.parent_id = a.id)" +
-			" left join wk_crm_contacts c on (p.parent_type = 'WkCrmContact' and p.parent_id = c.id)" +
-			" where pmi.payment_amount > 0 and pmi.payment_original_amount > 0"
+			" left join wk_accounts a on (p.parent_type = 'WkAccount' and p.parent_id = a.id)" + get_comp_condition('a') +
+			" left join wk_crm_contacts c on (p.parent_type = 'WkCrmContact' and p.parent_id = c.id)" + get_comp_condition('c') +
+			" where pmi.payment_amount > 0 and pmi.payment_original_amount > 0" + get_comp_condition('p')
 		sqlHook = call_hook :payment_additional_where_query if getInvoiceType == 'I'
 		if filter_type == '2' && !contact_id.blank?
 			sqlwhere = sqlwhere + " and p.parent_id = '#{contact_id}'  and p.parent_type = 'WkCrmContact' and ((#{getPersonTypeSql}) = '#{getOrderContactType}' " + (sqlHook.blank? ? " )" : sqlHook[0] + ")" )

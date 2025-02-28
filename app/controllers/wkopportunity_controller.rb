@@ -27,12 +27,13 @@ class WkopportunityController < WkcrmController
 			LEFT JOIN(
 				SELECT MAX(status_date) AS status_date, status_for_id
 				FROM wk_statuses
-				WHERE status_for_type = 'WkOpportunity'
+				WHERE status_for_type = 'WkOpportunity' "+get_comp_condition('wk_statuses') + "
 				GROUP BY status_for_id
 			) AS S ON S.status_for_id =  wk_opportunities.id
 			LEFT JOIN wk_statuses ON status_for_type = 'WkOpportunity' AND wk_statuses.status_for_id = wk_opportunities.id AND wk_statuses.status_date = S.status_date
-			LEFT JOIN users AS U ON wk_opportunities.assigned_user_id = U.id
-			LEFT JOIN wk_crm_enumerations AS E on S.status_for_id = E.id")
+			" +get_comp_condition('wk_statuses') + "
+			LEFT JOIN users AS U ON wk_opportunities.assigned_user_id = U.id " + get_comp_condition('U') + "
+			LEFT JOIN wk_crm_enumerations AS E on S.status_for_id = E.id " + get_comp_condition('E'))
 		filterSql = ""
 		filterHash = Hash.new
 		if (@from.present? || @to.present?) && sales_stage.to_i == 0

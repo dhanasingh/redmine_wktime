@@ -89,10 +89,11 @@
 	</table>
 </div>
 
-<%= render :partial => 'wktime/edit_issues', :locals => { :entries => @prev_template ? @prev_entries : @entries }%>
+	<div style="display: table;">
+		<%= render :partial => 'wktime/edit_issues', :locals => { :entries => @prev_template ? @prev_entries : @entries }%>
 
-<%= render :partial => 'wktime/edit_footer' %>
-
+		<%= render :partial => 'wktime/edit_footer' %>
+	</div>
 <% end %>
 
 <!-- Display Attachments Files -->

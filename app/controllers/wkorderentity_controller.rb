@@ -156,10 +156,11 @@ class WkorderentityController < WkbillingController
 				invIds = getInvoiceIds(rfqId, getInvoiceType, false)
 				invEntries = invEntries.where( :id => invIds)
 			end
-			invEntries = invEntries.joins("LEFT JOIN wk_invoice_items ON wk_invoice_items.invoice_id = wk_invoices.id
-				LEFT JOIN (SELECT id, firstname, lastname FROM users) AS users ON wk_invoices.modifier_id = users.id
-				LEFT JOIN wk_accounts a on (wk_invoices.parent_type = 'WkAccount' and wk_invoices.parent_id = a.id)
-				LEFT JOIN wk_crm_contacts c on (wk_invoices.parent_type = 'WkCrmContact' and wk_invoices.parent_id = c.id)
+			invEntries = invEntries.joins("LEFT JOIN wk_invoice_items ON wk_invoice_items.invoice_id = wk_invoices.id "+ get_comp_condition('wk_invoice_items')+ "
+				LEFT JOIN
+				(SELECT id, firstname, lastname FROM users " +get_comp_condition('users',"WHERE")+ ") AS users ON wk_invoices.modifier_id = users.id
+				LEFT JOIN wk_accounts a on (wk_invoices.parent_type = 'WkAccount' and wk_invoices.parent_id = a.id " +get_comp_condition('a')+ ")
+				LEFT JOIN wk_crm_contacts c on (wk_invoices.parent_type = 'WkCrmContact' and wk_invoices.parent_id = c.id) " +get_comp_condition('c')+ "
 				").group("wk_invoices.id, CASE WHEN wk_invoices.parent_type = 'WkAccount' THEN a.name ELSE CONCAT(c.first_name, c.last_name) END,
 				CONCAT(users.firstname, users.lastname), wk_invoices.status, wk_invoices.invoice_number, wk_invoices.start_date, wk_invoices.end_date, wk_invoices.invoice_date, wk_invoices.closed_on, wk_invoices.modifier_id, wk_invoices.gl_transaction_id, wk_invoices.parent_id, wk_invoices.invoice_type, wk_invoices.invoice_num_key, wk_invoices.created_at, wk_invoices.updated_at,wk_invoices.parent_type, wk_invoices.confirm_num, wk_invoices.description")
 				.select("wk_invoices.*, SUM(wk_invoice_items.quantity) AS quantity, SUM(wk_invoice_items.amount) AS amount, SUM(wk_invoice_items.original_amount)

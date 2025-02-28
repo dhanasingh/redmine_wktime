@@ -23,12 +23,13 @@ module ReportPf
     to = (from >> 1) - 1
 
 		queryStr = " select U.id ,U.firstname, U.lastname , S.amount, WKU.retirement_account, S.salary_date from users U
-									LEFT JOIN wk_users WKU ON WKU.user_id = U.id
-									LEFT JOIN wk_salaries S ON S.user_id = U.id and  S.salary_date between '#{from}' and '#{to}'
-									LEFT JOIN wk_salary_components SC ON SC.id = S.salary_component_id"
-		sqlwhere = " where U.type = 'User' and (SC.component_type ='b' OR SC.component_type IS NULL) and (WKU.termination_date >= '#{from}' or (U.status = 1 and WKU.termination_date is null))"
+									LEFT JOIN wk_users WKU ON WKU.user_id = U.id "+get_comp_cond('WKU')+"
+									LEFT JOIN wk_salaries S ON S.user_id = U.id and  S.salary_date between '#{from}' and '#{to}' "+get_comp_cond('S')+"
+									LEFT JOIN wk_salary_components SC ON SC.id = S.salary_component_id"+get_comp_cond('SC')
+		sqlwhere = " where U.type = 'User' and (SC.component_type ='b' OR SC.component_type IS NULL) and (WKU.termination_date >= '#{from}' or (U.status = 1 and WKU.termination_date is null))
+		"+get_comp_cond('U')
 		if groupId.to_i > 0
-			queryStr = queryStr + " LEFT JOIN groups_users GU on (GU.user_id = U.id )"
+			queryStr = queryStr + " LEFT JOIN groups_users GU on (GU.user_id = U.id )"+get_comp_cond('S')
 			sqlwhere = sqlwhere + " and GU.group_id =#{groupId}" if userId.to_i < 1
 			sqlwhere = sqlwhere + " and GU.group_id =#{groupId} and U.id =#{userId}" if userId.to_i > 0
 		elsif userId.to_i > 0

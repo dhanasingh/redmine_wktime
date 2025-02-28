@@ -208,7 +208,7 @@ module WkpayrollHelper
 		reimbursProjectIds =  getReimburseProjects
 		@reimburseID = WkSalaryComponents.getReimburseID
 		@reimburse = WkExpenseEntry.getReimburse(reimbursProjectIds) if reimbursProjectIds.length > 0
-		queryStr = getUserSalaryQueryStr + " Where "+terminateCond.to_s+"sc.id is not null"
+		queryStr = getUserSalaryQueryStr + " Where "+terminateCond.to_s+"sc.id is not null" + get_comp_cond('u')
 		unless userIds.blank?
 			@queryStr = queryStr + " and u.id in (#{userIds}) "
 		else
@@ -298,9 +298,9 @@ module WkpayrollHelper
 				usc.factor as usc_factor, usc.dependent_id as usc_dependent_id, usc.salary_component_id as salary_component_id,
 				usc.id as user_salary_component_id, u.id as user_id, u.firstname, u.lastname, usc.factor, usc.dependent_id, usc.salary_type as usc_salary_type
 			FROM users u
-			left join wk_salary_components sc on (1 = 1)
-			left join wk_user_salary_components usc on (sc.id = usc.salary_component_id and  usc.user_id = u.id)
-			left join wk_users wu on u.id = wu.user_id "
+			left join wk_salary_components sc on (1 = 1) " + get_comp_cond('sc') + "
+			left join wk_user_salary_components usc on (sc.id = usc.salary_component_id and  usc.user_id = u.id) " + get_comp_cond('usc') + "
+			left join wk_users wu on u.id = wu.user_id "+ get_comp_cond('wu')
 		sqlStr
 	end
 
@@ -555,7 +555,7 @@ module WkpayrollHelper
 	end
 
 	def getSalaryDetail(userid,salarydate)
-		sqlStr = getQueryStr + " where s.user_id = #{userid} and s.salary_date='#{salarydate}'"
+		sqlStr = getQueryStr + " where s.user_id = #{userid} and s.salary_date='#{salarydate}'" + get_comp_cond('s') + get_comp_cond('sc') + get_comp_cond('u')
 		@wksalaryEntries = WkUserSalaryComponents.find_by_sql(sqlStr)
 	end
 
@@ -567,7 +567,7 @@ module WkpayrollHelper
 		" sc.component_type as component_type from wk_salaries s "+
 		" inner join wk_salary_components sc on s.salary_component_id=sc.id"+
 		" inner join users u on s.user_id=u.id" +
-		" left join wk_users wu on u.id = wu.user_id "
+		" left join wk_users wu on u.id = wu.user_id " + get_comp_cond('wu')
 	end
 
 	def getYTDDetail(userId,salaryDate)

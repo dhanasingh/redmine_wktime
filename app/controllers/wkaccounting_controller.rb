@@ -32,14 +32,13 @@ class WkaccountingController < WkbaseController
 	end
 
 	def check_ac_admin_and_redirect
-	  unless validateERPPermission("A_ACC_PRVLG")
-	    render_403
-	    return false
-	  end
-    end
+		unless validateERPPermission("A_ACC_PRVLG")
+			render_403
+			return false
+		end
+	end
 
 	def check_permission
-		ret = false
 		return validateERPPermission("B_ACC_PRVLG") || validateERPPermission("A_ACC_PRVLG")
 	end
 end

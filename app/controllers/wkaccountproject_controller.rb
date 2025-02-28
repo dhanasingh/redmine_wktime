@@ -26,13 +26,12 @@ include WkaccountprojectHelper
 	def index
 		sort_init 'id', 'asc'
 		sort_update 'type' => "parent_type",
-								'name' => "CASE WHEN wk_account_projects.parent_type = 'WkAccount' THEN a.name ELSE CONCAT(c.first_name, c.last_name) END",
+								'name' => "CASE WHEN wk_account_projects.parent_type = 'WkAccount' THEN wk_accounts.name ELSE CONCAT(wk_crm_contacts.first_name, wk_crm_contacts.last_name) END",
 								'project' => "projects.name",
 								'billing_type' => "billing_type"
 		set_filter_session
 		entries = accountProjctList
-		entries = entries.joins("LEFT JOIN wk_accounts a on (wk_account_projects.parent_type = 'WkAccount' and wk_account_projects.parent_id = a.id)
-			LEFT JOIN wk_crm_contacts c on (wk_account_projects.parent_type = 'WkCrmContact' and wk_account_projects.parent_id = c.id)")
+		entries = entries.left_joins(:wkaccount, :wkcontact)
 		formPagination(entries.reorder(sort_clause))
 	end
 
@@ -127,10 +126,10 @@ include WkaccountprojectHelper
 		if errorMsg.nil?
 			redirect_to :project_id => projectEntry.identifier, :controller => controller_name, :action => 'index'
 			flash[:notice] = l(:notice_successful_update)
-	    else
+		else
 			flash[:error] = errorMsg
 			redirect_to :action => 'edit', :acc_project_id => wkaccountproject.id
-	    end
+		end
 	end
 
 	def destroy
@@ -142,7 +141,7 @@ include WkaccountprojectHelper
 	end
 
 
-  def setLimitAndOffset
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -160,7 +159,7 @@ include WkaccountprojectHelper
 
 	def formPagination(entries)
 		@entry_count = entries.count
-        setLimitAndOffset()
+		setLimitAndOffset()
 		@accountproject = entries.limit(@limit).offset(@offset)
 	end
 

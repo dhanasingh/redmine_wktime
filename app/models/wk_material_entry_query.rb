@@ -33,7 +33,7 @@ class WkMaterialEntryQuery < Query
 	QueryColumn.new(:inventory_item_id),
     QueryColumn.new(:quantity, :sortable => "#{WkMaterialEntry.table_name}.quantity", :totalable => true),
 	QueryColumn.new(:currency),
-	QueryColumn.new(:selling_price, :sortable => "#{WkMaterialEntry.table_name}.selling_price", :totalable => true),	
+	QueryColumn.new(:selling_price, :sortable => "#{WkMaterialEntry.table_name}.selling_price", :totalable => true),
   ]
 
   def initialize(attributes=nil, *args)
@@ -66,7 +66,7 @@ class WkMaterialEntryQuery < Query
     add_available_filter("issue.fixed_version_id",
       :type => :list,
       :name => l("label_attribute_of_issue", :name => l(:field_fixed_version)),
-      :values => lambda { fixed_version_values }) 
+      :values => lambda { fixed_version_values })
 
     add_available_filter("user_id",
       :type => :list_optional, :values => lambda { author_values }
@@ -83,11 +83,11 @@ class WkMaterialEntryQuery < Query
 
   def available_columns
     return @available_columns if @available_columns
-    @available_columns = self.class.available_columns.dup    
+    @available_columns = self.class.available_columns.dup
     @available_columns
   end
 
-  def default_columns_names   
+  def default_columns_names
 	@default_columns_names ||= begin
       default_columns = [:spent_on, :user, :activity, :issue, :comments, :inventory_item_id, :quantity, :currency, :selling_price]
 
@@ -138,7 +138,7 @@ class WkMaterialEntryQuery < Query
   def total_for_quantity(scope)
     map_total(scope.sum(:quantity)) {|t| t.to_f.round(2)}
   end
-  
+
    # Returns sum of all the spent selling_price
   def total_for_selling_price(scope)
     map_total(scope.sum("wk_material_entries.selling_price * wk_material_entries.quantity")) {|t| t.to_f.round(2)}
@@ -218,10 +218,10 @@ class WkMaterialEntryQuery < Query
 
     if order_options
       if order_options.include?('issue_statuses')
-        joins << "LEFT OUTER JOIN #{IssueStatus.table_name} ON #{IssueStatus.table_name}.id = #{Issue.table_name}.status_id"
+        joins << "LEFT OUTER JOIN #{IssueStatus.table_name} ON #{IssueStatus.table_name}.id = #{Issue.table_name}.status_id "+get_comp_con('issue_statuses')
       end
       if order_options.include?('trackers')
-        joins << "LEFT OUTER JOIN #{Tracker.table_name} ON #{Tracker.table_name}.id = #{Issue.table_name}.tracker_id"
+        joins << "LEFT OUTER JOIN #{Tracker.table_name} ON #{Tracker.table_name}.id = #{Issue.table_name}.tracker_id"+get_comp_con('trackers')
       end
     end
 

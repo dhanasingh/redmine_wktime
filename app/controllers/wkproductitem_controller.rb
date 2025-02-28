@@ -119,19 +119,19 @@ class WkproductitemController < WkinventoryController
 
 	def getProductInventorySql
 		sqlStr = " from wk_product_items pit
-		left outer join wk_inventory_items iit on iit.product_item_id = pit.id
-		left outer join wk_inventory_items piit on iit.parent_id = piit.id
-		left outer join (select count(parent_id) child_count, parent_id from wk_inventory_items group by parent_id) pcr on pcr.parent_id = iit.id
-		left outer join wk_products p on pit.product_id = p.id
-		left outer join wk_brands b on pit.brand_id = b.id
-		left outer join wk_product_models m on pit.product_model_id = m.id
-		left outer join wk_product_attributes a on iit.product_attribute_id = a.id
-		left outer join wk_locations l on iit.location_id = l.id
-		left outer join projects on iit.project_id = projects.id
-		left outer join wk_mesure_units uom on iit.uom_id = uom.id
-		left outer join wk_asset_properties ap on ap.inventory_item_id = iit.id
-		left outer join wk_asset_properties pap on pap.inventory_item_id = piit.id
-		where ((case when iit.product_type is null then p.product_type else iit.product_type end) = '#{getItemType}' OR (case when iit.product_type is null then p.product_type else iit.product_type end) IS NULL)  "
+		left outer join wk_inventory_items iit on iit.product_item_id = pit.id " + get_comp_condition('iit') + "
+		left outer join wk_inventory_items piit on iit.parent_id = piit.id " + get_comp_condition('piit') + "
+		left outer join (select count(parent_id) child_count, parent_id from wk_inventory_items" + get_comp_condition('wk_inventory_items', 'where') + " group by parent_id) pcr on pcr.parent_id = iit.id
+		left outer join wk_products p on pit.product_id = p.id " + get_comp_condition('p') + "
+		left outer join wk_brands b on pit.brand_id = b.id " + get_comp_condition('b') + "
+		left outer join wk_product_models m on pit.product_model_id = m.id " + get_comp_condition('m') + "
+		left outer join wk_product_attributes a on iit.product_attribute_id = a.id " + get_comp_condition('a') + "
+		left outer join wk_locations l on iit.location_id = l.id " + get_comp_condition('l') + "
+		left outer join projects on iit.project_id = projects.id " + get_comp_condition('projects') + "
+		left outer join wk_mesure_units uom on iit.uom_id = uom.id " + get_comp_condition('uom') + "
+		left outer join wk_asset_properties ap on ap.inventory_item_id = iit.id " + get_comp_condition('ap') + "
+		left outer join wk_asset_properties pap on pap.inventory_item_id = piit.id " + get_comp_condition('pap') + "
+		where ((case when iit.product_type is null then p.product_type else iit.product_type end) = '#{getItemType}' OR (case when iit.product_type is null then p.product_type else iit.product_type end) IS NULL)  " + get_comp_condition('pit')
 		sqlStr
 	end
 

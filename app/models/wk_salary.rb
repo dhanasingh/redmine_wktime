@@ -30,7 +30,7 @@ class WkSalary < ApplicationRecord
   }
 
   scope :getUserSalaries, ->(startDate, endDate){
-    joins("LEFT JOIN wk_salary_components SC ON wk_salaries.salary_component_id = SC.id")
+    joins("LEFT JOIN wk_salary_components SC ON wk_salaries.salary_component_id = SC.id" + get_comp_con('SC'))
     .where("SC.component_type IN ('a', 'b') and salary_date between ? and ?", startDate, endDate)
     .group("user_id, salary_date")
     .select("user_id, salary_date, sum(amount) As amount")
@@ -41,18 +41,18 @@ class WkSalary < ApplicationRecord
   }
 
   def self.getLastSalary
-    WkSalary.joins("INNER JOIN wk_salary_components AS SC ON SC.id = wk_salaries.salary_component_id")
+    WkSalary.joins(:salary_component)
     .joins("INNER JOIN (
       SELECT MAX(salary_date) AS salary_date, user_id
       FROM wk_salaries
-      WHERE user_id=#{User.current.id}
+      WHERE user_id=#{User.current.id} " + get_comp_con('wk_salaries') + "
       GROUP BY user_id
     ) AS T ON T.salary_date = wk_salaries.salary_date AND T.user_id = wk_salaries.user_id")
     .where("wk_salaries.user_id" => User.current.id)
     .group("currency, T.salary_date")
-    .select("SUM(CASE WHEN SC.component_type = 'a' THEN amount
-      WHEN SC.component_type = 'b' THEN amount
-      ELSE 0 END) - SUM(CASE WHEN SC.component_type = 'd' THEN amount ELSE 0 END) AS net, currency, T.salary_date")
+    .select("SUM(CASE WHEN wk_salary_components.component_type = 'a' THEN amount
+      WHEN wk_salary_components.component_type = 'b' THEN amount
+      ELSE 0 END) - SUM(CASE WHEN wk_salary_components.component_type = 'd' THEN amount ELSE 0 END) AS net, currency, T.salary_date")
     .order(:net).first
   end
 
@@ -93,12 +93,12 @@ class WkSalary < ApplicationRecord
   end
 
   def self.lastYearSalaries
-    WkSalary.joins("INNER JOIN wk_salary_components AS SC ON SC.id = wk_salaries.salary_component_id")
+    WkSalary.joins(:salary_component)
       .where(user_id: User.current.id)
       .group("currency, salary_date")
-      .select("SUM(CASE WHEN SC.component_type = 'a' THEN amount
-        WHEN SC.component_type = 'b' THEN amount
-        ELSE 0 END) - SUM(CASE WHEN SC.component_type = 'd' THEN amount ELSE 0 END) AS net, currency, salary_date")
+      .select("SUM(CASE WHEN wk_salary_components.component_type = 'a' THEN amount
+        WHEN wk_salary_components.component_type = 'b' THEN amount
+        ELSE 0 END) - SUM(CASE WHEN wk_salary_components.component_type = 'd' THEN amount ELSE 0 END) AS net, currency, salary_date")
       .order("salary_date DESC")
   end
 end

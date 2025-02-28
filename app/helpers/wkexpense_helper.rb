@@ -15,17 +15,18 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-module WkexpenseHelper	
+module WkexpenseHelper
 	include QueriesHelper
+
 	def options_for_currency
-	 #method valid_languages - defined in i18n.rb
-	 valid_languages.map {|lang| [ll(lang.to_s, 'number.currency.format.unit'), ll(lang.to_s,'number.currency.format.unit')]}.uniq	 
-    end
-	
+		#method valid_languages - defined in i18n.rb
+		valid_languages.map {|lang| [ll(lang.to_s, 'number.currency.format.unit'), ll(lang.to_s,'number.currency.format.unit')]}.uniq
+	end
+
 	def render_wkexpense_breadcrumb
 		links = []
-		links << link_to(l(:label_project_all), {:project_id => nil, :issue_id => nil})	
-		links << link_to(h(@project), {:project_id => @project, :issue_id => nil}) if @project	
+		links << link_to(l(:label_project_all), {:project_id => nil, :issue_id => nil})
+		links << link_to(h(@project), {:project_id => @project, :issue_id => nil}) if @project
 		if @issue
 			if @issue.visible?
 				links << link_to_issue(@issue, :subject => false)
@@ -35,7 +36,7 @@ module WkexpenseHelper
 		end
 		breadcrumb links
 	end
-	
+
 	def select_amount(data, criteria, value)
 		if value.to_s.empty?
 			data.select {|row| row[criteria].blank? }
@@ -43,29 +44,30 @@ module WkexpenseHelper
 			data.select {|row| row[criteria].to_s == value.to_s}
 		end
 	end
-	
+
 	def sum_amount(data)
 		sum = 0
 		data.each do |row|
 			sum += row['amount'].to_f
 		end
 		sum
-	end  
-	
+	end
+
 	def entries_to_csv(entries)
-		decimal_separator = l(:general_csv_decimal_separator)   
+		decimal_separator = l(:general_csv_decimal_separator)
 		export = CSV.generate(:col_sep => l(:general_csv_separator)) do |csv|
 			# csv header fields
-			headers = [l(:field_spent_on),
-					 l(:field_user),
-					 l(:field_activity),
-					 l(:field_project),
-					 l(:field_issue),
-					 l(:field_tracker),
-					 l(:field_subject),
-					 l(:field_amount),
-					 l(:field_comments)
-					 ]     
+			headers = [
+				l(:field_spent_on),
+				l(:field_user),
+				l(:field_activity),
+				l(:field_project),
+				l(:field_issue),
+				l(:field_tracker),
+				l(:field_subject),
+				l(:field_amount),
+				l(:field_comments)
+			]
 
 			csv << headers.collect {|c| Redmine::CodesetUtil.from_utf8(
                                      c.to_s,
@@ -81,7 +83,7 @@ module WkexpenseHelper
 				  (entry.issue ? entry.issue.subject : nil),
 				  entry.hours.to_s.gsub('.', decimal_separator),
 				  entry.comments
-				  ]     
+				  ]
 
 				csv << fields.collect {|c| Redmine::CodesetUtil.from_utf8(
                                      c.to_s,
@@ -90,7 +92,7 @@ module WkexpenseHelper
 		end
 		export
 	end
-  
+
 	def format_criteria_value(criteria_options, value)
 		if value.blank?
 			"[#{l(:label_none)}]"
@@ -104,17 +106,17 @@ module WkexpenseHelper
 		else
 			format_value(value, criteria_options[:format])
 		end
-	end  
-  
-	def report_to_csv(report) 
+	end
+
+	def report_to_csv(report)
 		decimal_separator = l(:general_csv_decimal_separator)
 		export = CSV.generate(:col_sep => l(:general_csv_separator)) do |csv|
 			# Column headers
 			headers = report.criteria.collect {|criteria| l(report.available_criteria[criteria][:label]) }
 			headers += report.periods
-			headers << l(:label_total)			 
+			headers << l(:label_total)
 			csv << headers.collect {|c| Redmine::CodesetUtil.from_utf8(c.to_s,l(:general_csv_encoding) ) }
-			# Content			 
+			# Content
 			report_criteria_to_csv(csv, report.available_criteria, report.columns, report.criteria, report.periods, report.amount)
 			# Total row
 			str_total = Redmine::CodesetUtil.from_utf8(l(:label_total), l(:general_csv_encoding))
@@ -131,7 +133,7 @@ module WkexpenseHelper
 		export
 	end
 
-	def report_criteria_to_csv(csv, available_criteria, columns, criteria, periods, amount, level=0)  
+	def report_criteria_to_csv(csv, available_criteria, columns, criteria, periods, amount, level=0)
 		decimal_separator = l(:general_csv_decimal_separator)
 		amount.collect {|h| h[criteria[level]].to_s}.uniq.each do |value|
 			amount_for_value = select_amount(amount, criteria[level], value)
@@ -147,15 +149,15 @@ module WkexpenseHelper
 				total += sum
 				row << (sum > 0 ? ("%.2f" % sum).gsub('.',decimal_separator) : '')
 			end
-			row << ("%.2f" % total).gsub('.',decimal_separator)	 
-	  
+			row << ("%.2f" % total).gsub('.',decimal_separator)
+
 			csv << row
 			if criteria.length > level + 1
 				report_criteria_to_csv(csv, available_criteria, columns, criteria, periods, amount_for_value, level + 1)
 			end
 		end
-	end 	
-  
+	end
+
 	class WKExpenseReport
 		 attr_reader :criteria, :columns, :amount, :total_amount, :periods
 
@@ -194,7 +196,7 @@ module WkexpenseHelper
             end
             @amount << h
           end
-          
+
           @amount.each do |row|
             case @columns
             when 'year'
@@ -207,13 +209,13 @@ module WkexpenseHelper
               row['day'] = "#{row['spent_on']}"
             end
           end
-          
+
           min = @amount.collect {|row| row['spent_on']}.min
           @from = min ? min.to_date : Date.today
 
           max = @amount.collect {|row| row['spent_on']}.max
           @to = max ? max.to_date : Date.today
-          
+
           @total_amount = @amount.inject(0) {|s,k| s = s + k['amount'].to_f}
 
           @periods = []
@@ -264,7 +266,7 @@ module WkexpenseHelper
                                  'issue' => {:sql => "#{WkExpenseEntry.table_name}.issue_id",
                                              :klass => Issue,
                                              :label => :label_issue}
-                               }       
+                               }
 
         @available_criteria
       end

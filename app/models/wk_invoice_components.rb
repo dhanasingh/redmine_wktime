@@ -24,7 +24,7 @@ class WkInvoiceComponents < ApplicationRecord
     }
 
     scope :getAccInvComp, ->(id){
-        joins("LEFT JOIN wk_acc_invoice_components AIC on wk_invoice_components.id = AIC.invoice_component_id and (account_project_id IN (#{id}) OR AIC.id is NULL)")
+        joins("LEFT JOIN wk_acc_invoice_components AIC on wk_invoice_components.id = AIC.invoice_component_id and (account_project_id IN (#{id}) OR AIC.id is NULL)"+get_comp_con('AIC'))
         .select("wk_invoice_components.id as ic_id, wk_invoice_components.name, wk_invoice_components.value as ic_value, AIC.*")
     }
 end

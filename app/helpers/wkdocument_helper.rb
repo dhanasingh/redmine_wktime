@@ -20,8 +20,9 @@ module WkdocumentHelper
   def getDocuments
       url = getDocumentType
       tableName = Object.const_get(url[:container_type]).table_name
-      @attachments = Attachment.joins("INNER JOIN #{tableName} ON #{tableName}.id = container_id AND container_type='#{url[:container_type]}'")
-          .where("#{tableName}.id = ?", url[:container_id])
+      @attachments = Attachment.joins("INNER JOIN #{tableName} ON #{tableName}.id = container_id
+        AND container_type='#{url[:container_type]}' #{get_comp_cond(tableName)}")
+        .where("#{tableName}.id = ?", url[:container_id])
   end
 
   def getDocumentType
@@ -66,7 +67,7 @@ module WkdocumentHelper
       url
   end
 
-	def delete_documents(id)
+  def delete_documents(id)
     url = getDocumentType
     attachments = Attachment.where(container_id: id,container_type: url[:container_type])
     unless attachments.delete_all

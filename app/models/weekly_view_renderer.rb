@@ -37,7 +37,7 @@ class WeeklyViewRenderer < SheetViewRenderer
 	end
 	
 	def getSheetEntries(cond, modelClass, givenValues)
-		modelClass.joins(:project).joins(:activity).joins("LEFT OUTER JOIN issues ON issues.id = #{modelClass.table_name}.issue_id").where(cond).order("projects.name, issues.subject, enumerations.name, #{modelClass.table_name}.spent_on")
+		modelClass.joins(:project).joins(:activity).joins("LEFT OUTER JOIN issues ON issues.id = #{modelClass.table_name}.issue_id" + get_comp_con('issues')).where(cond).order("projects.name, issues.subject, enumerations.name, #{modelClass.table_name}.spent_on")
 	end
 	
 	def getEntrySpentFor(entry)

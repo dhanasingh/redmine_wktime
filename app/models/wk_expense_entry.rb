@@ -27,17 +27,14 @@ class WkExpenseEntry < TimeEntry
   has_one :wkspentfor, -> { where(spent_type: "WkExpenseEntry") }, foreign_key: "spent_id", class_name: "WkSpentFor", :dependent => :destroy
   has_many :attachments, -> {where(container_type: "WkExpenseEntry")}, class_name: "Attachment", foreign_key: "container_id", :dependent => :destroy
   has_one :wkstatus, -> { where(status_for_type: "WkExpenseEntry") }, foreign_key: "status_for_id", class_name: "WkStatus"
-  accepts_nested_attributes_for :wkspentfor, allow_destroy: true
-
-
-  # attr_protected :user_id, :tyear, :tmonth, :tweek
+  accepts_nested_attributes_for  :spent_for, :attachments, :wkspentfor, allow_destroy: true
 
   scope :visible, lambda {|*args|
     joins(:project).
     where(WkExpenseEntry.visible_condition(args.shift || User.current, *args))
   }
   scope :left_join_issue, lambda {
-    joins("LEFT OUTER JOIN #{Issue.table_name} ON #{Issue.table_name}.id = #{WkExpenseEntry.table_name}.issue_id")
+    joins("LEFT OUTER JOIN #{Issue.table_name} ON #{Issue.table_name}.id = #{WkExpenseEntry.table_name}.issue_id" + get_comp_con(Issue.table_name))
   }
   scope :on_issue, lambda {|issue|
     joins(:issue).

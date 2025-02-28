@@ -26,11 +26,11 @@ class WkleadController < WkcrmController
 	def index
 		sort_init 'updated_at', 'desc'
 
-		sort_update 'lead_name' => "CONCAT(C.first_name, C.last_name)",
+		sort_update 'lead_name' => "CONCAT(wk_crm_contacts.first_name, wk_crm_contacts.last_name)",
 			'status' => "#{WkLead.table_name}.status",
-			'location_name' => "L.name",
-			'acc_name' => "A.name",
-			'updated_by_user_id' => "CONCAT(U.firstname, U.lastname)",
+			'location_name' => "wk_locations.name",
+			'acc_name' => "wk_accounts.name",
+			'updated_by_user_id' => "CONCAT(users.firstname, users.lastname)",
 			'updated_at' => "#{WkLead.table_name}.updated_at"
 
 		set_filter_session
@@ -39,24 +39,22 @@ class WkleadController < WkcrmController
 		locationId = session[controller_name].try(:[], :location_id)
 		location = WkLocation.where(:is_default => 'true').first
 
-		entries = WkLead.joins("LEFT JOIN users AS U ON wk_leads.created_by_user_id = U.id
-			LEFT JOIN wk_accounts AS A on wk_leads.account_id = A.id
-			LEFT JOIN wk_crm_contacts AS C on wk_leads.contact_id = C.id
-			LEFT JOIN wk_locations AS L on C.location_id = L.id").where("C.contact_type != 'IC'")
+		entries = WkLead.left_joins(:created_by_user, :account, :contact, :contact => :location)
+		.where.not(wk_crm_contacts: { contact_type: 'IC' })
 
 		if !leadName.blank? && !status.blank?
-		    entries = entries.where(:status => status).joins(:contact).where("LOWER(C.first_name) like LOWER(?) OR LOWER(C.last_name) like LOWER(?)", "%#{leadName}%", "%#{leadName}%")
+		    entries = entries.where(:status => status).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{leadName}%", "%#{leadName}%")
 		elsif !leadName.blank? && status.blank?
-			entries = entries.where.not(:status => 'C').joins(:contact).where("LOWER(C.first_name) like LOWER(?) OR LOWER(C.last_name) like LOWER(?)", "%#{leadName}%", "%#{leadName}%")
+			entries = entries.where.not(:status => 'C').where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{leadName}%", "%#{leadName}%")
 		elsif leadName.blank? && !status.blank?
-			entries = entries.where(:status => status).joins(:contact).where("LOWER(C.first_name) like LOWER(?) OR LOWER(C.last_name) like LOWER(?)", "%#{leadName}%", "%#{leadName}%")
+			entries = entries.where(:status => status).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{leadName}%", "%#{leadName}%")
 		else
-			entries = entries.joins(:contact).where.not(:status => 'C')
+			entries = entries.where.not(:status => 'C')
 		end
 
 		if (!locationId.blank? || !location.blank?) && locationId != "0"
 			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i
-			entries = entries.where("C.location_id = ? ", location_id)
+			entries = entries.where("wk_crm_contacts.location_id = ? ", location_id)
 		end
 		entries = entries.reorder(sort_clause)
 		respond_to do |format|

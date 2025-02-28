@@ -69,7 +69,7 @@ class WkdeliveryController < WkinventoryController
 		if delivery_status.present?
 			delivery = delivery.joins(:wkstatus).joins("INNER JOIN (
 				SELECT status_for_id, MAX(status_date) AS status_date
-				FROM wk_statuses WHERE status_for_type='WkShipment'
+				FROM wk_statuses WHERE status_for_type='WkShipment' #{get_comp_condition('wk_statuses')}
 				GROUP BY status_for_id
 			) AS CS ON CS.status_for_id = wk_statuses.status_for_id AND CS.status_date = wk_statuses.status_date")
 			sqlwhere = sqlwhere + " and wk_statuses.status = '#{delivery_status}'  "
@@ -188,10 +188,10 @@ class WkdeliveryController < WkinventoryController
 		if errorMsg.blank?
 			redirect_to action: 'index', controller: controller_name, tab: controller_name
 			flash[:notice] = l(:notice_successful_update)
-	  else
+		else
 			flash[:error] = errorMsg
 			redirect_to action: 'edit', delivery_id: @shipment.id
-	  end
+		end
 	end
 
 	def destroy

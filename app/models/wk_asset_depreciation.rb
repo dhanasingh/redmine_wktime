@@ -45,7 +45,8 @@ class WkAssetDepreciation < ApplicationRecord
   scope :lastDepr, ->(inventory_item_id){
     joins("INNER JOIN (
 			SELECT MAX(depreciation_date) AS depreciation_date, inventory_item_id
-			FROM wk_asset_depreciations where inventory_item_id = #{inventory_item_id} group by inventory_item_id
+			FROM wk_asset_depreciations where inventory_item_id = #{inventory_item_id}
+			"+get_comp_con('wk_asset_depreciations')+"group by inventory_item_id
 			)  AS D  ON D.inventory_item_id = wk_asset_depreciations.inventory_item_id  AND D.depreciation_date = wk_asset_depreciations.depreciation_date")
 		.where("wk_asset_depreciations.inventory_item_id = #{inventory_item_id} ")
 		.select("wk_asset_depreciations.depreciation_date, wk_asset_depreciations.currency, wk_asset_depreciations.actual_amount - wk_asset_depreciations.depreciation_amount as current_value")

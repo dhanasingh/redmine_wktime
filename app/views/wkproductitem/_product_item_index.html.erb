@@ -19,7 +19,7 @@
 			availableItems =session[controller_name].try(:[], :available_items)
 			brandSql = nil
 			if productId.present?
-				brandSql = 'id in (select brand_id from wk_brand_products where product_id = ' + productId.to_s + ')'
+				brandSql = 'id in (select brand_id from wk_brand_products where product_id = ' + productId.to_s + get_comp_cond('wk_brand_products') + ')'
 			end
 		%>
 		<fieldset style="font-wight: bold;">

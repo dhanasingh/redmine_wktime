@@ -41,9 +41,9 @@ module ReportUserUtilization
     def getTimeEntriesQuery(group_id, user_id, from, to)
         timeEntriesSqlStr = "SELECT TE.user_id, SUM(hours) AS total, CASE WHEN is_billable IS NULL THEN #{booleanFormat(false)} ELSE is_billable END AS is_billable, tyear, tmonth
             FROM time_entries AS TE
-            LEFT JOIN wk_projects AS WP ON WP.project_id = TE.project_id
-        LEFT JOIN groups_users AS GU ON (GU.user_id = TE.user_id AND GU.group_id =  #{group_id})
-            WHERE (spent_on BETWEEN '#{from}' AND '#{to}')"
+            LEFT JOIN wk_projects AS WP ON WP.project_id = TE.project_id "+ get_comp_cond('WP')+"
+        LEFT JOIN groups_users AS GU ON (GU.user_id = TE.user_id AND GU.group_id =  #{group_id}) "+ get_comp_cond('GU')+"
+            WHERE (spent_on BETWEEN '#{from}' AND '#{to}') "+ get_comp_cond('TE')+""
 
         if group_id.to_i > 0 && user_id.to_i < 1
         timeEntriesSqlStr = timeEntriesSqlStr + " AND GU.group_id is not null"

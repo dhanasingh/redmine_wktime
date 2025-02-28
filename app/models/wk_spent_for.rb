@@ -31,11 +31,11 @@ class WkSpentFor < ApplicationRecord
   scope :unbilled_entries,  -> { where(:invoice_item => nil) }
 
   scope :getIssueLog, -> (id=nil, spent_type=nil) {
-    joins("LEFT JOIN time_entries AS TE ON TE.id = wk_spent_fors.spent_id AND spent_type = 'TimeEntry' AND TE.user_id = #{User.current.id}")
-    .joins("LEFT JOIN wk_material_entries AS M ON M.id = wk_spent_fors.spent_id AND spent_type = 'WkMaterialEntry' AND M.user_id = #{User.current.id}")
-    .joins("LEFT JOIN issues AS I ON I.id = TE.issue_id OR I.id = M.issue_id")
-    .joins("LEFT JOIN projects AS P ON P.id = I.project_id")
-    .joins("LEFT JOIN trackers AS T ON I.tracker_id = T.id")
+    joins("LEFT JOIN time_entries AS TE ON TE.id = wk_spent_fors.spent_id AND spent_type = 'TimeEntry' AND TE.user_id = #{User.current.id}" + get_comp_con('TE'))
+    .joins("LEFT JOIN wk_material_entries AS M ON M.id = wk_spent_fors.spent_id AND spent_type = 'WkMaterialEntry' AND M.user_id = #{User.current.id}" + get_comp_con('M'))
+    .joins("LEFT JOIN issues AS I ON I.id = TE.issue_id OR I.id = M.issue_id"+ get_comp_con('I'))
+    .joins("LEFT JOIN projects AS P ON P.id = I.project_id" + get_comp_con('P'))
+    .joins("LEFT JOIN trackers AS T ON I.tracker_id = T.id" + get_comp_con('T'))
     .where("(M.id IS NOT NULL OR TE.id IS NOT NULL) AND  " + (id.present? ? " spent_id = #{id}" : "wk_spent_fors.clock_action = 'S'") +
       (spent_type.present? ? " AND wk_spent_fors.spent_type = '#{getSpentType(spent_type)}'" : ""))
     .select("wk_spent_fors.*, P.name AS project_name, I.subject, I.id AS issue_id, T.name AS tracker_name")

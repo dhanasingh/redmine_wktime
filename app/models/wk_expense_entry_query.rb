@@ -19,7 +19,7 @@ class WkExpenseEntryQuery < Query
 
   self.queried_class = WkExpenseEntry
   self.view_permission = :view_time_entries
-  
+
   self.available_columns = [
     QueryColumn.new(:project, :sortable => "#{Project.table_name}.name", :groupable => true),
     QueryColumn.new(:spent_on, :sortable => ["#{WkExpenseEntry.table_name}.spent_on", "#{WkExpenseEntry.table_name}.created_on"], :default_order => 'desc', :groupable => true),
@@ -103,11 +103,11 @@ class WkExpenseEntryQuery < Query
       project.present? ? default_columns : [:project] | default_columns
     end
   end
-  
+
   def default_totalable_names
     [:amount]
   end
-  
+
   def default_sort_criteria
     [['spent_on', 'desc']]
   end
@@ -118,7 +118,7 @@ class WkExpenseEntryQuery < Query
       $1
     end
   end
-  
+
   # Returns sum of all the spent amount
   def total_for_amount(scope)
     map_total(scope.sum(:amount)) {|t| t.to_f.round(2)}
@@ -132,17 +132,17 @@ class WkExpenseEntryQuery < Query
       left_join_issue.
       where(getSupervisorCondStr)
   end
-  
+
   def getSupervisorCondStr
 	orgCondStatement = statement
 	condStatement = orgCondStatement
-	
+
 	wktime_helper = Object.new.extend(WktimeHelper)
 	valid_ERP_perm = wktime_helper.validateERPPermission('A_TE_PRVLG')
 	isSupervisor = wktime_helper.isSupervisor
 	projectIdArr = wktime_helper.getManageProject()
 	isManager = projectIdArr.blank? ? false : true
-	
+
 	if isSupervisor && !valid_ERP_perm && !User.current.admin?
 		userIdArr = Array.new
 		user_cond = ""
@@ -151,17 +151,17 @@ class WkExpenseEntryQuery < Query
 		userIdArr = userIdArr << User.current.id.to_s
 		userIds = "#{userIdArr.join(',')}"
 		user_cond = "#{WkExpenseEntry.table_name}.user_id IN (#{userIds})"
-		
+
 		if condStatement.blank?
 			condStatement = "(#{user_cond})" if !user_cond.blank?
-		else				
-			if filters["user_id"].blank?			
+		else
+			if filters["user_id"].blank?
 				condStatement = user_cond.blank? ? condStatement : condStatement + " AND (#{user_cond})"
 			else
 				user_id = filters["user_id"][:values]
 				userIdStrArr = userIdArr.collect{|i| i.to_s}
 				filterUserIds = userIdStrArr & filters["user_id"][:values]
-				
+
 				if !filterUserIds.blank?
 					if user_id.is_a?(Array) && user_id.include?("me")
 						filterUserIds << (User.current.id).to_s
@@ -189,8 +189,8 @@ class WkExpenseEntryQuery < Query
 			condStatement = condStatement.blank? ? condStatement : "(" + condStatement + ") OR (" + mgrCondStatement + ")"
 		end
 	else
-		#if (!Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].blank? && 
-		#Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].to_i == 1) && 
+		#if (!Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].blank? &&
+		#Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].to_i == 1) &&
 		if !valid_ERP_perm && !User.current.admin? && !isManager
 			condStatement = condStatement.blank? ? condStatement : condStatement + " AND (#{WkExpenseEntry.table_name}.user_id = " + User.current.id.to_s + ")"
 		elsif isManager && !valid_ERP_perm && !User.current.admin?
@@ -211,7 +211,7 @@ class WkExpenseEntryQuery < Query
     base_scope.
       order(order_option).
       joins(joins_for_order_statement(order_option.join(',')))
-  end   
+  end
 
   def sql_for_issue_id_field(field, operator, value)
     case operator
@@ -287,10 +287,10 @@ class WkExpenseEntryQuery < Query
 
     if order_options
       if order_options.include?('issue_statuses')
-        joins << "LEFT OUTER JOIN #{IssueStatus.table_name} ON #{IssueStatus.table_name}.id = #{Issue.table_name}.status_id"
+        joins << "LEFT OUTER JOIN #{IssueStatus.table_name} ON #{IssueStatus.table_name}.id = #{Issue.table_name}.status_id "+get_comp_con('issue_statuses')
       end
       if order_options.include?('trackers')
-        joins << "LEFT OUTER JOIN #{Tracker.table_name} ON #{Tracker.table_name}.id = #{Issue.table_name}.tracker_id"
+        joins << "LEFT OUTER JOIN #{Tracker.table_name} ON #{Tracker.table_name}.id = #{Issue.table_name}.tracker_id"+get_comp_con('trackers')
       end
     end
 

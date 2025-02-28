@@ -26,11 +26,11 @@ class WkLeaveReq < ApplicationRecord
 
   scope :get_all, ->{
     joins(:user)
-    .joins("INNER JOIN wk_statuses ON wk_statuses.status_for_id = wk_leave_reqs.id AND wk_statuses.status_for_type = 'WkLeaveReq'
+    .joins("INNER JOIN wk_statuses ON wk_statuses.status_for_id = wk_leave_reqs.id AND wk_statuses.status_for_type = 'WkLeaveReq'"+get_comp_con('wk_statuses')+"
       INNER JOIN
       (SELECT MAX(S.status_date) AS status_date, S.status_for_id
       FROM wk_leave_reqs AS LR
-      INNER JOIN wk_statuses AS S ON S.status_for_id = LR.id AND S.status_for_type = 'WkLeaveReq'
+      INNER JOIN wk_statuses AS S ON S.status_for_id = LR.id AND S.status_for_type = 'WkLeaveReq' "+get_comp_con('S')+"
       GROUP BY S.status_for_id)
       AS S ON S.status_for_id = wk_leave_reqs.id AND S.status_date = wk_statuses.status_date")
     .select("wk_leave_reqs.*, wk_statuses.status")
@@ -51,7 +51,7 @@ class WkLeaveReq < ApplicationRecord
   }
 
   scope :userGroup, ->(id){
-    joins("INNER JOIN groups_users ON groups_users.user_id = wk_leave_reqs.user_id")
+    joins("INNER JOIN groups_users ON groups_users.user_id = wk_leave_reqs.user_id"+get_comp_con('groups_users'))
     .where("groups_users.group_id =  ? ", id )
   }
 
@@ -81,16 +81,17 @@ class WkLeaveReq < ApplicationRecord
 
   def admingroupMail(userRole)
     user_mail = " SELECT address, E.user_id FROM wk_group_permissions
-          INNER JOIN wk_permissions AS P1 ON P1.id = wk_group_permissions.permission_id
-          INNER JOIN groups_users AS GU ON wk_group_permissions.group_id = GU.group_id
-          INNER JOIN users AS U ON U.id = GU.user_id AND U.type IN ('User', 'AnonymousUser')
-          INNER JOIN email_addresses AS E ON E.user_id = U.id INNER JOIN groups_users AS GU2 ON GU.user_id = GU2.user_id
-          INNER JOIN wk_group_permissions AS GP ON GP.group_id = GU2.group_id
-          INNER JOIN wk_permissions AS P2 ON P1.id = GP.permission_id "
+          INNER JOIN wk_permissions AS P1 ON P1.id = wk_group_permissions.permission_id"+get_comp_con('P1')+"
+          INNER JOIN groups_users AS GU ON wk_group_permissions.group_id = GU.group_id"+get_comp_con('GU')+"
+          INNER JOIN users AS U ON U.id = GU.user_id AND U.type IN ('User', 'AnonymousUser')"+get_comp_con('U')+"
+          INNER JOIN email_addresses AS E ON E.user_id = U.id "+get_comp_con('E')+"
+          INNER JOIN groups_users AS GU2 ON GU.user_id = GU2.user_id"+get_comp_con('GU2')+"
+          INNER JOIN wk_group_permissions AS GP ON GP.group_id = GU2.group_id"+get_comp_con('GP')+"
+          INNER JOIN wk_permissions AS P2 ON P1.id = GP.permission_id "+get_comp_con('P2')
     if userRole == 'supervisor'
-      user_mail =  user_mail + "where(P1.short_name = 'A_ATTEND' AND E.notify = #{ActiveRecord::Base.connection.adapter_name == 'SQLServer' ? 1 : true})"
+      user_mail =  user_mail + "where(P1.short_name = 'A_ATTEND' "+get_comp_con('wk_group_permissions')+" AND E.notify = #{ActiveRecord::Base.connection.adapter_name == 'SQLServer' ? 1 : true})"
     else
-      user_mail = user_mail + "where(P1.short_name = 'R_LEAVE' AND E.notify = #{ActiveRecord::Base.connection.adapter_name == 'SQLServer' ? 1 : true})"
+      user_mail = user_mail + "where(P1.short_name = 'R_LEAVE' AND "+get_comp_con('wk_group_permissions')+" E.notify = #{ActiveRecord::Base.connection.adapter_name == 'SQLServer' ? 1 : true})"
     end
     user_mail = user_mail + " Group BY address, E.user_id"
     user_mail = WkGroupPermission.find_by_sql(user_mail)

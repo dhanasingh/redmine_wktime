@@ -83,7 +83,12 @@ class WkassetdepreciationController < WkassetController
 	end
 
 	def getDepreciationSql
-		sqlStr = " from wk_asset_depreciations dep LEFT OUTER JOIN wk_inventory_items iit ON iit.id = dep.inventory_item_id LEFT OUTER JOIN wk_shipments s ON s.id = iit.shipment_id LEFT OUTER JOIN wk_asset_properties ap ON ap.inventory_item_id = iit.id LEFT OUTER JOIN wk_product_items pit ON pit.id = iit.product_item_id LEFT OUTER JOIN wk_products p ON p.id = pit.product_id"
+		sqlStr = " from wk_asset_depreciations dep " +
+			"LEFT OUTER JOIN wk_inventory_items iit ON iit.id = dep.inventory_item_id " + get_comp_condition('iit') +
+			"LEFT OUTER JOIN wk_shipments s ON s.id = iit.shipment_id " + get_comp_condition('s') +
+			"LEFT OUTER JOIN wk_asset_properties ap ON ap.inventory_item_id = iit.id " + get_comp_condition('ap') +
+			"LEFT OUTER JOIN wk_product_items pit ON pit.id = iit.product_item_id " + get_comp_condition('pit') +
+			"LEFT OUTER JOIN wk_products p ON p.id = pit.product_id " + get_comp_condition('p')
 		sqlStr
 	end
 	def new
@@ -126,7 +131,7 @@ class WkassetdepreciationController < WkassetController
 			depreciationFreq = Setting.plugin_redmine_wktime['wktime_depreciation_frequency']
 			finacialPeriodArr = getFinancialPeriodArray(depreciation.depreciation_date, depreciation.depreciation_date, depreciationFreq, 1)
 			finacialPeriod = finacialPeriodArr[0]
-			assetLedgerId = depreciation.inventory_item.product_item.product.ledger_id
+			assetLedgerId = depreciation.inventory_item&.product_item&.product&.ledger_id
 			unless assetLedgerId.blank?
 				productDepAmtHash = { assetLedgerId => depreciation.depreciation_amount}
 				postDepreciationToAccouning([depreciation.id], [depreciation.gl_transaction_id], depreciation.depreciation_date, productDepAmtHash, depreciation.depreciation_amount, depreciation.currency)

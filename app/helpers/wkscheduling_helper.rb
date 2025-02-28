@@ -98,7 +98,7 @@ module WkschedulingHelper
 			@year ||= User.current.today.year
 			@month ||= User.current.today.month
 			@calendar = Redmine::Helpers::Calendar.new(Date.civil(@year, @month, 1), current_language, :month)
-			sqlStr = getLocationDeptSql +  " order by l.id"
+			sqlStr = getLocationDeptSql + get_comp_cond('l', 'where') + get_comp_cond('d') +  " order by l.id"
 			locationDept = WkLocation.find_by_sql(sqlStr)
 			locationDept.each do | entry |
 				ScheduleStrategy.new.schedule('RR', entry.location_id, entry.department_id, @calendar.startdt, @calendar.enddt)

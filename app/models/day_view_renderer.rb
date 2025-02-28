@@ -50,15 +50,15 @@ class DayViewRenderer < SheetViewRenderer
 			te.id as time_entry_id, te.id, te.user_id, COALESCE(te.spent_on,'#{givenValues[:selected_date]}') as spent_on , COALESCE(te.#{getSpField[modelClass.to_s]},0) as #{getSpField[modelClass.to_s]}, te.activity_id, te.comments, te.spent_on_time, 
 			te.spent_for_id, te.spent_for_type, te.spent_id, te.spent_type #{getAdditionalField(modelClass.to_s, 'te')} from issues i " +
 			#p.name as project_name, inner join projects p on (p.id = i.project_id and project_id in (#{givenValues[:project_id]}) #{self.issue_join_cond})
-			" left join wk_issue_assignees ia on (i.id = ia.issue_id and ia.user_id = #{givenValues[:user_id]} )" + # OR i.assigned_to_id = #{givenValues[:user_id]}
-			" left outer join wk_account_projects ap on (ap.project_id = i.project_id)" +
+			" left join wk_issue_assignees ia on (i.id = ia.issue_id and ia.user_id = #{givenValues[:user_id]} )" + get_comp_con('ia') + # OR i.assigned_to_id = #{givenValues[:user_id]}
+			" left outer join wk_account_projects ap on (ap.project_id = i.project_id)" + get_comp_con('ap') +
 			self.spent_for_join.to_s + 
 			" left outer join (select t.*, sf.spent_on_time, sf.spent_for_id, sf.spent_for_type, sf.spent_id, sf.spent_type  from #{modelClass.table_name} t 
-			inner join wk_spent_fors sf on (t.id = sf.spent_id and sf.spent_type = '#{modelClass.to_s}' and t.spent_on = '#{givenValues[:selected_date]}')) te on te.issue_id = i.id and te.user_id = #{givenValues[:user_id]}
-			and COALESCE(te.spent_for_type,'') = COALESCE(ap.parent_type,'') and COALESCE(te.spent_for_id, 0) = COALESCE(ap.parent_id, 0)" 
+			inner join wk_spent_fors sf on (t.id = sf.spent_id and sf.spent_type = '#{modelClass.to_s}' and t.spent_on = '#{givenValues[:selected_date]}' " + get_comp_con("sf") + ") "+ get_comp_con("t", "WHERE") + ") te on te.issue_id = i.id and te.user_id = #{givenValues[:user_id]}
+			and COALESCE(te.spent_for_type,'') = COALESCE(ap.parent_type,'') and COALESCE(te.spent_for_id, 0) = COALESCE(ap.parent_id, 0)"
 			#time_entries te on te.spent_on = '#{@selectedDate}' and te.issue_id = i.id and te.user_id = #{@user.id} 
 			#left outer join wk_spent_fors sf on sf.spent_type = 'TimeEntry' and sf.spent_for_type = ap.parent_type and sf.spent_for_id = ap.parent_id
-		sqlStr = sqlStr + " Where (ia.id IS NOT NULL OR te.id IS NOT NULL OR i.assigned_to_id = #{givenValues[:user_id]} )" 
+		sqlStr = sqlStr + " Where (ia.id IS NOT NULL OR te.id IS NOT NULL OR i.assigned_to_id = #{givenValues[:user_id]} )" + get_comp_con('i')
 		sqlStr = sqlStr + issueCond + spentForCond + self.issue_join_cond.to_s + spent_for_cond.to_s
 		#sqlStr = sqlStr + " Where "
 		modelClass.find_by_sql(sqlStr)

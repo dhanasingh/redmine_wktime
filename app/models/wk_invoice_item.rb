@@ -39,7 +39,7 @@ class WkInvoiceItem < ApplicationRecord
 
   def self.getGenerateEntries(toVal, fromVal, parent_id, parent_type, projectID, model, table)
     entries = model.joins(:spent_for, :project)
-    .joins("INNER JOIN wk_account_projects ON wk_account_projects.project_id = #{table}.project_id")
+    .joins("INNER JOIN wk_account_projects ON wk_account_projects.project_id = #{table}.project_id"+get_comp_con('wk_account_projects'))
     .where(spent_on: fromVal .. toVal, wk_spent_fors: { invoice_item_id: nil })
     .select("#{table}.*, wk_account_projects.parent_id, wk_account_projects.parent_type")
     entries = entries.where(wk_account_projects: { parent_type: parent_type}) if parent_type.present?
@@ -65,10 +65,10 @@ class WkInvoiceItem < ApplicationRecord
 
   def self.getFilteredEntries(entries, projectID, parent_type)
     entries = entries.where(projects: {id: projectID}) if projectID.present? && projectID != "0"
-    entries = entries.joins("LEFT JOIN wk_accounts ON wk_accounts.id = wk_account_projects.parent_id AND parent_type = 'WkAccount'
-    LEFT JOIN wk_crm_contacts ON wk_crm_contacts.id = wk_account_projects.parent_id AND parent_type = 'WkCrmContact'").select("wk_accounts.name AS name, CONCAT(wk_crm_contacts.first_name,' ',wk_crm_contacts.last_name) AS c_name") if parent_type == ''
-    entries = entries.joins("INNER JOIN wk_accounts ON wk_accounts.id = wk_account_projects.parent_id AND parent_type = 'WkAccount'").select("wk_accounts.name AS name") if parent_type == 'WkAccount'
-    entries = entries.joins("INNER JOIN wk_crm_contacts ON wk_crm_contacts.id = wk_account_projects.parent_id AND parent_type = 'WkCrmContact'").select("CONCAT(wk_crm_contacts.first_name,' ',wk_crm_contacts.last_name) AS name") if parent_type == 'WkCrmContact'
+    entries = entries.joins("LEFT JOIN wk_accounts ON wk_accounts.id = wk_account_projects.parent_id AND parent_type = 'WkAccount' "+get_comp_con('wk_accounts')+"
+    LEFT JOIN wk_crm_contacts ON wk_crm_contacts.id = wk_account_projects.parent_id AND parent_type = 'WkCrmContact' "+get_comp_con('wk_crm_contacts')).select("wk_accounts.name AS name, CONCAT(wk_crm_contacts.first_name,' ',wk_crm_contacts.last_name) AS c_name") if parent_type == ''
+    entries = entries.joins("INNER JOIN wk_accounts ON wk_accounts.id = wk_account_projects.parent_id AND parent_type = 'WkAccount' "+get_comp_con('wk_accounts')).select("wk_accounts.name AS name") if parent_type == 'WkAccount'
+    entries = entries.joins("INNER JOIN wk_crm_contacts ON wk_crm_contacts.id = wk_account_projects.parent_id AND parent_type = 'WkCrmContact'"+get_comp_con('wk_crm_contacts')).select("CONCAT(wk_crm_contacts.first_name,' ',wk_crm_contacts.last_name) AS name") if parent_type == 'WkCrmContact'
     entries
   end
 

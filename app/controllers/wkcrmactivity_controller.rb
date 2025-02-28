@@ -39,7 +39,8 @@ class WkcrmactivityController < WkcrmController
 	    set_filter_session
 		retrieve_date_range
 
-		crmactivity = WkCrmActivity.joins("LEFT JOIN users AS U ON wk_crm_activities.assigned_user_id = U.id").where.not(activity_type: "I")
+		crmactivity = WkCrmActivity.joins("LEFT JOIN users AS U ON wk_crm_activities.assigned_user_id = U.id #{get_comp_condition('U')}")
+		.where.not(activity_type: "I")
 
 		actType = session[controller_name].try(:[], :activity_type)
 		relatedTo = session[controller_name].try(:[], :related_to)

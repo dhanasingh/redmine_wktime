@@ -76,7 +76,7 @@ class WkcrmController < WkbaseController
 	    render_403
 	    return false
 	  end
-    end
+	end
 
 	def check_permission
 		return validateERPPermission("B_CRM_PRVLG") || validateERPPermission("A_CRM_PRVLG")

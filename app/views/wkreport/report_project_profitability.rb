@@ -94,11 +94,11 @@ module ReportProjectProfitability
     queryStr = "SELECT U.id as user_id, U.firstname as firstname, U.lastname as lastname, SC.name as component_name, SC.id as sc_component_id,
       S.salary_date as salary_date, S.amount as amount, S.currency as currency, SC.component_type as component_type, M.project_id
       FROM wk_salaries AS S
-      INNER JOIN wk_salary_components AS SC on S.salary_component_id=SC.id
-      INNER JOIN users AS U on S.user_id=U.id
-      INNER JOIN members AS M ON M.user_id = U.id
-      INNER JOIN wk_projects AS P ON P.project_id = M.project_id AND P.is_billable = #{booleanFormat(true)}
-      WHERE S.salary_date  BETWEEN '#{from}' AND '#{to}'
+      INNER JOIN wk_salary_components AS SC on S.salary_component_id=SC.id "+get_comp_cond('SC')+"
+      INNER JOIN users AS U on S.user_id=U.id "+get_comp_cond('U')+"
+      INNER JOIN members AS M ON M.user_id = U.id"+get_comp_cond('M')+"
+      INNER JOIN wk_projects AS P ON P.project_id = M.project_id AND P.is_billable = #{booleanFormat(true)} "+get_comp_cond('P')+"
+      WHERE S.salary_date  BETWEEN '#{from}' AND '#{to}' "+get_comp_cond('S')+"
       ORDER BY M.user_id, M.project_id"
     sal_data = WkSalary.find_by_sql(queryStr)
   end
@@ -110,12 +110,14 @@ module ReportProjectProfitability
       SELECT TE.user_id, SUM(TE.hours) AS user_hours, #{getDatePart('TE.spent_on','month','spent_month')}, #{getDatePart('TE.spent_on','year','spent_year')}
           FROM time_entries AS TE
       LEFT JOIN members AS M ON M.user_id = TE.user_id AND M.project_id = TE.project_id
+      "+get_comp_cond('M')+"
       INNER JOIN wk_projects AS WP ON WP.project_id = M.project_id AND WP.is_billable = #{booleanFormat(true)}
-      AND TE.spent_on BETWEEN  '#{te_from}' AND '#{te_to}'
+      AND TE.spent_on BETWEEN  '#{te_from}' AND '#{te_to}' "+get_comp_cond('WP')+"
       GROUP BY TE.user_id, #{getDatePart('TE.spent_on','month')}, #{getDatePart('TE.spent_on','year')}
         ) AS UT ON UT.user_id = TE.user_id AND UT.spent_year = #{getDatePart('TE.spent_on','year')}
         AND UT.spent_month = #{getDatePart('TE.spent_on','month')} AND TE.spent_on BETWEEN  '#{te_from}' AND '#{te_to}'
     RIGHT JOIN members AS M ON M.user_id = TE.user_id AND M.project_id = TE.project_id
+    "+get_comp_cond('M')+get_comp_cond('TE','WHERE')+"
     GROUP BY M.user_id, M.project_id, UT.spent_month, UT.spent_year, UT.user_hours
     HAVING SUM(TE.hours) > 0"
     time_entries = TimeEntry.find_by_sql(te_details)
@@ -125,10 +127,11 @@ module ReportProjectProfitability
     invoice_details = "	SELECT SUM(II.amount) AS invoice_amt, #{getDatePart('I.invoice_date','month','inv_month')},
     #{getDatePart('I.invoice_date','year','inv_year')}, II.project_id, WP.profit_overhead_percentage, P.name
       FROM wk_invoices AS I
-      INNER JOIN wk_invoice_items AS II ON II.invoice_id = I.id
-      INNER JOIN wk_projects AS WP ON WP.project_id = II.project_id AND WP.is_billable = #{booleanFormat(true)}
-      INNER JOIN projects AS P ON II.project_id = P.id
-      WHERE I.invoice_type = 'I' AND I.invoice_date BETWEEN '#{from}' AND '#{to}' "
+      INNER JOIN wk_invoice_items AS II ON II.invoice_id = I.id "+get_comp_cond('II')+"
+      INNER JOIN wk_projects AS WP ON WP.project_id = II.project_id AND WP.is_billable = #{booleanFormat(true)} "+get_comp_cond('WP')+"
+      INNER JOIN projects AS P ON II.project_id = P.id "+get_comp_cond('P')+"
+      WHERE I.invoice_type = 'I' AND I.invoice_date BETWEEN '#{from}' AND '#{to}'
+      "+get_comp_cond('I')
 
       if projectId.to_i > 0
         invoice_details = invoice_details + "AND II.project_id = #{projectId} "
@@ -142,10 +145,10 @@ module ReportProjectProfitability
   def getBillableProjects(from, to, projectId)
     billable_projects = "SELECT WP.project_id, P.name
     FROM wk_projects AS WP
-    INNER JOIN projects AS P ON WP.project_id = P.id
-    INNER JOIN wk_invoice_items AS II ON II.project_id = WP.project_id
-    INNER JOIN wk_invoices AS I ON I.id = II.invoice_id
-    WHERE I.invoice_type = 'I' AND I.invoice_date BETWEEN '#{from}' AND '#{to}' AND is_billable = #{booleanFormat(true)} "
+    INNER JOIN projects AS P ON WP.project_id = P.id "+get_comp_cond('P')+"
+    INNER JOIN wk_invoice_items AS II ON II.project_id = WP.project_id "+get_comp_cond('II')+"
+    INNER JOIN wk_invoices AS I ON I.id = II.invoice_id "+get_comp_cond('I')+"
+    WHERE I.invoice_type = 'I' AND I.invoice_date BETWEEN '#{from}' AND '#{to}' AND is_billable = #{booleanFormat(true)} "+get_comp_cond('WP')
 
     if projectId.to_i > 0
     billable_projects = billable_projects + "AND WP.project_id = #{projectId} "

@@ -295,9 +295,12 @@ module WktimeHelper
 		max_height = row_height
 		col_values.each_with_index do |val, i|
 			col_x = pdf.GetX
-			if val.nil?
-                val =''
-            end
+			val = '' if val.blank?
+			if val.is_a?(String)
+				val = val
+			elsif val.is_a?(Object)
+				val = val.caption
+			end
 			pdf.RDMMultiCell(col_widths[i], row_height, val, "T", 'L', 1)
 			max_height = max_height < pdf.getStringHeight(col_widths[i], val, "T") ? pdf.getStringHeight(col_widths[i], val, "T") : max_height
 			#max_height = (pdf.GetY - base_y) if (pdf.GetY - base_y) > max_height
@@ -454,28 +457,29 @@ def getTotalValues(totals, hoursIndex,unit)
 end
 
 
-	def render_table_header(pdf, columns, col_width, row_height, table_width)
-        # headers
-        pdf.SetFontStyle('B',8)
-        pdf.SetFillColor(230, 230, 230)
+	def render_table_header(pdf, query, col_width, row_height, table_width)
+		columns = query.is_a?(Array) ? query : query.inline_columns
+		# headers
+		pdf.SetFontStyle('B',8)
+		pdf.SetFillColor(230, 230, 230)
 
-        # render it background to find the max height used
-        base_x = pdf.GetX
-        base_y = pdf.GetY
-        max_height = wktime_to_pdf_write_cells(pdf, columns, col_width, row_height)
-        #pdf.Rect(base_x, base_y, table_width + col_id_width, max_height, 'FD');
+		# render it background to find the max height used
+		base_x = pdf.GetX
+		base_y = pdf.GetY
+		max_height = wktime_to_pdf_write_cells(pdf, columns, col_width, row_height)
+		#pdf.Rect(base_x, base_y, table_width + col_id_width, max_height, 'FD');
 		pdf.Rect(base_x, base_y, table_width, max_height, 'FD');
-        pdf.SetXY(base_x, base_y);
+		pdf.SetXY(base_x, base_y);
 
-        # write the cells on page
-        wktime_to_pdf_write_cells(pdf, columns, col_width, row_height)
-        issues_to_pdf_draw_borders(pdf, base_x, base_y, base_y + max_height,0, col_width)
-        pdf.SetY(base_y + max_height);
+		# write the cells on page
+		wktime_to_pdf_write_cells(pdf, columns, col_width, row_height)
+		issues_to_pdf_draw_borders(pdf, base_x, base_y, base_y + max_height,0, col_width)
+		pdf.SetY(base_y + max_height);
 
-        # rows
-        pdf.SetFontStyle('',8)
-        pdf.SetFillColor(255, 255, 255)
-    end
+		# rows
+		pdf.SetFontStyle('',8)
+		pdf.SetFillColor(255, 255, 255)
+	end
 
 	def render_header(pdf, entries, user, startday, row_height,title)
 		base_x = pdf.GetX
@@ -721,8 +725,8 @@ end
 		 " inner join member_roles mr on m.id = mr.member_id" +
 		 " inner join roles r on mr.role_id = r.id and r.permissions like '%:log_time%'" +
 		 " inner join users u on m.user_id = u.id and u.status = #{User::STATUS_ACTIVE}" +
-		 " left outer join wktimes w on u.id = w.user_id and w.begin_date = '" + startDate.to_s + "'" +
-		 " where (w.status is null or w.status = 'n') "
+		 " left outer join wktimes w on u.id = w.user_id and w.begin_date = '" + startDate.to_s + "'" + get_comp_cond('w') +
+		 " where (w.status is null or w.status = 'n') " + get_comp_cond('m') + get_comp_cond('mr') + get_comp_cond('r') + get_comp_cond('u') + get_comp_cond('p')
 
 		if !nonSubmissionUserIds.blank?
 			queryStr += "and u.id in (#{nonSubmissionUserIds})"
@@ -857,6 +861,7 @@ end
 		if !project_id.blank?
 			cond = getProjectSqlString(project_id)
 		end
+		cond += get_comp_cond('t') + get_comp_cond('w')
 		sDay = getDateSqlString('t.spent_on')
 		time_sqlStr = " SELECT t.* FROM time_entries t inner join wktimes w on w.begin_date =  #{ sDay} and w.user_id =t.user_id #{cond}"
 		time_entry = TimeEntry.find_by_sql(time_sqlStr)
@@ -973,9 +978,9 @@ end
 
 	def findLastAttnEntry(isCurrentUser)
 		if isCurrentUser
-			lastAttnEntries = WkAttendance.find_by_sql("select a.* from wk_attendances a inner join ( select max(start_time) as start_time,user_id from wk_attendances where user_id = #{User.current.id} group by user_id ) vw on a.start_time = vw.start_time and a.user_id = vw.user_id order by a.start_time ")
+			lastAttnEntries = WkAttendance.find_by_sql("select a.* from wk_attendances a inner join ( select max(start_time) as start_time,user_id from wk_attendances where user_id = #{User.current.id} " + get_comp_cond('wk_attendances') + " group by user_id ) vw on a.start_time = vw.start_time and a.user_id = vw.user_id " + get_comp_cond('a', 'where') + " order by a.start_time ")
 		else
-			lastAttnEntries = WkAttendance.find_by_sql("select a.* from wk_attendances a inner join ( select max(start_time) as start_time,user_id from wk_attendances group by user_id ) vw on a.start_time = vw.start_time and a.user_id = vw.user_id order by a.start_time ")
+			lastAttnEntries = WkAttendance.find_by_sql("select a.* from wk_attendances a inner join ( select max(start_time) as start_time,user_id from wk_attendances " + get_comp_cond('wk_attendances', 'where') + " group by user_id ) vw on a.start_time = vw.start_time and a.user_id = vw.user_id " + get_comp_cond('a', 'where') + " order by a.start_time ")
 		end
 		lastAttnEntries
 	end
@@ -1033,19 +1038,19 @@ end
 
 	def getTEAllTimeRange(ids)
 		teQuery = "select v.startday as startday from (select #{getDateSqlString('t.spent_on')} as startday " +
-				"from time_entries t where user_id in (#{ids})) v group by v.startday order by v.startday"
+				"from time_entries t where user_id in (#{ids}) " + get_comp_cond('t') + ") v group by v.startday order by v.startday"
 		teResult = TimeEntry.find_by_sql(teQuery)
 	end
 
 	def getAttnAllTimeRange(ids)
 		dateStr = getConvertDateStr('start_time')
-		teQuery = "select (#{dateStr}) as startday from wk_attendances w where user_id in (#{ids}) order by #{dateStr} "
+		teQuery = "select (#{dateStr}) as startday from wk_attendances w where user_id in (#{ids}) " + get_comp_cond('w') + " order by #{dateStr} "
 		teResult = WkAttendance.find_by_sql(teQuery)
 	end
 
 	def getUserAllTimeRange(ids)
 		dateStr = getConvertDateStr('min(created_on)')
-		usrQuery = "select (#{dateStr}) as startday from users where id in (#{ids})"
+		usrQuery = "select (#{dateStr}) as startday from users where id in (#{ids})" + get_comp_cond('users')
 		usrResult = User.find_by_sql(usrQuery)
 	end
 
@@ -1179,11 +1184,9 @@ end
 
 	def getGroupUserArr(shortName)
 		userIdArr = Array.new
-		userIds = WkPermission.joins("INNER JOIN wk_group_permissions AS GP ON wk_permissions.id = permission_id ")
-							   .joins("INNER JOIN groups_users AS GU ON GP.group_id = GU.group_id")
-							   .joins("INNER JOIN users AS U ON GU.user_id = U.id")
-							   .where("short_name = ?", shortName)
-							   .select("U.id, U.firstname, U.lastname")
+		userIds =WkPermission.joins(:grpPermission, :users, :group )
+            .where(short_name: shortName)
+            .select("users.id, users.firstname, users.lastname")
 		if !userIds.blank?
 			userIds.each do | entry|
 				userIdArr <<  [(entry.firstname + " " + entry.lastname), entry.id  ]
@@ -1634,7 +1637,7 @@ end
 			end
 			sub_ord_projects = Project.find_by_sql("select distinct p.* from projects p " +
 							  "inner join members m on p.id = m.project_id " +
-							  "and m.user_id in (" + usrIds + ") and p.status = #{Project::STATUS_ACTIVE}" + " order by (p.name)")
+							  "and m.user_id in (" + usrIds + ") and p.status = #{Project::STATUS_ACTIVE}" + get_comp_cond('p', 'where') + get_comp_cond('m') + " order by (p.name)")
 		end
 		sub_ord_projects
 	end
@@ -1990,5 +1993,11 @@ end
 			end
 		end
 		accural
+	end
+
+	def get_comp_cond(table, cond = 'AND')
+		cond = call_hook(:get_comp_condition, table: table, cond: cond) || []
+		cond = Array(cond)
+		cond[0] || ""
 	end
 end

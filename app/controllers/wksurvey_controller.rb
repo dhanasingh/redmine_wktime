@@ -58,12 +58,11 @@ class WksurveyController < WkbaseController
     @edit_Choice_Entries = nil
     getSurveyForType(params)
     unless params[:survey_id].blank?
-      @edit_Question_Entries = WkSurvey.joins("LEFT JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id")
+      @edit_Question_Entries = WkSurvey.left_joins(:wk_survey_questions)
       .where(:id => params[:survey_id].to_i).select("wk_survey_questions.id AS question_id, wk_survey_questions.name AS question_name,
         wk_survey_questions.question_type, is_reviewer_only, is_mandatory, not_in_report").order("question_id")
 
-      @edit_Choice_Entries = WkSurvey.joins("LEFT JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id")
-        .joins("LEFT JOIN wk_survey_choices ON wk_survey_questions.id = wk_survey_choices.survey_question_id")
+      @edit_Choice_Entries = WkSurvey.left_joins(:wk_survey_questions, :wk_survey_choices)
         .where(:id => params[:survey_id].to_i)
         .select("wk_survey_questions.id AS question_id, wk_survey_choices.id AS choice_id, wk_survey_choices.name, wk_survey_choices.points")
         .order("question_id, choice_id")
@@ -424,8 +423,8 @@ class WksurveyController < WkbaseController
 
     when "WkCrmContact"
       sql = "SELECT C.first_name, C.last_name, C.id FROM wk_crm_contacts AS C
-          LEFT JOIN wk_leads AS L ON L.contact_id = C.id
-          WHERE (L.status = 'C' OR L.contact_id IS NULL) AND C.contact_type = 'C' "
+          LEFT JOIN wk_leads AS L ON L.contact_id = C.id " + get_comp_condition('L') +
+          " WHERE (L.status = 'C' OR L.contact_id IS NULL) AND C.contact_type = 'C' " + get_comp_condition('wk_crm_contacts')
       surveyForIDSql = " AND (C.id = #{surveyForID})"
       surveyForSql = " AND (C.id = #{surveyForID} OR LOWER(C.first_name) LIKE LOWER('#{surveyFor}') OR LOWER(C.last_name) LIKE LOWER('#{surveyFor}'))" unless surveyFor.blank?
       sql += params[:method] == "search" ? surveyForSql : surveyForIDSql

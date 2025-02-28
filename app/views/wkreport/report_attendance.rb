@@ -13,28 +13,28 @@ module ReportAttendance
 		userSqlStr = getUserQueryStr(group_id,user_id, from)
 		leaveSql = "select u.id as user_id, gu.group_id, i.id as issue_id, l.balance, l.accrual, l.used, l.accrual_on," + 
 		" lm.balance + lm.accrual - lm.used as open_bal from users u" + 
-		" left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{group_id})" + 
-		" cross join (select id from issues where id in (#{getReportLeaveIssueIds})) i" + 
-		" left join (#{getLeaveQueryStr(from,to)}) l on l.user_id = u.id and l.issue_id = i.id" + 
+		" left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{group_id})" + get_comp_cond('gu') +
+		" cross join (select id from issues where id in (#{getReportLeaveIssueIds}) " + get_comp_cond('issues') + ") i" + 
+		" left join (#{getLeaveQueryStr(from,to)}) l on l.user_id = u.id and l.issue_id = i.id" + get_comp_cond('l') +
 		" left join (#{getLeaveQueryStr(from << 1,from - 1)}) lm on lm.user_id = u.id and i.id = lm.issue_id"
 		if group_id.to_i > 0 && user_id.to_i < 1
-			leaveSql = leaveSql + " Where gu.group_id is not null"
+			leaveSql = leaveSql + " Where gu.group_id is not null" + get_comp_cond('u')
 		elsif user_id.to_i > 0
-			leaveSql = leaveSql + " Where u.id = #{user_id}"
+			leaveSql = leaveSql + " Where u.id = #{user_id}" + get_comp_cond('u')
 		end
 		if validateERPPermission('A_TE_PRVLG') || User.current.admin?
 			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{from}' and '#{to}'")
 			if getType == 'spent_time'
-				sqlStr = "select user_id,spent_on,sum(hours) as hours from time_entries where issue_id not in (#{getLeaveIssueIds}) and spent_on between '#{from}' and '#{to}' group by user_id,spent_on"
+				sqlStr = "select user_id,spent_on,sum(hours) as hours from time_entries where issue_id not in (#{getLeaveIssueIds}) and spent_on between '#{from}' and '#{to}' " + get_comp_cond('time_entries') + " group by user_id,spent_on"
 			else
-				sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where #{dateStr} between '#{from}' and '#{to}' group by user_id,#{dateStr}"
+				sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where #{dateStr} between '#{from}' and '#{to}' " + get_comp_cond('wk_attendances') + " group by user_id,#{dateStr}"
 			end
 		else
 			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{from}' and '#{to}' and user_id = #{User.current.id} " )
 			if getType == 'spent_time'
-				sqlStr = "select user_id,spent_on,sum(hours) as hours from time_entries where issue_id not in (#{getLeaveIssueIds}) and spent_on between '#{from}' and '#{to}' and user_id = #{User.current.id} group by user_id,spent_on"
+				sqlStr = "select user_id,spent_on,sum(hours) as hours from time_entries where issue_id not in (#{getLeaveIssueIds}) and spent_on between '#{from}' and '#{to}' and user_id = #{User.current.id} " + get_comp_cond('time_entries') + " group by user_id,spent_on"
 			else
-				sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where #{dateStr} between '#{from}' and '#{to}' and user_id = #{User.current.id} group by user_id,#{dateStr}"
+				sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where #{dateStr} between '#{from}' and '#{to}' and user_id = #{User.current.id} " + get_comp_cond('wk_attendances') + " group by user_id,#{dateStr}"
 			end
 		end
 		@userlist = WkUserLeave.find_by_sql(userSqlStr + " order by u.created_on " ) 

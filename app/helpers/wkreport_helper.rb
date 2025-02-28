@@ -62,10 +62,10 @@ module WkreportHelper
 	def getUserQueryStr(group_id,user_id, from)
 		queryStr = "select u.id , gu.group_id, u.firstname, u.lastname,wu.termination_date, wu.join_date, " +
 			"wu.birth_date, wu.id1 as employee_id, rs.name as designation, wu.gender, wu.account_number, wu.tax_id, wu.bank_code from users u " +
-			"left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{group_id}) " +
-			"left join wk_users wu on u.id = wu.user_id " +
-			"left join roles rs on rs.id = wu.role_id " +
-			"where u.type = 'User' and ( wu.termination_date >= '#{from}' or (u.status = #{User::STATUS_ACTIVE} and wu.termination_date is null))"
+			"left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{group_id}) " + get_comp_cond('gu') +
+			"left join wk_users wu on u.id = wu.user_id " + get_comp_cond('wu') +
+			"left join roles rs on rs.id = wu.role_id " + get_comp_cond('rs') +
+			"where u.type = 'User' and ( wu.termination_date >= '#{from}' or (u.status = #{User::STATUS_ACTIVE} and wu.termination_date is null))" +  get_comp_cond('u')
 		if group_id.to_i > 0 && user_id.to_i < 1
 			queryStr = queryStr + " and gu.group_id is not null"
 		elsif user_id.to_i > 0
@@ -97,29 +97,29 @@ module WkreportHelper
 		issueIds
 	end
 
-	def getTotalAmtQuery(tableName, subQryAlias, innerSubQryAls, from, to)
-		queryStr = " (select #{innerSubQryAls}.parent_id, #{innerSubQryAls}.parent_type," +
-			" #{innerSubQryAls}.#{innerSubQryAls}_month, #{innerSubQryAls}.#{innerSubQryAls}_year," +
-			" sum (#{innerSubQryAls}.amount) as #{innerSubQryAls}_amount from" +
-			" (select ii.amount, ii.#{tableName}_id, i.#{tableName}_date,i.parent_type," +
-			" i.parent_id, date_part('month', #{tableName}_date) as #{innerSubQryAls}_month," + " date_part('year', #{tableName}_date) as #{innerSubQryAls}_year" +
-			" from wk_#{tableName}_items ii left join wk_#{tableName}s i" +
-			" on i.id = ii.#{tableName}_id" +
-			" where i.#{tableName}_date between '#{from}' and '#{to}') as #{innerSubQryAls}" +
-			" group by #{innerSubQryAls}.parent_type, #{innerSubQryAls}.parent_id, #{innerSubQryAls}.#{innerSubQryAls}_year, #{innerSubQryAls}.#{innerSubQryAls}_month) as #{subQryAlias} "
-		queryStr
-	end
+	# def getTotalAmtQuery(tableName, subQryAlias, innerSubQryAls, from, to)
+	# 	queryStr = " (select #{innerSubQryAls}.parent_id, #{innerSubQryAls}.parent_type," +
+	# 		" #{innerSubQryAls}.#{innerSubQryAls}_month, #{innerSubQryAls}.#{innerSubQryAls}_year," +
+	# 		" sum (#{innerSubQryAls}.amount) as #{innerSubQryAls}_amount from" +
+	# 		" (select ii.amount, ii.#{tableName}_id, i.#{tableName}_date,i.parent_type," +
+	# 		" i.parent_id, date_part('month', #{tableName}_date) as #{innerSubQryAls}_month," + " date_part('year', #{tableName}_date) as #{innerSubQryAls}_year" +
+	# 		" from wk_#{tableName}_items ii left join wk_#{tableName}s i" +
+	# 		" on i.id = ii.#{tableName}_id" +
+	# 		" where i.#{tableName}_date between '#{from}' and '#{to}') as #{innerSubQryAls}" +
+	# 		" group by #{innerSubQryAls}.parent_type, #{innerSubQryAls}.parent_id, #{innerSubQryAls}.#{innerSubQryAls}_year, #{innerSubQryAls}.#{innerSubQryAls}_month) as #{subQryAlias} "
+	# 	queryStr
+	# end
 
-	def getPrvBalQryStr(tableName, dateVal, subQryAlias)
-		queryStr = " (select sum(pii.amount) prv_#{tableName}_amount," +
-			" pvi.parent_type,pvi.parent_id from wk_#{tableName}_items pii" +
-			" left join wk_#{tableName}s pvi on pvi.id = pii.#{tableName}_id" +
-			" where pvi.#{tableName}_date < '#{dateVal}'" +
-			" group by pvi.parent_type,pvi.parent_id) #{subQryAlias}" +
-			" on (#{subQryAlias}.parent_type = coalesce(idt.parent_type,pdt.parent_type)" +
-			" and #{subQryAlias}.parent_id = coalesce(idt.parent_id,pdt.parent_id)) "
-		queryStr
-	end
+	# def getPrvBalQryStr(tableName, dateVal, subQryAlias)
+	# 	queryStr = " (select sum(pii.amount) prv_#{tableName}_amount," +
+	# 		" pvi.parent_type,pvi.parent_id from wk_#{tableName}_items pii" +
+	# 		" left join wk_#{tableName}s pvi on pvi.id = pii.#{tableName}_id" +
+	# 		" where pvi.#{tableName}_date < '#{dateVal}'" +
+	# 		" group by pvi.parent_type,pvi.parent_id) #{subQryAlias}" +
+	# 		" on (#{subQryAlias}.parent_type = coalesce(idt.parent_type,pdt.parent_type)" +
+	# 		" and #{subQryAlias}.parent_id = coalesce(idt.parent_id,pdt.parent_id)) "
+	# 	queryStr
+	# end
 
 	def getInBtwMonthsArr(from,to)
 		inBtwMnthArr = Array.new
@@ -151,7 +151,7 @@ module WkreportHelper
 			accCond = "A"
 			conCond = "'C', 'RA'"
 		end
-		sqlStr = "select 'WkAccount' #{parentSql} as parent_type, id as parent_id from wk_accounts where account_type = '#{accCond}' union select 'WkCrmContact' #{parentSql} as parent_type, id as parent_id from wk_crm_contacts where contact_type in (#{conCond})"
+		sqlStr = "select 'WkAccount' #{parentSql} as parent_type, id as parent_id from wk_accounts where account_type = '#{accCond}' " + get_comp_cond('wk_accounts') + " union select 'WkCrmContact' #{parentSql} as parent_type, id as parent_id from wk_crm_contacts where contact_type in (#{conCond})  " + get_comp_cond('wk_crm_contacts')
 		sqlStr
 	end
 
@@ -164,7 +164,7 @@ module WkreportHelper
 	end
 
 	def getAddress
-		address_list = WkAddress.joins("RIGHT JOIN wk_locations ON wk_addresses.id = wk_locations.address_id")
+		address_list = WkAddress.joins("RIGHT JOIN wk_locations ON wk_addresses.id = wk_locations.address_id" + get_comp_cond('wk_locations') )
 		mainAddress = address_list.where("wk_locations.is_main = #{booleanFormat(true)}")
 		address_list = mainAddress unless mainAddress.blank?
 		address_list = (address_list.blank? || address_list.first.id.blank?) ? "" : address_list.first.fullAddress

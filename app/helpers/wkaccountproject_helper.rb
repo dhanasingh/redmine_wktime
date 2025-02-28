@@ -36,9 +36,7 @@ include WkcrmHelper
 		wkaccountproject.billing_type = billingType
 		wkaccountproject.include_expense = include_expense
 
-		if !wkaccountproject.save
-			errorMsg = wkaccountproject.errors.full_messages.join("<br>")
-		end
+		wkaccountproject.save
 		wkaccountproject
 	end
 
@@ -78,14 +76,14 @@ include WkcrmHelper
 			sqlwhere += " wk_account_projects.parent_type = 'WkLead' "
 			sqlwhere += " and wk_account_projects.parent_id = '#{lead_id}' " if lead_id.present?
 		end
-		entries = WkAccountProject.joins("INNER JOIN projects ON projects.id = project_id")
+		entries = WkAccountProject.joins(:project)
 		entries = entries.where(sqlwhere) unless sqlwhere.blank?
 		entries
 	end
 
-   def get_project_id(project_id=params[:project_id])
-    projectEntry = Project.where(:identifier => project_id)
-	projectEntry = projectEntry.first unless projectEntry.blank?
-	projectId  = projectEntry.id
-   end
+	def get_project_id(project_id=params[:project_id])
+		projectEntry = Project.where(:identifier => project_id)
+		projectEntry = projectEntry.first unless projectEntry.blank?
+		projectEntry.id
+	end
 end

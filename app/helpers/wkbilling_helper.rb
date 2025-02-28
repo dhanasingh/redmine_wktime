@@ -18,26 +18,26 @@
 module WkbillingHelper
 	include WktimeHelper
 	include WkgltransactionHelper
-	
+
 	# transAmountArr[0] - crLedgerAmtHash, transAmountArr[1] - dbLedgerAmtHash
 	# crLedgerAmtHash => key - leger_id, value - crAmount
 	# dbLedgerAmtHash => key - leger_id, value - dbAmount
-	def postToGlTransaction(transModule, transId, transDate, transAmountArr, currency, description, payInvId)		
+	def postToGlTransaction(transModule, transId, transDate, transAmountArr, currency, description, payInvId)
 		glTransaction = nil
 		crLedger = WkLedger.where(:id => transAmountArr[0].keys[0].to_i)
 		dbLedger = WkLedger.where(:id => transAmountArr[1].keys[0].to_i)
 		unless crLedger[0].blank? || dbLedger[0].blank?
 			transType = getTransType(crLedger[0].ledger_type, dbLedger[0].ledger_type)
-			if Setting.plugin_redmine_wktime['wktime_currency'] == currency 
-				isDiffCur = false 
+			if Setting.plugin_redmine_wktime['wktime_currency'] == currency
+				isDiffCur = false
 			else
-				isDiffCur = true 
+				isDiffCur = true
 			end
 			glTransaction = saveGlTransaction(transModule, transId, transDate, transType, description, transAmountArr, currency, isDiffCur, payInvId)
 		end
 		glTransaction
 	end
-	
+
 	# ledgerAmtArr[0] - crLedgerAmtHash, ledgerAmtArr[1] - dbLedgerAmtHash
 	# crLedgerAmtHash => key - leger_id, value - crAmount
 	# dbLedgerAmtHash => key - leger_id, value - dbAmount
@@ -59,25 +59,28 @@ module WkbillingHelper
 		ledgerAmtArr = [crLedgerAmtHash, dbLedgerAmtHash]
 		ledgerAmtArr
 	end
-	
+
 	def accountPolymormphicHash
 		typeHash = {
 			'WkAccount' => l(:field_account),
-			'WkCrmContact' => l(:label_contact) 
+			'WkCrmContact' => l(:label_contact)
 		}
 		typeHash
 	end
-	
+
 	#This method using on Invoice and Payment
-	def getProjArrays(parent_id, parent_type)		
-		sqlStr = "left outer join projects on projects.id = wk_account_projects.project_id "
+	def getProjArrays(parent_id, parent_type)
+		sqlStr = "left outer join projects on projects.id = wk_account_projects.project_id " + get_comp_cond('projects')
+
+		query = WkAccountProject.joins(sqlStr).select("projects.name as project_name, projects.id as project_id").distinct(:project_id)
 		if !parent_id.blank? && !parent_type.blank?
-				sqlStr = sqlStr + " where wk_account_projects.parent_id = #{parent_id} and wk_account_projects.parent_type = '#{parent_type}' "
+				# sqlStr = sqlStr + " where wk_account_projects.parent_id = #{parent_id} and wk_account_projects.parent_type = '#{parent_type}' "
+
+				query = query.where(parent_id: parent_id, parent_type: parent_type)
 		end
-		
-		WkAccountProject.joins(sqlStr).select("projects.name as project_name, projects.id as project_id").distinct(:project_id)
+    query
 	end
-	
+
 	def personTypeLabelHash
 		typeHash = {
 			'A' => l(:field_account),
