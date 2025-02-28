@@ -1,17 +1,16 @@
-= Webinar on ERPmine – CRM , Feb 25th, 2025, 5 PM India (11:30 AM GMT)
+= Webinar on ERPmine – Payroll , Nov 26th, 2024, 5 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
-https://us02web.zoom.us/meeting/register/ray-mxa7TxCi6-m72XIzYA
+https://us02web.zoom.us/meeting/register/tZIvce2vqTIoG9zjwfBx6qfiOijbp987go8C
 
 *Topics* :
-*  Lead
-*  Account
-*  Opportunity
-*  Contact
-*  Activities
-*  Sales Quote
-*  Reports
-*  Mobile app
+*  Generate payroll
+*  Reimbursement
+*  Apply tax
+*  Payroll Report
+*  Payslip report
+*  Mobile App
+
 -----
 
 = ERPmine
