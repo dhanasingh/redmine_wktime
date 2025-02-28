@@ -115,10 +115,6 @@ For more information on features, please refer to the user guide
   rake redmine:plugins:migrate NAME=redmine_wktime VERSION=0 RAILS_ENV=production
   ```
 
-## Release Notes for v4.8.2
-
-- ERPmine cloud hosting related changes
-
 ## Compatibility Matrix
 
 | **Redmine** | **ERPmine** |
@@ -131,6 +127,10 @@ For more information on features, please refer to the user guide
 | 4.1.0 | 3.9.1, 3.9.2, 3.9.3, 4.0 |
 | 4.0.x | 3.4, 3.5, 3.6, 3.7, 3.8, 3.9 |
 | 3.4.x | 2.9, 3.0, 3.1, 3.2, 3.3 |
+
+## Release Notes for v4.8.2
+
+- ERPmine cloud hosting related changes
 
 ## Customization
 
