@@ -602,7 +602,7 @@ module WkpayrollHelper
 			userSalary.salary_component_id = list[:salary_component_id]
 			userSalary.salary_date = list[:salary_date]
 				if !userSalary.save()
-					errorMsg += userSalary.errors.full_messages.join('\n')
+					errorMsg = userSalary.errors.full_messages.join('\n')
 				else
     				@reimburse&.where({user_id: list[:user_id]})&.each {|r| r.update_attribute(:payroll_id, userSalary.id)} if @reimburseID && (@reimburseID.to_i == list[:salary_component_id])
 				end
