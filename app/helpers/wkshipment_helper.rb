@@ -52,7 +52,7 @@ module WkshipmentHelper
 	end
 
 	def postShipmentAccounting(shipment, assetAccountingHash, assetTotal)
-		if !shipment.id.blank? && autoPostGL('inventory') && getSettingCfId("inventory_cr_ledger")>0 && getSettingCfId("inventory_db_ledger") > 0
+		if !shipment&.id.blank? && autoPostGL('inventory') && getSettingCfId("inventory_cr_ledger")>0 && getSettingCfId("inventory_db_ledger") > 0
 			totalAmount = shipment.inventory_items.shipment_item.sum('(total_quantity*cost_price)+over_head_price')
 			# below query for Asset Parent id logic
 			# totalAmount = @shipment.inventory_items.where("(product_type = 'A' and parent_id is not null) OR product_type <> 'A'").sum('total_quantity*(cost_price+over_head_price)')
