@@ -205,7 +205,7 @@ module SendPatch::TimelogControllerPatch
 							# ============= ERPmine_patch Redmine 6.0  =====================
 							else
 								flash[:error] = errorMsg if errorMsg.present?
-								if @assetObj.present? && @assetObj.id.present?
+								if @assetObj.present? && @assetObj.id.present? && @modelEntry.id.present?
 									redirect_to :controller => 'timelog',:action => 'edit'
 								else
 									render :action => 'new'
