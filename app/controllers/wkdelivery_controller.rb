@@ -154,7 +154,9 @@ class WkdeliveryController < WkinventoryController
 			wkstatus = [{status_for_type: "WkShipment", status: params[:status], status_date: Time.now, status_by_id: User.current.id, latitude: params[:latitude], longitude: params[:longitude]}]
 			@shipment.wkstatus_attributes = wkstatus if saveStatus
 		end
-		@shipment.save()
+		unless @shipment.save()
+			errorMsg = @shipment.errors.full_messages.join("\n")
+		end
 		totalRow = params[:totalrow].to_i
 		i = 1
 		sysCurrency = Setting.plugin_redmine_wktime['wktime_currency']
