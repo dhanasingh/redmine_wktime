@@ -345,7 +345,9 @@ class WkorderentityController < WkbillingController
 			if @invoice.status_changed?
 				@invoice.closed_on = Time.now
 			end
-			@invoice.save()
+			unless @invoice.save()
+				errorMsg = @invoice.errors.full_messages.join("<br>")
+			end
 			totalAmount = 0
 			total_amounts = Hash.new
 			totalRow = params[:totalrow].to_i
