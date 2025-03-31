@@ -130,7 +130,7 @@ For more information on features, please refer to the user guide
 
 ## Release Notes for v4.8.3
 
-- ERPmine cloud hosting related changes
+- Multi tenant Resident Management compatibility
 
 ## Customization
 
