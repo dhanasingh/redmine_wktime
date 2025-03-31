@@ -5,11 +5,12 @@
 		hash_status.merge!({'f' => l(:label_fullfilled), 'd' => l(:label_delivered)})
 	end
 %>
+
 	<%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
-	<%=h hidden_field_tag("parent_id",  @invoice.parent_id )  %>
-	<%=h hidden_field_tag("parent_type",  @invoice.parent_type )  %>
-	<%=h hidden_field_tag("inv_end_date",  @invoice.end_date )  %>
-	<%=h hidden_field_tag("inv_start_date",  @invoice.start_date )  %>
+	<%=h hidden_field_tag("parent_id",  @invoice&.parent_id )  %>
+	<%=h hidden_field_tag("parent_type",  @invoice&.parent_type )  %>
+	<%=h hidden_field_tag("inv_end_date",  @invoice&.end_date )  %>
+	<%=h hidden_field_tag("inv_start_date",  @invoice&.start_date )  %>
 	<%=h hidden_field_tag("invoice_type",  controller.getInvoiceType )  %>
 	<%=h hidden_field_tag("rfq_id",  (@rfqObj.blank? ? (@rfgQuoteEntry.blank? ? '' : @rfgQuoteEntry.rfq_id) : @rfqObj.id) )  %>
 	<%=h hidden_field_tag("rfq_quote_id",  (@rfgQuoteEntry.blank? ? '' : @rfgQuoteEntry.id) )  %>
@@ -17,8 +18,8 @@
 	<%=h hidden_field_tag("po_quote_id",  @rfqQuotObj.blank? ? (@poObj.blank? ? '' : @poObj.quote_id) : @rfqQuotObj.quote_id )  %>
 	<%=h hidden_field_tag("si_id", @siObj.blank? ? "" : @siObj.id )  %>
 	<%=h hidden_field_tag("si_inv_id",  @poId.blank? ? (@siObj.blank? ? "" : @siObj.purchase_order_id) : @poId )  %>
-	<%=h hidden_field_tag("saved_field_status",  @invoice.status )  %>
-	<%=h hidden_field_tag("field_status",  @invoice.status )  %>
+	<%=h hidden_field_tag("saved_field_status",  @invoice&.status )  %>
+	<%=h hidden_field_tag("field_status",  @invoice&.status )  %>
 	<table>
 		<tr><th align="left"><%= controller.getLabelInvNum %></th>
 			<td style="width: 200px;">
@@ -36,7 +37,7 @@
 			</td>
 			<th align="left"><%= controller.getDateLbl %></th>
 			<td style="width: 200px;"><%= ": "%> <%=h date_field_tag('inv_date', (@invoice.blank? ? Date.today.to_s : @invoice.invoice_date.to_s), :size => 10, :required => true, :disabled => @preBilling) %> <%= calendar_for('inv_date') %></td>
-			<% unless @invoice.new_record? %>
+			<% unless @invoice&.new_record? %>
 				<th align="left" style="width:20px;"><%= l(:field_status) %></th>
 				<td><%= ": "%>
 				<%=h select_tag('field_status',options_for_select(hash_status.invert, :selected => @invoice.blank? ? hash_status.invert : @invoice.status ), :disabled => @preBilling) %>  </td>
@@ -63,12 +64,12 @@
 			<tr>
 				<th align="left"><%= l(:label_rfq_name) %></th>
 				<td style="width: 200px;"> <%= ': ' + (@rfqObj.blank? ? (@invoice.blank? ? '' : @invoice.rfq_quote.rfq.name) : @rfqObj.name) %> </td>
-				<% unless @invoice.new_record? %>
+				<% unless @invoice&.new_record? %>
 					<th align="left" ><label  id="lbl_winning_note" style="display:none;"><%= l(:label_won_note) %></label></th>
 					<td rowspan= "2" colspan="8" align="left" ><%= text_area_tag 'winning_note', (@rfgQuoteEntry.blank? ? (@invoice.blank? ? '' : (@invoice.rfq_quote.blank? ? '' : @invoice.rfq_quote.winning_note)) : @rfgQuoteEntry.winning_note), :maxlength => 255, :style => "width:605px; height:80px;display:none;" %></td>
 				<% end %>
 			</tr>
-			<% unless @invoice.new_record? %>
+			<% unless @invoice&.new_record? %>
 				<tr>
 					<th align="left"><label><%= l(:label_winning_quote) %></label></th>
 					<td><%= check_box_tag('quote_won', 1, (@invoice.blank? ? false : (@invoice.rfq_quote.blank? ? false : @invoice.rfq_quote.is_won)), :onchange => "showWinningNote();" ) %></td>

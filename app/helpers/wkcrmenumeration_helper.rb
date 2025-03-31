@@ -37,8 +37,9 @@ include WktimeHelper
 		}
 		enumhash = call_hook :external_enum_type
 		unless enumhash.blank?
-			mergeHash = eval(enumhash)
-			enumerationType =  enumerationType.merge(mergeHash)
+			mergeHash = enumhash.is_a?(Array) ? enumhash.first : enumhash
+			mergeHash = eval(mergeHash) if mergeHash.is_a?(String)
+			enumerationType = enumerationType.merge(mergeHash)
 		end
 		enumerationType
 	end

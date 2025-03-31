@@ -322,7 +322,7 @@ class WksurveyController < WkbaseController
     respond_to do |format|
       format.html {
         if @response.blank? || @response.status == "O" || to_boolean(params[:isReview])
-          if survey_response.valid? && (!surveyAnswers.blank? || !surveyReviews.blank?)
+          if survey_response.valid? && (!surveyAnswers.blank? || !surveyReviews.blank?) && survey_response.errors.blank?
             flash[:notice] = l(:notice_successful_update)
           else
             flash[:error] = survey_response.errors.full_messages.join("<br>")

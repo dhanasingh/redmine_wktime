@@ -222,7 +222,9 @@ class WkpaymententityController < WkbillingController
 		tothash = Hash.new
 		totalRow = params[:totalrow].to_i
 		if totalRow>0 && params["tot_pay_amount"].to_i > 0
-			@payment.save()
+			unless @payment.save()
+				errorMsg = @payment.errors.full_messages.join("\n")
+			end
 		end
 		for i in 1..totalRow
 			if params["credit_issued#{i}"] == "true"

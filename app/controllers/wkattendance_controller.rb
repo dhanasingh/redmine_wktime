@@ -514,8 +514,13 @@ class WkattendanceController < WkbaseController
 						updateClockInOutEntry(params["attnEntriesId#{i}"], getFormatedTimeEntry(entry_start_time), getFormatedTimeEntry(entry_end_time))
 						sucessMsg = l(:notice_successful_update)
 					else
-						addNewAttendance(getFormatedTimeEntry(entry_start_time),getFormatedTimeEntry(entry_end_time), params[:user_id].to_i)
-						sucessMsg = l(:notice_successful_update)
+						wkattendance = addNewAttendance(getFormatedTimeEntry(entry_start_time),getFormatedTimeEntry(entry_end_time), params[:user_id].to_i)
+
+						if wkattendance.id.present?
+							sucessMsg = l(:notice_successful_update)
+						else
+            	errorMsg = wkattendance.errors.full_messages.join(", ")
+            end
 					end
 				end
 			end
@@ -528,7 +533,7 @@ class WkattendanceController < WkbaseController
 				flash[:notice] = sucessMsg
 			else
 				flash[:error] = errorMsg
-				redirect_to :action => 'edit'
+				redirect_to :action => 'clockindex'
 			end
 		}
 		format.api{
@@ -573,7 +578,12 @@ class WkattendanceController < WkbaseController
 					elsif attnd_id.present?
 						wkattendance = updateClockInOutEntry(attnd_id, startTime, endTime)
 					else
-						wkattendance = addNewAttendance(startTime, endTime, params["userID_" + key].to_i)
+						wkattendance = addNewAttendance(startTime, endTime, params["userID_" + key].to_i)						
+						if wkattendance.id.present?
+							sucessMsg = l(:notice_successful_update)
+						else
+            	err_msg += wkattendance.errors.full_messages.join(", ")
+            end
 					end
 				rescue
 					err_msg += wkattendance.errors.full_messages.join('\n')
