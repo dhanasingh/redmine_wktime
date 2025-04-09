@@ -1,14 +1,12 @@
-# Webinar on ERPmine – Payroll , Nov 26th, 2024, 5 PM India (11:30 AM GMT)
+# Webinar on ERPmine – Accounting , Apr 29th, 2025, 5 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
-[https://us02web.zoom.us/meeting/register/tZIvce2vqTIoG9zjwfBx6qfiOijbp987go8C](https://us02web.zoom.us/meeting/register/tZIvce2vqTIoG9zjwfBx6qfiOijbp987go8C)
+[[https://us02web.zoom.us/meeting/register/tZIvce2vqTIoG9zjwfBx6qfiOijbp987go8C](https://us02web.zoom.us/meeting/register/w5gbFjrLT367WZIbdVaAOg)]
 
 **Topics**:
-- Generate payroll
-- Reimbursement
-- Apply tax
-- Payroll Report
-- Payslip report
+- Accounting Transactions
+- General Ledger
+- Financial Reports
 - Mobile App
 
 -----
