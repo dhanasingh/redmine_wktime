@@ -53,6 +53,24 @@
 					</td>
 				</tr>
 			<% end %>
+			<% if @leaveReqStatus.present? && !['N', 'C'].include?(@leaveReqStatus) %>
+				<tr>
+					<th align="left"><%= l(:label_submitted_date) %></th>
+					<td align="left"><%= get_status_date(@leaveReqEntry, "S").to_date %></td>
+				</tr>
+			<% end %>
+			<% if @leaveReqStatus == 'A' %>
+				<tr>
+					<th align="left"><%= l(:label_approved_date) %></th>
+					<td align="left"><%= get_status_date(@leaveReqEntry, "A").to_date %></td>
+				</tr>
+			<% end %>
+			<% if @leaveReqStatus == 'R' %>
+				<tr>
+					<th align="left"><%= l(:label_rejected_date) %></th>
+					<td align="left"><%= get_status_date(@leaveReqEntry, "R").to_date %></td>
+				</tr>
+			<% end %>
 		</table>
 	</fieldset>
 	<div>

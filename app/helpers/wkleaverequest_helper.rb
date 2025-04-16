@@ -65,4 +65,8 @@ module WkleaverequestHelper
 		end
 		leave_available
 	end
+
+  def get_status_date(leaveReq, status)
+    status_date = leaveReq.wkstatus.where(status: status).order(status_date: :desc).first&.status_date
+  end
 end

@@ -1271,5 +1271,5 @@ en:
   label_marital_status: Marital status
   label_dept_section: Department section
   field_emergency_contact: Emergency Contact
-   
-  
+  label_rejected_date: Rejected Date
+  label_approved_date: Approved Date
