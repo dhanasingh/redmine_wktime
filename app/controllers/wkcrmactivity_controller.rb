@@ -169,7 +169,7 @@ class WkcrmactivityController < WkcrmController
 					render :plain => errorMsg, :layout => nil
 				else
 					@error_messages = errorMsg.split('\n')
-					render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+					render :template => 'common/error_messages', :format => [:api], :status => :unprocessable_entity, :layout => nil
 				end
 			}
 		end

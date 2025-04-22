@@ -119,7 +119,7 @@ class WkleaverequestController < WkbaseController
           leaveReqMail(leaveReq)
         else
           @error_messages = errorMsg.split("\n")
-          render :template => "common/error_messages.api", :status => :unprocessable_entity, :layout => nil
+          render :template => 'common/error_messages', :format => [:api], :status => :unprocessable_entity, :layout => nil
         end
       }
     end
@@ -171,7 +171,7 @@ class WkleaverequestController < WkbaseController
           render :plain => err_msg, :layout => nil
         else
           @error_messages = err_msg.split("\n")
-          render :template => "common/error_messages.api", :status => :unprocessable_entity, :layout => nil
+          render :template => 'common/error_messages', :format => [:api], :status => :unprocessable_entity, :layout => nil
         end
       }
     end

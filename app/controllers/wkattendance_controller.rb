@@ -345,7 +345,7 @@ class WkattendanceController < WkbaseController
           render :plain => errorMsg, :layout => nil
         else
           @error_messages = errorMsg.split('\n')
-          render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+          render :template => 'common/error_messages', :format => [:api], :status => :unprocessable_entity, :layout => nil
         end
       }
     end
@@ -541,7 +541,7 @@ class WkattendanceController < WkbaseController
 			render :plain => errorMsg, :layout => nil
 		else
 			@error_messages = errorMsg.split('\n')
-			render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+			render :template => 'common/error_messages', :format => [:api], :status => :unprocessable_entity, :layout => nil
 		end
 		}
 		end
@@ -578,7 +578,7 @@ class WkattendanceController < WkbaseController
 					elsif attnd_id.present?
 						wkattendance = updateClockInOutEntry(attnd_id, startTime, endTime)
 					else
-						wkattendance = addNewAttendance(startTime, endTime, params["userID_" + key].to_i)						
+						wkattendance = addNewAttendance(startTime, endTime, params["userID_" + key].to_i)
 						if wkattendance.id.present?
 							sucessMsg = l(:notice_successful_update)
 						else
