@@ -484,6 +484,7 @@ class WkattendanceController < WkbaseController
 
 	def saveClockInOut
 		endtime = nil
+		errorMsg = []
 		if api_request?
 			params['clock_entries'].each do |cEntries|
 				# starttime = params[:startdate].to_date.to_s + " " +  cEntries['clock_in'] + ":00"
@@ -491,13 +492,19 @@ class WkattendanceController < WkbaseController
 				# endtime = params[:startdate].to_date.to_s + " " +  cEntries['clock_out'] + ":00" if !cEntries['clock_out'].blank?
 				# entry_end_time = DateTime.strptime(cEntries['clock_out'], "%Y-%m-%d %T") rescue endtime
 				if !cEntries['id'].blank?
-					updateClockInOutEntry(cEntries['id'], cEntries['clock_in'], cEntries['clock_out'])
+					err = updateClockInOutEntry(cEntries['id'], cEntries['clock_in'], cEntries['clock_out'])
+					if err.respond_to?(:errors) && err.errors.any?
+						errorMsg << err.errors.full_messages.join(", ")
+					end
 				else
-					addNewAttendance(cEntries['clock_in'], cEntries['clock_out'], params[:user_id].to_i)
+					err = addNewAttendance(cEntries['clock_in'], cEntries['clock_out'], params[:user_id].to_i)
+					if err.respond_to?(:errors) && err.errors.any?
+						errorMsg << err.errors.full_messages.join(", ")
+					end
 				end
 			end
 		else
-			errorMsg =nil
+
 			sucessMsg = nil
 			endtime = nil
 			for i in 0..params[:attnDayEntriesCnt].to_i-1
@@ -519,7 +526,7 @@ class WkattendanceController < WkbaseController
 						if wkattendance.id.present?
 							sucessMsg = l(:notice_successful_update)
 						else
-            	errorMsg = wkattendance.errors.full_messages.join(", ")
+            	errorMsg << wkattendance.errors.full_messages.join(", ")
             end
 					end
 				end
