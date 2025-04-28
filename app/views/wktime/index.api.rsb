@@ -4,7 +4,7 @@ api.array :wk_times, api_meta(:total_count => @entry_count, :offset => @offset, 
 			api.id wk_time.id
 			api.user_id wk_time.user.id if wk_time.user.present?
 			api.name wk_time.user.name if wk_time.user.present?
-			api.hours wk_time.hours
+			api.hours wk_time.hours.round(2).to_f
 			api.startdate wk_time.spent_on
 			api.status statusString(wk_time.status) if wk_time.present?
     end
