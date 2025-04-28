@@ -1373,8 +1373,9 @@ end
 					permissionArr << shortname
 				end
 		  end
-		end
-		return permissionArr.include? permission
+		end		
+		is_allow = Array(call_hook(:allow_module)).first
+		is_allow.present? || permissionArr.include?(permission)		
 	end
 
 	def showShiftScheduling
