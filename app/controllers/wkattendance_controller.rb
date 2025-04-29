@@ -532,6 +532,7 @@ class WkattendanceController < WkbaseController
 				end
 			end
 		end
+    errorMsg = errorMsg.join(", ")
 
 		respond_to do |format|
 			format.html {
