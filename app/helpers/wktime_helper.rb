@@ -1598,7 +1598,7 @@ end
 	end
 
 	def getReportUsers(user_id)
-		supervisor = User.find(user_id)
+		supervisor = User.unscoped.find(user_id)
 		reportees = User.where("(#{User.table_name}.lft > #{supervisor.lft} AND #{User.table_name}.rgt < #{supervisor.rgt})")
 		.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 	end

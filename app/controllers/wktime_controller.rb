@@ -2140,7 +2140,7 @@ private
 			@selectedDate = params[:"wk_#{teName}"].try(:[], :selected_date).to_s.to_date
 		end
 		@startday ||= getStartDay(startday)
-		@user ||= user_id.present? ? User.find(user_id) : User.current
+		@user ||= user_id.present? ? User.unscoped.find(user_id) : User.unscoped.current
 		sheetView = getSheetView()
 		@renderer = SheetViewRenderer.getInstance(sheetView)
 	end
