@@ -536,7 +536,7 @@ class WkattendanceController < WkbaseController
 
 		respond_to do |format|
 			format.html {
-			if errorMsg.nil?
+			if errorMsg.blank?
 				redirect_to controller: 'wkattendance', action: 'clockindex', page: params[:page], tab: 'clock'
 				flash[:notice] = sucessMsg
 			else
