@@ -13,7 +13,7 @@ module ReportAttendance
 		userSqlStr = getUserQueryStr(group_id,user_id, from)
 		leaveSql = "select u.id as user_id, gu.group_id, i.id as issue_id, l.balance, l.accrual, l.used, l.accrual_on," + 
 		" lm.balance + lm.accrual - lm.used as open_bal from users u" + 
-		" left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{group_id})" + get_comp_cond('gu') +
+		" left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{group_id})" +
 		" cross join (select id from issues where id in (#{getReportLeaveIssueIds}) " + get_comp_cond('issues') + ") i" + 
 		" left join (#{getLeaveQueryStr(from,to)}) l on l.user_id = u.id and l.issue_id = i.id" + get_comp_cond('l') +
 		" left join (#{getLeaveQueryStr(from << 1,from - 1)}) lm on lm.user_id = u.id and i.id = lm.issue_id"

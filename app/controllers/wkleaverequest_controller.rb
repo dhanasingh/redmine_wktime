@@ -119,7 +119,7 @@ class WkleaverequestController < WkbaseController
           leaveReqMail(leaveReq)
         else
           @error_messages = errorMsg.split("\n")
-          render :template => "common/error_messages.api", :status => :unprocessable_entity, :layout => nil
+          render :template => 'common/error_messages', :format => [:api], :status => :unprocessable_entity, :layout => nil
         end
       }
     end
@@ -154,6 +154,9 @@ class WkleaverequestController < WkbaseController
         emailNotes += "\n" + l(:field_status).to_s + ": " + status
         emailNotes += "\n" + l(:label_comment).to_s + ": " + leaveReq.leave_reasons if leaveReq.leave_reasons.present?
         emailNotes += "\n" + l(:label_reviewer_cmt).to_s + ": " + leaveReq.reviewer_comment if leaveReq.reviewer_comment.present?
+        emailNotes += "\n" + l(:label_submitted_date).to_s + ": " + get_status_date(leaveReq, "S").to_date.to_s
+        emailNotes += "\n" + l(:label_approved_date).to_s + ": " + get_status_date(leaveReq, "A").to_date.to_s if leaveReq.status == "A"
+        emailNotes += "\n" + l(:label_rejected_date).to_s + ": " + get_status_date(leaveReq, "R").to_date.to_s if leaveReq.status == "R"
         err_msg = sent_emails(l(:label_leave_request_notification), user.language, email_id, emailNotes, ccMailId)
       end
     end
@@ -168,7 +171,7 @@ class WkleaverequestController < WkbaseController
           render :plain => err_msg, :layout => nil
         else
           @error_messages = err_msg.split("\n")
-          render :template => "common/error_messages.api", :status => :unprocessable_entity, :layout => nil
+          render :template => 'common/error_messages', :format => [:api], :status => :unprocessable_entity, :layout => nil
         end
       }
     end

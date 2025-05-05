@@ -199,7 +199,7 @@ class WksurveyController < WkbaseController
           render :plain => resMsg, :layout => nil
         else
           @error_messages = resMsg.split("<br>")
-          render :template => "common/error_messages.api", :status => :unprocessable_entity, :layout => nil
+          render :template => 'common/error_messages', :format => [:api], :status => :unprocessable_entity, :layout => nil
         end
       }
     end
@@ -343,10 +343,10 @@ class WksurveyController < WkbaseController
           resMsg = survey_response.errors.full_messages.join("<br>")
           resMsg += l(:notice_unsuccessful_save) if surveyAnswers.blank?
           @error_messages = resMsg.split("<br>")
-          render :template => "common/error_messages.api", :status => :unprocessable_entity, :layout => nil
+          render :template => 'common/error_messages', :format => [:api], :status => :unprocessable_entity, :layout => nil
         else
           @error_messages = [l(:notice_file_not_found)]
-          render :template => "common/error_messages.api", :status => 404, :layout => nil
+          render :template => 'common/error_messages', :format => [:api], :status => 404, :layout => nil
         end
       }
     end

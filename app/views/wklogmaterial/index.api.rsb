@@ -6,7 +6,7 @@ api.array :time_entries, api_meta(:total_count => @entry_count, :offset => @offs
       api.issue(:id => time_entry.issue_id, :subject => time_entry.issue.subject) unless time_entry.issue.nil?
       api.user(:id => time_entry.user_id, :name => time_entry.user.name) unless time_entry.user.nil?
       api.activity(:id => time_entry.activity_id, :name => time_entry.activity.name) unless time_entry.activity.nil?
-      api.hours time_entry.hours if params[:spent_type].blank? || params[:spent_type] == "T"
+      api.hours time_entry.hours.round(2).to_f if params[:spent_type].blank? || params[:spent_type] == "T"
       api.expense_amount time_entry.amount if params[:spent_type] == "E"
       api.wktime_currency time_entry.currency if params[:spent_type] == "E"
       api.comments time_entry.comments

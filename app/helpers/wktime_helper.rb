@@ -1373,8 +1373,9 @@ end
 					permissionArr << shortname
 				end
 		  end
-		end
-		return permissionArr.include? permission
+		end		
+		is_allow = Array(call_hook(:allow_module)).first
+		is_allow.present? || permissionArr.include?(permission)		
 	end
 
 	def showShiftScheduling
@@ -1597,7 +1598,7 @@ end
 	end
 
 	def getReportUsers(user_id)
-		supervisor = User.find(user_id)
+		supervisor = User.unscoped.find(user_id)
 		reportees = User.where("(#{User.table_name}.lft > #{supervisor.lft} AND #{User.table_name}.rgt < #{supervisor.rgt})")
 		.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 	end

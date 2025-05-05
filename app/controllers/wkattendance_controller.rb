@@ -42,7 +42,7 @@ class WkattendanceController < WkbaseController
 		if(getLeaveSettings.blank?)
 			selectStr = " select u.id as user_id, u.firstname, u.lastname, u.status, -1 as issue_id "
 			sqlStr = " from users u"
-			sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id " + get_comp_condition('gu') if getSession(:group_id).present?
+			sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id " if getSession(:group_id).present?
 			sqlStr = sqlStr + " where u.type = 'User' " + get_comp_condition('u')
 		else
 			listboxArr = getLeaveSettings[0].split('|')
@@ -345,7 +345,7 @@ class WkattendanceController < WkbaseController
           render :plain => errorMsg, :layout => nil
         else
           @error_messages = errorMsg.split('\n')
-          render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+          render :template => 'common/error_messages', :format => [:api], :status => :unprocessable_entity, :layout => nil
         end
       }
     end
@@ -378,7 +378,7 @@ class WkattendanceController < WkbaseController
 		queryStr = " from users u left join wk_users wu on u.id = wu.user_id " + get_comp_condition('wu') + joinTableStr
 
 		if getSession(:group_id).present?
-			queryStr = queryStr + " left join groups_users gu on u.id = gu.user_id" + get_comp_condition('gu')
+			queryStr = queryStr + " left join groups_users gu on u.id = gu.user_id"
 		end
 		return [selectColStr, queryStr]
 	end
@@ -484,6 +484,7 @@ class WkattendanceController < WkbaseController
 
 	def saveClockInOut
 		endtime = nil
+		errorMsg = []
 		if api_request?
 			params['clock_entries'].each do |cEntries|
 				# starttime = params[:startdate].to_date.to_s + " " +  cEntries['clock_in'] + ":00"
@@ -491,13 +492,19 @@ class WkattendanceController < WkbaseController
 				# endtime = params[:startdate].to_date.to_s + " " +  cEntries['clock_out'] + ":00" if !cEntries['clock_out'].blank?
 				# entry_end_time = DateTime.strptime(cEntries['clock_out'], "%Y-%m-%d %T") rescue endtime
 				if !cEntries['id'].blank?
-					updateClockInOutEntry(cEntries['id'], cEntries['clock_in'], cEntries['clock_out'])
+					err = updateClockInOutEntry(cEntries['id'], cEntries['clock_in'], cEntries['clock_out'])
+					if err.respond_to?(:errors) && err.errors.any?
+						errorMsg << err.errors.full_messages.join(", ")
+					end
 				else
-					addNewAttendance(cEntries['clock_in'], cEntries['clock_out'], params[:user_id].to_i)
+					err = addNewAttendance(cEntries['clock_in'], cEntries['clock_out'], params[:user_id].to_i)
+					if err.respond_to?(:errors) && err.errors.any?
+						errorMsg << err.errors.full_messages.join(", ")
+					end
 				end
 			end
 		else
-			errorMsg =nil
+
 			sucessMsg = nil
 			endtime = nil
 			for i in 0..params[:attnDayEntriesCnt].to_i-1
@@ -519,16 +526,17 @@ class WkattendanceController < WkbaseController
 						if wkattendance.id.present?
 							sucessMsg = l(:notice_successful_update)
 						else
-            	errorMsg = wkattendance.errors.full_messages.join(", ")
+            	errorMsg << wkattendance.errors.full_messages.join(", ")
             end
 					end
 				end
 			end
 		end
+    errorMsg = errorMsg.join(", ")
 
 		respond_to do |format|
 			format.html {
-			if errorMsg.nil?
+			if errorMsg.blank?
 				redirect_to controller: 'wkattendance', action: 'clockindex', page: params[:page], tab: 'clock'
 				flash[:notice] = sucessMsg
 			else
@@ -541,7 +549,7 @@ class WkattendanceController < WkbaseController
 			render :plain => errorMsg, :layout => nil
 		else
 			@error_messages = errorMsg.split('\n')
-			render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+			render :template => 'common/error_messages', :format => [:api], :status => :unprocessable_entity, :layout => nil
 		end
 		}
 		end
@@ -578,7 +586,7 @@ class WkattendanceController < WkbaseController
 					elsif attnd_id.present?
 						wkattendance = updateClockInOutEntry(attnd_id, startTime, endTime)
 					else
-						wkattendance = addNewAttendance(startTime, endTime, params["userID_" + key].to_i)						
+						wkattendance = addNewAttendance(startTime, endTime, params["userID_" + key].to_i)
 						if wkattendance.id.present?
 							sucessMsg = l(:notice_successful_update)
 						else

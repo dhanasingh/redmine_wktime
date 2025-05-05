@@ -410,7 +410,7 @@ class WkpayrollController < WkbaseController
 		sqlStr = " from users u"
 		selectStr = " select u.id as user_id, u.firstname, u.lastname, u.status "
 		if group_id.to_i != 0
-			sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id" + get_comp_condition('gu')
+			sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id"
 		end
 		sqlStr = sqlStr + " where u.type = 'User' " + get_comp_condition('u')
 		if !validateERPPermission('A_PAYRL')

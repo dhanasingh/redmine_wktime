@@ -1283,3 +1283,5 @@ fr:
   label_state_insurance: State insurance ID
   label_marital_status: Marital status
   label_dept_section: Department section
+  label_rejected_date: Rejected Date
+  label_approved_date: Approved Date

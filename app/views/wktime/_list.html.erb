@@ -26,10 +26,10 @@
 					%>
 					<tr class="time-entry <%= cycle("odd", "even") %>">
 					<td class="start_date"><%=h format_date(entry.spent_on) %></td>
-					<td class="lbl-txt-align"><%=h entry.user.name %></td>
+					<td class="lbl-txt-align"><%=h entry.user&.name %></td>
 					<%#= call_hook(:view_list_column_data, :entry => entry) %>
 					<% if isSupervisorApproval %>
-						<td class="lbl-txt-align"><%=h entry.user.supervisor.blank? ? "" : entry.user.supervisor.name %></td>
+						<td class="lbl-txt-align"><%=h entry.user&.supervisor.blank? ? "" : entry.user&.supervisor&.name %></td>
 					<% end %>
 					<td ><%= controller.getUnit(entry) %>&nbsp;<%=h html_hours("%.2f" % (entry.hours || entry.amount || 0)) %></td>
 					<td class="status colorcode-bg-setup col-status-<%= entry.status %>"><%=h statusString(entry.status) unless entry.status.blank? %></td>

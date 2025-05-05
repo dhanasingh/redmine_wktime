@@ -95,7 +95,7 @@ module WksurveyHelper
         users = convertUsersIntoString()
         survey = WkSurvey.joins("INNER JOIN (
             SELECT wk_surveys.id, count(wk_surveys.id) count FROM wk_surveys
-            LEFT JOIN groups_users ON groups_users.group_id = wk_surveys.group_id " + get_comp_cond('groups_users') +
+            LEFT JOIN groups_users ON groups_users.group_id = wk_surveys.group_id " +
             " LEFT JOIN users ON users.id = groups_users.user_id " + get_comp_cond('users') +
             " WHERE wk_surveys.status IN ('O', 'C') AND (groups_users.user_id = #{User.current.id} OR wk_surveys.group_id IS NULL)
                 OR (#{booleanFormat(checkSurveyPerm)} = #{booleanFormat(true)} AND is_review = #{booleanFormat(true)} AND users.id IN (#{users})) " + get_comp_cond('wk_surveys') +

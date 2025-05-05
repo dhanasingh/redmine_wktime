@@ -1194,3 +1194,5 @@ ta-IN:
   field_custom_number2: விருப்ப எண் 2
   field_custom_date1: விருப்ப தேதி 1
   field_custom_date2: விருப்ப தேதி 2
+  label_rejected_date: Rejected Date
+  label_approved_date: Approved Date

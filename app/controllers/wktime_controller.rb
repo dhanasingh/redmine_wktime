@@ -371,7 +371,7 @@ include ActionView::Helpers::TagHelper
 				render :plain => respMsg, :layout => nil
 			else
 				@error_messages = respMsg.split('\n')
-				render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+				render :template => 'common/error_messages', :format => [:api], :status => :unprocessable_entity, :layout => nil
 			end
 			}
 		end
@@ -1596,7 +1596,7 @@ private
 					" group by " + sDay + " order by startday desc ) as v"
 			else
 				sqlStr += "select " + sDay + " as startday" +
-						" from  " + entityNames[1] + " t where user_id = " + user_id.to_s + get_comp_condition('t') + 
+						" from  " + entityNames[1] + " t where user_id = " + user_id.to_s + get_comp_condition('t') +
 						" group by startday order by startday desc limit " + noOfWeek.to_s + ") as v"
 			end
 
@@ -2140,7 +2140,7 @@ private
 			@selectedDate = params[:"wk_#{teName}"].try(:[], :selected_date).to_s.to_date
 		end
 		@startday ||= getStartDay(startday)
-		@user ||= user_id.present? ? User.find(user_id) : User.current
+		@user ||= user_id.present? ? User.unscoped.find(user_id) : User.unscoped.current
 		sheetView = getSheetView()
 		@renderer = SheetViewRenderer.getInstance(sheetView)
 	end
@@ -2314,7 +2314,7 @@ private
 			sqlStr += " group by startday, user_id order by startday desc, user_id ) as v1"
 		end
 
-		wkSqlStr = " left outer join " + entityNames[0] + " w on v1.startday = w.begin_date and v1.user_id = w.user_id " +  get_comp_condition('w') + 
+		wkSqlStr = " left outer join " + entityNames[0] + " w on v1.startday = w.begin_date and v1.user_id = w.user_id " +  get_comp_condition('w') +
 					"left outer join users un on un.id = w.statusupdater_id " +  get_comp_condition('un')
 
 		query = formQuery(wkSelectStr, sqlStr, wkSqlStr)
