@@ -29,7 +29,7 @@ module ReportPf
 		sqlwhere = " where U.type = 'User' and (SC.component_type ='b' OR SC.component_type IS NULL) and (WKU.termination_date >= '#{from}' or (U.status = 1 and WKU.termination_date is null))
 		"+get_comp_cond('U')
 		if groupId.to_i > 0
-			queryStr = queryStr + " LEFT JOIN groups_users GU on (GU.user_id = U.id )"+get_comp_cond('S')
+			queryStr = queryStr + " LEFT JOIN groups_users GU on (GU.user_id = U.id )"
 			sqlwhere = sqlwhere + " and GU.group_id =#{groupId}" if userId.to_i < 1
 			sqlwhere = sqlwhere + " and GU.group_id =#{groupId} and U.id =#{userId}" if userId.to_i > 0
 		elsif userId.to_i > 0

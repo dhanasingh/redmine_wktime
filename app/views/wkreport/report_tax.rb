@@ -34,7 +34,7 @@ module ReportTax
 		userList = User.find_by_sql(userSqlStr)
 
 		queryStr = getQueryStr +
-				"left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{groupId}) " +get_comp_cond('gu')+
+				"left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{groupId}) " +
 				"where u.type = 'User' and component_type != 'c'  and (wu.termination_date >= '#{from}' or (u.status = #{User::STATUS_ACTIVE} and wu.termination_date is null))"+get_comp_cond('s')
 		if groupId.to_i > 0 && userId.to_i < 1
 			queryStr = queryStr + " and gu.group_id is not null"

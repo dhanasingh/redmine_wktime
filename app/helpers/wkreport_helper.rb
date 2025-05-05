@@ -62,7 +62,7 @@ module WkreportHelper
 	def getUserQueryStr(group_id,user_id, from)
 		queryStr = "select u.id , gu.group_id, u.firstname, u.lastname,wu.termination_date, wu.join_date, " +
 			"wu.birth_date, wu.id1 as employee_id, rs.name as designation, wu.gender, wu.account_number, wu.tax_id, wu.bank_code from users u " +
-			"left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{group_id}) " + get_comp_cond('gu') +
+			"left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{group_id}) " +
 			"left join wk_users wu on u.id = wu.user_id " + get_comp_cond('wu') +
 			"left join roles rs on rs.id = wu.role_id " + get_comp_cond('rs') +
 			"where u.type = 'User' and ( wu.termination_date >= '#{from}' or (u.status = #{User::STATUS_ACTIVE} and wu.termination_date is null))" +  get_comp_cond('u')

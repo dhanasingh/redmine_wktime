@@ -42,7 +42,7 @@ class WkattendanceController < WkbaseController
 		if(getLeaveSettings.blank?)
 			selectStr = " select u.id as user_id, u.firstname, u.lastname, u.status, -1 as issue_id "
 			sqlStr = " from users u"
-			sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id " + get_comp_condition('gu') if getSession(:group_id).present?
+			sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id " if getSession(:group_id).present?
 			sqlStr = sqlStr + " where u.type = 'User' " + get_comp_condition('u')
 		else
 			listboxArr = getLeaveSettings[0].split('|')
@@ -378,7 +378,7 @@ class WkattendanceController < WkbaseController
 		queryStr = " from users u left join wk_users wu on u.id = wu.user_id " + get_comp_condition('wu') + joinTableStr
 
 		if getSession(:group_id).present?
-			queryStr = queryStr + " left join groups_users gu on u.id = gu.user_id" + get_comp_condition('gu')
+			queryStr = queryStr + " left join groups_users gu on u.id = gu.user_id"
 		end
 		return [selectColStr, queryStr]
 	end

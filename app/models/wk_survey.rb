@@ -65,7 +65,7 @@ class WkSurvey < ApplicationRecord
   def self.getMailUsers(user_group)
     users =  User.where({status: true})
     if user_group.present?
-      users = users.joins('INNER JOIN groups_users ON users.id = user_id' + get_comp_con('groups_users') ).where("groups_users.group_id = #{user_group}")
+      users = users.joins('INNER JOIN groups_users ON users.id = user_id').where("groups_users.group_id = #{user_group}")
     end
     users
   end

@@ -51,7 +51,7 @@ class WkLeaveReq < ApplicationRecord
   }
 
   scope :userGroup, ->(id){
-    joins("INNER JOIN groups_users ON groups_users.user_id = wk_leave_reqs.user_id"+get_comp_con('groups_users'))
+    joins("INNER JOIN groups_users ON groups_users.user_id = wk_leave_reqs.user_id")
     .where("groups_users.group_id =  ? ", id )
   }
 
@@ -82,10 +82,10 @@ class WkLeaveReq < ApplicationRecord
   def admingroupMail(userRole)
     user_mail = " SELECT address, E.user_id FROM wk_group_permissions
           INNER JOIN wk_permissions AS P1 ON P1.id = wk_group_permissions.permission_id"+get_comp_con('P1')+"
-          INNER JOIN groups_users AS GU ON wk_group_permissions.group_id = GU.group_id"+get_comp_con('GU')+"
+          INNER JOIN groups_users AS GU ON wk_group_permissions.group_id = GU.group_id
           INNER JOIN users AS U ON U.id = GU.user_id AND U.type IN ('User', 'AnonymousUser')"+get_comp_con('U')+"
           INNER JOIN email_addresses AS E ON E.user_id = U.id "+get_comp_con('E')+"
-          INNER JOIN groups_users AS GU2 ON GU.user_id = GU2.user_id"+get_comp_con('GU2')+"
+          INNER JOIN groups_users AS GU2 ON GU.user_id = GU2.user_id
           INNER JOIN wk_group_permissions AS GP ON GP.group_id = GU2.group_id"+get_comp_con('GP')+"
           INNER JOIN wk_permissions AS P2 ON P1.id = GP.permission_id "+get_comp_con('P2')
     if userRole == 'supervisor'
