@@ -198,10 +198,11 @@
 </table>
 
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
+<% currency = @expenseEntry.blank? ? Setting.plugin_redmine_wktime['wktime_currency'] : @expenseEntry.currency %>
 <table id="expensetable" style="padding-left:110px; display:none;">
 	<tr>
 		<th align="right"><%= l(:field_currency) %></th>
-		<td align="left" ><%=h select_tag('wktime_currency',options_for_select(wkexpense_helper.options_for_currency), :style => "width:55px;") %>
+		<td align="left" ><%=h select_tag('wktime_currency',options_for_select(wkexpense_helper.options_for_currency, currency), :style => "width:55px;") %>
 		<%=h text_field_tag("expense_amount", expenseAmount.blank? ? nil : ("%.2f" % expenseAmount),:size => 20, :style => "width:90px; text-align:right;") %>
 		</td>
 	</tr>

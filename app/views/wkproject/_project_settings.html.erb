@@ -1,7 +1,8 @@
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
 <%= labelled_fields_for :erpmineproject, @project.erpmineproject do |project_fields| %>
+<% currency =  project_fields.object&.id.present? ? project_fields.object&.billing_currency : Setting.plugin_redmine_wktime['wktime_currency'] %>
     <p><%= project_fields.text_field :billing_rate %></p>
-    <p><%= project_fields.select :billing_currency, wkexpense_helper.options_for_currency %></p>
+    <p><%= project_fields.select :billing_currency, wkexpense_helper.options_for_currency, {selected: currency} %></p>
     <p><%= project_fields.check_box :is_issueSurvey_allowed, :no_label => true  %><label><%= l(:label_allow_survey_for_issue) %></label></p>
     <p><%= project_fields.check_box :is_billable, :no_label => true  %><label><%= l(:label_billable) %></label></p>
     <p><%= project_fields.text_field :profit_overhead_percentage %><b>%</b></p>

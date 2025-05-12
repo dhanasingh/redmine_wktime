@@ -41,7 +41,7 @@
 		<tr>
 			<th align="left"><%= l(:label_opportunity_amount) %><span style="color:red;">*</span></th>
 			<td align="left" style="padding-left:40px;">
-			<%=h select_tag("currency",options_for_select(wkexpense_helper.options_for_currency, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].currency : "") )) %>
+			<%=h select_tag("currency",options_for_select(wkexpense_helper.options_for_currency, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].currency : Setting.plugin_redmine_wktime['wktime_currency']) )) %>
 			<%=h text_field_tag("opp_amount", (!@oppEditEntry.blank? && !@oppEditEntry[0].amount.blank? ? @oppEditEntry[0].amount : ""), :maxlength => 10, :style => "width:190px;") %></td>
 
 			<th align="left" style="padding-left:240px;"><%= l(:label_probability) + " (%)" %> </th>
