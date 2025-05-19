@@ -82,8 +82,7 @@ This Plugin has the following modules:
 
 For more information on features, please refer to the user guide
 
-[https://erpmine.org/attachments/download/115/ERPmine-User-Guide_v4.5.pdf](https://erpmine.org/attachments/download/115/ERPmine-User-Guide_v4.5.pdf)
-
+(https://erpmine.org/attachments/download/223/ERPmine-User-Guide_v4.7.pdf)
 ## Installation
 
 - Unpack the zip file to the plugins folder of Redmine.
