@@ -31,6 +31,8 @@ var minHourperWeekAlertMsg="";
 var maxHourperWeekAlertMsg="";
 var attachmentDiv = "";
 var attachmentField = "";
+var withCommantSrc = RAILS_ASSET_URL('/plugin_assets/redmine_wktime/withcommant.png');
+var withoutCommantSrc = RAILS_ASSET_URL('/plugin_assets/redmine_wktime/withoutcommant.png');
 
 $(document).ready(function() {
 	var e_comments = $( "#_edit_comments_" );
@@ -102,11 +104,11 @@ $(document).ready(function() {
 					var x = document.getElementsByName("custfield_img"+comment_row+"[]");
 					if( ((e_comments.val() != "" || custFldToolTip)  && (!commentInRow  || custFldToolTip )) || $("#attachment_" + comment_row + "_" + comment_col + " .attachments_fields").children().length > 0)
 					{
-						$(x[comment_col-1]).replaceWith(withCommantImg);
+						$(x[comment_col-1]).attr({src: withCommantSrc});
 					}
 					else
 					{
-						$(x[comment_col-1]).replaceWith(withoutcommantImg);
+						$(x[comment_col-1]).attr({src: withoutCommantSrc});
 					}
 					$(attachmentField).appendTo(attachmentDiv);
 					$( this ).dialog( "close" );
