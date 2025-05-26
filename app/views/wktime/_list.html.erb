@@ -40,7 +40,7 @@
 					<%  #if entry.editable_by?(User.current) %>
 							<%= link_to image_tag("edit.png"), url,
 																								:title => l(:button_edit) %>
-						<% if entry.status.blank? || entry.status == "n" || (entry.status == "r" && has_other_status(entry.spent_on, entry.user_id)) %>
+						<% if entry.status.blank? || entry.status == "n" || (entry.status == "r" && !has_approved(start_date: entry.spent_on, user_id: entry.user_id)) %>
 							&nbsp;|&nbsp;<%= link_to image_tag("delete.png"), url.merge({action: "destroy"}),
 																:data => {:confirm => l(:text_are_you_sure)},
 																:method => :delete,
