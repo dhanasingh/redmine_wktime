@@ -59,6 +59,30 @@ TimeEntry.class_eval do
   def attachments_deletable?(user=User.current)
     true
   end
+
+  def weekly_timesheet
+    status = Wktime.where(begin_date: (self.spent_on - 6.days)..self.spent_on, user_id: self.user_id)&.first&.status
+
+    if status == 'n'
+      return l(:label_new)
+    elsif status == 'a'
+      return l(:wk_status_approved)
+    elsif status == 's'
+      return l(:wk_status_submitted)
+    elsif status == 'r'
+      return l(:default_issue_status_rejected)
+    else
+      return ""
+    end
+  end
+end
+
+TimeEntryQuery.class_eval do
+  self.available_columns += [
+    QueryColumn.new(:weekly_timesheet,
+    caption: "Weekly Timesheet")
+    # caption: l(:label_weekly) + l(:label_wk_timesheet))
+  ]
 end
 
 Import.class_eval do
