@@ -1993,7 +1993,7 @@ end
 	end
 
 	def has_approved(ids: nil, start_date: nil, user_id: nil)
-		return false if ids.blank?
+		return false unless ids.present? || (start_date.present? && user_id.present?)
 		statuses = TimeEntry.joins(:wkstatus).where(wk_statuses: { status: ['a'] })
 		if ids.present?
 			statuses = statuses.where(id: ids)
