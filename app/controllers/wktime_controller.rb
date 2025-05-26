@@ -113,7 +113,7 @@ include ActionView::Helpers::TagHelper
 			end
       format.csv do
 				get_TE_entries(queries[0] + queries[1] + orderStr)
-        headers = {cal_week: l(:label_calendar_week), date: l(:field_start_date), user: l(:field_user), type: getLabelforSpField, status: l(:field_status), modifiedby: l(:field_status_modified_by) }
+        headers = {cal_week: l(:label_week), date: l(:field_start_date), user: l(:field_user), type: getLabelforSpField, status: l(:field_status), modifiedby: l(:field_status_modified_by) }
 				headers[:supervisor] = l(:label_ftte_supervisor) if isSupervisorApproval
         data = @entries.map do |e|
 					status = e.status.present? ? statusString(e.status) : nil
@@ -2628,7 +2628,7 @@ private
 
 	def getPDFHeaders()
 		headers = [
-			[ l(:label_calendar_week), 40 ],
+			[ l(:label_week), 40 ],
 			[ l(:field_start_date), 40 ],
 			[ l(:field_user), 60 ],
 			[ l(:field_status), 40 ],

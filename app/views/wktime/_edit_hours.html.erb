@@ -1,6 +1,8 @@
 	<% if @trOpen %>
 		<% # close the previously opened tr %>
+		<% @entry_ids ||= [] %>
 		<% while @wday_index < padTill %>
+    <% @entry_ids << (entry&.id) if entry&.id.present? %>
 			<%
 			disable = !@editable
 			if @editable
@@ -122,13 +124,16 @@
 		<% end %>
 		<% if padAt == 'end' %>
 			<td align="center">
-			<% if @editable %>
-				<%= link_to image_tag('delete.png'), "javascript:deleteRow(#{@row.to_s}, '#{l(:notice_unable_delete_time_entry)}');",
-						:data => {:confirm => l(:text_are_you_sure)},	# :method => :delete,
-						:title => l(:button_delete) %>
+				<% appvr = has_approve_status(@entry_ids)  %> 
+			<% if @editable && appvr%>
+					<%= link_to image_tag('delete.png'), "javascript:deleteRow(#{@row.to_s}, '#{l(:notice_unable_delete_time_entry)}');",
+							:data => {:confirm => l(:text_are_you_sure)},	# :method => :delete,
+							:title => l(:button_delete) %>
 			<% end %>
 			</td>
 			</tr>
 			<% @trOpen = false %>
+			<% @entry_ids = [] %>
 		<% end %>
+		
 	<% end %>

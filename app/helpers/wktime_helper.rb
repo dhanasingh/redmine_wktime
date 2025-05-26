@@ -1991,4 +1991,19 @@ end
 		end
 		accural
 	end
+
+	def has_other_status(start_date, user_id)
+		end_date = start_date + 6.days
+		statuses = TimeEntry.where(spent_on: start_date..end_date, user_id: user_id)
+							.joins(:wkstatus)
+							.where.not(wk_statuses: { status: ['r', 'n'] })
+		!(statuses.count > 0)
+	end
+
+	def has_approve_status(ids)
+		statuses = TimeEntry.where(id: ids)
+		.joins(:wkstatus)
+		.where( wk_statuses: { status: ['a'] })
+		statuses.count == 0
+	end
 end

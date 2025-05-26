@@ -5,7 +5,7 @@
 		<table class="list time-entries">
 			<thead>
 				<tr>
-					<th><%= l(:label_calendar_week) %></th>
+					<th><%= l(:label_week) %></th>
 					<%= sort_header_tag("start_date", :caption => l(:field_start_date)) %>
 					<%= sort_header_tag("user_name", :caption => l(:field_user), class: "lbl-txt-align") %>
 					<% if isSupervisorApproval %>
@@ -40,7 +40,7 @@
 					<%  #if entry.editable_by?(User.current) %>
 							<%= link_to image_tag("edit.png"), url,
 																								:title => l(:button_edit) %>
-						<% if entry.status.blank? || entry.status == "n" || entry.status == "r" %>
+						<% if entry.status.blank? || entry.status == "n" || (entry.status == "r" && has_other_status(entry.spent_on, entry.user_id)) %>
 							&nbsp;|&nbsp;<%= link_to image_tag("delete.png"), url.merge({action: "destroy"}),
 																:data => {:confirm => l(:text_are_you_sure)},
 																:method => :delete,
