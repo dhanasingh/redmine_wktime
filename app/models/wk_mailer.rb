@@ -92,4 +92,14 @@ include Redmine::I18n
 		end
 		mail :from => Setting.mail_from, :to => email_id, :reply_to => User.current.mail, :subject => subject, :body => emailNotes, :cc => ccMailId
 	end
+
+	def send_mail(data)
+		language = data[:language]
+		set_language_if_valid(language) if language.present?
+		begin
+			mail :from => Setting.mail_from, :to => data[:to], :reply_to => data[:reply_to], :subject => data[:subject], :body => data[:body], :cc => data[:cc]
+		rescue => e
+			Rails.logger.error "Mail send error: #{e.message}"
+		end
+	end
  end
