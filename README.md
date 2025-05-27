@@ -1,12 +1,16 @@
-# Webinar on ERPmine – Accounting , Apr 29th, 2025, 5 PM India (11:30 AM GMT)
+# Webinar on ERPmine – Accounting , May 27th, 2025, 5 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
-[[https://us02web.zoom.us/meeting/register/tZIvce2vqTIoG9zjwfBx6qfiOijbp987go8C](https://us02web.zoom.us/meeting/register/w5gbFjrLT367WZIbdVaAOg)]
+[https://us02web.zoom.us/meeting/register/uw165JRjSSiL0WYM2eUQPA](https://us02web.zoom.us/meeting/register/uw165JRjSSiL0WYM2eUQPA)]
 
 **Topics**:
-- Accounting Transactions
-- General Ledger
-- Financial Reports
+- Project Survey
+- General Survey
+- User survey
+- Survey Reviewer
+- Recurring Survey
+- Survey Response Trending Chart
+- Notification
 - Mobile App
 
 -----
@@ -159,7 +163,7 @@ Please provide your rating at [https://www.redmine.org/plugins/wk-time](https://
 
 **Overview presentation in open office format**:
 
-- [http://erpmine.org/attachments/download/23/erpmine-overview.odp](http://erpmine.org/attachments/download/23/erpmine-overview.odp)
+- [https://erpmine.org/documents/1](https://erpmine.org/documents/1)
 
 **Training Videos**:
 
