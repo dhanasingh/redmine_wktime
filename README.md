@@ -1,4 +1,4 @@
-# Webinar on ERPmine – Accounting , May 27th, 2025, 5 PM India (11:30 AM GMT)
+# Webinar on ERPmine – Survey , May 27th, 2025, 5 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
 [https://us02web.zoom.us/meeting/register/uw165JRjSSiL0WYM2eUQPA](https://us02web.zoom.us/meeting/register/uw165JRjSSiL0WYM2eUQPA)]
