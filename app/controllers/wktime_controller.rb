@@ -113,11 +113,11 @@ include ActionView::Helpers::TagHelper
 			end
       format.csv do
 				get_TE_entries(queries[0] + queries[1] + orderStr)
-        headers = {date: l(:field_start_date), user: l(:field_user), type: getLabelforSpField, status: l(:field_status), modifiedby: l(:field_status_modified_by) }
+        headers = {cal_week: l(:label_week), date: l(:field_start_date), user: l(:field_user), type: getLabelforSpField, status: l(:field_status), modifiedby: l(:field_status_modified_by) }
 				headers[:supervisor] = l(:label_ftte_supervisor) if isSupervisorApproval
         data = @entries.map do |e|
 					status = e.status.present? ? statusString(e.status) : nil
-					rowData = {date: format_date(e.spent_on), user: e.user&.name, type: getUnit(e).to_s + (e.hours || e.amount || 0).round(2).to_s, status: status, modifiedby: e.status_updater}
+					rowData = {cal_week: e.spent_on&.cweek, date: format_date(e.spent_on), user: e.user&.name, type: getUnit(e).to_s + (e.hours || e.amount || 0).round(2).to_s, status: status, modifiedby: e.status_updater}
 					rowData[:supervisor] = e.user&.supervisor&.name if isSupervisorApproval
 					rowData
 				end
@@ -2630,6 +2630,7 @@ private
 
 	def getPDFHeaders()
 		headers = [
+			[ l(:label_week), 40 ],
 			[ l(:field_start_date), 40 ],
 			[ l(:field_user), 60 ],
 			[ l(:field_status), 40 ],
@@ -2639,6 +2640,7 @@ private
 
 	def getPDFcells(entry)
 		list = [
+			[ entry.spent_on&.cweek.to_s, 40 ],
 			[ entry.spent_on.to_s, 40 ],
 			[ entry.user.name.to_s, 60 ],
 			[ statusString(entry.status), 40 ]
@@ -2647,7 +2649,7 @@ private
 	end
 
 	def getPDFFooter(pdf, row_Height)
-		pdf.RDMCell( 140, row_Height, l(:label_total), 1, 0, 'R', 1)
+		pdf.RDMCell( 180, row_Height, l(:label_total), 1, 0, 'R', 1)
 		pdf.RDMCell( 40, row_Height, (@total_hours || 0).to_s, 1, 0, '', 1)
 	end
 

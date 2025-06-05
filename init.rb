@@ -70,12 +70,35 @@ Rails.configuration.to_prepare do
 	end
 end
 
+TimeEntryQuery.class_eval do
+  self.available_columns += [
+    QueryColumn.new(:weekly_timesheet,
+    caption: -> { l(:label_weekly) + l(:label_wk_timesheet) }  )]
+end
+
+TimeEntry.class_eval do
+	def weekly_timesheet
+		status = Wktime.where(begin_date: (self.spent_on - 6.days)..self.spent_on, user_id: self.user_id)&.first&.status
+
+		if status == 'n'
+			return l(:label_new)
+		elsif status == 'a'
+			return l(:wk_status_approved)
+		elsif status == 's'
+			return l(:wk_status_submitted)
+		elsif status == 'r'
+			return l(:default_issue_status_rejected)
+		else
+			return ""
+		end
+	end
+end
 
 Redmine::Plugin.register :redmine_wktime do
   name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
   description 'ERPmine is an ERP for Service Industries. It has the following modules: Time & Expense, Attendance, Payroll, CRM, Billing, Accounting, Purchasing, Inventory, Asset , Reports, Dashboards and Survey'
-  version '4.8.4'
+  version '4.8.5'
   url 'https://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
 

@@ -1,6 +1,8 @@
 	<% if @trOpen %>
 		<% # close the previously opened tr %>
+		<% @entry_ids ||= [] %>
 		<% while @wday_index < padTill %>
+			<% @entry_ids << (entry&.id) if entry&.id.present? %>
 			<%
 			disable = !@editable
 			if @editable
@@ -123,12 +125,16 @@
 		<% if padAt == 'end' %>
 			<td align="center">
 			<% if @editable %>
-				<%= link_to sprite_icon('del'), "javascript:deleteRow(#{@row.to_s}, '#{l(:notice_unable_delete_time_entry)}');",
-						:data => {:confirm => l(:text_are_you_sure)},	# :method => :delete,
-						:title => l(:button_delete) %>
+				<% if has_approved(ids: @entry_ids) %>
+							<%= link_to sprite_icon('del'),'#', title: l(:button_delete), onclick: 'return false;', class: 'disabled' %>
+				<% else %>
+					<%= link_to sprite_icon('del'),  "javascript:deleteRow(#{@row.to_s}, '#{l(:notice_unable_delete_time_entry)}');",
+					:data => {confirm: l(:text_are_you_sure) }, :title => l(:button_delete) %>
+				<% end %>
 			<% end %>
 			</td>
 			</tr>
 			<% @trOpen = false %>
+			<% @entry_ids = [] %>
 		<% end %>
 	<% end %>

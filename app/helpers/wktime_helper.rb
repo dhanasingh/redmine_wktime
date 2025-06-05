@@ -2001,4 +2001,16 @@ end
 		cond = Array(cond)
 		cond[0] || ""
 	end
+
+	def has_approved(ids: nil, start_date: nil, user_id: nil)
+		return false unless ids.present? || (start_date.present? && user_id.present?)
+		statuses = TimeEntry.joins(:wkstatus).where(wk_statuses: { status: ['a'] })
+		if ids.present?
+			statuses = statuses.where(id: ids)
+		else
+			end_date = start_date + 6.days
+			statuses = statuses.where(spent_on: start_date..end_date, user_id: user_id)
+		end
+		statuses.count > 0
+	end
 end
