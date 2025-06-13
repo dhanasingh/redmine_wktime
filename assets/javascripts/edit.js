@@ -31,6 +31,7 @@ var minHourperWeekAlertMsg="";
 var maxHourperWeekAlertMsg="";
 var attachmentDiv = "";
 var attachmentField = "";
+var reqRejectAlert = "";
 
 $(document).ready(function() {
 	var e_comments = $( "#_edit_comments_" );
@@ -128,6 +129,10 @@ $(document).ready(function() {
 		modal: true,
 		buttons: {
 			"Ok": function() {
+				if (e_notes.val().trim() === "") {
+					alert(reqRejectAlert);
+					return;
+				}
 				$( this ).dialog( "close" );
 				$( "#hidden_wk_reject" ).val('r');
 				$( "#wktime_notes" ).val(e_notes.val());
