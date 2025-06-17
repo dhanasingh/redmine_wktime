@@ -21,6 +21,7 @@ module WknotificationHelper
 
 	def formNotificationText(notification)
 		notifyHash = {}
+		return nil if notification.blank? || notification.source.blank?
 		case WkUserNotification.getnotificationAction(notification)&.first&.name
 		when "fillSurvey"
 			notification.source.survey_for_id ||= User.current.id if notification.source.survey_for_type == 'User'
@@ -54,6 +55,10 @@ module WknotificationHelper
 		when 'timeApproved'
 			notifyHash['text'] =  l(:button_wk_approve)+" "+l(:label_timesheet_on)+" "+notification.source.begin_date.to_s+" "+l(:label_for)+" "+notification.source.user.name.to_s
 			notifyHash['url'] = {controller:'wktime', action:'edit', startday: notification.source.begin_date, user_id: notification.source.user_id}
+			notifyHash['icon'] = "fa fa-clock-o"
+		when 'timeExceeded'
+			notifyHash['text'] = notification&.source&.subject&.to_s + " " + l(:label_exc_est)
+			notifyHash['url'] = {controller: 'issues', id: notification&.source&.id, action: 'show'}
 			notifyHash['icon'] = "fa fa-clock-o"
 		when 'timeRejected'
 			notifyHash['text'] = l(:label_timesheet_rejected)+" "+l(:label_on)+" "+notification.source.submitted_on.to_s

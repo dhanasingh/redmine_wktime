@@ -1486,21 +1486,6 @@ end
 		(to.to_date - from.to_date).to_i + 1
 	end
 
-	# def getWeeksBetween(startDate, endDate, startDay)
-		# #startDay = getPluginSetting('wktime_pay_day')
-		# startDtPeriod = getPeroid(startDate, startDay, 'W')
-		# endDtPeriod = getPeroid(endDate, startDay, 'W')
-		# Rails.logger.info("******* startDtPeriod #{startDtPeriod} endDtPeriod #{endDtPeriod} **************************")
-		# if startDtPeriod[0]  == endDtPeriod[0]
-			# noOfDays = (getDaysBetween(startDate, endDate)) /  (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 )
-		# else
-			# noOfDays = ((getDaysBetween(startDate, startDtPeriod[1]) ) / (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 )) + (getDaysBetween(endDtPeriod[0], endDate)/ (getDaysBetween(endDtPeriod[0], endDtPeriod[1]) * 1.0))
-			# noOfDays = noOfDays + getNoOfPeriod((startDtPeriod[1] + 1.day) , (endDtPeriod[0] - 1.day), 'W')
-		# end
-		# Rails.logger.info("================= noOfDays #{noOfDays} st #{((getDaysBetween(startDate, startDtPeriod[1])) / (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 ))}  et #{(getDaysBetween(endDtPeriod[0], endDate)/ (getDaysBetween(endDtPeriod[0], endDtPeriod[1]) * 1.0))} ===========================")
-		# noOfDays
-	# end
-
 	#change the date to first day of week
 	def getWeekStartDt(date, startDay)
 		startOfWeek = startDay
@@ -1994,14 +1979,53 @@ end
 
 	def has_approved(ids: nil, start_date: nil, user_id: nil)
 		return false unless ids.present? || (start_date.present? && user_id.present?)
-		statuses = TimeEntry.joins(:wkstatus).where(wk_statuses: { status: ['a'] })
+		entries = TimeEntry.joins(:wkstatus).where(wk_statuses: { status: ['a'] })
 		if ids.present?
-			statuses = statuses.where(id: ids)
+			entries = entries.where(id: ids)
 		else
 			end_date = start_date + 6.days
-			statuses = statuses.where(spent_on: start_date..end_date, user_id: user_id)
+			entries = entries.where(spent_on: start_date..end_date, user_id: user_id)
 		end
-		statuses.count > 0
+		entries.count > 0
 	end
-	
+
+	def notify_time_exceeded(startdate, user_id)
+		startdate = startdate.to_date
+		issue_ids = TimeEntry.where(spent_on: startdate..(startdate + 6.days), user_id: user_id).pluck(:issue_id).uniq
+		issues = Issue.where(id: issue_ids)
+		issues.each do |issue|
+			issue = issue.root if issue.root.present?
+			estimated = issue.total_estimated_hours.to_f || 0
+			spent = issue.total_spent_hours.to_f || 0
+			if issue.present? && spent > estimated
+				project = issue.project
+				approvers = project.users.select { |u| u.active? && u.roles_for_project(project).any? { |r| r.allowed_to?(:approve_time_entries) } }
+				save_exceeded_notice(issue, approvers)
+				send_exceeded_mail(issue, approvers, estimated, spent) if WkNotification.mail('timeExceeded')
+			end
+		end
+	end
+
+	def send_exceeded_mail(issue, approvers, estimated, spent)
+		begin
+			subject = "#{issue.subject} #{l(:label_exc_est)}"
+			message = "#{l(:label_task_exc_est)}"
+			body = "#{message}\n\n" \
+						"#{l(:field_issue)}: ##{issue.id} - #{issue.subject}\n" \
+						"#{l(:field_estimated_hours)}: #{estimated}\n" \
+						"#{l(:label_total_spent_time)}: #{spent}\n"
+
+			approvers.each do |user|
+				WkMailer.send_mail({subject: subject, language: user.language, to: user.mail, body: body}).deliver_later
+			end
+		rescue => e
+			Rails.logger.error "Mail send error: #{e.message}"
+		end
+	end
+
+	def save_exceeded_notice(issue, approvers)
+		approvers.each do |user|
+			WkUserNotification.userNotification(user.id, issue, 'timeExceeded')
+		end
+	end
 end

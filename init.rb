@@ -51,7 +51,6 @@ TimeEntry.class_eval do
 	has_one :wkstatus, as: :status_for, class_name: "WkStatus", dependent: :destroy
   has_many :attachments, -> {where(container_type: "TimeEntry")}, class_name: "Attachment", foreign_key: "container_id", dependent: :destroy
 	accepts_nested_attributes_for :spent_for, :attachments
-	after_create :mail_over_spenttime
 
   def attachments_editable?(user=User.current)
     true
@@ -75,10 +74,6 @@ TimeEntry.class_eval do
     else
       return ""
     end
-  end
-
-	def mail_over_spenttime
-    Redmine::Hook.call_hook(:notify_over_spenttime, { time_entry: self })
   end
 end
 

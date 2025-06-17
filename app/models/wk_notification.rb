@@ -17,13 +17,18 @@
 
 class WkNotification < ActiveRecord::Base
   has_many :wk_user_notifications, foreign_key: "notify_id", class_name: "WkUserNotification", :dependent => :destroy
-  
+
   scope :getActiveNotification, -> { where(active: true) }
   scope :getUnseletedActions, ->(actionName){ where.not(name: actionName, active: false) }
 
   def self.notify(name)
     notification = WkNotification.where(name: name).first
     notification&.has_attribute?('active') && notification&.active || false
+  end
+
+  def self.mail(name)
+    notification = WkNotification.where(name: name).first
+    notification&.active && notification&.email || false
   end
 
   def self.notification(userId, emailNotes, subject, model=nil, label=nil)
