@@ -2012,7 +2012,7 @@ end
 			message = "#{l(:label_task_exc_est)}"
 			body = "#{message}\n\n" \
 						"#{l(:field_issue)}: ##{issue.id} - #{issue.subject}\n" \
-						"#{l(:field_estimated_hours)}: #{estimated}\n" \
+						"#{l(:field_total_estimated_hours)}: #{estimated}\n" \
 						"#{l(:label_total_spent_time)}: #{spent}\n"
 
 			approvers.each do |user|
