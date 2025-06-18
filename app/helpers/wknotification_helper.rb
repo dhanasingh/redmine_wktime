@@ -57,7 +57,7 @@ module WknotificationHelper
 			notifyHash['url'] = {controller:'wktime', action:'edit', startday: notification.source.begin_date, user_id: notification.source.user_id}
 			notifyHash['icon'] = "fa fa-clock-o"
 		when 'timeExceeded'
-			notifyHash['text'] = notification&.source&.subject&.to_s + " " + l(:label_exc_est)
+			notifyHash['text'] = "##{notification&.source&.id} - " + notification&.source&.subject&.to_s + " " + l(:label_exc_est)
 			notifyHash['url'] = {controller: 'issues', id: notification&.source&.id, action: 'show'}
 			notifyHash['icon'] = "fa fa-clock-o"
 		when 'timeRejected'

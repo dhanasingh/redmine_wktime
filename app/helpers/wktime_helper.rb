@@ -1994,11 +1994,11 @@ end
 		issue_ids = TimeEntry.where(spent_on: startdate..(startdate + 6.days), user_id: user_id).pluck(:issue_id).uniq
 		issues = Issue.where(id: issue_ids)
 		issues.each do |issue|
-			issue = issue.root if issue.root.present?
-			estimated = issue.total_estimated_hours.to_f || 0
-			spent = issue.total_spent_hours.to_f || 0
-			if issue.present? && spent > estimated
-				project = issue.project
+			root = issue.root.present? ? issue.root : issue
+			estimated = root.total_estimated_hours.to_f || 0
+			spent = root.total_spent_hours.to_f || 0
+			if spent > estimated
+				project = root.project
 				approvers = project.users.select { |u| u.active? && u.roles_for_project(project).any? { |r| r.allowed_to?(:approve_time_entries) } }
 				save_exceeded_notice(issue, approvers)
 				send_exceeded_mail(issue, approvers, estimated, spent, user_id) if WkNotification.mail('timeExceeded')
