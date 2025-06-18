@@ -2001,17 +2001,18 @@ end
 				project = issue.project
 				approvers = project.users.select { |u| u.active? && u.roles_for_project(project).any? { |r| r.allowed_to?(:approve_time_entries) } }
 				save_exceeded_notice(issue, approvers)
-				send_exceeded_mail(issue, approvers, estimated, spent) if WkNotification.mail('timeExceeded')
+				send_exceeded_mail(issue, approvers, estimated, spent, user_id) if WkNotification.mail('timeExceeded')
 			end
 		end
 	end
 
-	def send_exceeded_mail(issue, approvers, estimated, spent)
+	def send_exceeded_mail(issue, approvers, estimated, spent, user_id)
 		begin
 			subject = "#{issue.subject} #{l(:label_exc_est)}"
 			message = "#{l(:label_task_exc_est)}"
 			body = "#{message}\n\n" \
 						"#{l(:field_issue)}: ##{issue.id} - #{issue.subject}\n" \
+						"#{l(:field_user)}: #{User.find(user_id)&.name}\n" \
 						"#{l(:field_total_estimated_hours)}: #{estimated}\n" \
 						"#{l(:label_total_spent_time)}: #{spent}\n"
 
