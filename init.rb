@@ -72,8 +72,8 @@ end
 
 TimeEntryQuery.class_eval do
   self.available_columns += [
-    QueryColumn.new(:weekly_timesheet,
-    caption: -> { l(:label_weekly) + l(:label_wk_timesheet) }  )]
+    QueryColumn.new(:weekly_timesheet, caption: -> { l(:label_weekly) +" "+ l(:label_wk_timesheet)})
+  ]
 end
 
 TimeEntry.class_eval do

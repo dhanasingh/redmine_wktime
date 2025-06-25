@@ -1196,3 +1196,7 @@ ta-IN:
   field_custom_date2: விருப்ப தேதி 2
   label_rejected_date: Rejected Date
   label_approved_date: Approved Date
+
+  label_time_exceeded: Time Exceeded
+  label_exc_est: exceeds estimation
+  label_task_exc_est: The following task has exceeded estimation

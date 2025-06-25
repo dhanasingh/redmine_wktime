@@ -244,19 +244,12 @@ include ActionView::Helpers::TagHelper
 								allowSave = false
 							end
 							allowSave = true if (to_boolean(@edittimelogs) || validateERPPermission('A_TE_PRVLG') || !isBilledTimeEntry(entry))
-							#if !((Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? ||
-							#		Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 0) &&
-							#		entry.issue.blank?)
 								if allowSave
 									errorMsg = updateEntry(entry)
 								else
 									errorMsg = l(:error_not_permitted_save) if !api_request?
 								end
 								break unless errorMsg.blank?
-							#else
-							#	errorMsg = "#{l(:field_issue)} #{l('activerecord.errors.messages.blank')} "
-							#	break unless errorMsg.blank?
-							#end
 						end
 						if !params[:wktime_submit].blank? && useApprovalSystem
 							@wktime.submitted_on = Date.today
@@ -330,6 +323,12 @@ include ActionView::Helpers::TagHelper
 			rescue Exception => e
 				errorMsg = e.message
 			end
+
+			# Time exceeded notify trigger
+			if errorMsg.blank? && params[:wktime_submit].present? && WkNotification.notify('timeExceeded')
+				notify_time_exceeded(params[:startday], params[:user_id])
+			end
+
 			if errorMsg.blank?
 				#when the are entries or it is not a save action
 				if !@entries.blank? || !params[:wktime_approve].blank? ||
