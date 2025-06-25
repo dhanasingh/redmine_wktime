@@ -1,4 +1,11 @@
-<h2><%= controller.contactLbl %></h2>
+<div style="display: flex; justify-content: space-between; align-items: center;">
+  <h2><%= controller.contactLbl %></h2>
+	<% if @conEditEntry.present? && showBilling && validateERPPermission("M_BILL") && @conEditEntry&.has_billable_projects? %>
+		<% balance_amt = WkCrmContact.total_invoice_payable_for("WkCrmContact", @conEditEntry.id, 'I') %>
+		<p style="color: red; font-weight: bold;font-size: large;"><%= l(:wk_field_balance) %> : <%= number_to_currency(balance_amt[:amount], unit: balance_amt[:currency].present? ? balance_amt[:currency] : number_currency_format_unit) %></p>
+	<% end %>
+</div>
+
 <%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
 <%= hidden_field_tag 'contact_id', @conEditEntry.blank? ? "" : @conEditEntry.id %>
 <%= hidden_field_tag('address_id', @conEditEntry.blank? ? "" : @conEditEntry.address_id) %>

@@ -76,8 +76,7 @@
 						<%= select_tag("activity_status", options_for_select(rf_status.invert, selected: @activityEntry&.first&.status), style: "width:190px;") %>
 					<% else %>
 						<%=h select_tag("activity_direction", options_for_select(directionHash.invert, :selected => (!@activityEntry.blank? ? @activityEntry[0].direction : 'I') ), :style => "float:left;margin-right: 3px;") %>
-						<%=h select_tag("activity_status", options_for_select(meetCallStatusHash.invert, :selected =>(!@activityEntry.blank? ? @activityEntry[0].status : 'P') ), :style=>"float:right;") %>
-						<%=h select_tag("task_status", options_for_select(taskStatusHash.invert, :selected => (!@activityEntry.blank? ? @activityEntry[0].status : 'NS') )) %>
+						<%=h select_tag("activity_status", options_for_select(activityStatusHash.invert, :selected =>(!@activityEntry.blank? ? @activityEntry[0].status : 'NS'))) %>
 					<% end %>
 				</td>
 				<td></td>

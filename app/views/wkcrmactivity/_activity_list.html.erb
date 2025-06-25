@@ -40,7 +40,7 @@
 						<% if !show_on_map && controller.is_referral %><td class="lbl-txt-align"><%= entry&.interview_type&.name %></td><% end %>
 						<td class="lbl-txt-align"><%=h entry.name %></td>
 						<td class="lbl-txt-align colorcode-bg-setup col-status-<%=(controller.is_referral ? entry.status: (['M', 'C'].include?(entry.activity_type) ? entry.status : entry.status)) %>">
-							<%= controller.is_referral ? rf_status[entry.status] : (["M", "C"].include?(entry.activity_type) ? meetCallStatusHash[entry.status] : taskStatusHash[entry.status]) %>
+							<%= controller.is_referral ? rf_status[entry.status] : activityStatusHash[entry.status] %>
 						</td>
 						<% if !show_on_map %>
 							<td class="lbl-txt-align"><%=h controller.is_referral ? entry.rating : relatedHash[entry.parent_type] %></td>

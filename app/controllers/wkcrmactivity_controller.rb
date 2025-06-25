@@ -44,7 +44,8 @@ class WkcrmactivityController < WkcrmController
 
 		actType = session[controller_name].try(:[], :activity_type)
 		relatedTo = session[controller_name].try(:[], :related_to)
-
+		status = session[controller_name].try(:[], :status)
+		assignee = session[controller_name].try(:[], :assignee)
 		if !@from.blank? && !@to.blank?
 			crmactivity = crmactivity.where(:start_date => getFromDateTime(@from) .. getToDateTime(@to))
 		end
@@ -60,6 +61,10 @@ class WkcrmactivityController < WkcrmController
 		if (!actType.blank?) && (!relatedTo.blank?)
 			crmactivity = crmactivity.where(:activity_type => actType, :parent_type => relatedTo)
 		end
+
+		crmactivity = crmactivity.where(status: status) if status.present?
+		crmactivity = crmactivity.where(assigned_user_id: assignee) if assignee.present?
+
 		crmactivity = crmactivity.reorder(sort_clause)
 		respond_to do |format|
 			format.html do
@@ -72,7 +77,7 @@ class WkcrmactivityController < WkcrmController
 			format.csv do
 				headers = { act_type: l(:label_activity_type), subject: l(:field_subject), status: l(:field_status), related: l(:label_relates_to), start_date: l(:label_start_date_time), end_date: l(:label_end_date_time), assignee: l(:field_assigned_to), updated: l(:field_updated_on) }
 				data = crmactivity.map do |e|
-					status = (["M", "C"].include?(e.activity_type) ? meetCallStatusHash[e.status] : taskStatusHash[e.status])
+					status = activityStatusHash[e.status]
 					{ act_type: acttypeHash[e.activity_type], subject: e.name, status: status, related: relatedHash[e.parent_type], start_date: e&.start_date&.localtime&.strftime("%Y-%m-%d %H:%M:%S"), end_date: e&.end_date&.localtime&.strftime("%Y-%m-%d %H:%M:%S"), assignee: (e&.assigned_user&.name || ''), updated: e&.updated_at&.localtime&.strftime("%Y-%m-%d %H:%M:%S")}
 				end
 				respond_to do |format|
@@ -113,7 +118,7 @@ class WkcrmactivityController < WkcrmController
 			crmActivity.created_by_user_id = User.current.id
 		end
 		crmActivity.name = params[:activity_subject]
-		crmActivity.status =  ["C", "M", "I"].include?(params[:activity_type]) ? params[:activity_status] : params[:task_status]
+		crmActivity.status = params[:activity_status]
 		crmActivity.description = params[:activity_description]
 		crmActivity.start_date = Time.parse("#{params[:activity_start_date].to_s} #{ params[:start_hour].to_s}:#{params[:start_min]}:00 ").localtime.to_s
 		crmActivity.end_date = Time.parse("#{params[:activity_end_date].to_s} #{ params[:end_hour].to_s}:#{params[:end_min]}:00 ").localtime.to_s if !["C", "I"].include?(params[:activity_type])
@@ -192,8 +197,8 @@ class WkcrmactivityController < WkcrmController
 	end
 
 	def set_filter_session
-		filters = [:period_type, :period, :from, :to, :activity_type, :related_to, :show_on_map]
-		super(filters, {:from => @from, :to => @to})
+		filters = [:period_type, :period, :from, :to, :activity_type, :related_to, :show_on_map, :assignee, :status]
+		super(filters, {status: ['IP', 'NS'], assignee: User.current.id, :from => @from, :to => @to})
 	end
 
 	def formPagination(entries)

@@ -15,7 +15,10 @@
 	<%=h hidden_field_tag('tab', "wkcrmactivity") %>
 	<%	actType =session[controller_name].try(:[], :activity_type)
 		actRelated = session[controller_name].try(:[], :related_to)
+		status = session[controller_name].try(:[], :status)
+		assignee = session[controller_name].try(:[], :assignee)
 		show_on_map = session[controller_name].try(:[], :show_on_map) %>
+	<% users = groupOfUsers.map { |name, id| id == User.current.id ? ['<< me >>', id] : [name, id] } %>
 		<div style="float:right">
 			<%= link_to sprite_icon('add', controller.get_activity_label), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
 		</div>
@@ -24,6 +27,11 @@
 			<td  align="left"><%=h select_tag("activity_type", options_for_select(actTypehash, :selected => !actType.blank? ? actType : ""), :style => "width:190px;") %></td>
 			<th align="left" style="padding-left:10px;"><%= l(:label_relates_to) %>:</th>
 			<td align="left"><%=h select_tag("related_to", options_for_select(relatedArrhash, :selected => (!actRelated.blank? ? actRelated : "")), :style => "width:200px;") %></td>
+			<th align="left" style="padding-left:10px;"><%= l(:field_status) %>:</th>
+			<td align="left"><%= select_tag("status", options_for_select((activityStatusHash).invert, !status.blank? ? status : []), multiple: true, style: "width:200px")%></td> 
+			<th align="left" style="padding-left:10px;"><%= l(:field_assigned_to) %>:</th>
+			<td align="left"><%= select_tag("assignee", options_for_select(users, :selected => !assignee.blank? ? assignee : ""), :style => "width:200px;") %></td>
+		</td>
 		</table>
 	<%= render :partial => 'wkcrmactivity/date_range' %>
   <%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>

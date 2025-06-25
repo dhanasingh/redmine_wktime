@@ -121,4 +121,22 @@ class WkCrmContact < ApplicationRecord
   def self.name_formatter(formatter = nil)
     NAME_FORMATS[formatter] || NAME_FORMATS[:firstname_lastname]
   end
+
+  def self.total_invoice_payable_for(parent_type, parent_id, invoice_type)
+    parent = parent_type.constantize.find_by(id: parent_id)
+    return { amount: 0.0, currency: "" } unless parent.present?
+
+    invoice_ids = WkInvoice.where(parent: parent, invoice_type: invoice_type).pluck(:id)
+    return { amount: 0.0, currency: "" } unless invoice_ids.present?
+
+    total_invoiced = WkInvoiceItem.where(invoice_id: invoice_ids).sum(:original_amount)
+    total_paid     = WkPaymentItem.where(invoice_id: invoice_ids).sum(:original_amount)
+    currency       = WkInvoiceItem.where(invoice_id: invoice_ids).limit(1).pick(:original_currency) || ""
+
+    { amount: total_invoiced - total_paid, currency: currency }
+  end
+
+  def has_billable_projects?
+    billable_projects.exists?
+  end
 end

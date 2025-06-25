@@ -38,7 +38,7 @@ module ReportSalesActivity
 				totalTime = totalTime + (completionTime || 0)
 				activities[activity.id]['type'] = acttypeHash[activity.activity_type]
 				activities[activity.id]['name'] = activity.name
-				activities[activity.id]['status'] = activity.activity_type == 'M' || activity.activity_type == 'C' ? meetCallStatusHash[activity.status] : taskStatusHash[activity.status]
+				activities[activity.id]['status'] = activityStatusHash[activity.status]
 				activities[activity.id]['parent_type'] = relatedHash[activity.parent_type]
 				activities[activity.id]['parent_name'] = activity.parent&.name || ''
 				activities[activity.id]['start_date'] = activity.start_date.localtime.strftime("%Y-%m-%d %H:%M:%S")
