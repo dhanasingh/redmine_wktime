@@ -128,10 +128,9 @@ class WkCrmContact < ApplicationRecord
 
     invoice_ids = WkInvoice.where(parent: parent, invoice_type: invoice_type).pluck(:id)
     return { amount: 0.0, currency: "" } unless invoice_ids.present?
-
-    total_invoiced = WkInvoiceItem.where(invoice_id: invoice_ids).sum(:original_amount)
-    total_paid     = WkPaymentItem.where(invoice_id: invoice_ids).sum(:original_amount)
-    currency       = WkInvoiceItem.where(invoice_id: invoice_ids).limit(1).pick(:original_currency) || ""
+    total_invoiced = WkInvoiceItem.where(invoice_id: invoice_ids).sum(:amount)
+    total_paid     = WkPaymentItem.where(invoice_id: invoice_ids, is_deleted: false).sum(:amount)
+    currency       = WkInvoiceItem.where(invoice_id: invoice_ids).limit(1).pick(:currency) || ""
 
     { amount: total_invoiced - total_paid, currency: currency }
   end
