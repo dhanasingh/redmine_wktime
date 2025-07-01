@@ -2000,8 +2000,8 @@ end
 			if spent > estimated
 				project = root.project
 				approvers = project.users.select { |u| u.active? && u.roles_for_project(project).any? { |r| r.allowed_to?(:approve_time_entries) } }
-				save_exceeded_notice(issue, approvers)
-				send_exceeded_mail(issue, approvers, estimated, spent, user_id) if WkNotification.mail('timeExceeded')
+				save_exceeded_notice(root, approvers)
+				send_exceeded_mail(root, approvers, estimated, spent, user_id) if WkNotification.mail('timeExceeded')
 			end
 		end
 	end
