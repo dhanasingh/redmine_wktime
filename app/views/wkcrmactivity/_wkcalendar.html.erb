@@ -1,0 +1,21 @@
+<%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
+
+<ul class="cal">
+	<li scope="col" title="<%= l(:label_week) %>" class="calhead week-number"></li>
+	<% 7.times do |i| %>
+		<li scope="col" class="calhead"><%= day_name( (calendar.first_wday+i)%7 ) %></li>
+	<% end %>
+
+	<% calendar.format_month.each_slice(7) do |week| %>
+			<% week.each do |date| %>
+				<% if date.cwday == calendar.first_wday %>
+					<li class='week-number' title='<%= l(:label_week) %>'><%= (date+(11-date.cwday)%7).cweek %></li>
+				<% end %>
+				<li class="<%= 'today ' if User.current.today == date %> calbody">
+					<p class="day-num"><%= date.day %></p>
+					<%= render_calendar_day(entries, date) %>
+				</li>
+		<% end %>
+	<% end %>
+</ul>
+

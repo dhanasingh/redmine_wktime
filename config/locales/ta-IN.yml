@@ -662,7 +662,7 @@ ta-IN:
   label_schedule_details: அட்டவணை விவரங்கள்
   label_shift_scheduling: மாற்று அட்டவணை
   field_is_schedulable: அட்டவணை படுத்து
-  field_id1: விருப்ப எண்1 
+  field_id1: விருப்ப எண்1
   field_id2: விருப்ப எண்2
   field_id3: விருப்ப எண்3
   field_join_date: சேரும் தேதி
@@ -1179,13 +1179,11 @@ ta-IN:
   chkbox_sales_quote_closed_issues: விற்பனை மேற்கோளுக்கான மூடிய சிக்கல்களைச் சேர்க்கவும்
   label_sales_stage_history: விற்பனை நிலை வரலாறு
   label_created_date: உருவாக்கப்பட்ட தேதி
-
   label_emerg_contact_type: அவசர தொடர்பு வகை
   label_state_insurance: மாநில காப்பீட்டு எண்
   label_marital_status: திருமண நிலை
   label_dept_section: துறை பிரிவு
   field_emergency_contact: அவசர தொடர்பு
-
   field_bank_name: வங்கி பெயர்
   field_account_number: வங்கி கணக்கு எண்
   field_bank_code: வங்கி குறியீடு
@@ -1196,7 +1194,7 @@ ta-IN:
   field_custom_date2: விருப்ப தேதி 2
   label_rejected_date: Rejected Date
   label_approved_date: Approved Date
-
   label_time_exceeded: Time Exceeded
   label_exc_est: exceeds estimation
   label_task_exc_est: The following task has exceeded estimation
+  label_show_calendar: Show Calendar
