@@ -1,16 +1,15 @@
-# Webinar on ERPmine – Survey , May 27th, 2025, 5 PM India (11:30 AM GMT)
+# Webinar on ERPmine – Time & Expense, July 29th, 2025,(11:30 AM GMT)
 
 Please click here to register if interested,
-[https://us02web.zoom.us/meeting/register/uw165JRjSSiL0WYM2eUQPA](https://us02web.zoom.us/meeting/register/uw165JRjSSiL0WYM2eUQPA)]
+[https://us02web.zoom.us/meeting/register/iQt-JSF1RZaT66r9aIpCeQ](https://us02web.zoom.us/meeting/register/iQt-JSF1RZaT66r9aIpCeQ)]
 
 **Topics**:
-- Project Survey
-- General Survey
-- User survey
-- Survey Reviewer
-- Recurring Survey
-- Survey Response Trending Chart
-- Notification
+- Project based approvals
+- Minimum maximum validation on holidays
+- Issue logger on /off
+- Map on timesheet
+- Start / stop button on time entries
+- Timesheet Report
 - Mobile App
 
 -----
