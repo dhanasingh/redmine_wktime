@@ -1,0 +1,19 @@
+<%= title l(:label_dashboards) %>
+<%= render partial: "wkcrm/render_crm_tabs" %>
+
+<%= render :partial => "wkcrmdashboard/filters" %>
+
+<% content_for :header_tags do %>
+  <%= javascript_include_tag "chart.min" %>
+<% end %>
+<%= javascript_include_tag "dashboard", plugin: "redmine_wktime" %>
+
+<%= javascript_tag do %>
+	$(document).ready(function(){
+		<% get_graphs_yaml_path.sort.each do |path| %>
+			renderChart(<%= raw url_for(action: "graph", gPath: path).to_json %>, "<%=path%>");
+		<% end %>
+	});
+<% end %>
+
+<div id="graph"></div>

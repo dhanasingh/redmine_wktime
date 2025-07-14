@@ -637,8 +637,9 @@ end
 				tabs <<	{name: 'wkskill', partial: 'wktime/tab_content', :label => :label_wk_skill} if showSkill
 				tabs << {:name => 'wkreferrals', :partial => 'wktime/tab_content', :label => :label_referrals} if isChecked("wktime_enable_referrals_module")
 
-		elsif params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact" || params[:controller] == "wksalesquote"
+		elsif params[:controller] == "wkcrmdashboard" || params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact" || params[:controller] == "wksalesquote"
 			tabs = [
+				{:name => 'wkcrmdashboard', :partial => 'wktime/tab_content', :label => :label_dashboards},
 				{:name => 'wklead', :partial => 'wktime/tab_content', :label => :label_lead_plural},
 				{:name => 'wkcrmaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
 				{:name => 'wkopportunity', :partial => 'wktime/tab_content', :label => :label_opportunity_plural},

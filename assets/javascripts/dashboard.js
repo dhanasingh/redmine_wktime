@@ -65,34 +65,56 @@ function registerChart(){
   });
 }
 
-function createChart(data, name){
+function createChart(data, name) {
   var isNonPiechart = (data["chart_type"] != "doughnut") ? true : false;
   var isPieChart = (data["chart_type"] == "doughnut") ? true : false;
-  var bgcolor = isNonPiechart ? "rgba(0, 138, 230)" : [ "#50b432","#6384FF","#F7464A", "#46BFBD", "#FDB45C", "#FEDCBA","#ABCDEF", "#DDDDDD", "#ABCABC", "#949FB1", "#4D5360", "#bbbc49", "#d2b33f", "#e29f38", "#e77e31", "#e35129", "#d92120"];
+
+  var bgcolor = isNonPiechart ? "rgba(0, 138, 230)" : [
+    "#50b432", "#6384FF", "#F7464A", "#46BFBD", "#FDB45C", "#FEDCBA",
+    "#ABCDEF", "#DDDDDD", "#ABCABC", "#949FB1", "#4D5360",
+    "#bbbc49", "#d2b33f", "#e29f38", "#e77e31", "#e35129", "#d92120"
+  ];
+
   var bordercolor = isNonPiechart ? "rgba(0, 138, 230)" : "rgba(255, 99, 132, 0.3)";
 
   var dataArr = [{
     label: data["legentTitle1"],
     fill: false,
-    backgroundColor: (data["chart_type"] == "line") ? 'rgb(135, 206, 235, 0.3)' : bgcolor,
+    backgroundColor: (data["chart_type"] == "line") ? 'rgba(135, 206, 235, 0.3)' : bgcolor,
     borderColor: bordercolor,
     borderWidth: 3,
     barThickness: 13,
     data: data["data1"]
-    }];
+  }];
 
-  if(data["legentTitle2"]){
+  if (data["legentTitle2"]) {
     dataArr.push({
       label: data["legentTitle2"],
       fill: false,
-      backgroundColor: (data["chart_type"] == "line") ? 'rgb(255,0,0,0.2)' : "#E55C45",
+      backgroundColor: (data["chart_type"] == "line") ? 'rgba(255,0,0,0.2)' : "#E55C45",
       borderColor: "#E55C45",
       borderWidth: 3,
       barThickness: 13,
       data: data["data2"]
     });
   }
-  var chartData = {labels: data["fields"], datasets: dataArr};
+
+  if (data["legentTitle3"]) {
+    dataArr.push({
+      label: data["legentTitle3"],
+      fill: false,
+      backgroundColor: (data["chart_type"] == "line") ? 'rgba(0,0,255,0.2)' : "#50b432",
+      borderColor: "#50b432",
+      borderWidth: 3,
+      barThickness: 13,
+      data: data["data3"]
+    });
+  }
+
+  var chartData = {
+    labels: data["fields"],
+    datasets: dataArr
+  };
 
   new Chart(document.getElementById(name).getContext("2d"), {
     type: data["chart_type"],
@@ -101,14 +123,14 @@ function createChart(data, name){
       plugins: {
         responsive: true,
         legend: { display: false },
-        title: {display: true, text: data["graphName"]},
+        title: { display: true, text: data["graphName"] },
         tooltip: {
           backgroundColor: "rgb(0,0,0,0)",
           titleColor: 'rgb(0,0,0)',
           callbacks: {
-              labelTextColor: function(context) {
-                  return 'rgb(0,0,0)';
-              }
+            labelTextColor: function (context) {
+              return 'rgb(0,0,0)';
+            }
           }
         }
       },
@@ -119,7 +141,7 @@ function createChart(data, name){
         bodyFontSize: 12
       },
       showAllTooltips: isPieChart,
-      chartArea: {backgroundColor: "rgba(255, 255, 255, 0)"},
+      chartArea: { backgroundColor: "rgba(255, 255, 255, 0)" },
       scales: {
         yAxes: getAxes(false, "yTitle", isNonPiechart, data),
         xAxes: getAxes(true, "xTitle", isNonPiechart, data),
@@ -154,8 +176,18 @@ function getAxes(autoSkip, label, isNonPiechart, data){
   )
 }
 
-function renderDetailReport(path, graphName){
-  let url = new URL("wkdashboard/getDetailReport", window.location.origin);
+function renderDetailReport(path, graphName){  
+  
+  // Choose base path based on 'path' content
+  let basePath = "wkdashboard";
+  if (path.includes("wkcrmdashboard")) {
+    basePath = "wkcrmdashboard";
+  } else if (path.includes("wkdashboard")) {
+    basePath = "wkdashboard";
+  }
+
+  // Create the URL with the selected base
+  let url = new URL(basePath + "/getDetailReport", window.location.origin);
   url.searchParams.append("gPath", path);
   const dashURL = new URL(window.location);
   dashURL.searchParams.forEach(function(value, key){

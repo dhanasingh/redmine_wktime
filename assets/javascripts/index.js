@@ -1,5 +1,5 @@
 var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl,
-	blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl,
+	blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmdashboardUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl,
 	blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl,
 	wklocationUrl,  wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkassetUrl, wkassetdepreciationUrl, wkgrpPermissionUrl, wkSchedulingUrl,
 	userCurrentUrl, wkSurveyUrl, wkleavereqUrl, wknotificationUrl, wkskillUrl, wkreferralsUrl, wkdeliveryUrl, salesquoteUrl;
@@ -146,6 +146,7 @@ $(document).ready(function() {
 	changeProp('tab-wktax',blgtaxUrl);
 	changeProp('tab-wkgltransaction',blgtxnUrl);
 	changeProp('tab-wkledger',blgledgerUrl);
+	changeProp('tab-wkcrmdashboard',crmdashboardUrl);
 	changeProp('tab-wklead',crmleadsUrl);
 	changeProp('tab-wkopportunity',crmopportunityUrl);
 	changeProp('tab-wkcrmactivity',crmactivityUrl);

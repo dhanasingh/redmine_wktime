@@ -944,3 +944,13 @@ get 'wklogmaterial/spent_log_edit', :to => 'wklogmaterial#spent_log_edit'
 get 'wklogmaterial/modifyProductDD', :to => 'wklogmaterial#modifyProductDD'
 
 get 'attachments/:object_type/:object_id/edit', :to => 'attachments#edit_all', :as => :wk_object_attachments_edit
+
+# For CRM Dashboard
+
+get 'wkcrmdashboard', :to => 'wkcrmdashboard#index'
+
+get 'wkcrmdashboard/graph', :to => 'wkcrmdashboard#graph'
+
+get 'wkcrmdashboard/getGraphs', to: 'wkcrmdashboard#getGraphs'
+
+get 'wkcrmdashboard/getDetailReport', to: 'wkcrmdashboard#getDetailReport'
