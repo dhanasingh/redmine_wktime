@@ -962,7 +962,11 @@ include ActionView::Helpers::TagHelper
 			@te_projects = @entries.collect{|entry| entry.project}.uniq
 			te_projects = @approvable_projects & @te_projects if !@te_projects.blank?
 		end
-		# hookPerm = call_hook(:controller_check_approvable, {:params => params})
+
+		approverEntries = @approverEntries.pluck(:id)
+		approvedEntries =  @approverwkStatuses.pluck(:id)
+		ret = (approverEntries - approvedEntries).length > 0
+
 		if isSupervisorApproval #!hookPerm.blank?
 			ret = isSupervisor #hookPerm[0]
 		end

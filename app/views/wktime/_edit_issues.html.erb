@@ -128,14 +128,12 @@
 		<% end %>
 
 		<% if controller.hasApprovalSystem && !@renderer.showSpentOnInRow  %>
-			<% approverEntries = @approverEntries.pluck(:id)
-				approvedEntries =  @approverwkStatuses.pluck(:id)
-			%>
+			<% approvedEntries =  @approverwkStatuses.pluck(:id) %>
 			<% if !@wktime.nil? && @wktime.status == 's' %>
 				<% if @approvedwkStatuses.length == 0 %>
 					<%= submit_tag l(:button_wk_unsubmit), :name => 'wktime_unsubmit', :disabled => !(@row > 0)%>
 				<% end %>
-				<% if controller.check_approvable_status() && (approverEntries - approvedEntries).length > 0 %>
+				<% if controller.check_approvable_status() %>
 					<%= submit_tag l(:button_wk_approve), :name => 'wktime_approve', :disabled => !(@row > 0)%>
 					<%=h hidden_field_tag('wktime_notes', "") %>
 					<% # the jquery dialog box doesn't port the reject button value%>
