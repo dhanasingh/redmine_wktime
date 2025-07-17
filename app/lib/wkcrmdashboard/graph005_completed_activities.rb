@@ -48,8 +48,8 @@ module Wkcrmdashboard
           {
             name: activity.name,
             type: acttypeHash[activity.activity_type],
-            start_date: activity.start_date&.to_date,
-            end_date: activity.end_date&.to_date
+            start_date: activity.start_date&.localtime&.to_date,
+            end_date: activity.end_date&.localtime&.to_date
           }
         end
       }
@@ -70,7 +70,7 @@ module Wkcrmdashboard
 
       scope.each do |activity|
         next unless activity.end_date
-        weekday = activity.end_date.to_date.cwday  # 1 (Mon) .. 7 (Sun)
+        weekday = activity.end_date&.localtime&.to_date.cwday  # 1 (Mon) .. 7 (Sun)
         counts[weekday - 1] += 1
       end
 

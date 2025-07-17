@@ -11,7 +11,7 @@ module WkcrmactivityHelper
     entries.each do |entry|
       next if entry.end_date.blank? && entry.start_date.localtime.to_date != date
       link = link_to(entry.name, url_for(action: 'edit', activity_id: entry.id))
-      status = (["M", "C"].include?(entry.activity_type) ? meetCallStatusHash : taskStatusHash)[entry.status]
+      status = activityStatusHash[entry.status]
       tip = "<span class='daytip tip'>#{link}<br><br>" +
         "<b>#{l(:field_type)}: </b>#{acttypeHash[entry.activity_type]}<br>" +
         "<b>#{l(:field_status)}: </b>#{status}<br>"+

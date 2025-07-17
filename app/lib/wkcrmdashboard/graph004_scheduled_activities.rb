@@ -28,7 +28,6 @@ module Wkcrmdashboard
     def getDetailReport(param = {})
       to_date = param[:to].end_of_week
       from_date = to_date - 6.days
-
       activities = WkCrmActivity
         .where(
           start_date: getFromDateTime(from_date)..getToDateTime(to_date),
@@ -46,7 +45,7 @@ module Wkcrmdashboard
           {
             name: activity.name,
             type: acttypeHash[activity.activity_type],
-            date: activity.start_date&.to_date
+            date: activity.start_date&.localtime&.to_date
           }
         end
       }
@@ -67,7 +66,7 @@ module Wkcrmdashboard
 
       scope.each do |activity|
         next unless activity.start_date
-        weekday = activity.start_date.to_date.cwday  # 1 (Mon) .. 7 (Sun)
+        weekday = activity.start_date&.localtime&.to_date.cwday  # 1 (Mon) .. 7 (Sun)
         counts[weekday - 1] += 1
       end
 

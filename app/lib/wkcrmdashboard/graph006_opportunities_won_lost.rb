@@ -6,7 +6,7 @@ module Wkcrmdashboard
     def chart_data(param={})
       to = param[:to].end_of_month
       data = {
-        graphName: "#{l(:label_opportunity_plural)} #{l(:label_won)} #{l(:label_lost)}",
+        graphName: "#{l(:label_opportunity_plural)} #{l(:label_won)} #{l(:label_vs)} #{l(:label_lost)}",
         chart_type: "bar",
         xTitle: l(:label_months),
         yTitle: l(:label_opportunity_plural),
