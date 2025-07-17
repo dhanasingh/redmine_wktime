@@ -34,14 +34,13 @@ module WkcrmactivityHelper
       next unless  activity.assigned_user&.present?
 
       WkMailer.send_mail(
-        subject: "#{activity.name} - #{l(:label_activity)} #{l(:label_reminder)}",
+        subject: "#{l(:label_upcoming)} - #{activity.name}",
         to: activity.assigned_user&.mail,
         body: "#{l(:label_upcoming_activity_reminder)}\n\n" +
-              "#{l(:label_activity_type)}: #{acttypeHash[activity.activity_type]}\n" +
               "#{l(:field_subject)}: #{activity.name}\n" +
+              "#{l(:label_activity_type)}: #{acttypeHash[activity.activity_type]}\n" +
               "#{l(:label_relates_to)}: #{relatedHash[activity.parent_type]} - #{activity.parent&.name} \n" +
-              "#{l(:label_start_date)}: #{activity.start_date.localtime.strftime('%Y-%m-%d %H:%M:%S')}\n" +
-              "#{l(:label_end_date)}: #{activity.end_date&.localtime&.strftime('%Y-%m-%d %H:%M:%S') || ''}\n" +
+              "#{l(:label_start_date)}: #{activity.start_date.localtime.strftime('%Y-%m-%d %H:%M:%S')} & #{l(:label_end_date)}: #{activity.end_date&.localtime&.strftime('%Y-%m-%d %H:%M:%S') || ''}\n" +
               "#{l(:field_status)}: #{activityStatusHash[activity.status]}\n"
       ).deliver_later
     end

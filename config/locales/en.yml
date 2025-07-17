@@ -1277,5 +1277,5 @@ en:
   label_task_exc_est: The following task has exceeded estimation
   label_show_calendar: Show Calendar
   label_mail_act_reminder: email activity reminder
-  label_reminder: Reminder
-  label_upcoming_activity_reminder: This is a reminder for your upcoming activity.
+  label_upcoming: Upcoming
+  label_upcoming_activity_reminder: You have an upcoming activity

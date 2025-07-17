@@ -52,11 +52,6 @@
     font-size: 12px;
 }
 
-.ui-accordion-header {
-    background: #3E5B76;
-    color: #ffffff;
-}
-
 .ui-icon {
     padding-left: 2px;
 }
@@ -108,4 +103,45 @@ fieldset label {
     border: 1px solid #d0d7de;
     border-radius: 3px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Overriding jQuery UI Accordion header */
+.ui-accordion .ui-accordion-header {
+    background: #ffffff;
+    color: rgba(0, 0, 0, 0.6);
+    border: 1px solid #e2e8f0;
+    font-weight: bold;
+}
+
+/* Arrow on the left */
+.ui-accordion-header::before {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-right: 5px;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 7px solid rgba(0, 0, 0, 0.4); /* Right-pointing triangle */
+    transition: transform 0.3s ease;
+}
+
+/* Active open state */
+.ui-accordion-header.ui-state-active {
+    background: #ffffff;
+    color: #000;
+    font-weight: bold;
+}
+
+.ui-accordion-header.ui-state-active::before {
+    transform: rotate(90deg);
+    border-left-color: #000;
+}
+
+.ui-accordion-header-icon {
+    display: none !important;
+}
+
+.ui-accordion .ui-accordion-content {
+    box-shadow: 0 2px 10px rgba(0,0,0,.2);
 }
