@@ -134,15 +134,15 @@ include ActionView::Helpers::TagHelper
 		findWkTE(@startday)
 
 		# Getting allowed Project members
-		@users = []
-		members = []
 		projects = (@manage_projects || []).pluck(:id)
 		projects.concat((@manage_others_log || []).pluck(:id))
-		projects.each do |projID|
-			project = Project.find(projID)
-			project.members.each{|member| members << [member.user.name, member.user.id] }
-		end
-		members.each {|userID| @users << userID if userID && !@users.include?(userID) }
+
+		@users = User.includes(:members)
+			.joins("join members on users.id = members.user_id")
+			.where("members.project_id": projects)
+			.distinct
+			.map{|user| [user.name, user.id] }
+
 		if getSheetView == 'W'
 			getUserwkStatuses
 			getApproverPermProj
