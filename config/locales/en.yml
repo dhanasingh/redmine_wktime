@@ -1276,7 +1276,7 @@ en:
   label_exc_est: exceeds estimation
   label_task_exc_est: The following task has exceeded estimation
   label_show_calendar: Show Calendar
-  label_mail_act_reminder: email activity reminder
+  label_mail_act_reminder: Email activity reminder
   label_upcoming: Upcoming
   label_upcoming_activity_reminder: You have an upcoming activity
   label_vs: vs

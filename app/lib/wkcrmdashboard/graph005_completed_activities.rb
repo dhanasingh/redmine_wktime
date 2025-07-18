@@ -3,8 +3,8 @@ module Wkcrmdashboard
     include WkcrmHelper
 
     def chart_data(param = {})
-      to_date = param[:to].end_of_week
-
+      to = param[:to].end_of_week
+      from = param[:to].beginning_of_week
       data = {
         graphName: "#{l(:label_activity_plural)} #{l(:label_completed)}",
         chart_type: "bar",
@@ -19,23 +19,19 @@ module Wkcrmdashboard
       data[:fields] = Date::ABBR_DAYNAMES.rotate(1)
 
       # Completed activities with status = 'C' in past 7 days
-      data[:data1] = count_weekly_completed('C', to_date)
-      data[:data2] = count_weekly_completed('M', to_date)
-      data[:data3] = count_weekly_completed('T', to_date)
+      data[:data1] = count_weekly_completed('C', from, to)
+      data[:data2] = count_weekly_completed('M', from, to)
+      data[:data3] = count_weekly_completed('T', from, to)
 
       data
     end
 
     def getDetailReport(param = {})
-      to_date = param[:to].end_of_week
-      from_date = to_date - 6.days
-
-      activities = WkCrmActivity
-        .where(
-          end_date: getFromDateTime(from_date)..getToDateTime(to_date),
-          status: 'C'
-        )
-        .order(end_date: :desc)
+      to = param[:to].end_of_week
+      from = param[:to].beginning_of_week
+      activities = WkCrmActivity.where(status: 'C').where(end_date: getFromDateTime(from)..getToDateTime(to))
+                  .or(WkCrmActivity.where(status: 'C',end_date: nil,start_date: getFromDateTime(from)..getToDateTime(to)))
+                  .order(end_date: :desc)
 
       {
         header: {
@@ -57,23 +53,28 @@ module Wkcrmdashboard
 
     private
 
-    def count_weekly_completed(activity_type, to_date)
+    def count_weekly_completed(activity_type, from, to)
       # Initialize counts for Mon..Sun
       counts = [0] * 7
 
-      from_date = to_date - 6.days
-      scope = WkCrmActivity.where(
-        end_date: getFromDateTime(from_date)..getToDateTime(to_date),
-        activity_type: activity_type,
-        status: 'C'
-      )
+      activities = WkCrmActivity
+          .where(status: 'C', activity_type: activity_type)
+          .where(end_date: getFromDateTime(from)..getToDateTime(to))
+          .or(
+            WkCrmActivity.where(
+              status: 'C',
+              activity_type: activity_type,
+              end_date: nil,
+              start_date: getFromDateTime(from)..getToDateTime(to)
+            )
+          )
+          .order(end_date: :desc)
 
-      scope.each do |activity|
-        next unless activity.end_date
-        weekday = activity.end_date&.localtime&.to_date.cwday  # 1 (Mon) .. 7 (Sun)
-        counts[weekday - 1] += 1
-      end
-
+        activities.each do |activity|
+          next unless activity.end_date || activity.start_date
+          weekday = (activity.end_date || activity.start_date)&.localtime&.to_date.cwday
+          counts[weekday - 1] += 1
+        end
       counts
     end
   end

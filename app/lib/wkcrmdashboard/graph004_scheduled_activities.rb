@@ -3,7 +3,8 @@ module Wkcrmdashboard
     include WkcrmHelper
 
     def chart_data(param = {})
-      to_date = param[:to].end_of_week
+      to = param[:to].end_of_week
+      from = param[:to].beginning_of_week
       data = {
         graphName: "Activities Scheduled",
         chart_type: "bar",
@@ -18,19 +19,19 @@ module Wkcrmdashboard
       data[:fields] = Date::ABBR_DAYNAMES.rotate(1)
 
       # Fill datasets
-      data[:data1] = count_weekly_scheduled('C', to_date)
-      data[:data2] = count_weekly_scheduled('M', to_date)
-      data[:data3] = count_weekly_scheduled('T', to_date)
+      data[:data1] = count_weekly_scheduled('C', from, to)
+      data[:data2] = count_weekly_scheduled('M', from, to)
+      data[:data3] = count_weekly_scheduled('T', from, to)
 
       data
     end
 
     def getDetailReport(param = {})
-      to_date = param[:to].end_of_week
-      from_date = to_date - 6.days
+      to = param[:to].end_of_week
+      from = param[:to].beginning_of_week
       activities = WkCrmActivity
         .where(
-          start_date: getFromDateTime(from_date)..getToDateTime(to_date),
+          start_date: getFromDateTime(from)..getToDateTime(to),
           status: 'NS'
         )
         .order(start_date: :desc)
@@ -53,13 +54,11 @@ module Wkcrmdashboard
 
     private
 
-    def count_weekly_scheduled(activity_type, to_date)
+    def count_weekly_scheduled(activity_type, from, to)
       # Initialize counts for Mon..Sun
       counts = [0] * 7
-
-      from_date = to_date - 6.days
       scope = WkCrmActivity.where(
-        start_date: getFromDateTime(from_date)..getToDateTime(to_date),
+        start_date: getFromDateTime(from)..getToDateTime(to),
         activity_type: activity_type,
         status: 'NS'
       )

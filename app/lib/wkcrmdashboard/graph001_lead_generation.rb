@@ -3,8 +3,8 @@ module Wkcrmdashboard
     include WkcrmHelper
 
     def chart_data(param = {})
-      to_date = param[:to].end_of_week
-      from_date = to_date - 6.days
+      to = param[:to].end_of_week
+      from = param[:to].beginning_of_week
 
       data = {
         graphName: l(:label_lead_generated),
@@ -18,7 +18,7 @@ module Wkcrmdashboard
       data[:fields] = Date::ABBR_DAYNAMES.rotate(1)
 
       # Get leads in range
-      leads = getLeadsForRange(from_date, to_date)
+      leads = getLeadsForRange(from, to)
 
       # Count leads per weekday (Mon=1..Sun=7)
       daily_counts = [0] * 7
@@ -46,8 +46,8 @@ module Wkcrmdashboard
       current_week = Date.today.cweek
       current_year = Date.today.cwyear
 
-      param_week = to_date.cweek
-      param_year = to_date.cwyear
+      param_week = to.cweek
+      param_year = to.cwyear
 
       if current_week == param_week && current_year == param_year
         # It's this week - blank out future days
@@ -62,10 +62,10 @@ module Wkcrmdashboard
     end
 
     def getDetailReport(param = {})
-      to_date = param[:to].end_of_week
-      from_date = to_date - 6.days
+      to = param[:to].end_of_week
+      from = param[:to].beginning_of_week
 
-      leads = getLeadsForRange(from_date, to_date).order(created_at: :desc)
+      leads = getLeadsForRange(from, to).order(created_at: :desc)
 
       header = {
         name: l(:field_name),
@@ -86,12 +86,12 @@ module Wkcrmdashboard
 
     private
 
-    def getLeadsForRange(from_date, to_date)
+    def getLeadsForRange(from, to)
       WkLead
         .joins(:contact)
         .where(
           status: 'N',
-          created_at: getFromDateTime(from_date)..getToDateTime(to_date),
+          created_at: getFromDateTime(from)..getToDateTime(to),
           "wk_crm_contacts.contact_type" => ["C", "SC"]
         )
     end
