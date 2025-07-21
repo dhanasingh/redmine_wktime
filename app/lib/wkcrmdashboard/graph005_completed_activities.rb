@@ -45,7 +45,7 @@ module Wkcrmdashboard
             name: activity.name,
             type: acttypeHash[activity.activity_type],
             start_date: activity.start_date&.localtime&.to_date,
-            end_date: activity.end_date&.localtime&.to_date
+            end_date: (activity&.end_date || activity&.start_date)&.localtime&.to_date
           }
         end
       }
