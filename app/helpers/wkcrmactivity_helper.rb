@@ -15,7 +15,7 @@ module WkcrmactivityHelper
       tip = "<span class='daytip tip'>#{link}<br><br>" +
         "<b>#{l(:field_type)}: </b>#{acttypeHash[entry.activity_type]}<br>" +
         "<b>#{l(:field_status)}: </b>#{status}<br>"+
-        "<b>#{l(:label_relates_to)}: </b>#{entry.parent_type}<br>" +
+        "<b>#{l(:label_relates_to)}: </b>#{relatedHash[entry.parent_type]}<br>" +
         "<b>#{l(:field_name)}: </b>#{entry&.parent&.name}</span>"
       content << "<div class='dayitem tooltip'>#{link}#{tip}</div>"
     end
