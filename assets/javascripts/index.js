@@ -184,7 +184,7 @@ $(document).ready(function() {
 
 	//accordion section
 	$( "#accordion" ).accordion({
-		icons: { "header": "ui-icon-circle-triangle-e", "activeHeader": "ui-icon-circle-triangle-s" },
+		icons: { "header": "accordion-icon-header", "activeHeader": "accordion-icon-header-active" },
 		collapsible: true,
 		heightStyle: "content"
 	});
