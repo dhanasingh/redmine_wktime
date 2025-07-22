@@ -13,8 +13,8 @@ namespace :wk_crm_activities do
     WkCrmActivity.find_each do |activity|
       if status_map.key?(activity.status)
         old_status = activity.status
-        activity.status = status_map[old_status]
-        if activity.save
+        new_status = status_map[old_status]
+        if activity.update_columns(status: new_status)
           puts "Updated ##{activity.id} from #{old_status} -> #{activity.status}"
           updated_count += 1
         else
