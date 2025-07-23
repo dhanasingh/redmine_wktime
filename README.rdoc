@@ -119,6 +119,8 @@ For more information on features, please refer to the user guide
    - Added timesheet status to spent time page (column only)
    - Added timesheet exceeds estimation email
 
+We would like to thank Creative Synergies Group LLC for partially sponsored this release.
+
 === Customization
 
   For any Customization/Support, please contact us, our consulting team will be happy to help you
