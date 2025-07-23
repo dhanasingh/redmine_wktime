@@ -15,7 +15,10 @@
 	<%=h hidden_field_tag('tab', "wkcrmactivity") %>
 	<%	actType =session[controller_name].try(:[], :activity_type)
 		actRelated = session[controller_name].try(:[], :related_to)
+		status = session[controller_name].try(:[], :status)
+		assignee = session[controller_name].try(:[], :assignee)
 		show_on_map = session[controller_name].try(:[], :show_on_map) %>
+	<% users = groupOfUsers.map { |name, id| id == User.current.id ? ['<< me >>', id] : [name, id] } %>
 		<div style="float:right">
 			<%= link_to sprite_icon('add', controller.get_activity_label), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
 		</div>
@@ -24,25 +27,47 @@
 			<td  align="left"><%=h select_tag("activity_type", options_for_select(actTypehash, :selected => !actType.blank? ? actType : ""), :style => "width:190px;") %></td>
 			<th align="left" style="padding-left:10px;"><%= l(:label_relates_to) %>:</th>
 			<td align="left"><%=h select_tag("related_to", options_for_select(relatedArrhash, :selected => (!actRelated.blank? ? actRelated : "")), :style => "width:200px;") %></td>
+			<th align="left" style="padding-left:10px;"><%= l(:field_status) %>:</th>
+			<td align="left"><%= select_tag("status", options_for_select((activityStatusHash).invert, !status.blank? ? status : []), multiple: true, style: "width:200px")%></td> 
+			<th align="left" style="padding-left:10px;"><%= l(:field_assigned_to) %>:</th>
+			<td align="left"><%= select_tag("assignee", options_for_select(users, :selected => !assignee.blank? ? assignee : ""), :style => "width:200px;") %></td>
+		</td>
 		</table>
 	<%= render :partial => 'wkcrmactivity/date_range' %>
   <%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
   <%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
   <% if isChecked('crm_save_geo_location') %>
     <label style="padding-left:5px">
-      <%= check_box_tag('show_on_map', true, show_on_map || false, onclick: '$("#query_form").submit(); return false;') %>
+      <%= check_box_tag('show_on_map', true, show_on_map || false) %>
       <%= l(:label_show_on_map) %>
     </label>
   <% end %>
+
+    <label style="padding-left:5px">
+      <%= check_box_tag('show_calendar', true, params[:show_calendar] || false) %>
+			<%= l(:label_show_calendar) %>
+    </label>
 <% end %>
 </fieldset>
 
 <% if @activity.present? %>
-	<%= render partial: "activity_list", locals: { activities:  @activity } %>
-	<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
-	<% other_formats_links do |f| %>
-		<%= f.link_to_with_query_parameters 'CSV', {} %>
+	<%= render partial: "activity_list", locals: { activities: @activity } %>
+		<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+		<% other_formats_links do |f| %>
+			<%= f.link_to_with_query_parameters 'CSV', {} %>
 	<% end %>
 <% else %>
 	<p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>
+
+<% content_for :header_tags do %>
+  <script>
+    $(function() {
+      $('#show_on_map, #show_calendar').on('change', function() {
+        const other = this.id === 'show_on_map' ? '#show_calendar' : '#show_on_map';
+        if (this.checked) $(other).prop('checked', false);
+        $('#query_form').submit();
+      });
+    });
+  </script>
 <% end %>

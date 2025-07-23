@@ -3,6 +3,7 @@
 <%= javascript_include_tag 'edit', :plugin => "redmine_wktime" %>
 
 	<script type="text/javascript">
+		reqRejectAlert = '<%=l(:label_wk_reject_reason)%>'+' <%=l(:label_equals)%>'+' <%=l(:label_required_lower)%>'
 		lblPleaseSelect = '<%=l(:actionview_instancetag_blank_option) %>'
 		lblWarnUnsavedTE = '<%=l(:text_warn_on_leaving_unsaved) %>'
 		decSeparator = '<%=l(:general_csv_decimal_separator) %>';
@@ -40,7 +41,7 @@
 
 	<div id="notes-dlg">
 		<fieldset>
-			<p> <label><%= l(:label_wk_reject_reason) %></label>
+			<p> <label><%= l(:label_wk_reject_reason) %><span style="color: red;">*</span></label>
 			<textarea name="_edit_notes_" id="_edit_notes_" value="" cols="25" rows="2"> </textarea> </p>
 		</fieldset>
 	</div>

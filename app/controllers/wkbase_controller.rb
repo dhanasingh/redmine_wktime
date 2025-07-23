@@ -15,6 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+require 'redmine/helpers/calendar'
+
 class WkbaseController < ApplicationController
 
 	before_action :require_login
@@ -341,7 +343,6 @@ class WkbaseController < ApplicationController
 	end
 
 	def csv_export(data)
-		decimal_separator = l(:general_csv_decimal_separator)
 		export = Redmine::Export::CSV.generate do |csv|
 			csv << (data[:headers] || {}).collect {|key, value| Redmine::CodesetUtil.from_utf8(value.to_s, l(:general_csv_encoding))}
 			(data[:data] || []).each do |entry|
@@ -399,5 +400,11 @@ class WkbaseController < ApplicationController
 	def get_comp_condition(table, cond = 'AND')
 		cond = call_hook(:get_comp_condition, table: table, cond: cond) || []
 		cond[0] || ""
+	end
+
+	def load_calendar(date)
+		year = date.blank? ? User.current.today.year : date.year
+		month = date.blank? ? User.current.today.month : date.month
+		@calendar = Redmine::Helpers::Calendar.new(Date.civil(year, month, 1), current_language, :month)
 	end
 end

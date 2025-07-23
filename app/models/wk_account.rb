@@ -76,4 +76,8 @@ class WkAccount < ApplicationRecord
     contract = wkcontracts.first if contract.blank?
     contract
   end
+
+  def has_billable_projects?
+    billable_projects.exists?
+  end
 end

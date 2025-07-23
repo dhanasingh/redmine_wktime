@@ -2,6 +2,7 @@
 <%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
 
 <script type="text/javascript">
+    crmdashboardUrl = '<%=url_for(controller: "wkcrmdashboard", tab: "wkcrmdashboard")%>';
     crmleadsUrl = '<%=url_for(controller: "wklead", tab: "wklead")%>';
 	blgaccUrl = '<%=url_for(controller: "wkcrmaccount", tab: "wkcrmaccount")%>';
     crmopportunityUrl = '<%=url_for(controller: "wkopportunity", tab: "wkopportunity")%>';

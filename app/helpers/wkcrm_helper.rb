@@ -73,24 +73,15 @@ include WkdocumentHelper
 		directionStatus
 	end
 
-	def meetCallStatusHash
-		mcStatus = {
-			"P"  => l(:label_planned),
-			"H" =>  l(:label_held),
-			"NH" =>  l(:label_not_held)
-		}
-		mcStatus
-	end
-
-	def taskStatusHash
-		taskStatus = {
+	def activityStatusHash
+		actStatus = {
 			"NS"  => l(:label_not_started),
 			"IP" =>  l(:default_issue_status_in_progress),
 			"C" =>  l(:label_completed),
 			"PI" =>  l(:label_pending_input),
 			"D" =>  l(:label_deferred)
 		}
-		taskStatus
+		actStatus
 	end
 
 	def taskPriorityHash

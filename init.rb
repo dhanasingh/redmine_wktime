@@ -42,7 +42,7 @@ module Redmine::MenuManager::MenuHelper
 			"wkledger", "wklead", "wkopportunity", "wkcrmactivity", "wkcrmcontact", "wkcrmenumeration", "wkpayment", "wkexchangerate","wkrfq","wkquote",
 			"wkpurchaseorder","wksupplierinvoice","wksupplierpayment","wksupplieraccount","wksuppliercontact", "wklocation", "wkproduct", "wkbrand", "wkattributegroup",
 			"wkproductitem", "wkshipment", "wkunitofmeasurement", "wkasset", "wkassetdepreciation", "wkgrouppermission", "wkscheduling", "wkshift", "wkpublicholiday",
-			"wkdashboard", "wksurvey", "wkleaverequest", "wkdocument", "wknotification", "wkskill", "wkreferrals", "wkdelivery", "wksalesquote"
+			"wkdashboard", "wksurvey", "wkleaverequest", "wkdocument", "wknotification", "wkskill", "wkreferrals", "wkdelivery", "wksalesquote", "wkcrmdashboard"
 		]
 	  externalMenus = call_hook :external_erpmine_menus
 	   externalMenus = externalMenus.split(' ')
@@ -70,12 +70,35 @@ Rails.configuration.to_prepare do
 	end
 end
 
+TimeEntryQuery.class_eval do
+  self.available_columns += [
+    QueryColumn.new(:weekly_timesheet, caption: -> { l(:label_weekly) +" "+ l(:label_wk_timesheet)})
+  ]
+end
+
+TimeEntry.class_eval do
+	def weekly_timesheet
+		status = Wktime.where(begin_date: (self.spent_on - 6.days)..self.spent_on, user_id: self.user_id)&.first&.status
+
+		if status == 'n'
+			return l(:label_new)
+		elsif status == 'a'
+			return l(:wk_status_approved)
+		elsif status == 's'
+			return l(:wk_status_submitted)
+		elsif status == 'r'
+			return l(:default_issue_status_rejected)
+		else
+			return ""
+		end
+	end
+end
 
 Redmine::Plugin.register :redmine_wktime do
   name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
   description 'ERPmine is an ERP for Service Industries. It has the following modules: Time & Expense, Attendance, Payroll, CRM, Billing, Accounting, Purchasing, Inventory, Asset , Reports, Dashboards and Survey'
-  version '4.8.4'
+  version '4.8.5'
   url 'https://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
 
@@ -196,7 +219,7 @@ Redmine::Plugin.register :redmine_wktime do
 	  menu.push :wkdashboard, { :controller => 'wkdashboard', :action => 'index' }, :caption => :label_dashboards, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WkdashboardHelper).showDashboard }
 	  menu.push :wktime, { :controller => 'wktime', :action => 'index' }, :caption => :label_te, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && (Object.new.extend(WktimeHelper).showTime || Object.new.extend(WktimeHelper).showExpense)}
 	  menu.push :wkattendance, { :controller => 'wkattendance', :action => 'index' }, :caption => :label_hr, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && (Object.new.extend(WktimeHelper).showAttendance || Object.new.extend(WktimeHelper).showPayroll || Object.new.extend(WktimeHelper).showShiftScheduling || Object.new.extend(WktimeHelper).showSurvey)}
-	  menu.push :wklead, { :controller => 'wklead', :action => 'index' }, :caption => :label_crm, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showCRMModule }
+	  menu.push :wkcrmdashboard, { :controller => 'wkcrmdashboard', :action => 'index' }, :caption => :label_crm, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showCRMModule }
 	  menu.push :wkinvoice, { :controller => 'wkinvoice', :action => 'index' }, :caption => :label_wk_billing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showBilling && Object.new.extend(WktimeHelper).validateERPPermission("M_BILL")}
 	  menu.push :wkgltransaction, { :controller => 'wkgltransaction', :action => 'index' }, :caption => :label_accounting, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showAccounting }
 	  menu.push :wkrfq, { :controller => 'wkrfq', :action => 'index' }, :caption => :label_purchasing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showPurchase }

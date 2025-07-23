@@ -1,10 +1,8 @@
+require 'rufus/scheduler'
 module LoadPatch::WktimeScheduler
-	Rails.configuration.to_prepare do
+	Rails.application.config.after_initialize do
 		if ActiveRecord::Base.connection.table_exists? "#{Setting.table_name}"
 			if ActiveRecord::Base.connection.table_exists?("#{WkNotification.table_name}") && WkNotification.notify('nonSubmission')
-
-				require 'rufus/scheduler'
-
 				if (!Setting.plugin_redmine_wktime['wktime_use_approval_system'].blank? && Setting.plugin_redmine_wktime['wktime_use_approval_system'].to_i == 1)
 					submissionDeadline = Setting.plugin_redmine_wktime['wktime_submission_deadline']
 					hr = Setting.plugin_redmine_wktime['wktime_nonsub_sch_hr']
@@ -28,7 +26,6 @@ module LoadPatch::WktimeScheduler
 			end
 
 			if (!Setting.plugin_redmine_wktime['wktime_period_end_process'].blank? && Setting.plugin_redmine_wktime['wktime_period_end_process'].to_i == 1)
-				require 'rufus/scheduler'
 				scheduler2 = Rufus::Scheduler.new
 				#Scheduler will run at 12:01 AM on 1st of every month
 				cronSt = "01 00 01 * *"
@@ -45,7 +42,6 @@ module LoadPatch::WktimeScheduler
 			end
 
 			if (!Setting.plugin_redmine_wktime['wktime_auto_import'].blank? && Setting.plugin_redmine_wktime['wktime_auto_import'].to_i == 1)
-				require 'rufus/scheduler'
 				importScheduler = Rufus::Scheduler.new
 				import_helper = Object.new.extend(WkimportattendanceHelper)
 				intervalMin = import_helper.calcSchdulerInterval
@@ -74,7 +70,6 @@ module LoadPatch::WktimeScheduler
 			end
 
 			if (!Setting.plugin_redmine_wktime['wktime_auto_generate_salary'].blank? && Setting.plugin_redmine_wktime['wktime_auto_generate_salary'].to_i == 1)
-				require 'rufus/scheduler'
 				salaryScheduler = Rufus::Scheduler.new
 				payperiod = Setting.plugin_redmine_wktime['wktime_pay_period']
 				payDay = Setting.plugin_redmine_wktime['wktime_pay_day']
@@ -107,7 +102,6 @@ module LoadPatch::WktimeScheduler
 			end
 
 			if (!Setting.plugin_redmine_wktime['wktime_auto_generate_invoice'].blank? && Setting.plugin_redmine_wktime['wktime_auto_generate_invoice'].to_i == 1)
-				require 'rufus/scheduler'
 				invoiceScheduler = Rufus::Scheduler.new
 				invPeriod = Setting.plugin_redmine_wktime['wktime_generate_invoice_period']
 				invDay = Setting.plugin_redmine_wktime['wktime_generate_invoice_day']
@@ -168,7 +162,6 @@ module LoadPatch::WktimeScheduler
 			end
 
 			if (!Setting.plugin_redmine_wktime['auto_apply_depreciation'].blank? && Setting.plugin_redmine_wktime['auto_apply_depreciation'].to_i == 1)
-				require 'rufus/scheduler'
 				deprScheduler = Rufus::Scheduler.new
 				wkpayroll_helper = Object.new.extend(WkpayrollHelper)
 				wkinventory_helper = Object.new.extend(WkinventoryHelper)
@@ -191,7 +184,6 @@ module LoadPatch::WktimeScheduler
 			end
 
 			if (!Setting.plugin_redmine_wktime['wk_auto_shift_scheduling'].blank? && Setting.plugin_redmine_wktime['wk_auto_shift_scheduling'].to_i == 1)
-				require 'rufus/scheduler'
 				shiftschedular = Rufus::Scheduler.new
 				#Scheduler will run at 12:01 AM on 1st of every month
 				cronSt = "01 00 01 * *"
@@ -201,6 +193,22 @@ module LoadPatch::WktimeScheduler
 						scheduling_helper = Object.new.extend(WkschedulingHelper)
 						scheduling_helper.autoShiftScheduling
 						Rails.logger.info "==========  Shift Scheduling job - Finished=========="
+					rescue Exception => e
+						Rails.logger.info "Job failed: #{e.message}"
+					end
+				end
+			end
+
+			if (Setting.plugin_redmine_wktime['activity_remainder_mail'].present? && Setting.plugin_redmine_wktime['activity_remainder_mail'].to_i == 1)
+				crmact_scheduler = Rufus::Scheduler.new
+				#Scheduler will run at 12:01 AM daily
+				cronSt = "01 00 * * *"
+				crmact_scheduler.cron cronSt do
+					begin
+						Rails.logger.info "========== Activity mail job - Started==========="
+						wkcrmActivity_helper = Object.new.extend(WkcrmactivityHelper)
+						wkcrmActivity_helper.activity_reminder_mail()
+						Rails.logger.info "==========  Activity mail job - Finished=========="
 					rescue Exception => e
 						Rails.logger.info "Job failed: #{e.message}"
 					end

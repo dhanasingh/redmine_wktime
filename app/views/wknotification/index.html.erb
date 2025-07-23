@@ -23,6 +23,9 @@
         <p><label style="text-align: left; float:left;">
           <%= check_box_tag "notify[Time_timeApproved]", 1, (@notification.include? "timeApproved") %> <%= l(:label_time_approved) %></label>
         </p>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "notify[Time_timeExceeded]", 1, (@notification.include? "timeExceeded") %> <%= l(:label_time_exceeded) %></label>
+        </p>
       </fieldset>
     </div>
     <div class="icon-gravatar">

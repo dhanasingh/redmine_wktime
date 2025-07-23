@@ -113,11 +113,11 @@ include ActionView::Helpers::TagHelper
 			end
       format.csv do
 				get_TE_entries(queries[0] + queries[1] + orderStr)
-        headers = {date: l(:field_start_date), user: l(:field_user), type: getLabelforSpField, status: l(:field_status), modifiedby: l(:field_status_modified_by) }
+        headers = {cal_week: l(:label_week), date: l(:field_start_date), user: l(:field_user), type: getLabelforSpField, status: l(:field_status), modifiedby: l(:field_status_modified_by) }
 				headers[:supervisor] = l(:label_ftte_supervisor) if isSupervisorApproval
         data = @entries.map do |e|
 					status = e.status.present? ? statusString(e.status) : nil
-					rowData = {date: format_date(e.spent_on), user: e.user&.name, type: getUnit(e).to_s + (e.hours || e.amount || 0).round(2).to_s, status: status, modifiedby: e.status_updater}
+					rowData = {cal_week: e.spent_on&.cweek, date: format_date(e.spent_on), user: e.user&.name, type: getUnit(e).to_s + (e.hours || e.amount || 0).round(2).to_s, status: status, modifiedby: e.status_updater}
 					rowData[:supervisor] = e.user&.supervisor&.name if isSupervisorApproval
 					rowData
 				end
@@ -244,19 +244,12 @@ include ActionView::Helpers::TagHelper
 								allowSave = false
 							end
 							allowSave = true if (to_boolean(@edittimelogs) || validateERPPermission('A_TE_PRVLG') || !isBilledTimeEntry(entry))
-							#if !((Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? ||
-							#		Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 0) &&
-							#		entry.issue.blank?)
 								if allowSave
 									errorMsg = updateEntry(entry)
 								else
 									errorMsg = l(:error_not_permitted_save) if !api_request?
 								end
 								break unless errorMsg.blank?
-							#else
-							#	errorMsg = "#{l(:field_issue)} #{l('activerecord.errors.messages.blank')} "
-							#	break unless errorMsg.blank?
-							#end
 						end
 						if !params[:wktime_submit].blank? && useApprovalSystem
 							@wktime.submitted_on = Date.today
@@ -330,6 +323,12 @@ include ActionView::Helpers::TagHelper
 			rescue Exception => e
 				errorMsg = e.message
 			end
+
+			# Time exceeded notify trigger
+			if errorMsg.blank? && params[:wktime_submit].present? && WkNotification.notify('timeExceeded')
+				notify_time_exceeded(params[:startday], params[:user_id])
+			end
+
 			if errorMsg.blank?
 				#when the are entries or it is not a save action
 				if !@entries.blank? || !params[:wktime_approve].blank? ||
@@ -963,7 +962,7 @@ include ActionView::Helpers::TagHelper
 			@te_projects = @entries.collect{|entry| entry.project}.uniq
 			te_projects = @approvable_projects & @te_projects if !@te_projects.blank?
 		end
-		# hookPerm = call_hook(:controller_check_approvable, {:params => params})
+
 		if isSupervisorApproval #!hookPerm.blank?
 			ret = isSupervisor #hookPerm[0]
 		end
@@ -2630,6 +2629,7 @@ private
 
 	def getPDFHeaders()
 		headers = [
+			[ l(:label_week), 40 ],
 			[ l(:field_start_date), 40 ],
 			[ l(:field_user), 60 ],
 			[ l(:field_status), 40 ],
@@ -2639,6 +2639,7 @@ private
 
 	def getPDFcells(entry)
 		list = [
+			[ entry.spent_on&.cweek.to_s, 40 ],
 			[ entry.spent_on.to_s, 40 ],
 			[ entry.user.name.to_s, 60 ],
 			[ statusString(entry.status), 40 ]
@@ -2647,7 +2648,7 @@ private
 	end
 
 	def getPDFFooter(pdf, row_Height)
-		pdf.RDMCell( 140, row_Height, l(:label_total), 1, 0, 'R', 1)
+		pdf.RDMCell( 180, row_Height, l(:label_total), 1, 0, 'R', 1)
 		pdf.RDMCell( 40, row_Height, (@total_hours || 0).to_s, 1, 0, '', 1)
 	end
 

@@ -8,6 +8,10 @@
 		<%= check_box_tag('settings[crm_save_geo_location]', 1, @settings['crm_save_geo_location'].to_i == 1) %>
 		<label for="settings_crm_save_geo_location"><%= l(:label_save_geo_location) %> </label>
 	</p>
+	<p>
+		<%= check_box_tag('settings[activity_remainder_mail]', 1, @settings['activity_remainder_mail'].to_i == 1) %>
+		<label for="settings_activity_remainder_mail"><%= l(:label_mail_act_reminder) %> </label>
+	</p>
 	<fieldset>
 		<legend><%= l(:label_sales_quote) %></legend>	
 		<p>
@@ -55,7 +59,7 @@
 			</tr>
 			<tr>
 				<th align="left"><label><%= l(:field_value) %></label></th>
-				<td><%= text_area_tag 'inv_copm_value','', :size => "23*10", :width => "150px" %> 
+				<td><%= text_area_tag 'inv_copm_value','', :size => "23*10", :width => "150px" %>
 			</tr>
 			<tr>
 				<%= hidden_field_tag :hdnAction, "" %>

@@ -1293,10 +1293,17 @@ pl:
   chkbox_sales_quote_closed_issues: Include Closed Issues for Sales Quote
   label_sales_stage_history: Sales Stage History
   label_created_date: Created Date
-  
   label_emerg_contact_type: Emergency contact type
   label_state_insurance: State insurance ID
   label_marital_status: Marital status
   label_dept_section: Department section
   label_rejected_date: Rejected Date
   label_approved_date: Approved Date
+  label_time_exceeded: Time Exceeded
+  label_exc_est: exceeds estimation
+  label_task_exc_est: The following task has exceeded estimation
+  label_show_calendar: Show Calendar
+  label_mail_act_reminder: Email activity reminder
+  label_upcoming: Upcoming
+  label_upcoming_activity_reminder: You have an upcoming activity
+  label_vs: vs

@@ -41,8 +41,9 @@
 	<% if wktime_helper.showBilling %>
 		<table style="padding-left:130px;">
 			<%= labelled_fields_for :erpmineissues, @issue.erpmineissues do |issue_fields| %>
+			<% currency =  issue_fields.object&.id.present? ? issue_fields.object&.currency : Setting.plugin_redmine_wktime['wktime_currency'] %>
 				<tr>
-				<td style="padding-left:40px;"><%= issue_fields.select :currency, wkexpense_helper.options_for_currency %></td>
+				<td style="padding-left:40px;">  <%= issue_fields.select :currency, wkexpense_helper.options_for_currency, {selected: currency} %></td>
 				<td style="padding-left:40px;"><%= issue_fields.text_field :rate %> </td>
 				<td style="padding-left:40px;"><%= issue_fields.select :rate_per, wkasset_helper.getRatePerHash(false).invert %></td>
 				</tr>

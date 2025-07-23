@@ -29,6 +29,7 @@ class WkLead < ApplicationRecord
   has_many :billable_projects, as: :parent, class_name: "WkAccountProject", :dependent => :destroy
   has_many :projects, through: :billable_projects
   has_many :location, through: :contact
+  belongs_to :lead_source, -> { where(wk_crm_enumerations: {enum_type: 'LS'}) }, foreign_key: 'lead_source_id', :class_name => 'WkCrmEnumeration'
 
   before_save :update_status_update_on
   after_create_commit :send_notification

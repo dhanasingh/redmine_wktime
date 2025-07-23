@@ -1,37 +1,77 @@
-.wk-contextual {text-align: right; white-space: nowrap; line-height:1.4em;margin-top:5px; margin-bottom:10px; padding-left: 10px; font-size:0.9em;}
-.div-left{float: left; padding-right: 50px;}
-.div-right{float: left; }
-.lbl-txt-align{text-align:left !important}
-.lbl-num-align{text-align:center !important}
-.clock-textbox{border-style: solid;    border-color: #FF7F50; }
-.clock-todaytextbox{border-style: solid;    border-color: #008000 ;}
-.report-table{ width : 100%; border-collapse:collapse; cellspacing:0; frame:box; table-layout: fixed; word-wrap: break-word; text-align: center; white-space: line-height:1.4em;margin-top:5px; margin-bottom:10px; padding-left: 10px; color:#333333;
-  font-family:Verdana, sans-serif;
-  font-size:12px; }
-.ui-accordion-header{
-   background: #3E5B76;
-   color: #ffffff;
-}
-.ui-icon{
-	padding-left: 2px;
-}
-.ui-corner-all .ui-icon{
-	filter:	invert(85%) sepia(63%) saturate(5149%) hue-rotate(360deg) brightness(104%) contrast(103%);
+.wk-contextual {
+    text-align: right;
+    white-space: nowrap;
+    line-height: 1.4em;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    font-size: 0.9em;
 }
 
-table#wktimeHeader, table#wktimeHeader td {
+.div-left {
+    float: left;
+    padding-right: 50px;
+}
+
+.div-right {
+    float: left;
+}
+
+.lbl-txt-align {
+    text-align: left !important
+}
+
+.lbl-num-align {
+    text-align: center !important
+}
+
+.clock-textbox {
+    border-style: solid;
+    border-color: #FF7F50;
+}
+
+.clock-todaytextbox {
+    border-style: solid;
+    border-color: #008000;
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    cellspacing: 0;
+    frame: box;
+    table-layout: fixed;
+    word-wrap: break-word;
+    text-align: center;
+    line-height:1.4em;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    color: #333333;
+    font-family: Verdana, sans-serif;
+    font-size: 12px;
+}
+
+.ui-icon {
+    padding-left: 2px;
+}
+
+table#wktimeHeader,
+table#wktimeHeader td {
     border-collapse: collapse;
     padding: 0px;
     padding-right: 10px;
 }
 
-table#wktimeStatus td, table#wktimeStatus th{
+table#wktimeStatus td,
+table#wktimeStatus th {
     vertical-align: middle;
     padding-left: 4px;
     padding-right: 4px;
 }
 
-table#wktimeOptions td, table#wktimeOptions th{
+table#wktimeOptions td,
+table#wktimeOptions th {
     vertical-align: middle;
     padding-left: 4px;
     padding-right: 4px;
@@ -41,8 +81,51 @@ table.nowrap {
     white-space: nowrap;
 }
 
-div.schedule {background:#ecd9c6; padding:6px; margin-bottom:6px; border: 1px solid #d7d7d7; border-radius:3px;}
+div.schedule {
+    background: #ecd9c6;
+    padding: 6px;
+    margin-bottom: 6px;
+    border: 1px solid #d7d7d7;
+    border-radius: 3px;
+}
 
 fieldset label {
     font-weight: bold;
+}
+
+.dayitem {
+    padding: 8px;
+    margin-bottom: 2px;
+    border: 1px solid #d0d7de;
+    border-radius: 3px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Overriding jQuery UI Accordion header */
+.ui-accordion .ui-accordion-header {
+    color: rgba(0, 0, 0, 0.6);
+    border: 1px solid #e2e8f0;
+    font-weight: bold;
+}
+
+.ui-state-default,.ui-state-active{
+    background-color: #FFF;
+}
+
+.accordion-icon-header,.ui-state-hover .ui-icon,.ui-state-focus .ui-icon{
+    background-image: url('data:image/svg+xml,%3C%3Fxml version="1.0" encoding="UTF-8"%3F%3E%3Csvg width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="%23646363"%3E%3Cpath fill-rule="evenodd" clip-rule="evenodd" d="M8.71299 18.6929C8.43273 18.5768 8.25 18.3033 8.25 18V5.99998C8.25 5.69663 8.43273 5.42315 8.71299 5.30707C8.99324 5.19098 9.31583 5.25515 9.53033 5.46965L15.5303 11.4696C15.8232 11.7625 15.8232 12.2374 15.5303 12.5303L9.53033 18.5303C9.31583 18.7448 8.99324 18.809 8.71299 18.6929Z" fill="%23646363"%3E%3C/path%3E%3C/svg%3E');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+}
+
+.accordion-icon-header-active ,.ui-state-active .ui-icon{
+    background-image: url('data:image/svg+xml,%3C%3Fxml version="1.0" encoding="UTF-8"%3F%3E%3Csvg width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="%23646363"%3E%3Cpath fill-rule="evenodd" clip-rule="evenodd" d="M5.30711 8.71299C5.4232 8.43273 5.69668 8.25 6.00002 8.25H18C18.3034 8.25 18.5768 8.43273 18.6929 8.71299C18.809 8.99324 18.7449 9.31583 18.5304 9.53033L12.5304 15.5303C12.2375 15.8232 11.7626 15.8232 11.4697 15.5303L5.46969 9.53033C5.25519 9.31583 5.19103 8.99324 5.30711 8.71299Z" fill="%23646363"%3E%3C/path%3E%3C/svg%3E');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+}
+
+.ui-accordion .ui-accordion-content {
+    box-shadow: 0 2px 10px rgba(0,0,0,.2);
 }
