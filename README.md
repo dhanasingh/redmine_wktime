@@ -120,7 +120,7 @@ For more information on features, please refer to the user guide
 | **Redmine** | **ERPmine** |
 |-------------|-------------|
 | 6.0.x | 4.8, 4.8.1, 4.8.2, 4.8.3, 4.8.4, 4.8.5 |
-| 5.1.x | 4.7.1, 4.7.2, 4.7.3, 4.7.4, 4.7.5 |
+| 5.1.x | 4.7.1, 4.7.2, 4.7.3, 4.7.4, 4.7.5, 4.7.6 |
 | 5.0.x | 4.5.2, 4.6, 4.7 |
 | 4.2.0 | 4.2.1, 4.3, 4.3.1, 4.4, 4.4.1, 4.5, 4.5.1 |
 | 4.1.1 | 4.0.2, 4.0.3, 4.0.4, 4.1, 4.1.1, 4.2 |
@@ -130,7 +130,24 @@ For more information on features, please refer to the user guide
 
 ## Release Notes for v4.8.5
 
-- Added REST API compatibility
+- **Features**
+  ```text
+   - Added timesheet Status column in spent time page
+   - Added time exceeded mail notification for parent issue
+   - Added Calendar Week Number in timesheet list page
+   - Added CRM dashboard
+   - Added mail reminder for scheduled activities
+   - Added activity calender
+   - Added status and assignee filter in CRM activity page
+   - Enhanced jQuery accordion UI
+   - Added balance amount for account and contact pages
+  ```
+- **Bug fixes**
+  ```text
+   - Delete button disabled for rejected timesheets with partial approvals
+   - Fixed default currency
+  ```
+We would like to thank Creative Synergies Group LLC for partially sponsored this release.
 
 ## Customization
 
