@@ -145,7 +145,7 @@ For more information on features, please refer to the user guide
 - **Bug fixes**
   ```text
    - Delete button disabled for rejected timesheets with partial approvals
-   - Fixed default currency
+   - Fixed default option is not loading in the currency dropdown
   ```
 We would like to thank Creative Synergies Group LLC for partially sponsored this release.
 
