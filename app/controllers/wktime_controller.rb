@@ -2425,7 +2425,7 @@ private
 	end
 
 	def deleteWkEntity(cond)
-	   Wktime.where(cond).delete_all
+	   Wktime.where(cond).destroy_all
 	end
 
 	def delete(ids)

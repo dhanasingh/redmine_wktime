@@ -21,7 +21,7 @@ module WknotificationHelper
 
 	def formNotificationText(notification)
 		notifyHash = {}
-		return nil if notification.blank? || notification.source.blank?
+		return notifyHash if notification.blank? || notification.source.blank?
 		case WkUserNotification.getnotificationAction(notification)&.first&.name
 		when "fillSurvey"
 			notification.source.survey_for_id ||= User.current.id if notification.source.survey_for_type == 'User'
