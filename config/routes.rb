@@ -10,6 +10,8 @@ get 'wkdashboard/getDetailReport', to: 'wkdashboard#getDetailReport'
 
 get 'wkdashboard/employee_dashboard', to: 'wkdashboard#employee_dashboard'
 
+get 'wkdashboard/getInvDetailReport', to: 'wkdashboard#getInvDetailReport'
+
 # Time
 
 get 'wktime', :to => 'wktime#index'

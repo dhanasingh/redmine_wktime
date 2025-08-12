@@ -29,6 +29,7 @@ class WkdashboardController < WkbaseController
 			set_filter_session
 			setMembers
 			retrieve_date_range
+			get_inv_payment_balance if showBilling && validateERPPermission("M_BILL")
 		else
 			redirect_to set_module
 		end
@@ -149,6 +150,113 @@ class WkdashboardController < WkbaseController
 		setMembers
 		retrieve_date_range
 		@empDash = getEmpDashboard
+	end
+
+	def get_inv_payment_balance
+		from = @from
+		to   = @to
+		range = getToDateTime(from)..getToDateTime(to) if from && to
+
+		invoice_scope = WkInvoice.joins(:invoice_items).where(invoice_type: "I")
+		payment_scope = WkPayment.joins(payment_items: :invoice)
+														.where(wk_payment_items: { is_deleted: false }, wk_invoices: { invoice_type: "I" })
+
+		@invoice = range ? invoice_scope.where(invoice_date: range).sum("wk_invoice_items.amount") : invoice_scope.sum("wk_invoice_items.amount")
+		@payment = range ? payment_scope.where(payment_date: range).sum("wk_payment_items.amount") : payment_scope.sum("wk_payment_items.amount")
+
+		total_invoices = invoice_scope.sum("wk_invoice_items.amount")
+		total_payments = payment_scope.sum("wk_payment_items.amount")
+
+		@balance = total_invoices - total_payments
+	end
+
+	def getInvDetailReport
+		from = params[:from].presence&.to_date
+		to   = params[:to].presence&.to_date
+		range = getToDateTime(from)..getToDateTime(to) if from && to
+
+		case params[:type]
+		when "Invoice"
+			data = { 
+				graphName: l(:label_invoice),
+				header: { name: l(:field_name), date: l(:label_date), amount: l(:field_amount) }
+			}
+
+			invoices = WkInvoice
+				.where(invoice_date: range, invoice_type: "I")
+				.order(invoice_date: :desc)
+
+			data[:data] = invoices.map do |inv|
+				amount = inv.invoice_items.sum(:amount).to_f.round(2)
+				{ 
+					name: inv.parent&.name, 
+					date: inv.invoice_date.to_date, 
+					amount: "#{inv.invoice_items.first&.currency} #{amount}" 
+				}
+			end
+
+		when "Payments"
+			data = { 
+				graphName: l(:label_payments),
+				header: { name: l(:field_name), date: l(:label_date), amount: l(:field_amount) }
+			}
+
+			payments = WkPayment
+				.where(payment_date: range)
+				.order(payment_date: :desc)
+
+			data[:data] = payments.map do |pay|
+				items = pay.payment_items
+					.joins(:invoice)
+					.where(is_deleted: false, wk_invoices: { invoice_type: "I" })
+
+				next if items.empty?
+
+				amount = items.sum(:amount).to_f.round(2)
+				{ 
+					name: pay.parent&.name, 
+					date: pay.payment_date.to_date, 
+					amount: "#{items.first&.currency} #{amount}" 
+				}
+			end.compact
+
+		when "Balance"
+			data = { 
+				graphName: l(:label_balance),
+				header: { name: l(:field_name), balance: l(:label_balance) }
+			}
+
+			invoices = WkInvoice
+				.joins(:invoice_items)
+				.where(invoice_type: "I")
+				.group_by(&:parent_id)
+
+			payments = WkPayment
+				.joins(payment_items: :invoice)
+				.where(wk_payment_items: { is_deleted: false }, wk_invoices: { invoice_type: "I" })
+				.group_by(&:parent_id)
+
+			parent_ids = (invoices.keys + payments.keys).uniq
+
+			data[:data] = parent_ids.map do |pid|
+				inv_set = invoices[pid] || []
+				pay_set = payments[pid] || []
+
+				parent = inv_set.first&.parent || pay_set.first&.parent
+    		currency =  Setting.plugin_redmine_wktime['wktime_currency'] || inv_set.first&.invoice_items&.first&.currency ||
+               pay_set.first&.payment_items&.first&.invoice&.invoice_items&.first&.currency
+
+				total_invoice = inv_set.sum { |inv| inv.invoice_items.sum(:amount).to_f }
+				total_payment = pay_set.sum { |pay| pay.payment_items.sum(:amount).to_f }
+
+				balance = total_invoice - total_payment
+				next unless balance > 1
+
+				{ name: parent&.name || "N/A",  balance: "#{currency} #{sprintf('%.2f', balance)}" }
+			end.compact
+		end
+
+		render json: (data || {})
 	end
 
 	private

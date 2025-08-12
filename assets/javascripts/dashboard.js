@@ -1,10 +1,60 @@
+$('<style>')
+  .prop('type', 'text/css')
+  .html(`
+    #graph {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 8px;
+    }
+    .icon-gravatar {
+      flex: 0 0 calc(33.33% - 20px); /* 3 per row on large screens */
+      max-width: calc(33.33% - 20px);
+      padding: 10px 0;
+      background: white;
+      cursor: pointer;
+      border-radius: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: all 0.3s ease;
+    }
+    .icon-gravatar:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+    
+    /* Tablet: 2 per row */
+    @media (max-width: 1024px) {
+      .icon-gravatar {
+        flex: 0 0 calc(50% - 20px);
+        max-width: calc(50% - 20px);
+      }
+    }
+
+    /* Mobile: 1 per row */
+    @media (max-width: 600px) {
+      .icon-gravatar {
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
+    }
+  `)
+  .appendTo('head');
+
 function renderChart(url, path){
   let name = (path.split(".")).shift();
   name = (name.split("/")).pop();
-  var width = screen.availWidth/3.25
-  var height = screen.availHeight/3.1
-	var div = '<div class="icon-gravatar" style="margin-right: 0px;padding-top: 10px; background:white; cursor: pointer; id="'+path+'"><canvas id="'+name+'" width='+width+' height='+height+'></canvas></div>';
-	$("#graph").append(div);
+  var width = screen.availWidth/3.25;
+  var height = screen.availHeight/3.1;
+
+  var div = '<div class="icon-gravatar" id="'+path+'">' +
+              '<canvas id="'+name+'" width='+width+' height='+height+'></canvas>' +
+            '</div>';
+
+  $("#graph").append(div);
+
   let params = (new URLSearchParams(window.location.search)).toString();
   url += "&"+params;
 
@@ -201,6 +251,11 @@ function renderDetailReport(path, graphName){
 function empDetailReport(type, issue_id, graphName){
   var url =  "/wkdashboard/getDetailReport?dashboard_type=Emp&type="+type+"&issue_id="+issue_id;
   renderpopup(url, graphName)
+}
+
+function invDetailReport(graphName, from, to) {
+  var url = "/wkdashboard/getInvDetailReport?dashboard_type=Inv&type=" + graphName + "&from=" + from + "&to=" + to;
+  renderpopup(url, graphName);
 }
 
 function renderpopup(url, graphName){
