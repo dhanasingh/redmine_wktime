@@ -1,6 +1,44 @@
 <div style="float:right">
-	<%= actions_dropdown do %>
-		<%= link_to l(:label_admin_dashboards), url_for(:controller => "wkdashboard", :action => "index") if params['controller'] == 'wkdashboard' && params['action'] == 'employee_dashboard'%>
-		<%= link_to l(:label_my_dashboard), url_for(:controller => "wkdashboard", :action => "employee_dashboard") if params['controller'] == 'wkdashboard' && params['action'] == 'index'%>
-	<% end %>
+  <% if params['controller'] == 'wkdashboard' && params['action'] == 'employee_dashboard' %>
+    <%= link_to url_for(:controller => "wkdashboard", :action => "index"), class: "dashboard-link" do %>
+      <span><%= l(:label_admin_dashboards) %></span>
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#003366" viewBox="0 0 24 24">
+        <path d="M18 7H4v2h14v3l4-4-4-4v3zm-12 7h14v-2H6v-3l-4 4 4 4v-3z"/>
+      </svg>
+    <% end %>
+  <% elsif params['controller'] == 'wkdashboard' && params['action'] == 'index' %>
+    <%= link_to url_for(:controller => "wkdashboard", :action => "employee_dashboard"), class: "dashboard-link" do %>
+      <span><%= l(:label_my_dashboard) %></span>
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#003366" viewBox="0 0 24 24">
+        <path d="M18 7H4v2h14v3l4-4-4-4v3zm-12 7h14v-2H6v-3l-4 4 4 4v-3z"/>
+      </svg>
+    <% end %>
+  <% end %>
 </div>
+
+
+
+<style>
+.dashboard-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: #0073aa;
+  font-size: 14px;
+}
+
+.dashboard-link:hover {
+  color: #004f7a;
+}
+
+.dashboard-link svg {
+  transition: transform 0.3s ease;
+}
+
+.dashboard-link:hover svg {
+  transform: rotate(180deg);
+}
+
+
+</style>

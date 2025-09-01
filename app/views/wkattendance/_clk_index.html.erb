@@ -21,6 +21,7 @@
 			<div style="float:right">
 				<%= link_to l(:"label_import_attendance"), url_for(:controller => "wkimportattendance", :action => 'new', :tab => controller.controller_name)%>
 			</div>
+		<div style="display: flex; align-items: center; gap: 10px;">
 			<label><%= l(:label_group_plural) %></label>&nbsp;
 			<% if !@groups.blank? %>
 				<%=h select_tag('group_id',
@@ -34,7 +35,9 @@
 				:selected => userid.nil? ? (@user.nil? ? User.current.id : @user.id) : userid),
 				:style=> "width:200px;") %>
 		<% end %>
-		<%= render :partial => 'wkattendance/date_range' %>
+		<%= render :partial => 'wktime/date_range' %>
+		</div>
+		<div style="padding-top: 5px;">
 		<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit()', class: 'icon icon-checked' %>&nbsp;
 		<%= link_to sprite_icon('reload', l(:button_clear)), {tab: 'clock', clear: true}, class: 'icon icon-reload' %>
 		<% if wktime_helper.isChecked('att_save_geo_location') %>
@@ -43,6 +46,7 @@
 				<%= l(:label_show_on_map) %>
 			</label>
 		<% end %>
+		</div>
 	</fieldset>
 <% end %>
 

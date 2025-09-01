@@ -46,7 +46,7 @@
 	<th align="left"><label><%= l(:label_project) %></label></th>
 	<td style="padding-left:20px;"><%=h select_tag('project_id', options_for_select(projArr, :selected => projectId.nil? ? projArr : projectId)) %></td>
 	</table>
-	<%= render :partial => 'wkreport/date_range' %>
+	<%= render :partial => 'wktime/date_range' %>
 	<%= hidden_field_tag "searchlist",  controller_name%>
 	<p class="buttons">
 		<%= link_to_function sprite_icon('checked', l(:button_apply)), "javascript: openReportPopup();", class: 'icon icon-checked' %>

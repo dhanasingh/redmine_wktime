@@ -2,14 +2,15 @@
   .invoice-summary-container {
     display: flex;
     gap: 12px;
-    margin-top: 12px;
+    margin-top: 8px;
+    padding: 0 8px;
   }
 
   .invoice-box {
     border-radius: 16px; /* smoother, more modern rounded corners */
     width: 100%;
     height: 100px;
-    box-shadow: 0 0 24px 6px rgba(0,0,0,0.25); /* Stronger all-side shadow */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     text-align: center;
     font-family: Roboto, 'Fira Sans', Oxygen, 'Open Sans', Ubuntu, sans-serif;
     display: flex;
@@ -21,7 +22,7 @@
 
   .invoice-box:hover {
     transform: translateY(-5px); /* Lift on hover */
-    box-shadow: 0 0 12px 2px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
   }
   .invoice-box.blue {
     color: #2f5bea;

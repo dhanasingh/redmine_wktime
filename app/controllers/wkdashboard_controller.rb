@@ -97,7 +97,7 @@ class WkdashboardController < WkbaseController
 	end
 
 	def set_filter_session
-		filters = [:project_id, :group_id, :period, :from, :to]
+		filters = [:project_id, :group_id, :period_type, :period, :from, :to]
 		super(filters)
 	end
 

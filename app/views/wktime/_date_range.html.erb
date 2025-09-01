@@ -1,52 +1,78 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-<fieldset id="date-range" class="collapsible">
-<legend onclick="toggleFieldset(this);" class="icon icon-expanded"><%= sprite_icon("angle-down") %><%= l(:label_date_range) %></legend>
 <div>
-<%
-	if !params[:control].blank? && (params[:control] ='reportdetail' || params[:control] ='report') && (action_name == 'reportdetail' || action_name =='report')
-		period = params[:period]
-	else
-    period = session[controller_name].try(:[], :period)
-  end
-%>
-<div class="div-left">
-<%= radio_button_tag 'period_type', '1', !@free_period, :onclick => '$("#from,#to").attr("disabled", true);$("#period").removeAttr("disabled");' %>
-<%= select_tag 'period', options_for_period_select(period),
-                         :onchange => 'this.form.submit();',
-                         :onfocus => '$("period_type_1").checked = true;',
-                         :disabled => @free_period %>
+  <% 
+    if params[:control].present? && 
+      (params[:control] == 'reportdetail' || params[:control] == 'report') && 
+      (action_name == 'reportdetail' || action_name == 'report')
+      period = params[:period]
+    else
+      period = session[controller_name].try(:[], :period)
+    end
+
+    if params.key?(:period) && period.blank? && @from.present? && @to.present?
+      period = 'custom'
+    end
+
+    # Set default period_type for hidden field
+    default_period_type = (period == 'custom') ? '2' : '1'
+  %>
+
+  <!-- hidden period_type field -->
+  <%= hidden_field_tag 'period_type', default_period_type, id: 'period_type' %>
+
+  <div class="div-left">
+    <label><strong><%= l(:label_date_range) %></strong></label>
+    <%= select_tag 'period',
+      options_for_period_select(period),
+      onchange: 'handlePeriodChange(this.value, this.form)',
+      disabled: false %>
+  </div>
+  
+  <div class="div-right" id="date_range_wrapper" style="<%= period.to_s == 'custom' ? '' : 'display:none;' %>">
+    <span>
+      <%= l(:label_date_from_to,
+             start: (date_field_tag('from', @from, id: 'from', size: 10, disabled: (period != 'custom')) +
+                     calendar_for('from')),
+             end:   (date_field_tag('to',   @to,   id: 'to',   size: 10, disabled: (period != 'custom')) +
+                     calendar_for('to'))
+           ).html_safe %>
+    </span>
+  </div>
+
+  <div style="clear:both"></div>
+
+  <% if action_name =='reportdetail' || action_name =='report' %>
+    <%= hidden_field_tag('control', "#{action_name}") %>
+  <% end %>
 </div>
-<div class="div-right">
-<%= radio_button_tag 'period_type', '2', @free_period, :onclick => '$("#from,#to").removeAttr("disabled");$("#period").attr("disabled", true);' %>
-<span onclick="$('period_type_2').checked = true;">
-<%= l(:label_date_from_to, :start => ( date_field_tag('from', @from, {:id => 'from', :size => 10, :disabled => !@free_period}) +
-          calendar_for('from')), :end => ( date_field_tag('to', @to, {:id => 'to', :size => 10, :disabled => !@free_period}) +
-          calendar_for('to'))).html_safe %>
-</span>
-</div>
-<div style="clear:both"></div>
-<% if action_name =='reportdetail' || action_name =='report' %>
-<%=h hidden_field_tag('control', "#{action_name}") %>
-<% end %>
-</div>
-</fieldset>
-<%# if !@manage_view_spenttime_projects.blank? %>
+
 <% if !@query.blank? %>
-<fieldset id="filters" class="collapsible <%= @query.new_record? ? "" : "collapsed" %>">
+  <fieldset id="filters" class="collapsible <%= @query.new_record? ? "" : "collapsed" %>">
     <legend onclick="toggleFieldset(this);" class="icon icon-expanded"><%= l(:label_user_filters) %></legend>
     <div style="<%= @query.new_record? ? "" : "display: none;" %>">
       <%= render :partial => 'queries/filters', :locals => {:query => @query} %>
     </div>
-</fieldset>
+  </fieldset>
 <% end %>
-<%# end %>
-<p class="buttons">
-	<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
-  <%= link_to sprite_icon('reload', l(:button_clear)), {project_id: @project, issue_id: @issue, tab: controller_name, clear: true}, class: 'icon icon-reload' %>
-  <% if (!Setting.plugin_redmine_wktime['wktime_use_approval_system'].blank? && Setting.plugin_redmine_wktime['wktime_use_approval_system'].to_i == 1) %>
-    <% if !@manage_projects.blank? %>
-		<%#= image_tag('email.png') %>
-		<%= link_to sprite_icon('email', l(:label_wk_reminder)), "javascript:showReminderEmailDlg('Send Reminder Email');", :class => 'icon icon-email-add'%>
-	<% end %>
-  <% end %>
-</p>
+
+<script>
+  function handlePeriodChange(value, form) {
+    if (value === 'custom') {
+      $("#date_range_wrapper").show();
+      $("#from,#to").removeAttr("disabled");
+      $("#period_type").val("2");    // set hidden to 2 (custom)
+    } else {
+      $("#date_range_wrapper").hide();
+      $("#from,#to").attr("disabled", true);
+      $("#period_type").val("1");    // set hidden to 1 (dropdown)
+      form.submit();
+    }
+  }
+
+  // If user manually changes dates, we force hidden period_type=2
+  $(document).on("change", "#from,#to", function() {
+    $("#period_type").val("2");
+    $("#period").val("custom");
+    $("#date_range_wrapper").show();
+  });
+</script>

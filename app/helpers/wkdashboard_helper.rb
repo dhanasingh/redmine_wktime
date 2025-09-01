@@ -25,7 +25,8 @@ module WkdashboardHelper
 							[l(:label_last_week), 'last_week'],
 							[l(:label_this_month), 'current_month'],
 							[l(:label_last_month), 'last_month'],
-							[l(:label_this_year), 'current_year']],
+							[l(:label_this_year), 'current_year'],
+    					[l(:label_custom_range), 'custom']],
 							value.blank? ? 'current_month' : value)
   end
 

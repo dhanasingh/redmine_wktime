@@ -6,6 +6,7 @@ $('<style>')
       flex-wrap: wrap;
       gap: 10px;
       padding: 8px;
+      margin-right: -32px;
     }
     .icon-gravatar {
       flex: 0 0 calc(33.33% - 20px); /* 3 per row on large screens */

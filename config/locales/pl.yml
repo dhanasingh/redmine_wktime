@@ -1309,3 +1309,4 @@ pl:
   label_vs: vs
   label_scheduled: Scheduled
   label_balance: Balance
+  label_custom_range: Custom Range
