@@ -1,6 +1,6 @@
 # Load Patch files
 begin
-  Dir[File.join(File.dirname(__FILE__), 'app', 'lib', '**', '*.rb')].each do |file|
+  Dir[File.join(File.dirname(__FILE__), 'lib', '**', '*.rb')].each do |file|
     path = File.dirname(file).split('/').last
 		if ['load_patch', 'send_patch'].include?(path)
 			require_dependency file
@@ -220,6 +220,7 @@ Redmine::Plugin.register :redmine_wktime do
 	  menu.push :wktime, { :controller => 'wktime', :action => 'index' }, :caption => :label_te, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && (Object.new.extend(WktimeHelper).showTime || Object.new.extend(WktimeHelper).showExpense)}
 	  menu.push :wkattendance, { :controller => 'wkattendance', :action => 'index' }, :caption => :label_hr, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && (Object.new.extend(WktimeHelper).showAttendance || Object.new.extend(WktimeHelper).showPayroll || Object.new.extend(WktimeHelper).showShiftScheduling || Object.new.extend(WktimeHelper).showSurvey)}
 	  menu.push :wkcrmdashboard, { :controller => 'wkcrmdashboard', :action => 'index' }, :caption => :label_crm, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showCRMModule }
+		Redmine::Hook.call_hook(:wktime_menu_hook, menu: menu) # Call hook to add external menus
 	  menu.push :wkinvoice, { :controller => 'wkinvoice', :action => 'index' }, :caption => :label_wk_billing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showBilling && Object.new.extend(WktimeHelper).validateERPPermission("M_BILL")}
 	  menu.push :wkgltransaction, { :controller => 'wkgltransaction', :action => 'index' }, :caption => :label_accounting, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showAccounting }
 	  menu.push :wkrfq, { :controller => 'wkrfq', :action => 'index' }, :caption => :label_purchasing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showPurchase }
