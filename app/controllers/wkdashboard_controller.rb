@@ -222,8 +222,8 @@ class WkdashboardController < WkbaseController
 
 		when "Balance"
 			data = { 
-				graphName: l(:label_balance),
-				header: { name: l(:field_name), balance: l(:label_balance) }
+				graphName: l(:wk_field_balance),
+				header: { name: l(:field_name), balance: l(:wk_field_balance) }
 			}
 
 			invoices = WkInvoice

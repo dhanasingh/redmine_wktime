@@ -57,8 +57,8 @@
     <div class="label"><%= l(:label_payments) %></div>
   </div>
 
-  <div class="invoice-box red" onclick="invDetailReport('<%= l(:label_balance) %>', '<%= @from %>', '<%= @to %>')">
+  <div class="invoice-box red" onclick="invDetailReport('<%= l(:wk_field_balance) %>', '<%= @from %>', '<%= @to %>')">
     <div class="count"><%= Setting.plugin_redmine_wktime['wktime_currency']%><%= number_with_precision(@balance, precision: 2, delimiter: ',') %></div>
-    <div class="label"><%= l(:label_balance) %></div>
+    <div class="label"><%= l(:wk_field_balance) %></div>
   </div>
 </div>
