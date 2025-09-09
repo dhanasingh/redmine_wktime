@@ -1,21 +1,19 @@
-namespace :ERPmine do
-  desc "Setup initial ERPmine data"
+namespace :erpmine do
+  desc "Load ERPmine init data"
 
-  task setup_initial_data: :environment do
+  task load_initial_data: :environment do
     if WkSetting.where(name: 'leave_settings').where.not(value: [nil, '']).exists? || WkLocation.exists?
-      puts "Failed already data  present."
+      mlog "Failed to load, data already exists."
       exit
     end
 
     Project.transaction do
       begin
-        puts "Setting up initial ERPmine data..."
         setup_leave_and_expense
         setup_location_and_permission
-        puts "Initial ERPmine data setup completed successfully."
+        mlog "Successfully ERPmine init data loaded ."
       rescue => e
-        puts e.to_json
-        puts "Failed to load: #{e.message}"
+        mlog "Failed to load, error: #{e.message}"
         raise ActiveRecord::Rollback
       end
     end
@@ -70,14 +68,12 @@ namespace :ERPmine do
       project.is_public = false
       project.enabled_module_names = Redmine::AccessControl.available_project_modules
       project.save!
-      puts "Project '#{project.name}' saved."
 
       # --- Create and assign activities to project ---
       (proj_data[:activities] || []).each do |name|
         activity = TimeEntryActivity.find_or_create_by(name: name)
         unless project.time_entry_activities.exists?(activity.id)
           project.time_entry_activities << activity
-          puts "Activity '#{activity.name}' assigned to project '#{project.name}'."
         end
       end
 
@@ -87,10 +83,8 @@ namespace :ERPmine do
       tracker.default_status_id = status.id
       tracker.core_fields = Tracker::CORE_FIELDS
       tracker.save!
-      puts "Tracker '#{tracker.name}' saved."
       unless tracker.projects.include?(project)
         tracker.projects << project
-        puts "Tracker '#{tracker.name}' assigned to project '#{project.name}'."
       end
 
       # --- Create issues for the project ---
@@ -103,7 +97,6 @@ namespace :ERPmine do
         issue.author_id = admin.id
         issue.status_id = status.id
         issue.save!
-        puts "Issue '#{issue.subject}' saved in project '#{project.name}'."
       end
     end
 
@@ -128,7 +121,6 @@ namespace :ERPmine do
       ws = WkSetting.find_by(name: 'leave_settings') || WkSetting.new
       ws.value = leave_settings.to_json
       ws.save!
-      puts "WkSetting 'leave_settings' saved."
 
       # --- Get IDs for Public Holiday and Loss of Pay ---
       public_holiday = Issue.find_by(project_id: hr_project.id, subject: 'Public Holiday')
@@ -141,7 +133,6 @@ namespace :ERPmine do
       current['wktime_holiday']   = public_holiday_id if public_holiday_id.present?
       current['wktime_loss_of_pay'] = loss_of_pay_id if loss_of_pay_id.present?
       Setting.plugin_redmine_wktime = current
-      puts "Setting 'plugin_redmine_wktime' created."
     end
   end
 
@@ -154,18 +145,20 @@ namespace :ERPmine do
       is_main: true,
       location_type_id: loc_type.id
     )
-    puts "Location '#{location.name}' created."
 
     # --- Create group for permissions ---
     group = Group.create!(name: 'TE Admins')
     # Add the sole user (if exactly one user exists) and that user is admin
     group.users << User.admin.first if User.admin.exists? && User.admin.length == 1
-    puts "Group '#{group.name}' created."
 
-    # --- Create all ERPmine permissions ---
+    # --- Create TE Admin permission ---
     WkPermission.where(short_name: "A_TE_PRVLG").each do |perm|
       WkGroupPermission.create!(group_id: group.id, permission_id: perm.id)
     end
-    puts "Time & expense permissions assigned to the group '#{group.name}'."
+  end
+
+  def mlog(message)
+    puts message
+    Rails.logger.info message
   end
 end
