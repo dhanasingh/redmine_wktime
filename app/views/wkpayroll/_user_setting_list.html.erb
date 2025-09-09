@@ -57,7 +57,9 @@ th:first-child {
 			<tbody>
 				<% @payroll_entries.each do |entry| -%>
 					<tr class="time-entry <%= cycle("odd", "even") %> <%= entry.status == 3 ? "user locked" : "" %>" >
-						<th id="rowheader_<%=entry.user_id%>"><%=h entry.firstname + ' ' + entry.lastname%></th>
+						<th id="rowheader_<%=entry.user_id%>">
+							<%= link_to entry&.user&.name, {:controller => controller.controller_name, :action => 'user_salary_settings', :user_id => entry.user_id, :tab => 'payroll'} %>
+						</th>
 						<% @salary_components.each do |compoment|
 							salComp = @userSalCompHash[compoment.id.to_s + "_" + entry.user_id.to_s]
 							factor = salComp.present? ? salComp.factor : 0.00
@@ -67,8 +69,7 @@ th:first-child {
 							<td class="rowcontent_<%=entry.user_id%>" style="text-align: center;" id="td_<%= compoment.id.to_s + '_' + entry.user_id.to_s %>"><%= factor %></td>
 						<% end %>
 						<td align="center">
-							<%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'user_salary_settings', :user_id => entry.user_id, :tab => 'payroll'},
-															   :title => l(:button_edit) %>
+							<%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'user_salary_settings', :user_id => entry.user_id, :tab => 'payroll'}, :title => l(:button_edit) %>
 						</td>
 					</tr>
 				<% end -%>

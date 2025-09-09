@@ -100,13 +100,17 @@ $(document).ready(function() {
 
 					}
 					//show detail popup dialog ok button to change image
-					var x = document.getElementsByName("custfield_img"+comment_row+"[]");
+					var x = document.getElementsByName("custfield_img" + comment_row + "[]");
+					const x_name = 'custfield_img' + comment_row + '[]', x_id = 'custfield_img' + comment_row + '_';
+
 					if( ((e_comments.val() != "" || custFldToolTip)  && (!commentInRow  || custFldToolTip )) || $("#attachment_" + comment_row + "_" + comment_col + " .attachments_fields").children().length > 0)
 					{
+						withCommantImg = $('<div>').append($(withCommantImg).attr({ id: x_id, name: x_name })).html();
 						$(x[comment_col-1]).replaceWith(withCommantImg);
 					}
 					else
 					{
+						withoutcommantImg = $('<div>').append($(withoutcommantImg).attr({ id: x_id, name: x_name })).html();
 						$(x[comment_col-1]).replaceWith(withoutcommantImg);
 					}
 					$(attachmentField).appendTo(attachmentDiv);

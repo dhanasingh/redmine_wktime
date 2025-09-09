@@ -38,7 +38,7 @@
 			%>
 			<%#if this is from a previous template, don't print the hours%>
 			<td class="hours">
-				<div style="float: left; ">
+				<div style="float: left;align-items: center;display: flex;">
 				<%=h text_field_tag('hours' + @row.to_s() +'[]', hrs ,:size => "#{controller.textfield_size}",
 				:disabled => disable, class: "hrs_col_" + @wday_index.to_s(),
 				:onchange => "validateTotal(this, #{@wday_index},'#{controller.maxHour}');") %>
@@ -98,14 +98,13 @@
 					<% if show_custfield_img %>
 					  	<% imgname ="" %>
 						<% if !cvs.blank?  || !comment.blank? || !@prev_template && entry.present? && entry.attachments.any? %>
-							<% imgname = "withcommant.png" %>
+							<% svg_data_uri = with_notes_svg %>
 						<% else %>
-							<% imgname = "withoutcommant.png" %>
+							<% svg_data_uri = without_notes_svg %>
 						<% end %>
 						<% if !@new_custom_field_values.blank? || ( Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? ||
 									Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 0)  %>
-								<% image_tg = image_tag("#{imgname}", :id => 'custfield_img' + @row.to_s() +'_', :name => 'custfield_img' + @row.to_s() +'[]',
-									:plugin => "redmine_wktime",:title => "#{entry.nil? || @prev_template && !isTemplate || cvs.blank? ? '' : cvs.join(',')}") %>
+								<% image_tg = "<img src='#{svg_data_uri}' id='custfield_img#{@row}_' name='custfield_img#{@row}[]' title='#{entry.nil? || @prev_template && !isTemplate || cvs.blank? ? '' : cvs.join(',')}' />".html_safe %>
 							<% else %>
 								<%= image_tg ="" %>
 							<% end %>
