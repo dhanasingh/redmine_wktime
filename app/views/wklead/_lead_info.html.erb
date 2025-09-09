@@ -94,9 +94,12 @@
 				<th align="left"><%= l(:field_title) %></th>
 				<td align="left" style="padding-left:40px;"><%=h text_field_tag("contact_title", contactObj.blank? ? "" : contactObj.title,:size => 20) %>
 			</tr>
+		<% end %>
+		<% if isAccount || isContact %>
+			<% assigned_user_id = contactObj&.assigned_user_id || accountObj&.assigned_user_id %>
 			<tr>
 				<th align="left" ><%= l(:field_assigned_to) %></th>
-				<td align="left" style="padding-left:40px;"><%=h select_tag('assigned_user_id', options_for_select(groupOfUsers, :selected => contactObj.blank? ? "" : contactObj.assigned_user_id),:required => true) %></td>
+				<td align="left" style="padding-left:40px;"><%=h select_tag('assigned_user_id', options_for_select(groupOfUsers, :selected => assigned_user_id),:required => true) %></td>
 			</tr>
 		<% end %>
 		<% if isAccount %>

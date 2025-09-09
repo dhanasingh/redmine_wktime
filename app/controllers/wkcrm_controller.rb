@@ -124,6 +124,7 @@ class WkcrmController < WkbaseController
 		wkaccount.name = params[:account_name]
 		wkaccount.account_type = getAccountType
 		wkaccount.account_number = params[:account_number]
+		wkaccount.assigned_user_id = params[:assigned_user_id]
 		wkaccount.account_category = params[:account_category]
 		wkaccount.description = params[:description]
 		wkaccount.tax_number = params[:tax_number]
