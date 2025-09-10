@@ -277,6 +277,16 @@ get 'wkreferrals/convert', to: 'wkreferrals#convert'
 
 get 'wkreferrals/getEmpDetails', to: 'wkreferrals#getEmpDetails'
 
+# For HR Employee
+
+get 'wkuser', :to => 'wkuser#index'
+
+get 'wkuser/profile', :to => 'wkuser#profile'
+
+get 'wkuser/:id/edit', :to => 'wkuser#edit'
+
+post 'wkuser/save', :to => 'wkuser#save'
+
 #For CRM Lead
 
 get 'wklead', :to => 'wklead#index'

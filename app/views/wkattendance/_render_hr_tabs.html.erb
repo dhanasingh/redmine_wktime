@@ -7,9 +7,10 @@
    var clockInOutUrl = '<%=url_for(controller: "wkattendance", action: "clockindex", tab: "clock")%>';
    var payrollUrl = '<%=url_for(controller: "wkpayroll", tab: "payroll")%>';
    var wkSchedulingUrl = '<%=url_for(controller: "wkscheduling", tab: "wkscheduling")%>';
-   var wkSurveyUrl = '<%=url_for(controller: "wksurvey", action: "user_survey", tab: "wksurvey", :surveyForType => 'User')%>';
+   var wkSurveyUrl = '<%=url_for(controller: "wksurvey", action: "user_survey", tab: "wksurvey", :surveyForType => 'User').html_safe%>';
    var wkskillUrl = '<%=url_for(controller: "wkskill", tab: "wkskill")%>';
    var wkreferralsUrl = '<%=url_for(controller: "wkreferrals", tab: "wkreferrals")%>';
+   var wkuserUrl = '<%=url_for(controller: "wkuser", tab: "wkuser")%>';
    grpUrl="<%= "#{url_for(controller: "wkpayroll", action: 'getMembersbyGroup')}" %>";
 	prevTab = 'tab-<%= "#{controller_name}" %>';
 </script>

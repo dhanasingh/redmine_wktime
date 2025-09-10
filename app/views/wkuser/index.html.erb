@@ -1,0 +1,30 @@
+<%= title l(:label_employee) %>
+<%= render partial: "wkattendance/render_hr_tabs"%>
+
+<%= form_tag({}, :method => :get) do %>
+<fieldset>
+    <legend><%= l(:label_filter_plural) %></legend>
+    <label for='status'><%= l(:field_status) %></label>
+    <%= select_tag 'status', users_status_options_for_select(@status), :class => "small", :onchange => "this.form.submit(); return false;"  %>
+    <label for='group_id'><%= l(:label_group) %></label>
+    <%= select_tag 'group_id', content_tag('option') + options_from_collection_for_select(@groups, :id, :name, controller.getSession(:group_id).to_i),
+				:onchange => "this.form.submit(); return false;" if @groups.present? %>
+    <label for='name'><%= l(:label_search) %></label>
+    <%= text_field_tag 'name', controller.getSession(:name), :size => 30 %>
+    <%= submit_tag l(:button_apply), :class => "small", :name => nil %>
+    <%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
+</fieldset>
+<%= hidden_field_tag("tab", controller_name) %>
+<%= hidden_field_tag("searchlist", controller_name) %>
+<%= hidden_field_tag "back_url", url_for(:controller => controller_name, :action => action_name) %>
+<% end %>&nbsp;
+
+<% if @userEntries.present? %>
+<%= render :partial => 'user_list'%>
+<span class="pagination"><%= pagination_links_full @user_pages, @user_count %></span>
+<% other_formats_links do |f| %>
+<%= f.link_to_with_query_parameters 'CSV', {} %>
+<% end %>
+<% else %>
+<p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>

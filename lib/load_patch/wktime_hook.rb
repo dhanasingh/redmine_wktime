@@ -35,10 +35,6 @@ module LoadPatch
 		end
 		render_on :view_layouts_base_content, :partial => 'wktime/attendance_widget'
 		render_on :view_timelog_edit_form_bottom, :partial => 'wklogmaterial/log_material'
-		render_on :view_users_form, :partial => 'wkuser/wk_user', locals: { myaccount: false }
-		render_on :view_users_form_preferences, :partial => 'wkuser/wk_user_address', locals: { myaccount: false }
-		render_on :view_my_account, :partial => 'wkuser/wk_user', locals: { myaccount: true }
-		render_on :view_my_account_preferences, :partial => 'wkuser/wk_user_address', locals: { myaccount: true }
 		render_on :view_issues_form_details_bottom, :partial => 'wkissues/wk_issue_fields'
 
 		def controller_issues_edit_before_save(context={})

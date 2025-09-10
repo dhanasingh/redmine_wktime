@@ -1,0 +1,229 @@
+<%= javascript_include_tag 'wkuser', :plugin => "redmine_wktime" %>
+<%= title l(:label_employee) %>
+<%= render partial: "wkattendance/render_hr_tabs"%>
+
+<table>
+    <tr>
+        <th align="left"><%=l(:field_user)%> :</th>
+        <td><%=h @user&.user&.name %></td>
+    </tr>
+</table>
+<%
+	roleObj = Role.order(:name)
+	roleArr = roleObj.pluck(:name, :id) || nil
+	genderArr = [["#{l(:gender_hash_male)}", 'M'], ["#{l(:gender_hash_female)}", 'F'], ["#{l(:gender_hash_others)}", 'O']]
+	wkexpense_helper = Object.new.extend(WkexpenseHelper)
+	currArr = wkexpense_helper.options_for_currency
+	locationobj = WkLocation.order(:name)
+	locationArr = locationobj.pluck(:name, :id) || nil
+	departmentArr = WkCrmEnumeration.where(:enum_type => 'DP').order(:name).pluck(:name, :id)
+	maritalArr = WkCrmEnumeration.where(:enum_type => 'MS').order(:name).pluck(:name, :id)
+	emergContactTypeArr = WkCrmEnumeration.where(:enum_type => 'EC').order(:name).pluck(:name, :id)
+	deptSectionArr = WkCrmEnumeration.where(:enum_type => 'DS').order(:position).pluck(:name, :id)
+	shiftObj = WkShift.where(:in_active => true, :is_schedulable => true).order(:name)
+	shiftArr = shiftObj&.pluck(:name, :id) || nil
+	cond = "lft >= #{@user.user.lft} and rgt <= #{@user.user.rgt}"
+	parentObj = User.where.not(cond).order('firstname')
+	parentArr = parentObj.collect {|t| ["#{t.firstname + ' ' + t.lastname}", t.id] }
+%>
+<br />
+<div>
+    <div class="splitcontent">
+        <div class="splitcontentleft">
+            <fieldset class="box tabular">
+                <legend><%=l(:label_employee)%> <%=l(:label_details)%></legend>
+                <table>
+                    <tr>
+                        <th align="left"><%= l(:label_ftte_supervisor) %></th>
+                        <td> <%= ': ' + parentArr.find { |name, id| id == @user.user&.parent_id }&.first.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_join_date) %></th>
+                        <td> <%= ': ' + @user&.join_date.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_termination_date) %></th>
+                        <td> <%= ': ' + @user&.termination_date.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_birth_date) %></th>
+                        <td> <%= ': ' + @user&.birth_date.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_role) %></th>
+                        <td> <%= ': ' + roleArr.find { |name, id| id == @user&.role_id }&.first.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_gender) %></th>
+                        <td> <%= ': ' + genderArr.find { |name, id| id == @user&.gender }&.first.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:label_marital_status) %></th>
+                        <td> <%= ': ' + maritalArr.find { |name, id| id == @user&.marital_id }&.first.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_emergency_contact) %></th>
+                        <td> <%= ': ' + @user&.emergency_contact.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:label_emerg_contact_type) %></th>
+                        <td> <%= ': ' + emergContactTypeArr.find { |name, id| id == @user&.emerg_type_id }&.first.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:label_employee_id) %></th>
+                        <td> <%= ': ' + @user&.employee_id.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:label_state_insurance) %></th>
+                        <td> <%= ': ' + @user&.state_insurance.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_location) %></th>
+                        <td> <%= ': ' + locationArr.find { |name, id| id == @user&.location_id }&.first.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_department) %></th>
+                        <td> <%= ': ' + departmentArr.find { |name, id| id == @user&.department_id }&.first.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:label_dept_section) %></th>
+                        <td> <%= ': ' + deptSectionArr.find { |name, id| id == @user&.dept_section_id }&.first.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_is_schedulable) %></th>
+                        <td> <%= ': ' + @user&.is_schedulable.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_shift) %></th>
+                        <td> <%= ': ' + shiftArr.find { |name, id| id == @user&.shift_id }&.first.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_bank_name) %></th>
+                        <td> <%= ': ' + @user&.bank_name.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_account_number) %></th>
+                        <% if @user&.account_number.present? %>
+                        <td> <%= ': ' + (WkUser.showEncryptdData(@user&.user&.id, 'account_number')).to_s %> </td>
+                        <% else %>
+                        <td> <%= ': ' %> </td>
+                        <% end %>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_bank_code) %></th>
+                        <td> <%= ': ' + @user&.bank_code.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_tax) %></th>
+                        <% if @user&.tax_id.present? %>
+                        <td> <%= ': ' + (WkUser.showEncryptdData(@user&.user&.id, 'tax_id')).to_s %> </td>
+                        <% else %>
+                        <td> <%= ': ' %> </td>
+                        <% end %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_ss) %></th>
+                        <% if @user&.ss_id.present? %>
+                        <td> <%= ': ' + (WkUser.showEncryptdData(@user&.user&.id, 'ss_id')).to_s %> </td>
+                        <% else %>
+                        <td> <%= ': ' %> </td>
+                        <% end %>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_retirement_account) %></th>
+                        <td> <%= ': ' + @user&.retirement_account.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_notes) %></th>
+                        <td> <%= ': ' + @user&.notes.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_id1) %></th>
+                        <td> <%= ': ' + @user&.id1.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_id2) %></th>
+                        <td> <%= ': ' + @user&.id2.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_id3) %></th>
+                        <td> <%= ': ' + @user&.id3.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_custom_number1) %></th>
+                        <td> <%= ': ' + @user&.custom_number1.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_custom_number2) %></th>
+                        <td> <%= ': ' + @user&.custom_number2.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_custom_date1) %></th>
+                        <td> <%= ': ' + @user&.custom_date1.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_custom_date2) %></th>
+                        <td> <%= ': ' + @user&.custom_date2.to_s %> </td>
+                    </tr>
+                </table>
+            </fieldset>
+        </div>
+        <div class="splitcontentright">
+            <fieldset class="box tabular">
+                <legend><%=l(:label_content_information, l(:label_contact))%></legend>
+                <table>
+                    <tr>
+                        <th align="left"><%= l(:label_work_phone) %></th>
+                        <td> <%= ': ' + @user&.address&.work_phone.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:label_mobile) %></th>
+                        <td> <%= ': ' + @user&.address&.mobile.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:field_mail) %></th>
+                        <td> <%= ': ' + @user&.address&.email.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:label_fax) %></th>
+                        <td> <%= ': ' + @user&.address&.fax.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:label_website) %></th>
+                        <td> <%= ': ' + @user&.address&.website.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:label_account_address1) %></th>
+                        <td> <%= ': ' + @user&.address&.address1.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:label_account_address2) %></th>
+                        <td> <%= ': ' + @user&.address&.address2.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:label_city) %></th>
+                        <td> <%= ': ' + @user&.address&.city.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:label_state) %></th>
+                        <td> <%= ': ' + @user&.address&.state.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:label_country) %></th>
+                        <td> <%= ': ' + @user&.address&.country.to_s %> </td>
+                    </tr>
+                    <tr>
+                        <th align="left"><%= l(:label_pin) %></th>
+                        <td> <%= ': ' + @user&.address&.pin.to_s %> </td>
+                    </tr>
+                </table>
+            </fieldset>
+
+            <%= render partial: "wkdocument/attachment_form", locals: { container: @user.user, container_type: "Principal", editable: false, deletable: false, hideImage: true } %>
+        </div>
+    </div>
+</div>
+
+
+<div id="user-dlg"></div>
