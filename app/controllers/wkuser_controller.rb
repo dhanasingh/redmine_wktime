@@ -23,6 +23,7 @@ class WkuserController < WkbaseController
 
 	before_action :require_login
   before_action :check_perm_and_redirect, :only => [:edit, :save]
+  before_action :check_save_perm, :only => [:save]
 
   def index
 		if validateERPPermission('A_EMP')
@@ -59,18 +60,21 @@ class WkuserController < WkbaseController
         end
       end
     else
-      redirect_to action: "profile", tab: "wkuser"
+      profile
     end
   end
 
   def edit
-    if params[:id].present?
+    if params[:id].to_i == User.current.id.to_i
+      profile
+    else
       @user = WkUser.where("id =?", params[:id]).first
     end
   end
 
   def profile
     @user = WkUser.where("user_id =?", User.current.id).first
+    render :profile
   end
 
   def save
@@ -117,9 +121,16 @@ class WkuserController < WkbaseController
   end
 
 	def check_perm_and_redirect
-		unless validateERPPermission('A_EMP')
+		unless validateERPPermission('A_EMP') && params[:id].present?
 			render_403
-			return false
+			return
+		end
+	end
+
+	def check_save_perm
+		unless validateERPPermission('A_EMP') && params[:id].present? && params[:id] != User.current.id
+			render_403
+			return
 		end
 	end
 end

@@ -180,11 +180,16 @@ class WkcrmController < WkbaseController
 
 	def convert
 		leadConvert(params)
-		rm_resident_id = @hookType.blank? ? nil : @hookType[0][2]
+		redirect_params = {action: 'edit', account_id: @account&.id, contact_id: @contact&.id, lead_id: @lead&.id}
+		if @hookType.present? && @hookType[0].present? && @hookType[0][3].present?
+			redirect_params[@hookType[0][3]] = @hookType[0][2]
+		end
 		unless @account.blank?
 			controllerName = @hookType.blank? ? 'wkcrmaccount' : @hookType[0][1]
+			redirect_params[:controller] = controllerName
+			redirect_params[:id] = @account.id
 			flash[:notice] = l(:notice_successful_convert)
-			redirect_to controller: controllerName, action: 'edit', account_id: @account.id, id: @account.id, rm_resident_id: rm_resident_id
+			redirect_to redirect_params
 		else
 			controllerName = @hookType.blank? ? 'wkcrmcontact' : @hookType[0][1]
 			if @lead.valid?
@@ -194,7 +199,10 @@ class WkcrmController < WkbaseController
 				controllerName = 'wklead'
 			end
 			controllerName = "wkreferrals" if @contact.contact_type == "IC"
-		  redirect_to controller: controllerName, action: 'edit', contact_id: @contact.id, lead_id: @lead.id, id: @lead.id, rm_resident_id: rm_resident_id
+			redirect_params[:controller] = controllerName
+			redirect_params[:id] = @lead.id
+			post_conversion
+			redirect_to redirect_params
 		end
 	end
 
@@ -247,6 +255,9 @@ class WkcrmController < WkbaseController
 		target = source.dup
 		target.save
 		target
+	end
+
+	def post_conversion
 	end
 
 	def is_referral

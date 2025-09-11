@@ -1,6 +1,7 @@
 <table class="list time-entries">
     <thead>
         <tr>
+            <th class="lbl-txt-align"><%= l(:field_login) %></th>
             <%= sort_header_tag('user_name', :caption => l(:field_user), class: "lbl-txt-align") %>
             <%= sort_header_tag('email', :caption => l(:field_mail), class: "lbl-txt-align") %>
             <th class="lbl-txt-align"><%= l(:field_role) %></th>
@@ -11,6 +12,7 @@
     <tbody>
         <% @userEntries.each do |entry| %>
         <tr>
+            <td class="lbl-txt-align"><%= entry.login %></td>
             <td class="lbl-txt-align"><%= entry.name %></td>
             <td class="lbl-txt-align"><%= entry.mail %></td>
             <td class="lbl-txt-align"><%= entry&.erpmineuser&.role%></td>
