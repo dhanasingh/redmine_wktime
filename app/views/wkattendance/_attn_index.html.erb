@@ -1,15 +1,7 @@
 <%= javascript_include_tag 'wkpayroll', :plugin => "redmine_wktime" %>
 <script type="text/javascript">
-    var prevTab = "tab-<%= "
-    # {
-        controller_name
-    }
-    " %>";
-    var runperiodUrl = "<%= "
-    # {
-        url_for(: controller => controller_name,: action => 'runPeriodEndProcess',: tab => controller.controller_name)
-    }
-    " %>";
+    var prevTab = "tab-<%= "#{controller_name}" %>";
+	var runperiodUrl="<%= "#{url_for(:controller => controller_name, :action => 'runPeriodEndProcess', :tab => controller.controller_name)}" %>";
 </script>
 
 <% wktime_helper = Object.new.extend(WktimeHelper) %>

@@ -21,6 +21,7 @@
 	parentObj = User.where.not(cond).order('firstname')
 	parentArr = parentObj.collect {|t| ["#{t.firstname + ' ' + t.lastname}", t.id] }
 	parentArr.unshift(["",''])
+    disable = @user.id == User.current.id ? true : false
 %>
 <table>
     <tr>
@@ -39,61 +40,61 @@
                 <%= labelled_fields_for :erpmineuser, @user do |user_fields| %>
                 <%= user_fields.hidden_field "id" %>
                 <%= user_fields.hidden_field "user_id" %>
-                <p><%= user_fields.date_field :join_date %></p>
+                <p><%= user_fields.date_field :join_date, disabled: disable %></p>
                 <%= calendar_for('erpmine_join_date') %>
-                <p><%= user_fields.date_field :termination_date %></p>
+                <p><%= user_fields.date_field :termination_date, disabled: disable %></p>
                 <%= calendar_for('erpmine_termination_date') %>
-                <p><%= user_fields.date_field :birth_date %></p>
+                <p><%= user_fields.date_field :birth_date, disabled: disable %></p>
                 <%= calendar_for('erpmine_birth_date') %>
-                <p><%= user_fields.select :role_id, roleArr, {} %></p>
-                <p><%= user_fields.select :gender, genderHash.invert, {} %></p>
-                <p><%= user_fields.select :marital_id, maritalArr, {label:l(:label_marital_status)} %></p>
-                <p><%= user_fields.text_field :emergency_contact %></p>
-                <p><%= user_fields.select :emerg_type_id, emergContactTypeArr, {label:l(:label_emerg_contact_type)} %></p>
-                <p><%= user_fields.text_field :employee_id, label:l(:label_employee_id) %></p>
-                <p><%= user_fields.text_field :state_insurance, label:l(:label_state_insurance) %></p>
+                <p><%= user_fields.select :role_id, roleArr, {}, disabled: disable %></p>
+                <p><%= user_fields.select :gender, genderHash.invert, {}, disabled: disable %></p>
+                <p><%= user_fields.select :marital_id, maritalArr, {label:l(:label_marital_status)}, disabled: disable %></p>
+                <p><%= user_fields.text_field :emergency_contact, disabled: disable %></p>
+                <p><%= user_fields.select :emerg_type_id, emergContactTypeArr, {label:l(:label_emerg_contact_type)}, disabled: disable %></p>
+                <p><%= user_fields.text_field :employee_id, label:l(:label_employee_id), disabled: disable %></p>
+                <p><%= user_fields.text_field :state_insurance, label:l(:label_state_insurance), disabled: disable %></p>
 
-                <p><%= user_fields.select :location_id, locationArr, {} %></p>
-                <p><%= user_fields.select :department_id, departmentArr, {} %></p>
-                <p><%= user_fields.select :dept_section_id, dept_section_arr, {label:l(:label_dept_section)} %></p>
-                <p><%= user_fields.check_box :is_schedulable %></p>
-                <p><%= user_fields.select :shift_id, shiftArr, {} %></p>
-                <p><%= user_fields.text_field :bank_name %></p>
+                <p><%= user_fields.select :location_id, locationArr, {}, disabled: disable %></p>
+                <p><%= user_fields.select :department_id, departmentArr, {}, disabled: disable %></p>
+                <p><%= user_fields.select :dept_section_id, dept_section_arr, {label:l(:label_dept_section)}, disabled: disable %></p>
+                <p><%= user_fields.check_box :is_schedulable, disabled: disable %></p>
+                <p><%= user_fields.select :shift_id, shiftArr, {}, disabled: disable %></p>
+                <p><%= user_fields.text_field :bank_name, disabled: disable %></p>
                 <% if !@user&.user&.id&.present? %>
-                <p><%= user_fields.text_field :account_number %></p>
+                <p><%= user_fields.text_field :account_number, disabled: disable %></p>
                 <% else %>
                 <p>
-                    <%= user_fields.text_field :account_number, :value => @user&.account_number.present? ? WkUser.showEncryptdData(@user&.user&.id, 'account_number') : '' %>
-                    <%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript: showDetails('#{@user&.user&.id}', '#{'account_number'}', '#{l(:label_account_number)}', #{false});" %>
+                    <%= user_fields.text_field :account_number, :value => @user&.account_number.present? ? WkUser.showEncryptdData(@user&.user&.id, 'account_number') : '', disabled: disable %>
+                    <%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript: showDetails('#{@user&.user&.id}', '#{'account_number'}', '#{l(:label_account_number)}', #{disable});" %>
                 </p>
                 <% end %>
-                <p><%= user_fields.text_field :bank_code %></p>
+                <p><%= user_fields.text_field :bank_code, disabled: disable %></p>
                 <% if !@user&.user&.id&.present? %>
-                <p><%= user_fields.text_field :tax_id %></p>
+                <p><%= user_fields.text_field :tax_id, disabled: disable %></p>
                 <% else %>
                 <p>
-                    <%= user_fields.text_field :tax_id, :value => @user&.tax_id.present? ? WkUser.showEncryptdData(@user&.user&.id, 'tax_id') : '' %>
-                    <%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript: showDetails('#{@user&.user&.id}', '#{'tax_id'}', '#{l(:field_tax)}', #{false});"%>
+                    <%= user_fields.text_field :tax_id, :value => @user&.tax_id.present? ? WkUser.showEncryptdData(@user&.user&.id, 'tax_id') : '', disabled: disable %>
+                    <%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript: showDetails('#{@user&.user&.id}', '#{'tax_id'}', '#{l(:field_tax)}', #{disable});"%>
                 </p>
                 <% end %>
                 <% if !@user&.user&.id&.present? %>
-                <p><%= user_fields.text_field :ss_id %></p>
+                <p><%= user_fields.text_field :ss_id, disabled: disable %></p>
                 <% else %>
                 <p>
-                    <%= user_fields.text_field :ss_id, :value => @user&.ss_id.present? ? WkUser.showEncryptdData(@user&.user&.id, 'ss_id') : '' %>
-                    <%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript: showDetails('#{@user&.user&.id}', '#{'ss_id'}',  '#{l(:field_ss)}', #{false});" %>
+                    <%= user_fields.text_field :ss_id, :value => @user&.ss_id.present? ? WkUser.showEncryptdData(@user&.user&.id, 'ss_id') : '', disabled: disable %>
+                    <%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript: showDetails('#{@user&.user&.id}', '#{'ss_id'}',  '#{l(:field_ss)}', #{disable});" %>
                 </p>
                 <% end %>
-                <p><%= user_fields.text_field :retirement_account, label:l(:field_retirement_account) %></p>
-                <p><%= user_fields.text_area :notes %></p>
-                <p><%= user_fields.text_field :id1 %></p>
-                <p><%= user_fields.text_field :id2 %></p>
-                <p><%= user_fields.text_field :id3 %></p>
-                <p><%= user_fields.text_field :custom_number1 %></p>
-                <p><%= user_fields.text_field :custom_number2 %></p>
-                <p><%= user_fields.date_field :custom_date1 %></p>
+                <p><%= user_fields.text_field :retirement_account, label:l(:field_retirement_account), disabled: disable %></p>
+                <p><%= user_fields.text_area :notes, disabled: disable %></p>
+                <p><%= user_fields.text_field :id1, disabled: disable %></p>
+                <p><%= user_fields.text_field :id2, disabled: disable %></p>
+                <p><%= user_fields.text_field :id3, disabled: disable %></p>
+                <p><%= user_fields.text_field :custom_number1, disabled: disable %></p>
+                <p><%= user_fields.text_field :custom_number2, disabled: disable %></p>
+                <p><%= user_fields.date_field :custom_date1, disabled: disable %></p>
                 <%= calendar_for('erpmine_custom_date1') %>
-                <p><%= user_fields.date_field :custom_date2 %></p>
+                <p><%= user_fields.date_field :custom_date2, disabled: disable %></p>
                 <%= calendar_for('erpmine_custom_date2') %>
                 <% end %>
             </fieldset>

@@ -333,7 +333,7 @@ class WkattendanceController < WkbaseController
     respond_to do |format|
       format.html {
         if errorMsg.nil?
-          redirect_to :controller => 'wkattendance',:action => 'index' , :tab => 'wkattendance'
+          redirect_to :controller => 'wkattendance',:action => 'index' , :tab => 'leave'
           flash[:notice] = l(:notice_successful_update)
         else
           flash[:error] = errorMsg
