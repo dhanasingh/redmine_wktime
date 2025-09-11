@@ -148,17 +148,16 @@ class WkreferralsController < WkleadController
       user.firstname = @contact&.first_name.presence || "employee_#{randEmpNo}"
       user.lastname = @contact&.last_name
       addr = @contact&.address
-      user.mail = addr&.email || ((user.name).gsub(/\s+/, "") + "@mail.com")
+      user.mail = addr&.email.presence || ((user.name).gsub(/\s+/, "") + "@mail.com")
       user.login = (user.name || user.mail).gsub(/\s+/, "").downcase
       user.status = 1
       user.hashed_password = User.hash_password("employee")
-      user.must_change_passwd = true
       user.build_wk_user(location_id: @contact&.location_id || WkLocation.default_id)
       address = addr.as_json
       address[:id] = nil
       user.build_address(address) if address.present?
       user.save!
-    rescue e
+    rescue => e
       Rails.logger.error "Error while creating user for referral #{user&.name}: #{e.message}"
     end
   end
