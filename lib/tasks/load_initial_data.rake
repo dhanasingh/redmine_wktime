@@ -2,7 +2,7 @@ namespace :erpmine do
   desc "Load ERPmine init data"
 
   task load_initial_data: :environment do
-    if WkSetting.where(name: 'leave_settings').where.not(value: [nil, '']).exists? || WkLocation.exists?
+    if WkSetting.where(name: 'leave_settings').where.not(value: [nil, '']).exists? || WkLocation.exists? || WkSalaryComponents.exists?
       mlog "Failed to load, data already exists."
       exit
     end
@@ -11,6 +11,7 @@ namespace :erpmine do
       begin
         setup_leave_and_expense
         setup_location_and_permission
+        setup_payroll_and_pay_type
         mlog "Successfully ERPmine init data loaded ."
       rescue => e
         mlog "Failed to load, error: #{e.message}"
@@ -154,6 +155,27 @@ namespace :erpmine do
     # --- Create TE Admin permission ---
     WkPermission.where(short_name: "A_TE_PRVLG").each do |perm|
       WkGroupPermission.create!(group_id: group.id, permission_id: perm.id)
+    end
+  end
+
+  def setup_payroll_and_pay_type
+    # --- Create common payroll components ---
+    components = {
+      "b": ["Basic Pay"],
+      "a": ["HRA", "Medical Allowance", "Transport Allowance", "Special Allowance"],
+      "d": ["PF", "ESI", "TDS", "Professional Tax"],
+      "r": ["Reimbursements"]
+    }
+    components.each do |type, names|
+      names.each do |n|
+        WkSalaryComponents.create!(name: n, component_type: type, salary_type: type == 'b' ? 's': nil )
+      end
+    end
+
+    # --- Create common Payment types ---
+    pay_types = ["Cash", "Cheque", "Bank Transfer", "Credit Card"]
+    pay_types.each do |type|
+      WkCrmEnumeration.find_or_create_by!(name: type, active: true, enum_type: 'PT')
     end
   end
 
