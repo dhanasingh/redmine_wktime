@@ -15,8 +15,8 @@ module LoadPatch
 			"<div id='divError'>
 				<font color='red'></font>
 			</div>
-			<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'getStatus', :host => host_with_subdir, :only_path => true, :user_id => user_id)}'>
-			<input type='hidden' id='getissuetracker_url' value='#{url_for(:controller => 'wktime', :action => 'getTracker', :host => host_with_subdir, :only_path => true)}'>
+			<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'get_status', :host => host_with_subdir, :only_path => true, :user_id => user_id)}'>
+			<input type='hidden' id='getissuetracker_url' value='#{url_for(:controller => 'wktime', :action => 'get_tracker', :host => host_with_subdir, :only_path => true)}'>
 			<input type='hidden' id='log_time_page' value='#{log_time_page}'>
 			<input type='hidden' id='label_issue_warn' value='#{l(:label_warning_wktime_issue_tracker)}'>
 			<input type='hidden' id='label_time_warn' value='#{l(:label_warning_wktime_time_entry)}'>"

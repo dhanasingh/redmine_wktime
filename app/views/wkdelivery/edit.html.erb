@@ -4,8 +4,8 @@
 <%= javascript_include_tag 'invoice', plugin: "redmine_wktime" %>
 <%= javascript_include_tag 'index', plugin: "redmine_wktime" %>
 <script type="text/javascript">
-	actRelatedUrl="<%= "#{url_for(controller: "wkcrm", action: 'getActRelatedIds', additionalContactType: controller.additionalContactType, additionalAccountType: controller.additionalAccountType)}" %>";
-	invoiceUrl="<%= "#{url_for(:controller => controller_name, :action => 'getInvoiceNos')}" %>";
+	actRelatedUrl="<%= "#{url_for(controller: "wkcrm", action: 'get_act_related_ids', additionalContactType: controller.additionalContactType, additionalAccountType: controller.additionalAccountType)}" %>";
+	invoiceUrl="<%= "#{url_for(:controller => controller_name, :action => 'get_invoice_no')}" %>";
 </script>
 	<%	accArr = options_for_wktime_account(false, controller.getOrderAccountType, controller.additionalAccountType)
 		parentId = @shipment.parent_id
@@ -31,7 +31,7 @@
 			</td>
 			<th style="text-align: left"><label><%= l(:field_name) %></label></th>
 			<td style="text-align: left">
-				<%= ": "%><%= params[:delivery_id].present? ? @shipment&.parent&.name :  select_tag('related_parent', options_for_select(accArr, selected: @shipment.blank? ? "" : @shipment.parent_id), onchange: "getInvoiceNos(#{User.current.id}, 'delivery_invoice_id');", style: "width: 150px") %>
+				<%= ": "%><%= params[:delivery_id].present? ? @shipment&.parent&.name :  select_tag('related_parent', options_for_select(accArr, selected: @shipment.blank? ? "" : @shipment.parent_id), onchange: "get_invoice_no(#{User.current.id}, 'delivery_invoice_id');", style: "width: 150px") %>
 			</td>
 			<th style="text-align: left"><label><%= l(:label_invoice) %></label></th>
 			<td style="text-align: left">

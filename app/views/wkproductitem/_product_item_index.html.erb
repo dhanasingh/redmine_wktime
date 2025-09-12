@@ -1,7 +1,7 @@
 <%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <script type="text/javascript">
-	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
+	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modify_product_dd')}" %>";
 </script>
 	<%= form_tag({:controller => controller_name, :action => 'index', :tab => controller_name}, :method => :get, :id =>
      'query_form') do %>

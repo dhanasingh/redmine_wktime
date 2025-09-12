@@ -22,12 +22,12 @@ class WkcrmController < WkbaseController
   before_action :check_crm_admin_and_redirect, :only => [:destroy]
   include WkcrmHelper
   include WktimeHelper
-  accept_api_auth :getActRelatedIds, :getCrmUsers
+  accept_api_auth :get_act_related_ids, :get_crm_users
 
 	def index
 	end
 
-	def getActRelatedIds
+	def get_act_related_ids
 		relatedArr = params[:format] == "json" ? [] : ""
 		relatedId = nil
 
@@ -102,7 +102,7 @@ class WkcrmController < WkbaseController
 		true
 	end
 
-	def getCrmUsers
+	def get_crm_users
 		render json: get_crm_Users
 	end
 

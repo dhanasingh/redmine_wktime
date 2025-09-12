@@ -656,7 +656,7 @@ module WkpayrollHelper
 		export
   	end
 
-	def getGroupMembers
+	def get_group_members
 		userList = nil
 		group_id = nil
 		if (!params[:group_id].blank?)
@@ -676,7 +676,7 @@ module WkpayrollHelper
 	end
 
 	def getUsersAndGroups
-		userList = getGroupMembers
+		userList = get_group_members
 		@groups = Group.where(type: "Group").sorted.all
 		@members = Array.new
 		userIds = Array.new

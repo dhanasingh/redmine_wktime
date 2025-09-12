@@ -22,4 +22,12 @@ module WkuserHelper
 	def popup_svg
 			"<img  src='#{without_notes_svg}' />".html_safe
 	end
+
+	def get_genders
+		{
+			'M' => "#{l(:gender_hash_male)}",
+			'F' => "#{l(:gender_hash_female)}",
+			'O' => "#{l(:gender_hash_others)}"
+		}
+	end
 end

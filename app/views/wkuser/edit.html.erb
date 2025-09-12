@@ -1,14 +1,14 @@
-<%= javascript_include_tag 'wkuser', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'wkuser', plugin: "redmine_wktime" %>
 <h2><%= l(:label_employee) %></h2>
 <%
   roleArr = Role.order(:name).pluck(:name, :id)
-  genderHash = {'M' => "#{l(:gender_hash_male)}", 'F' => "#{l(:gender_hash_female)}", 'O' => "#{l(:gender_hash_others)}"}
+  genderHash = get_genders
   locationArr = WkLocation.order(:name).pluck(:name, :id)
-  departmentArr = WkCrmEnumeration.where(:enum_type => 'DP').order(:name).pluck(:name, :id)
-  maritalArr = WkCrmEnumeration.where(:enum_type => 'MS').order(:name).pluck(:name, :id)
-  emergContactTypeArr = WkCrmEnumeration.where(:enum_type => 'EC').order(:name).pluck(:name, :id)
-  dept_section_arr = WkCrmEnumeration.where(:enum_type => 'DS').order(:position).pluck(:name, :id)
-  shiftArr = WkShift.where(:in_active => true, :is_schedulable => true).order(:name).pluck(:name, :id)
+  departmentArr = WkCrmEnumeration.where(enum_type: 'DP').order(:name).pluck(:name, :id)
+  maritalArr = WkCrmEnumeration.where(enum_type: 'MS').order(:name).pluck(:name, :id)
+  emergContactTypeArr = WkCrmEnumeration.where(enum_type: 'EC').order(:name).pluck(:name, :id)
+  dept_section_arr = WkCrmEnumeration.where(enum_type: 'DS').order(:position).pluck(:name, :id)
+  shiftArr = WkShift.where(in_active: true, is_schedulable: true).order(:name).pluck(:name, :id)
   shiftArr.unshift(["",''])
   parentArr = User.where.not("lft >= #{@user.lft} and rgt <= #{@user.rgt}")
                 .order('firstname')
@@ -16,10 +16,9 @@
                 .map { |f, l, id| ["#{f} #{l}", id] }
                 .unshift(['', ''])
 %>
-<p><b><%=l(:field_user)%>: <%= @user.name %></b></p>
 
+<p><b><%=l(:field_user)%> : <%= @user.name %></b></p><br>
 <%= form_with model: @wkuser, method: "post", url: {action: "save", id: @user.id} do |f| %>
-
   <div class="splitcontent">
     <div class="splitcontentleft">
       <fieldset class="box tabular">
@@ -57,8 +56,8 @@
             <p><%= f.text_field :account_number %></p>
           <% else %>
             <p style="display: flex; align-items: center; gap: 3px;">
-              <%= f.text_field :account_number, :value => @wkuser&.account_number.present? ? WkUser.showEncryptdData(@user&.id, 'account_number') : '' %>
-              <%= link_to popup_svg, "javascript: showDetails('#{@user&.id}', '#{'account_number'}', '#{l(:label_account_number)}');" %>
+              <%= f.text_field :account_number, value: WkUser.show_data(@user&.id, 'account_number'), disabled: true %>
+              <%= link_to popup_svg, "javascript: edit_data('#{@user&.id}', '#{'account_number'}', '#{l(:label_account_number)}');" %>
             </p>
           <% end %>
 
@@ -67,8 +66,8 @@
           <p><%= f.text_field :tax_id %></p>
           <% else %>
           <p style="display: flex; align-items: center; gap: 3px;">
-            <%= f.text_field :tax_id, :value => @wkuser&.tax_id.present? ? WkUser.showEncryptdData(@user&.id, 'tax_id') : '' %>
-            <%= link_to popup_svg, "javascript: showDetails('#{@user&.id}', '#{'tax_id'}', '#{l(:field_tax)}');"%>
+            <%= f.text_field :tax_id, value: WkUser.show_data(@user&.id, 'tax_id'), disabled: true %>
+            <%= link_to popup_svg, "javascript: edit_data('#{@user&.id}', '#{'tax_id'}', '#{l(:field_tax)}');"%>
           </p>
           <% end %>
 
@@ -76,8 +75,8 @@
           <p><%= f.text_field :ss_id %></p>
           <% else %>
           <p style="display: flex; align-items: center; gap: 3px;">
-            <%= f.text_field :ss_id, :value => @wkuser&.ss_id.present? ? WkUser.showEncryptdData(@user&.id, 'ss_id') : '' %>
-            <%= link_to popup_svg, "javascript: showDetails('#{@user&.id}', '#{'ss_id'}',  '#{l(:field_ss)}');" %>
+            <%= f.text_field :ss_id, value: WkUser.show_data(@user&.id, 'ss_id'), disabled: true %>
+            <%= link_to popup_svg, "javascript: edit_data('#{@user&.id}', '#{'ss_id'}',  '#{l(:field_ss)}');" %>
           </p>
           <% end %>
 

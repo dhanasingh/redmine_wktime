@@ -23,7 +23,7 @@
 				<td align="center">
 				 <%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'edit_product_attribute', :product_attribute_id => entry.id, id: entry.id, :group_id => entry.group_id}, :title => l(:button_edit) %>
 				 <% if controller.hasDeletePermission %>
-					<%= link_to sprite_icon('del'), {:controller => controller.controller_name, :action => 'destroyProductAttribute', :product_attribute_id => entry.id, id: entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+					<%= link_to sprite_icon('del'), {:controller => controller.controller_name, :action => 'destroy_product_attribute', :product_attribute_id => entry.id, id: entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
 				<% end %>
 				</td>
 			</tr>

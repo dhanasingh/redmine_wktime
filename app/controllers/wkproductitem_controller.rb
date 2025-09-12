@@ -19,7 +19,7 @@ class WkproductitemController < WkinventoryController
 
   menu_item :wkproduct
   before_action :require_login
-  before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :transfer, :updateTransfer]
+  before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :transfer, :update_transfer]
 
   include WktimeHelper
   include WkgltransactionHelper
@@ -229,7 +229,7 @@ class WkproductitemController < WkinventoryController
 		end
   end
 
-	def updateTransfer
+	def update_transfer
 		sourceItem = WkInventoryItem.find(params[:transfer_item_id].to_i)
 		transferQty = (params[:total_quantity].blank? ? params[:available_quantity].to_i : params[:total_quantity].to_i)
 		availQuantity = sourceItem.available_quantity - transferQty
@@ -490,7 +490,7 @@ class WkproductitemController < WkinventoryController
 		l(:label_edit_component)
 	end
 
-	def getItemDetails
+	def get_item_details
 		item = WkInventoryItem.find(params[:id])
 		render json: {item: item}
 	end

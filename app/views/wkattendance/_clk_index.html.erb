@@ -1,7 +1,7 @@
 <script type="text/javascript">
 	prevTab = 'tab-<%= "clcok" %>';
 	clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>';
-	grpUrl="<%= "#{url_for(:controller => "wkattendance", :action => 'getMembersbyGroup')}" %>";
+	grpUrl="<%= "#{url_for(:controller => "wkattendance", :action => 'get_membersby_group')}" %>";
 </script>
 <%
 	wktime_helper = Object.new.extend(WktimeHelper)

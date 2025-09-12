@@ -19,7 +19,7 @@ class WkreferralsController < WkleadController
 
   before_action :require_login, :check_module_permission
   before_action :check_perm_and_redirect, only: [:update, :destroy]
-  before_action :check_permission, only: :getEmpDetails
+  before_action :check_permission, only: :get_emp_details
 	menu_item :wkattendance
   include WkreferralsHelper
 
@@ -81,7 +81,7 @@ class WkreferralsController < WkleadController
     redirect_to action: "index", tab: "wkreferrals"
   end
 
-	def getEmpDetails
+	def get_emp_details
     referral = WkLead.referrals(true, params[:id]).first
     attachment_ids = referral.attachments.pluck(:id) if referral.attachments.any?
     data = {

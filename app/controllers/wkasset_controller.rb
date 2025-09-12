@@ -30,7 +30,7 @@ class WkassetController < WkproductitemController
 		true
 	end
 
-	def getProductAsset
+	def get_product_asset
 		assetArr = ""
 		assetItems = WkInventoryItem.joins(:product_item, :asset_property).where("product_type = 'A'").select("wk_inventory_items.id, wk_asset_properties.name")
 		assetItems = assetItems.where(" wk_product_items.product_id = ?", params[:id].to_i) unless params[:id].blank?
@@ -98,7 +98,7 @@ class WkassetController < WkproductitemController
 		@depreciationAmount = getRemainingDepreciation(@disposeAssetEntry, inventory_item_id)
 	end
 
-	def updateDisposedAsset
+	def update_disposed_asset
 		sysCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 		assetProperty = WkAssetProperty.find(params[:asset_property_id])
 		assetProperty.is_disposed = true

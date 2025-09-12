@@ -199,7 +199,7 @@ class WkpayrollController < WkbaseController
 		end
 	end
 
-	def updateUserSalary
+	def update_user_salary
 		userId = params[:user_id]
 		salary_comps = get_salary_components
 		u_salary_comps = Array.new
@@ -311,10 +311,10 @@ class WkpayrollController < WkbaseController
 		super(filters, {:from => @from, :to => @to})
    	end
 
-   	def getMembersbyGroup
+   	def get_membersby_group
 		group_by_users=""
 		userList=[]
-		userList = getGroupMembers
+		userList = get_group_members
 		userList.each do |users|
 			group_by_users << users.id.to_s() + ',' + users.name + "\n"
 		end
@@ -633,7 +633,7 @@ class WkpayrollController < WkbaseController
 		end
 	end
 
-	def getRecursiveComp
+	def get_recursive_comp
 		render(plain: getSalCompsByCompType(params[:component_type]))
 	end
 

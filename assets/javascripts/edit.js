@@ -1486,7 +1486,7 @@ function updateAtt(param, diff,str,id)
 		 nightshift = document.getElementById('nightshift').value;
 	}
 	$.ajax({
-	url: '/updateAttendance',
+	url: '/update_attendance',
 	type: 'get',
 	data: {editvalue : param, startdate : datevalue, user_id : userid, nightshift : nightshift, isdate : date},
 	success: function(data){ if(diff){ newClockInOut(data); } },

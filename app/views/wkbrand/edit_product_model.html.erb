@@ -1,6 +1,6 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <h2><%= l(:label_models) %></h2>
-<%= form_tag({:controller => "wkbrand", :action => 'updateProductModel'}, :method => :post, :id => 'query_form') do %>
+<%= form_tag({:controller => "wkbrand", :action => 'update_product_model'}, :method => :post, :id => 'query_form') do %>
 	<fieldset class="box tabular" >
 	<legend><%= l(:label_details) %></legend>
 	<%=h hidden_field_tag('product_model_id', @modelEntry.blank? ? nil : @modelEntry.id) %>

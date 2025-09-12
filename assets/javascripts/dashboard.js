@@ -238,7 +238,7 @@ function renderDetailReport(path, graphName){
   }
 
   // Create the URL with the selected base
-  let url = new URL(basePath + "/getDetailReport", window.location.origin);
+  let url = new URL(basePath + "/get_detail_report", window.location.origin);
   url.searchParams.append("gPath", path);
   const dashURL = new URL(window.location);
   dashURL.searchParams.forEach(function(value, key){
@@ -250,12 +250,12 @@ function renderDetailReport(path, graphName){
 }
 
 function empDetailReport(type, issue_id, graphName){
-  var url =  "/wkdashboard/getDetailReport?dashboard_type=Emp&type="+type+"&issue_id="+issue_id;
+  var url =  "/wkdashboard/get_detail_report?dashboard_type=Emp&type="+type+"&issue_id="+issue_id;
   renderpopup(url, graphName)
 }
 
 function invDetailReport(graphName, from, to) {
-  var url = "/wkdashboard/getInvDetailReport?dashboard_type=Inv&type=" + graphName + "&from=" + from + "&to=" + to;
+  var url = "/wkdashboard/get_inv_detail_report?dashboard_type=Inv&type=" + graphName + "&from=" + from + "&to=" + to;
   renderpopup(url, graphName);
 }
 

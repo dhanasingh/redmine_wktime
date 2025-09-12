@@ -98,7 +98,7 @@
 %>
 <%= hidden_field_tag 'spentForId', spentForIdVal %>
 <script type="text/javascript">
-	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
+	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modify_product_dd')}" %>";
    getClientsUrl = 	"<%= "#{url_for(:controller => "wktime", :action => 'getclients', :user_id => User.current.id, :separator => ',')}" %>";
 </script>
 <% productSNs = logmaterial_helper.getProductSNs(itemId) if itemId.present? %>

@@ -19,8 +19,8 @@ class WkbrandController < WkinventoryController
 
   menu_item :wkproduct
   before_action :require_login
-  before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :edit_product_model, :updateProductModel]
-  before_action :check_admin_redirect, :only => [:destroy, :destroyProductModel]
+  before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :edit_product_model, :update_product_model]
+  before_action :check_admin_redirect, :only => [:destroy, :destroy_product_model]
 
 
     def index
@@ -122,7 +122,7 @@ class WkbrandController < WkinventoryController
 		end
 	end
 
-	def updateProductModel
+	def update_product_model
 		if params[:product_model_id].blank?
 		  productModel = WkProductModel.new
 		else
@@ -149,7 +149,7 @@ class WkbrandController < WkinventoryController
 		end
 	end
 
-	def destroyProductModel
+	def destroy_product_model
 		productModel = WkProductModel.find(params[:product_model_id].to_i)
 		brandId = productModel.brand_id
 		if productModel.destroy

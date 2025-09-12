@@ -18,7 +18,7 @@ module Wkdashboard
       return data
     end
 
-    def getDetailReport(param={})
+    def get_detail_report(param={})
       entries = getEntries(param[:from]).order("start_time asc")
       entries = entries.group(:user_id, :start_time, :end_time).select("wk_attendances.user_id, start_time, end_time")
       entries = entries.where("group_id IN (?)", param[:group_id]) if param[:group_id].present?

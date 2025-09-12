@@ -57,7 +57,7 @@ module Wkcrmdashboard
       return data
     end
 
-    def getDetailReport(param = {})
+    def get_detail_report(param = {})
       to_date = param[:to].end_of_month
       won_id = getCrmEnumId('SS', 'Closed Won')
       opportunities = getOpportunities(to_date, won_id)

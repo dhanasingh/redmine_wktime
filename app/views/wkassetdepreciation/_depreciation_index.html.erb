@@ -1,7 +1,7 @@
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <script type="text/javascript">
-	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
-	productAssetUrl="<%= "#{url_for(:controller => "wkasset", :action => 'getProductAsset')}" %>";
+	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modify_product_dd')}" %>";
+	productAssetUrl="<%= "#{url_for(:controller => "wkasset", :action => 'get_product_asset')}" %>";
 </script>
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
 
@@ -11,7 +11,7 @@
 	<script type="text/javascript">
 		no_asset = '<%=l(:label_no_asset_current_product) %>';
 		apply_warn = '<%=l(:warning_apply_depreciation) %>';
-		assetUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
+		assetUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modify_product_dd')}" %>";
 	</script>
 	<%
 	logmaterial_helper = Object.new.extend(WklogmaterialHelper)

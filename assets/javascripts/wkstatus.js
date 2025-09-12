@@ -119,14 +119,14 @@ $(document).ready(function(){
 	});
 
 	$(document).on('click', '.drdn-items.issues .issue_select', function(){
-		saveIssueTimeLog(this);
+		save_issue_log(this);
 	});
 
 	$( '.drdn-items .unseen').click(function(){
 		const id = $(this).data('id')
 		var element = this;
 		$.ajax({
-			url: '/wknotification/updateUserNotification?id='+id,
+			url: '/wknotification/update_user_notification?id='+id,
 			type: 'get',
 			success: function(){
 				if ($(element).hasClass('unseen')) {
@@ -142,7 +142,7 @@ $(document).ready(function(){
 
 	//mark read notification
 	$('#mark_read').click(function(){
-		url = "/wknotification/markReadNotification";
+		url = "/wknotification/mark_read_notification";
 		$.ajax({
 			url: url,
 			type: 'post',
@@ -325,7 +325,7 @@ function signAttendance(str)
 	});
 }
 
-function saveIssueTimeLog(ele){
+function save_issue_log(ele){
 	let date = new Date();
 	const offSet = date.getTimezoneOffset();
 	const clock_action = $('#g_clock_action').val();
@@ -337,7 +337,7 @@ function saveIssueTimeLog(ele){
 		data['longitude'] = myLongitude;
 	}
 	$.ajax({
-		url: '/wkbase/saveIssueTimeLog',
+		url: '/wkbase/save_issue_log',
 		type: 'get',
 		data: data,
 		success: function(resMsg){

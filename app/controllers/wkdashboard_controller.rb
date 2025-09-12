@@ -18,7 +18,7 @@
 class WkdashboardController < WkbaseController
 
 	before_action :require_login
-	accept_api_auth :getGraphs, :getDetailReport
+	accept_api_auth :get_graphs, :get_detail_report
 	include WkdashboardHelper
 	include WkcrmHelper
 	include WktimeHelper
@@ -58,7 +58,7 @@ class WkdashboardController < WkbaseController
 		end
 	end
 
-	def getDetailReport
+	def get_detail_report
 		if params[:dashboard_type] != "Emp"
 			path = params[:gPath] if params[:gPath].present?
 			data = nil
@@ -69,7 +69,7 @@ class WkdashboardController < WkbaseController
 			begin
 				load(path)
 				obj = getGraphModule(path)
-				data = obj.getDetailReport({from: @from, to: @to, group_id: group_id, project_id: project_id})
+				data = obj.get_detail_report({from: @from, to: @to, group_id: group_id, project_id: project_id})
 			rescue
 				data = {error: "404"}
 			end
@@ -105,7 +105,7 @@ class WkdashboardController < WkbaseController
 		@groups = Group.where(type: "Group").sorted.all
 	end
 
-	def getGraphs
+	def get_graphs
 		graphDetails = params[:dashboard_type] == "Emp" ? getEmpDashboard() : (get_graphs_yaml_path.sort).map{|path| graph(path)}
 		render json: {graphs: graphDetails, unseen_count: @unseen_count}
 	end
@@ -170,7 +170,7 @@ class WkdashboardController < WkbaseController
 		@balance = total_invoices - total_payments
 	end
 
-	def getInvDetailReport
+	def get_inv_detail_report
 		from = params[:from].presence&.to_date
 		to   = params[:to].presence&.to_date
 		range = getToDateTime(from)..getToDateTime(to) if from && to

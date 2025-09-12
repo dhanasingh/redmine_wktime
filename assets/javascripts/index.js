@@ -525,7 +525,7 @@ function actRelatedDd(uid, loadProjects, needBlankOption, actType, contactType, 
 	url: actRelatedUrl,
 	type: 'get',
 	data: {related_type: relatedType, account_type: actType, contact_type: contactType},
-	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "");if(loadInvoiceNo){getInvoiceNos(uid, loadSIDD);}},
+	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "");if(loadInvoiceNo){get_invoice_no(uid, loadSIDD);}},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
 	complete: function(){ if(loadProjects) { accProjChanged(uid, 'related_parent', true, true) }if(loadPayment){submitFiletrForm();} $this.removeClass('ajax-loading'); }
 	});
@@ -1108,7 +1108,7 @@ function setUOMValue(product_id)
 {
 	var productId = document.getElementById(product_id).value;
 	rowNum = product_id.replace("product_id","")
-	var url = "/wkshipment/getProductUOMID?product_id="+ productId;
+	var url = "/wkshipment/get_product_uom?product_id="+ productId;
 	$.ajax({
 		url: url,
 		type: 'get',
@@ -1281,7 +1281,7 @@ function deliveryitemChanged(curDDId)
 	});
 }
 
-function getInvoiceNos(uid, loadDdId){
+function get_invoice_no(uid, loadDdId){
 	var parentType = $('#related_to').val();
 	var parentId = $('#related_parent').val();
 	var needBlankOption = false;
@@ -1342,7 +1342,7 @@ function populateSIInvoice()
 
 function submitReceiptForm(){
 	var ret = true;
-	var url = "/wkshipment/checkQuantityAndSave";
+	var url = "/wkshipment/check_quantity";
 	var si_id = $('#si_id').val();
 	var inv_item_id = $('#availabelInvIds').val()
 	if(si_id > 0){

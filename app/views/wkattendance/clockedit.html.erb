@@ -1,5 +1,5 @@
 <%= javascript_include_tag 'edit', :plugin => "redmine_wktime" %>
-<%= form_tag({:controller => 'wkattendance', :action => 'saveClockInOut'}, :method => :post, :id => 'save_ClockInOut') do %>
+<%= form_tag({:controller => 'wkattendance', :action => 'save_clock_in_out'}, :method => :post, :id => 'save_ClockInOut') do %>
 	<%= hidden_field_tag :page, params[:page]%>
 	<% isDisable = !(params[:user_id].to_i != User.current.id &&  validateERPPermission('A_ATTEND')) %>
 	<h2><%= l(:label_clock_summary) %></h2>

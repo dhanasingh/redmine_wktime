@@ -66,7 +66,7 @@ class WkcrmdashboardController < WkcrmController
 		@to = User.current.today if @to > User.current.today
 	end
 
-  def getDetailReport
+  def get_detail_report
     path = params[:gPath] if params[:gPath].present?
     data = nil
     setDateRange
@@ -74,7 +74,7 @@ class WkcrmdashboardController < WkcrmController
     begin
       load(path)
       obj = getGraphModule(path)
-      data = obj.getDetailReport({from: @from, to: @to})
+      data = obj.get_detail_report({from: @from, to: @to})
     rescue
       data = {error: "404"}
     end

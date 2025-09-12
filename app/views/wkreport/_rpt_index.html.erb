@@ -3,8 +3,8 @@
 <script type="text/javascript">
 	prevTab = 'tab-<%= "wkreport" %>';
 	wkattnReportUrl = '<%=url_for(:controller => "wkreport", :action => "index", :tab => "wkreport")%>';
-	grpUrl="<%= "#{url_for(:controller => "wkreport", :action => 'getMembersbyGroup')}" %>";
-	//getMembersbyGroup
+	grpUrl="<%= "#{url_for(:controller => "wkreport", :action => 'get_membersby_group')}" %>";
+	//get_membersby_group
 </script>
 <%= form_tag({:controller => controller_name, :action => "export"}, :method => :get, :id => 'query_form') do %>
 	<%

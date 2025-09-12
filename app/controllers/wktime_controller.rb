@@ -29,7 +29,7 @@ before_action :check_view_redirect, :only => [:index]
 before_action :check_log_time_redirect, :only => [:new]
 before_action :check_module_permission, :only => [:index]
 
-accept_api_auth :index, :edit, :update, :destroy, :deleteEntries, :getProjects, :getissues, :getactivities, :getAPIUsers, :getclients, :get_issue_loggers
+accept_api_auth :index, :edit, :update, :destroy, :delete_entries, :get_projects, :getissues, :getactivities, :get_api_users, :getclients, :get_issue_loggers
 
 helper :custom_fields
 helper :queries
@@ -405,7 +405,7 @@ include ActionView::Helpers::TagHelper
 	end
 
 	# API
-	def deleteEntries
+	def delete_entries
 		deleterow
 	end
 
@@ -911,7 +911,7 @@ include ActionView::Helpers::TagHelper
 		html_hours(l_hours(total))
 	end
 
-	 def getStatus
+	 def get_status
 		if !params[:startDate].blank?
 			status = getTimeEntryStatus(params[:startDate].to_date,params[:user_id])
 		else
@@ -938,7 +938,7 @@ include ActionView::Helpers::TagHelper
 		end
 	end
 
-	def getMembersbyGroup
+	def get_membersby_group
 		group_by_users=""
 		getGroupUsers.each do |users|
 			group_by_users << users.id.to_s() + ',' + users.name + "\n"
@@ -985,9 +985,9 @@ include ActionView::Helpers::TagHelper
 		4
 	end
 
-	def getTracker
+	def get_tracker
 		ret = false;
-		tracker = getTrackerbyIssue(params[:issue_id])
+		tracker = get_trackerbyIssue(params[:issue_id])
 		settingstracker = Setting.plugin_redmine_wktime[getTFSettingName()]
 		if settingstracker != ["0"]
 			if ((settingstracker.include?("#{tracker}")) || (tracker == '0'))
@@ -1002,14 +1002,14 @@ include ActionView::Helpers::TagHelper
 		end
 	end
 
-	def sendSubReminderEmail
+	def send_sub_reminder_email
 		userList = ""
 		weekHash = Hash.new
 		userHash = Hash.new
 		mngrHash = Hash.new
 		respMsg = "OK"
 		allowedStatus = ['e','r','n'];
-		pStatus = getStatusFromSession #params[:status].split(',')
+		pStatus = get_statusFromSession #params[:status].split(',')
 		status = pStatus.blank? ? allowedStatus : (allowedStatus & pStatus)
 		wkentries = nil
 		if !status.blank?
@@ -1057,13 +1057,13 @@ include ActionView::Helpers::TagHelper
 		end
 	end
 
-	def sendApprReminderEmail
+	def send_appr_reminder_email
 		mgrList = ""
 		userHash = Hash.new
 		mgrHash = Hash.new
 		respMsg = "OK"
 		allowedStatus = ['s'];
-		pStatus = getStatusFromSession
+		pStatus = get_statusFromSession
 		status = pStatus.blank? ? allowedStatus : (allowedStatus & pStatus)
 		users = nil
 		if !status.blank?
@@ -1123,7 +1123,7 @@ include ActionView::Helpers::TagHelper
 		end
 	end
 
-	def updateAttendance
+	def update_attendance
 		paramvalues = Array.new
 		entryvalues = Array.new
 		ret = ""
@@ -1336,7 +1336,7 @@ include ActionView::Helpers::TagHelper
 
 	# ============ supervisor code merge =========
 
-	def getMyReportUsers
+	def get_my_report_users
 		userStr =''
 		members = Array.new
 		if params[:filter_type].to_s == '4'
@@ -1354,7 +1354,7 @@ include ActionView::Helpers::TagHelper
 
 	# ============ End of supervisor code merge =========
 
-	def getProjects
+	def get_projects
 		set_loggable_projects
 		if params[:format].present?
 			respond_to do |format|
@@ -1370,7 +1370,7 @@ include ActionView::Helpers::TagHelper
 		end
 	end
 
-	def getAPIUsers
+	def get_api_users
 		key = "id"
 		case params["type"]
 		when "Project"
@@ -1555,7 +1555,7 @@ private
 				cond =	"#{User.table_name}.id in(#{userIds})"
 			end
 			unless group_id.blank?
-				userList = getGroupMembersByCond(group_id,cond) #getGroupMembersByCond
+				userList = get_group_membersByCond(group_id,cond) #get_group_membersByCond
 			end
 		else
 			projMembers = []
@@ -2551,7 +2551,7 @@ private
 		ret = projMember.size > 0
 	end
 
-	def getTrackerbyIssue(issue_id)
+	def get_trackerbyIssue(issue_id)
 		result = Issue.where(['id = ?',issue_id]) if !issue_id.blank?
 		tracker = !result.blank? ? (result[0].blank? ? '0' : result[0].tracker_id if !result.blank?) : '0'
 		tracker
@@ -2589,7 +2589,7 @@ private
 		session[controller_name].try(:[], :user_id)
 	end
 
-	def getStatusFromSession
+	def get_statusFromSession
 		session[controller_name].try(:[], :status)
 	end
 

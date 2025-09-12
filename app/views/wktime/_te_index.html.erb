@@ -2,10 +2,10 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <script type="text/javascript">
 	prevTab = 'tab-<%= "#{controller_name}" %>';
-	grpUrl="<%= "#{url_for(:controller => controller_name, :action => 'getMembersbyGroup')}" %>";
+	grpUrl="<%= "#{url_for(:controller => controller_name, :action => 'get_membersby_group')}" %>";
 	userUrl="<%= "#{url_for(:controller => controller_name, :action => 'getusers')}" %>";
-	rSubEmailUrl="<%= "#{url_for(:controller => controller_name, :action => 'sendSubReminderEmail')}" %>";
-	rAppEmailUrl="<%= "#{url_for(:controller => controller_name, :action => 'sendApprReminderEmail')}" %>";
+	rSubEmailUrl="<%= "#{url_for(:controller => controller_name, :action => 'send_sub_reminder_email')}" %>";
+	rAppEmailUrl="<%= "#{url_for(:controller => controller_name, :action => 'send_appr_reminder_email')}" %>";
 </script>
 <fieldset>
 	<% if @currentUser_loggable_projects.present? %>

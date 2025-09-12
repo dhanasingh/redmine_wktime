@@ -857,7 +857,7 @@ end
       str == 'true'
     end
 
-	def getStatus_Project_Issue(issue_id,project_id)
+	def get_status_Project_Issue(issue_id,project_id)
 		if !issue_id.blank?
 			cond = getIssueSqlString(issue_id)
 		end
@@ -1602,7 +1602,7 @@ end
 		members = members.to_a.uniq if !members.nil?
 	end
 
-	def getGroupMembersByCond(grpId,cond)
+	def get_group_membersByCond(grpId,cond)
 		scope=User.in_group(grpId).where(cond)
 		members = scope.sort
 		members

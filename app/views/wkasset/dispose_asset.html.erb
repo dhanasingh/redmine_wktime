@@ -1,5 +1,5 @@
 <h2><%= l(:label_dispose_asset) %></h2>
-<%= form_tag({controller: "wkasset", action: 'updateDisposedAsset'}, method: :post, id:'query_form') do %>
+<%= form_tag({controller: "wkasset", action: 'update_disposed_asset'}, method: :post, id:'query_form') do %>
   <%= hidden_field_tag('asset_property_id', @disposeAssetEntry.asset_property_id) %>
   <%= hidden_field_tag('asset_previous_value', @disposeAssetEntry.previous_value) %>
   <%= hidden_field_tag('depreciation_amount', @depreciationAmount) %>
