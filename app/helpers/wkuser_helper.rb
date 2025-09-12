@@ -18,4 +18,8 @@
 module WkuserHelper
 	include WktimeHelper
 	include WkattendanceHelper
+
+	def popup_svg
+			"<img  src='#{without_notes_svg}' />".html_safe
+	end
 end

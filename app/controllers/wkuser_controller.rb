@@ -68,47 +68,57 @@ class WkuserController < WkbaseController
     if params[:id].to_i == User.current.id.to_i
       profile
     else
-      @user = WkUser.where("id =?", params[:id]).first
+      @user = User.where("id =?", params[:id]).first
+      @wkuser = @user.erpmineuser
     end
   end
 
   def profile
-    @user = WkUser.where("user_id =?", User.current.id).first
+    @user = User.find(User.current.id)
+    @wkuser = @user.erpmineuser
     render :profile
   end
 
   def save
-    wkUser = WkUser.find(params[:erpmineuser][:id])
-    user_id = params[:erpmineuser][:user_id]
-    params[:erpmineuser][:address_id] = updateAddress
-    wkUser.assign_attributes(wkUser_params(params[:erpmineuser]))
-    errorMsg = ""
-    if wkUser.save
-      if params[:attachment_ids].present?
-        attachments = Attachment.where(id: params[:attachment_ids].split(","))
-        attachments.each do |a|
-          a = a.attributes
-          a.merge!({id: nil, container_id: user_id, container_type: "Principal"})
-          attach = Attachment.new(a)
-          errorMsg += attach.errors.full_messages.to_s unless attach.save
+      errors = []
+      wk_user = @user.erpmineuser
+    # User.transaction do
+      params[:erpmineuser][:address_id] = updateAddress
+      
+      # Update User model (parent_id)
+      if @user.update(user_params)
+        # Update WkUser model  
+        wk_user.assign_attributes(wkUser_params(params[:erpmineuser]))
+        if wk_user.save
+          errors += handle_attachment_ids if params[:attachment_ids].present?
+          errors += handle_attachments if params[:attachments].present?
+        else
+          errors = wk_user.errors.full_messages
         end
+      else
+        errors = @user.errors.full_messages
       end
-      # for attachment save
-      errorMsg += save_attachments(user_id, params[:attachments], params[:container_type]) if params[:attachments].present?
-    else
-      errorMsg = wkUser.errors.full_messages.join("<br>")
-    end
-    if errorMsg.blank?
+    # rescue => e
+    #   errors << e.message
+    # end
+    
+    if errors.present?
       flash[:notice] = l(:notice_successful_update)
       redirect_to action: "index", tab: "wkuser"
     else
-      flash[:error] = errorMsg
+      flash[:error] = errors.join("<br>")
       redirect_to action: "edit", tab: "wkuser"
     end
   end
 
+  private
+
   def wkUser_params(wkParams)
-    wkParams.permit(:user_id, :role_id, :id1, :id2, :id3, :join_date, :birth_date, :termination_date, :gender, :bank_name, :account_number, :bank_code, :loan_acc_number, :tax_id, :ss_id, :custom_number1, :custom_number2, :custom_date1, :custom_date2, :is_schedulable, :billing_rate, :billing_currency, :location_id, :department_id, :address_id, :shift_id, :created_by_user_id, :updated_by_user_id, :source_id, :source_type, :retirement_account, :marital_id, :state_insurance,:employee_id, :emerg_type_id, :emergency_contact, :dept_section_id, :notes)
+    wkParams.permit(:user_id, :role_id, :id1, :id2, :id3, :join_date, :birth_date, :termination_date, :gender, :bank_name, :account_number,
+      :bank_code, :loan_acc_number, :tax_id, :ss_id, :custom_number1, :custom_number2, :custom_date1, :custom_date2, :is_schedulable,
+      :billing_rate, :billing_currency, :location_id, :department_id, :address_id, :shift_id, :created_by_user_id, :updated_by_user_id,
+      :source_id, :source_type, :retirement_account, :marital_id, :state_insurance,:employee_id, :emerg_type_id, :emergency_contact,
+      :dept_section_id, :notes)
   end
 
 	def set_filter_session
@@ -121,16 +131,43 @@ class WkuserController < WkbaseController
   end
 
 	def check_perm_and_redirect
-		unless validateERPPermission('A_EMP') && params[:id].present?
+		unless validateERPPermission('A_EMP') && User.exists?(params[:id] || "")
 			render_403
 			return
 		end
 	end
 
 	def check_save_perm
-		unless validateERPPermission('A_EMP') && params[:id].present? && params[:id] != User.current.id
-			render_403
-			return
-		end
+    @user = User.find_by(id: params[:id] || "")
+    unless validateERPPermission('A_EMP') && @user.present? && @user&.id != User.current.id
+        render_403
+        return
+    end
 	end
+
+  def user_params
+    params.permit(:parent_id)
+  end
+
+  def handle_attachment_ids
+    errors = []
+    attachments = Attachment.where(id: params[:attachment_ids].split(","))
+    
+    attachments.each do |attachment|
+      new_attrs = attachment.attributes.merge(
+        id: nil, 
+        container_id: @user.id, 
+        container_type: "Principal"
+      )
+      new_attachment = Attachment.new(new_attrs)
+      errors += new_attachment.errors.full_messages unless new_attachment.save
+    end
+    
+    errors
+  end
+
+  def handle_attachments
+    result = save_attachments(@user.id, params[:attachments], params[:container_type])
+    result.is_a?(String) ? [result] : []
+  end
 end

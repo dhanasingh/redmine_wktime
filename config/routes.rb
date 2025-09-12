@@ -281,11 +281,9 @@ get 'wkreferrals/getEmpDetails', to: 'wkreferrals#getEmpDetails'
 
 get 'wkuser', :to => 'wkuser#index'
 
-get 'wkuser/profile', :to => 'wkuser#profile'
-
 get 'wkuser/:id/edit', :to => 'wkuser#edit'
 
-post 'wkuser/save', :to => 'wkuser#save'
+post 'wkuser/:id/save', :to => 'wkuser#save'
 
 #For CRM Lead
 
