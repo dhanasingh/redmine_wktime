@@ -26,6 +26,9 @@
   }
   .invoice-box.blue {
     color: #2f5bea;
+  }  
+  .invoice-box.green {
+    color: #008000;
   }
 
   .invoice-box.red {
@@ -52,7 +55,7 @@
     <div class="label"><%= l(:label_invoice) %></div>
   </div>
 
-  <div class="invoice-box blue" onclick="invDetailReport('<%= l(:label_payments) %>', '<%= @from %>', '<%= @to %>')">
+  <div class="invoice-box green" onclick="invDetailReport('<%= l(:label_payments) %>', '<%= @from %>', '<%= @to %>')">
     <div class="count"><%= Setting.plugin_redmine_wktime['wktime_currency']%><%= number_with_precision(@payment, precision: 2, delimiter: ',') %></div>
     <div class="label"><%= l(:label_payments) %></div>
   </div>
