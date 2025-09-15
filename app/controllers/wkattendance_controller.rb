@@ -648,6 +648,7 @@ class WkattendanceController < WkbaseController
 				leaveSettings = WkSetting.where("name = 'leave_settings'").first
 				leaveSettings.destroy if leaveSettings.present?
 			end
+			redirect_to controller: 'wkattendance', action: 'leavesettings', tab: 'leave'
 			flash[:notice] = l(:notice_successful_update)
 		end
 		@leaveSettings = getLeaveSettings

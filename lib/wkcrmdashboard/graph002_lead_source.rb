@@ -37,7 +37,7 @@ module Wkcrmdashboard
     private
 
     def getLeads(from, to)
-      WkLead.where(:created_at => getFromDateTime(from) .. getToDateTime(to))
+      WkLead.joins(:contact).where(created_at: getFromDateTime(from)..getToDateTime(to),wk_crm_contacts: { contact_type: 'C' })
     end
   end
 end

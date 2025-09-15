@@ -105,7 +105,7 @@ class WkpublicholidayController < WkbaseController
 
 		end
 
-		redirect_to :controller => 'wkpublicholiday',:action => 'index' , :tab => 'wkpublicholiday'
+		redirect_to :controller => 'wkpublicholiday',:action => 'index' , :tab => 'leave'
 		flash[:notice] = l(:notice_successful_update)
 		flash[:error] = errorMsg unless errorMsg.blank?
 	end
