@@ -142,23 +142,37 @@ class WkreferralsController < WkleadController
   end
 
   def post_conversion
-    randEmpNo = rand(10000..99999)
-    User.transaction do
+    no = User.maximum(:id).to_i + 1
+    error = ""
+    notice = ""
+    begin
       user = User.new
-      user.firstname = @contact&.first_name.presence || "employee_#{randEmpNo}"
+      user.firstname = @contact&.first_name.presence || "employee#{no}"
       user.lastname = @contact&.last_name
       addr = @contact&.address
-      user.mail = addr&.email.presence || ((user.name).gsub(/\s+/, "") + "@mail.com")
-      user.login = (user.name || user.mail).gsub(/\s+/, "").downcase
+      user.mail = addr&.email.presence || ((user.name).gsub(/\s+/, "") + get_email_domain)
+      user.login = (user.name || user.mail).strip.gsub(/\s+/, "_").downcase
       user.status = 1
       user.hashed_password = User.hash_password("employee")
       user.build_wk_user(location_id: @contact&.location_id || WkLocation.default_id)
-      address = addr.as_json
+      address = addr.as_json || {}
       address[:id] = nil
       user.build_address(address) if address.present?
-      user.save!
+      unless user.save
+        error = user.errors.full_messages.join("<br>")
+      else
+        notice =l(:label_employee) + " " + l(:field_created_on) + " - <b>" + user.name + "</b>."
+      end
     rescue => e
-      Rails.logger.error "Error while creating user for referral #{user&.name}: #{e.message}"
+      error += e.message
     end
+    { error: error, notice: notice }
   end
+
+  def get_email_domain
+    email = User.current&.mail
+    addr  = Mail::Address.new(email) rescue nil
+    addr&.address ? "@" + addr&.domain&.downcase : "@example.com"
+  end
+
 end
