@@ -17,11 +17,11 @@
 	<%= hidden_field_tag :page, params[:page]%>
 	<fieldset>
 		<legend><%= l(:label_filter_plural) %></legend>
+		<div style="display: flex; align-items: center; gap: 10px;">
 		<% if validateERPPermission('A_ATTEND') %>
 			<div style="float:right">
 				<%= link_to l(:"label_import_attendance"), url_for(:controller => "wkimportattendance", :action => 'new', :tab => controller.controller_name)%>
 			</div>
-		<div style="display: flex; align-items: center; gap: 10px;">
 			<label><%= l(:label_group_plural) %></label>&nbsp;
 			<% if !@groups.blank? %>
 				<%=h select_tag('group_id',

@@ -178,7 +178,7 @@ class WkleaverequestController < WkbaseController
   end
 
 	def set_filter_session
-    filters = [:group_id, :user_id, :leave_type, :lveStatus, :period, :from, :to]
+    filters = [:group_id, :user_id, :leave_type, :lveStatus, :period, :period_type, :from, :to]
 		super(filters, {:from => @from, :to => @to})
   end
 
