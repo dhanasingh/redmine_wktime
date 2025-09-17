@@ -1,16 +1,16 @@
-# Webinar on ERPmine – Attendance, Aug 26th, 2025,(11:30 AM GMT)
+# Webinar on ERPmine – Inventory, Sep 30th, 2025,(11:30 AM GMT)
 
 Please click here to register if interested,
-[https://us02web.zoom.us/meeting/register/mYUfoL_iQReuGIdqz6JZTQ](https://us02web.zoom.us/meeting/register/mYUfoL_iQReuGIdqz6JZTQ)]
+[https://us02web.zoom.us/meeting/register/aM-1Nt__TBafjqbeJQjdVw]
 
 **Topics**:
--   Clock In / Clock Out
- -   Review Leave Status
- -   Leave Request
- -   Integrate with Attendance Devices
- -   Attendance Report
- -   Attendance on Map
- -   Mobile App
+ -   Receive Goods (Shipments)
+ -   Product and items
+ -   Material Log
+ -   Invoice
+ -   Asset and depreciation
+ -   Disposed Asset
+ -   Asset and stock Report
 
 -----
 
