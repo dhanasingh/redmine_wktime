@@ -168,7 +168,7 @@ namespace :erpmine do
     }
     components.each do |type, names|
       names.each do |n|
-        WkSalaryComponents.create!(name: n, component_type: type, salary_type: type == 'b' ? 's': nil )
+        WkSalaryComponents.create!(name: n, component_type: type, salary_type: type == :b ? "s" : nil)
       end
     end
 
