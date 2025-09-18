@@ -2,7 +2,7 @@ namespace :erpmine do
   desc "Load ERPmine init data"
 
   task load_initial_data: :environment do
-    if WkSetting.where(name: 'leave_settings').where.not(value: [nil, '']).exists? || WkLocation.exists? || WkSalaryComponents.exists?
+    if WkLocation.exists? || WkSalaryComponents.exists?
       mlog "Failed to load, data already exists."
       exit
     end
