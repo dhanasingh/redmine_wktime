@@ -14,7 +14,7 @@
 		<div style="float:right">
 			<%= link_to sprite_icon('add', l(:label_new_item, l(:label_transaction))), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
 		</div>
-		<div class="wk-contextual" style="display: flex; align-items: center; gap: 10px;">
+		<div class="wk-contextual" style="display: flex; align-items: center; gap: 10px;flex-wrap:wrap;">
 			<b><label style="padding-top: 5px;"><%= l(:label_ledger) %>:</label></b>
 				<%=h select_tag("txn_ledger", options_for_select([['','']]+@ledgers, :selected => ledgerid.nil? ? @ledgers : ledgerid ), :style => "width:200px; ", onchange: '$("#query_form").submit()') %>
 			<b><label style="padding-left: 10px;padding-top: 5px;"><%= l(:field_type) %>:</label></b>
