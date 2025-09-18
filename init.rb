@@ -70,6 +70,19 @@ Rails.configuration.to_prepare do
 	end
 end
 
+# Models patches
+ApplicationRecord.class_eval do
+	def get_comp_con(table, cond = 'AND')
+		cond = Redmine::Hook.call_hook(:get_comp_condition, table: table, cond: cond) || []
+		cond[0] || ""
+	end
+
+	def self.get_comp_con(table, cond = 'AND')
+		cond = Redmine::Hook.call_hook(:get_comp_condition, table: table, cond: cond) || []
+		cond[0] || ""
+	end
+end
+
 TimeEntryQuery.class_eval do
   self.available_columns += [
     QueryColumn.new(:weekly_timesheet, caption: -> { l(:label_weekly) +" "+ l(:label_wk_timesheet)})
@@ -77,6 +90,21 @@ TimeEntryQuery.class_eval do
 end
 
 TimeEntry.class_eval do
+
+	has_one :spent_for, as: :spent, class_name: 'WkSpentFor', :dependent => :destroy
+	has_one :invoice_item, through: :spent_for
+	has_one :wkstatus, as: :status_for, class_name: "WkStatus", dependent: :destroy
+	has_many :attachments, -> {where(container_type: "TimeEntry")}, class_name: "Attachment", foreign_key: "container_id", dependent: :destroy
+	accepts_nested_attributes_for :spent_for, :attachments
+
+	def attachments_editable?(user=User.current)
+		true
+	end
+
+	def attachments_deletable?(user=User.current)
+		true
+	end
+
 	def weekly_timesheet
 		status = Wktime.where(begin_date: (self.spent_on - 6.days)..self.spent_on, user_id: self.user_id)&.first&.status
 
@@ -91,6 +119,45 @@ TimeEntry.class_eval do
 		else
 			return ""
 		end
+	end
+end
+
+User.class_eval do
+	include LoadPatch::UserNestedSet
+	has_one :wk_user, :dependent => :destroy, :class_name => 'WkUser'
+	has_many :shift_schdules, :dependent => :destroy, :class_name => 'WkShiftSchedule'
+	belongs_to :supervisor, :class_name => 'User', :foreign_key => 'parent_id'
+	has_one :address, through: :wk_user
+
+	safe_attributes 'parent_id', 'lft', 'rgt'
+	acts_as_attachable :view_permission => :view_files,
+										:edit_permission => :manage_files,
+										:delete_permission => :manage_files
+
+	def erpmineuser
+		self.wk_user ||= WkUser.new(:user => self)
+	end
+end
+
+Project.class_eval do
+	has_many :account_projects, :dependent => :destroy, :class_name => 'WkAccountProject'
+	#has_many :parents, through: :account_projects
+	has_one :wk_project, :dependent => :destroy, :class_name => 'WkProject'
+
+	def erpmineproject
+		self.wk_project ||= WkProject.new(:project => self)
+	end
+end
+
+Issue.class_eval do
+	has_one :wk_issue, :dependent => :destroy, :class_name => 'WkIssue'
+	has_many :assignees, :dependent => :destroy, :class_name => 'WkIssueAssignee'
+	has_many :expense_entries, :dependent => :destroy, :class_name => 'WkExpenseEntry'
+	accepts_nested_attributes_for :assignees
+	accepts_nested_attributes_for :wk_issue
+
+	def erpmineissues
+		self.wk_issue ||= WkIssue.new(:issue => self, :project => self.project)
 	end
 end
 
