@@ -203,10 +203,14 @@ class WkcrmController < WkbaseController
 			end
 			if error_msg.blank?
 				res = post_conversion
-				error_msg = res[:error]
-				notice += " " + res[:notice]
+				if res.present?
+					target = res[:target] 
+					target_id = res[:target_id]
+					redirect_params[:action] = res[:action]
+				end
+			else
+				raise ActiveRecord::Rollback
 			end
-			raise ActiveRecord::Rollback if error_msg.present?
 		end
 
 		if error_msg.present?
@@ -215,7 +219,7 @@ class WkcrmController < WkbaseController
 			flash[:notice] = notice
 		end
 
-		redirect_to redirect_params.merge(controller: target, id: target_id)
+		redirect_to redirect_params.merge(controller: target, id: target_id, tab: target)
 	end
 
 	def leadConvert(params)
@@ -254,7 +258,7 @@ class WkcrmController < WkbaseController
 			address = copyAddress(@contact.address)
 			@account.address_id = address.id
 		end
-		@account.save ? nil : @account.errors.full_messages.join("<br>")
+		@account.save ? "" : @account.errors.full_messages.join("<br>")
 	end
 
 	def convertToContact
@@ -262,7 +266,7 @@ class WkcrmController < WkbaseController
 		unless @account.blank?
 			@contact.account_id = @account.id
 		end
-		@contact.save ? nil : @contact.errors.full_messages.join("<br>")
+		@contact.save ? "" : @contact.errors.full_messages.join("<br>")
 	end
 
 	def copyAddress(source)

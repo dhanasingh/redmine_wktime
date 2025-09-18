@@ -964,3 +964,5 @@ get 'wkcrmdashboard/graph', :to => 'wkcrmdashboard#graph'
 get 'wkcrmdashboard/get_graphs', to: 'wkcrmdashboard#get_graphs'
 
 get 'wkcrmdashboard/get_detail_report', to: 'wkcrmdashboard#get_detail_report'
+
+match  'wkreferrals/:id/hired_employee', to: 'wkreferrals#hired_employee', via: [:get, :post]

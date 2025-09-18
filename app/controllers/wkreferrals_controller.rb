@@ -91,6 +91,49 @@ class WkreferralsController < WkleadController
     render json: data
 	end
 
+  def hired_employee
+    @contact = WkCrmContact.find_by(id: params[:id])
+
+    @user = User.new
+    @user.firstname = @contact&.first_name
+    @user.lastname = @contact&.last_name
+    @user.mail = @contact&.address&.email if @contact&.address.present?
+
+    if request.post?
+      err = ""
+      ActiveRecord::Base.transaction do
+        @user.assign_attributes(user_params)
+
+        @user.build_wk_user(
+          source_id:   @contact.id,
+          source_type: @contact.class.name,
+          location_id: @contact.location_id || WkLocation.default_id
+        )
+
+        if @contact&.address.present?
+          addr_attrs = @contact.address.attributes.slice(
+            'address1', 'address2', 'work_phone', 'home_phone', 'mobile', 'email', 'fax',
+            'city', 'state', 'country', 'pin', 'website'
+          )
+          @user.build_address(addr_attrs)
+        end
+    
+        unless @user.save
+          err = @user.errors.full_messages.join('<br>')
+        end
+      end
+
+      if err.blank?
+        flash[:notice] = l(:notice_successful_create)
+        redirect_to controller: 'wkreferrals', action: 'index', tab: 'wkreferrals'
+      else
+        flash[:error] = err
+        redirect_to action: 'hired_employee', id: @contact&.id
+      end
+    end
+  end
+
+
   def deletePermission
     validateERPPermission("A_REFERRAL")
   end
@@ -142,37 +185,12 @@ class WkreferralsController < WkleadController
   end
 
   def post_conversion
-    no = User.maximum(:id).to_i + 1
-    error = ""
-    notice = ""
-    begin
-      user = User.new
-      user.firstname = @contact&.first_name.presence || "employee#{no}"
-      user.lastname = @contact&.last_name
-      addr = @contact&.address
-      user.mail = addr&.email.presence || ((user.name).gsub(/\s+/, "") + get_email_domain)
-      user.login = (user.name || user.mail).strip.gsub(/\s+/, "_").downcase
-      user.status = 1
-      user.hashed_password = User.hash_password("employee")
-      user.build_wk_user(location_id: @contact&.location_id || WkLocation.default_id)
-      address = addr.as_json || {}
-      address[:id] = nil
-      user.build_address(address) if address.present?
-      unless user.save
-        error = user.errors.full_messages.join("<br>")
-      else
-        notice =l(:label_employee) + " " + l(:field_created_on) + " - <b>" + user.name + "</b>."
-      end
-    rescue => e
-      error += e.message
-    end
-    { error: error, notice: notice }
+    { target: controller_name, action: :hired_employee, target_id: @contact&.id }
   end
 
-  def get_email_domain
-    email = User.current&.mail
-    addr  = Mail::Address.new(email) rescue nil
-    addr&.address ? "@" + addr&.domain&.downcase : "@example.com"
+  def user_params
+    params.require(:user).permit(
+      :login, :mail, :firstname, :lastname, :password, :password_confirmation
+    )
   end
-
 end

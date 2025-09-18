@@ -1,0 +1,26 @@
+<h2><%= l(:label_employee) %></h2>
+<% title(l(:label_employee)) %>
+
+<%= labelled_form_for @user, method: :post, url: {action: :hired_employee} do |f| %>
+  <div class="splitcontent">
+    <div class="splitcontentleft">
+      <fieldset class="box tabular">
+        <legend><%=l(:label_employee)%> <%=l(:label_details)%></legend>
+          <p><%= f.text_field :login, :required => true, :size => 25  %></p>
+          <p><%= f.text_field :firstname, :required => true %></p>
+          <p><%= f.text_field :lastname, :required => true %></p>
+          <p><%= f.text_field :mail, :required => true %></p>
+          <p>
+            <%= f.password_field :password, :required => @user.new_record?, :size => 25  %>
+            <em class="info"><%= l(:text_caracters_minimum, :count => Setting.password_min_length) %></em>
+            <% if Setting.password_required_char_classes.any? %>
+              <em class="info"><%= l(:text_characters_must_contain, :character_classes => Setting.password_required_char_classes.collect{|c| l("label_password_char_class_#{c}")}.join(", ")) %></em>
+            <% end %>
+          </p>
+          <p><%= f.password_field :password_confirmation, :required => @user.new_record?, :size => 25  %></p>
+      </fieldset>
+    </div>
+  </div>
+  <div style="clear:left;"></div>
+  <%= f.submit "Create" %>
+<% end %>
