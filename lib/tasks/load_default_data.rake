@@ -1,7 +1,7 @@
 namespace :erpmine do
   desc "Load ERPmine init data"
 
-  task load_initial_data: :environment do
+  task load_default_data: :environment do
     if WkLocation.exists? || WkSalaryComponents.exists?
       mlog "Failed to load, data already exists."
       exit
@@ -12,7 +12,7 @@ namespace :erpmine do
         setup_leave_and_expense
         setup_location_and_permission
         setup_payroll_and_pay_type
-        mlog "Successfully ERPmine init data loaded ."
+        mlog "Successfully ERPmine default data loaded."
       rescue => e
         mlog "Failed to load, error: #{e.message}"
         raise ActiveRecord::Rollback

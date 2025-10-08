@@ -100,6 +100,11 @@ For more information on features, please refer to the user guide
   rake redmine:plugins:migrate NAME=redmine_wktime RAILS_ENV=production
   ```
 
+  - Run the following command to load default data
+  ```sh
+  bundle exec rake erpmine:load_default_data RAILS_ENV=production
+  ```
+
 - Please make sure public/plugin_asset/redmine_wktime has proper access.
 
 - For rufus-scheduler to work, the rails application should be up all the time.
@@ -146,7 +151,6 @@ For more information on features, please refer to the user guide
   ```text
    - Fixed the Notes popup icon issue in the Timesheet detail page
   ```
-We would like to thank Creative Synergies Group LLC for partially sponsored this release.
 
 ## Customization
 
@@ -186,7 +190,7 @@ Please provide your rating at [https://www.redmine.org/plugins/wk-time](https://
 - [https://www.youtube.com/watch?v=hTgDepFzGXY](https://www.youtube.com/watch?v=hTgDepFzGXY)
 - [https://www.youtube.com/watch?v=5IgBbhrVF4k](https://www.youtube.com/watch?v=5IgBbhrVF4k)
 - [https://www.youtube.com/watch?v=ik4jgTMtbvU](https://www.youtube.com/watch?v=ik4jgTMtbvU)
-- [https://www.youtube.com/watch?v=weZk70ReZXA)
+- [https://www.youtube.com/watch?v=weZk70ReZXA]
 
 **For more**:
 
