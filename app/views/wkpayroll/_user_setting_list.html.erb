@@ -106,7 +106,7 @@
         <% @salary_components.each do |compoment|
             salComp = @userSalCompHash[compoment.id.to_s + "_" + entry.user_id.to_s]
             factor = salComp.present? ? salComp.factor : 0.00
-            depID = salComp.dependent_id
+            depID = salComp&.dependent_id
           %>
           <%= hidden_field_tag('dep_' + compoment.id.to_s + '_' + entry.user_id.to_s, depID) %>
           <td class="rowcontent_<%= entry.user_id %>"

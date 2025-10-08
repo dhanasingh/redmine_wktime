@@ -215,5 +215,7 @@ module LoadPatch::WktimeScheduler
 				end
 			end
 		end
+		rescue => e
+			Rails.logger.error e.message
 	end
 end
