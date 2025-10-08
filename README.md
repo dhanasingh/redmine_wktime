@@ -100,7 +100,7 @@ For more information on features, please refer to the user guide
   rake redmine:plugins:migrate NAME=redmine_wktime RAILS_ENV=production
   ```
 
-  - Run the following command to load default data
+- Run the following command to load default data
   ```sh
   bundle exec rake erpmine:load_default_data RAILS_ENV=production
   ```
