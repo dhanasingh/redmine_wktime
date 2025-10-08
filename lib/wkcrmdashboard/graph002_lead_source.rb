@@ -9,14 +9,14 @@ module Wkcrmdashboard
         graphName: "Leads by source", chart_type: "doughnut", xTitle: l(:field_hours), yTitle: l(:label_day_plural), legentTitle1: l(:label_lead_source)
       }
       entries = getLeads(from, to)
-      entries = entries.group(:lead_source_id).select("lead_source_id, count(id) as source_count")
+      entries = entries.group(:lead_source_id).select("wk_leads.lead_source_id, COUNT(wk_leads.id) AS source_count").order("source_count DESC")
       expenses = entries.map{|c| [c.lead_source.name.to_s, c.source_count]  if c.lead_source_id}.compact.to_h
       data[:fields] = expenses.keys
       data[:data1] = expenses.values
       return data
     end
 
-    def getDetailReport(param = {})
+    def get_detail_report(param = {})
       to = param[:to].end_of_week
       from = param[:to].beginning_of_week
       entries = getLeads(from, to)
@@ -37,7 +37,7 @@ module Wkcrmdashboard
     private
 
     def getLeads(from, to)
-      WkLead.where(:created_at => getFromDateTime(from) .. getToDateTime(to))
+      WkLead.joins(:contact).where(created_at: getFromDateTime(from)..getToDateTime(to),wk_crm_contacts: { contact_type: 'C' })
     end
   end
 end

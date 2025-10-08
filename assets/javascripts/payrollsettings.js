@@ -518,7 +518,7 @@ function validation(){
 }
 
 function hideRecusiveComp(dlg, ownCompID){
-	var url = '/wkpayroll/getRecursiveComp';
+	var url = '/wkpayroll/get_recursive_comp';
 	$.ajax({
 		url: url,
 		type: 'get',

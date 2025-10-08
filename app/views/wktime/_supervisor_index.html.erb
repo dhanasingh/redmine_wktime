@@ -1,4 +1,4 @@
-<div class="div-left">
+<div>
  <table>
 	<%
 		me = false
@@ -42,12 +42,8 @@
 			<td>
 				<%= select_tag('filter_type', options_for_select(supervisorReporters, :selected => filter_type), :onchange => "reportersChanged(this)", class: "reportersDD" ) %>
 			</td>
-		</tr>
 		<% end %>
- </table>
-<table>
 	<% if !@manage_view_spenttime_projects.blank? %>
-		<tr>
 			<th><%= radio_button_tag 'filter_type', '1', opt_proj,
 			 :onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#user_id").removeAttr("disabled");$("#group_id").attr("disabled", true);$("#project_id").removeAttr("disabled");$(".reportersDD").attr("disabled", true);' %>
 			<%=l(:field_project)%></th>
@@ -55,10 +51,9 @@
 				options_for_select(options_for_wktime_project(@manage_view_spenttime_projects),
 				:selected => !projectid.nil? ? projectid.to_i: @selected_project.id),:disabled => @use_group,
 				:onchange => "projChanged(this, #{User.current.id}, true);") %></td>
-		</tr>
+
 	<% end %>
 	<% if !@groups.blank? %>
-		<tr>
 			<th><%= radio_button_tag 'filter_type', '2', opt_grp, 
 			:onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#user_id").removeAttr("disabled");$("#group_id").removeAttr("disabled");$("#project_id").attr("disabled", true);$(".reportersDD").attr("disabled", true);' %>
 			<%=l(:label_group_plural)%></th>
@@ -68,9 +63,7 @@
 				:selected => (groupid.nil? ? 0 : groupid)),:disabled => !@use_group,
 				:onchange => "grpChanged(this, #{User.current.id}, true);") %>
 			</td>
-		</tr>
 	<% end %>
-	<tr>
 		<th><%=l(:label_member)%></th>
 		<td>
 		<%# show the blank value if more than one user is in the list %>
@@ -103,7 +96,7 @@ $(document).ready(function()
 		$("#group_id").removeAttr("disabled");
 	<% end %>
 });
-userCurrentUrl ="<%= "#{url_for(:controller => 'wktime', :action => 'getMyReportUsers')}" %>";
+userCurrentUrl ="<%= "#{url_for(:controller => 'wktime', :action => 'get_my_report_users')}" %>";
  </script>
  <% else %>
 	</table>

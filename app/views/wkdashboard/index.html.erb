@@ -1,9 +1,12 @@
 <div>
   <div style="float:left"><%= title l(:label_admin_dashboards) %></div>
-	<%= render :partial => "wkdashboard/side_bar" %>
 </div>
 <div style="clear:both"></div>
 <%= render :partial => "wkdashboard/filters" %>
+
+<% if showBilling && validateERPPermission("M_BILL") 	%>
+	<%= render :partial => "wkdashboard/invoice_details" %>
+<% end %>
 
 <% content_for :header_tags do %>
   <%= javascript_include_tag "chart.min" %>

@@ -1,0 +1,67 @@
+<style>
+  .invoice-summary-container {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    padding: 0 8px;
+  }
+
+  .invoice-box {
+    border-radius: 16px; /* smoother, more modern rounded corners */
+    width: 100%;
+    height: 100px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    text-align: center;
+    font-family: Roboto, 'Fira Sans', Oxygen, 'Open Sans', Ubuntu, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease; /* Smooth hover effect */
+  }
+
+  .invoice-box:hover {
+    transform: translateY(-5px); /* Lift on hover */
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  }
+  .invoice-box.blue {
+    color: #2f5bea;
+  }  
+  .invoice-box.green {
+    color: #008000;
+  }
+
+  .invoice-box.red {
+    color: #d33;
+  }
+
+  .invoice-box .label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #000;
+    margin: 6px 0 0 0;
+  }
+
+  .invoice-box .count {
+    font-size: 28px;
+    font-weight: bold;
+    margin: 0;
+  }
+</style>
+<div class="invoice-summary-container">
+  <div class="invoice-box blue" onclick="invDetailReport('<%= l(:label_invoice) %>', '<%= @from %>', '<%= @to %>')">
+
+    <div class="count"><%= Setting.plugin_redmine_wktime['wktime_currency']%><%= number_with_precision(@invoice, precision: 2, delimiter: ',') %></div>
+    <div class="label"><%= l(:label_invoice) %></div>
+  </div>
+
+  <div class="invoice-box green" onclick="invDetailReport('<%= l(:label_payments) %>', '<%= @from %>', '<%= @to %>')">
+    <div class="count"><%= Setting.plugin_redmine_wktime['wktime_currency']%><%= number_with_precision(@payment, precision: 2, delimiter: ',') %></div>
+    <div class="label"><%= l(:label_payments) %></div>
+  </div>
+
+  <div class="invoice-box red" onclick="invDetailReport('<%= l(:wk_field_balance) %>', '<%= @from %>', '<%= @to %>')">
+    <div class="count"><%= Setting.plugin_redmine_wktime['wktime_currency']%><%= number_with_precision(@balance, precision: 2, delimiter: ',') %></div>
+    <div class="label"><%= l(:wk_field_balance) %></div>
+  </div>
+</div>

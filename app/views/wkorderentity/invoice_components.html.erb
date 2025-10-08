@@ -12,7 +12,7 @@
 	<%= render partial: 'sidebar' %>
 </div>
 <%= render partial: "wkbilling/render_billing_tabs" %>
-<%= form_tag({controller: 'wkinvoice', action: 'saveInvoiceComponents'}, method: :post) do %>
+<%= form_tag({controller: 'wkinvoice', action: 'save_invoice_components'}, method: :post) do %>
 	<%= hidden_field_tag 'invoice[comp_del_ids]', "" %>
     <fieldset>
 		<legend><%= l(:label_invoice_components) %></legend>

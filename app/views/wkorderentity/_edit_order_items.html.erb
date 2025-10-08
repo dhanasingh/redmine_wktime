@@ -4,7 +4,7 @@
 <script type="text/javascript">
 	prevTab = 'tab-<%= "wkreport" %>';
 	wkInvReportUrl = '<%=url_for(:controller => controller_name, :action => "edit", :tab => controller_name)%>';
-	grpUrl="<%= "#{url_for(:controller => "wkreport", :action => 'getMembersbyGroup')}" %>";
+	grpUrl="<%= "#{url_for(:controller => "wkreport", :action => 'get_membersby_group')}" %>";
 	var label_tax = "<%= l(:label_tax) %>";
 	var label_prod_item = "<%= l(:label_select_product_item) %>";
 	var delete_all_row = "<%= l(:warn_delete_all_rows) %>";

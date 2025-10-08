@@ -6,7 +6,7 @@
 
 %>
 <script type="text/javascript">
-	productModifyUrl="<%= "#{url_for(:controller => "wkshipment", :action => 'populateProductItemDD')}" %>";
+	productModifyUrl="<%= "#{url_for(:controller => "wkshipment", :action => 'load_product_items')}" %>";
 </script>
 <%=h hidden_field_tag("project_id",  'null' )  %>
 <div class="wk-contextual">

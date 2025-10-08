@@ -75,7 +75,7 @@
 				<tr>
 					<th style="text-align: left"><%= l(:label_project) %></th>
 					<td style="text-align: left;padding-left:40px;">
-						<%=h select_tag("project_id", options_for_select(getProjects, :selected => invntItem.blank? ? "" : invntItem.project_id), :disabled => isDisable && !isTransfer) %>
+						<%=h select_tag("project_id", options_for_select(get_projects, :selected => invntItem.blank? ? "" : invntItem.project_id), :disabled => isDisable && !isTransfer) %>
 					</td>
 				</tr>
 			<% end %>

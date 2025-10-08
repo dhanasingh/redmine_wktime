@@ -1,6 +1,7 @@
 <%= javascript_include_tag 'invoice', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <br/>
+<%= title l(:label_transaction) %>
 <script>
 deleteMsg = "<%= l(:label_unable_delete)  %>";
 transValidMsg = "<%= l('activerecord.errors.messages.not_a_number') %>";

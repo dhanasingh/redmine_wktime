@@ -84,7 +84,7 @@
 		<%=h select_tag("location_id_#{row_index.to_s}", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', entry.location_id, false), :disabled => isDisable, :style => "width: 80px;", :required => true) %>
 	</td>
 	<td class="lbl-txt-align" headers="project_id">
-		<%=h select_tag("project_id_#{row_index.to_s}", options_for_select(getProjects, :selected => entry.project_id), :disabled => isDisable, :style => "width: 80px;") %>
+		<%=h select_tag("project_id_#{row_index.to_s}", options_for_select(get_projects, :selected => entry.project_id), :disabled => isDisable, :style => "width: 80px;") %>
 	</td>
 	<td>
 		<% unless isDisable || !controller.hasDeletePermission %>

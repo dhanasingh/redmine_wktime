@@ -14,9 +14,16 @@
 				accountId =session[controller_name].try(:[], :account_id)
 				filterSession =session[controller_name].try(:[], :polymorphic_filter)
 				projid =session[controller_name].try(:[], :project_id) %>
-			<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :filter_session => filterSession, :project_id => projid, :pjtChanged => false, :isapply => false, :isproject => false, :isAll => true, :blankOptionForPjt => true, :blankForActDD => true, :blankForContactDD => true, :isFilter => true, :loadSIDD => false } %>
+			<div style="display: flex; align-items: center; gap: 10px;">
+				<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :filter_session => filterSession, :project_id => projid, :pjtChanged => false, :isapply => false, :isproject => false, :isAll => true, :blankOptionForPjt => true, :blankForActDD => true, :blankForContactDD => true, :isFilter => true, :loadSIDD => false } %>
 
-			<%= render :partial => 'wkpaymententity/date_range' %>
+				<%= render :partial => 'wktime/date_range' %>
+				<%=h hidden_field_tag('generate', false) %>
+			</div>
+			<p class="buttons">
+				<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
+				<%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
+			</p>
 			<div style="clear:both;"></div>
 		</fieldset>
 <% end %>

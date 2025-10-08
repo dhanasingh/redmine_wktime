@@ -31,7 +31,8 @@ class WkAccount < ApplicationRecord
     'industry',
     'description',
     'annual_revenue',
-    'location_id'
+    'location_id',
+    'assigned_user_id'
   )
   belongs_to :address, :class_name => 'WkAddress', :dependent => :destroy
   has_many :billable_projects, as: :parent, class_name: "WkAccountProject", :dependent => :destroy

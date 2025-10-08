@@ -1,5 +1,5 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<%= form_tag({:controller => 'wkproductitem', :action => 'updateTransfer'}, :method => :post, :id => 'query_form') do %>
+<%= form_tag({:controller => 'wkproductitem', :action => 'update_transfer'}, :method => :post, :id => 'query_form') do %>
 	<h2><b><%=l(:label_transfer) %></b></h2>
 	<div id="product_item_form">
 		<%=h hidden_field_tag('product_item_id', @transferItem.product_item_id) %>

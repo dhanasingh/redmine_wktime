@@ -45,7 +45,7 @@ module Wkdashboard
       end
     end
 
-    def getDetailReport(param={})
+    def get_detail_report(param={})
       getFinancialDates(param)
       invoiceEntries = getInvoiceEntries.order("invoice_date DESC")
       paymentEntries = getPaymentEntries.order("payment_date DESC")

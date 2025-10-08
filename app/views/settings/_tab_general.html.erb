@@ -66,4 +66,8 @@
 		<p style="padding-left:220px;">
 			<%= check_box_tag('settings[wktime_hide_amount_in_words]', 1, @settings['wktime_hide_amount_in_words'].to_i == 1) %> <label><%= l(:label_hide_amount_in_words) %></label>
 		</p>
+		<p style="padding-left:220px;">
+			<%= check_box_tag 'settings[wk_dashboard_as_home]', '1', @settings['wk_dashboard_as_home'].to_i == 1, id: "wk_dashboard_as_home" %>
+			<label for="wk_dashboard_as_home"> <%= l(:label_dashboard_as_home) %></label>
+		</p>
 	</fieldset>

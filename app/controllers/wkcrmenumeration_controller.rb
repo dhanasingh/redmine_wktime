@@ -21,7 +21,7 @@ class WkcrmenumerationController < WkbaseController
   before_action :require_login
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
 
-  accept_api_auth :getCrmEnumerations
+  accept_api_auth :get_crm_enumerations
   include WkcrmenumerationHelper
 
     def index
@@ -126,7 +126,7 @@ class WkcrmenumerationController < WkbaseController
 		end
 	end
 
-	def getCrmEnumerations
+	def get_crm_enumerations
 		if params[:enum_type]
 			enums= getEnumerations(params[:enum_type])
 			render json: enums

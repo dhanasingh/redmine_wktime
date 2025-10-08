@@ -21,8 +21,8 @@ class WkbaseController < ApplicationController
 
 	before_action :require_login
 	before_action :clear_sort_session, :unseen
-	before_action :check_update_user_permissions, :only => [:updateWkuserData, :getWkuserData, :updateWkuserVal]
-	accept_api_auth :getUserPermissions, :updateClockInOut, :my_account, :get_groups, :saveIssueTimeLog
+	before_action :check_update_user_permissions, :only => [:update_wkuser_data, :update_wkuser_val]
+	accept_api_auth :get_user_permissions, :update_clockinout, :my_account, :get_groups, :save_issue_log
 	helper :sort
   helper :custom_fields
   helper :users
@@ -42,7 +42,7 @@ class WkbaseController < ApplicationController
 	def destroy
 	end
 
-	def updateClockInOut
+	def update_clockinout
 		lastAttnEntries = findLastAttnEntry(true)
 		@lastAttnEntry = lastAttnEntries[0] if !lastAttnEntries.blank?
 		entryTime  =  (params.has_key?("end_time".to_sym) && params[:end_time].present?) ?  params[:end_time].to_time : (params.has_key?("start_time".to_sym) && params[:start_time].present?) ? params[:start_time].to_time : Time.now
@@ -146,7 +146,7 @@ class WkbaseController < ApplicationController
 		end
 	end
 
-	def getUserPermissions
+	def get_user_permissions
 		wkpermissons = WkPermission.getPermissions
 		settings = {}
 		languageFiles = []
@@ -183,7 +183,7 @@ class WkbaseController < ApplicationController
 		end
 	end
 
-	def saveIssueTimeLog
+	def save_issue_log
 		entryTime = get_current_DateTime
 		errorMsg = ""
 		if params[:issue_id].present?
@@ -358,23 +358,23 @@ class WkbaseController < ApplicationController
 		pdf
 	end
 
-	def getWkuserData()
+	def get_wkuser_data()
 		data = WkUser.decrypt_user_credentials(params[:userID], params[:columnName])
 		render json: {data: data, title: params[:title]}
 	end
 
-	def updateWkuserData
+	def update_wkuser_data
 		data = WkUser.updateWkUser(params[:userID], params[:columnName], params[:value])
 		render json: {data: data}
 	end
 
-	def updateWkuserVal
-		data = WkUser.showEncryptdData(params[:userID], params[:columnName])
+	def update_wkuser_val
+		data = WkUser.show_data(params[:userID], params[:columnName])
 		render json: {data: data}
 	end
 
 	def check_update_user_permissions
-		unless User.current.admin? && (['tax_id', 'account_number', 'ss_id'].include?(params[:columnName]))
+		unless validateERPPermission('A_EMP') && (['tax_id', 'account_number', 'ss_id'].include?(params[:columnName]))
 			render json: {error: l(:notice_not_authorized)}
 		end
 	end

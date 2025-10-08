@@ -1,8 +1,8 @@
 <%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
 <%= javascript_include_tag 'index', plugin: "redmine_wktime" %>
 <script type="text/javascript">
-	productModifyUrl="<%= "#{url_for(controller: "wklogmaterial", action: 'modifyProductDD')}" %>";
-	productItemUrl="<%= "#{url_for(controller: "wkproductitem", action: 'getItemDetails')}" %>";
+	productModifyUrl="<%= "#{url_for(controller: "wklogmaterial", action: 'modify_product_dd')}" %>";
+	productItemUrl="<%= "#{url_for(controller: "wkproductitem", action: 'get_item_details')}" %>";
 	delImg = '<%= sprite_icon("del") %>';
 </script>
 <h2><b><%= l(:label_assemble_item) %></b></h2>

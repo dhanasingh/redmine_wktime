@@ -1,0 +1,112 @@
+<%= javascript_include_tag 'wkuser', plugin: "redmine_wktime" %>
+<h2><%= l(:label_employee) %></h2>
+<%
+  roleArr = Role.order(:name).pluck(:name, :id)
+  genderHash = get_genders
+  locationArr = WkLocation.order(:name).pluck(:name, :id)
+  departmentArr = WkCrmEnumeration.where(enum_type: 'DP').order(:name).pluck(:name, :id)
+  maritalArr = WkCrmEnumeration.where(enum_type: 'MS').order(:name).pluck(:name, :id)
+  emergContactTypeArr = WkCrmEnumeration.where(enum_type: 'EC').order(:name).pluck(:name, :id)
+  dept_section_arr = WkCrmEnumeration.where(enum_type: 'DS').order(:position).pluck(:name, :id)
+  shiftArr = WkShift.where(in_active: true, is_schedulable: true).order(:name).pluck(:name, :id)
+  shiftArr.unshift(["",''])
+  parentArr = User.where.not("lft >= #{@user.lft} and rgt <= #{@user.rgt}")
+                .order('firstname')
+                .pluck(:firstname, :lastname, :id)
+                .map { |f, l, id| ["#{f} #{l}", id] }
+                .unshift(['', ''])
+%>
+
+<p><b><%=l(:field_user)%> : <%= @user.name %></b></p><br>
+<%= form_with model: @wkuser, method: "post", url: {action: "save", id: @user.id} do |f| %>
+  <div class="splitcontent">
+    <div class="splitcontentleft">
+      <fieldset class="box tabular">
+        <legend><%=l(:label_employee)%> <%=l(:label_details)%></legend>
+        
+        <p>
+          <label><b><%= l(:label_ftte_supervisor) %></b></label>
+          <%= select_tag :parent_id, options_for_select(parentArr, selected: @user.parent_id || '') %>
+        </p>
+        
+        <%= labelled_fields_for :erpmineuser, @wkuser do |f| %>
+          <%= f.hidden_field "id" %>
+          <%= f.hidden_field "user_id" %>
+          <p><%= f.date_field :join_date %></p>
+          <%= calendar_for('erpmine_join_date') %>
+          <p><%= f.date_field :termination_date %></p>
+          <%= calendar_for('erpmine_termination_date') %>
+          <p><%= f.date_field :birth_date %></p>
+          <%= calendar_for('erpmine_birth_date') %>
+          <p><%= f.select :role_id, roleArr, {} %></p>
+          <p><%= f.select :gender, genderHash.invert, {} %></p>
+          <p><%= f.select :marital_id, maritalArr, {label:l(:label_marital_status)} %></p>
+          <p><%= f.text_field :emergency_contact %></p>
+          <p><%= f.select :emerg_type_id, emergContactTypeArr, {label:l(:label_emerg_contact_type)} %></p>
+          <p><%= f.text_field :employee_id, label:l(:label_employee_id) %></p>
+          <p><%= f.text_field :state_insurance, label:l(:label_state_insurance) %></p>
+          <p><%= f.select :location_id, locationArr, {} %></p>
+          <p><%= f.select :department_id, departmentArr, {} %></p>
+          <p><%= f.select :dept_section_id, dept_section_arr, {label:l(:label_dept_section)} %></p>
+          <p><%= f.check_box :is_schedulable %></p>
+          <p><%= f.select :shift_id, shiftArr, {} %></p>
+
+          <p><%= f.text_field :bank_name %></p>
+          <% if !@user&.id&.present? %>
+            <p><%= f.text_field :account_number %></p>
+          <% else %>
+            <p style="display: flex; align-items: center; gap: 3px;">
+              <%= f.text_field :account_number, value: WkUser.show_data(@user&.id, 'account_number'), disabled: true %>
+              <%= link_to popup_svg, "javascript: edit_data('#{@user&.id}', '#{'account_number'}', '#{l(:label_account_number)}');" %>
+            </p>
+          <% end %>
+
+          <p><%= f.text_field :bank_code %></p>
+          <% if !@user&.id&.present? %>
+          <p><%= f.text_field :tax_id %></p>
+          <% else %>
+          <p style="display: flex; align-items: center; gap: 3px;">
+            <%= f.text_field :tax_id, value: WkUser.show_data(@user&.id, 'tax_id'), disabled: true %>
+            <%= link_to popup_svg, "javascript: edit_data('#{@user&.id}', '#{'tax_id'}', '#{l(:field_tax)}');"%>
+          </p>
+          <% end %>
+
+          <% if !@user&.id&.present? %>
+          <p><%= f.text_field :ss_id %></p>
+          <% else %>
+          <p style="display: flex; align-items: center; gap: 3px;">
+            <%= f.text_field :ss_id, value: WkUser.show_data(@user&.id, 'ss_id'), disabled: true %>
+            <%= link_to popup_svg, "javascript: edit_data('#{@user&.id}', '#{'ss_id'}',  '#{l(:field_ss)}');" %>
+          </p>
+          <% end %>
+
+          <p><%= f.text_field :retirement_account, label:l(:field_retirement_account) %></p>
+          <p><%= f.text_area :notes %></p>
+          <p><%= f.text_field :id1 %></p>
+          <p><%= f.text_field :id2 %></p>
+          <p><%= f.text_field :id3 %></p>
+          <p><%= f.text_field :custom_number1 %></p>
+          <p><%= f.text_field :custom_number2 %></p>
+          <p><%= f.date_field :custom_date1 %></p>
+          <%= calendar_for('erpmine_custom_date1') %>
+          <p><%= f.date_field :custom_date2 %></p>
+          <%= calendar_for('erpmine_custom_date2') %>
+        <% end %>
+      </fieldset>
+    </div>
+    <div class="splitcontentright">
+      <%= hidden_field_tag('address_id', @wkuser&.address_id&.presence || "") %>
+      <%= render partial: "wklead/contact_info", locals: { address: @wkuser.address, disable: false }%>
+      <%= hidden_field_tag "attachment_ids", "" %>
+      <%= labelled_fields_for :erpmineuser, @wkuser do |f| %>
+        <%= f.hidden_field "source_type" %>
+        <%= f.hidden_field "source_id" %>
+      <% end %>
+      <%= render partial: "wkdocument/attachment_form", locals: { container: @user, container_type: "Principal", editable: true, deletable: true, hideImage: true } %>
+    </div>
+  </div>
+  <div style="clear:left;"></div>
+  <%= f.submit "Save" %>
+<% end %>
+
+<div id="user-dlg"></div>

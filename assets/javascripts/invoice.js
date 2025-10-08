@@ -152,7 +152,7 @@ $(document).ready(function() {
 
 			$("[id^='project_id_']").change(function(){
 				//load itemDD
-				url = "/"+controller_name+"/getIssueDD";
+				url = "/"+controller_name+"/get_issue_dd";
 				data = {project_id: $(this).val() };
 				let row = parseInt((this.name).split('_').pop());
 				changeDD = document.getElementById("invoice_item_id_"+row);
@@ -306,7 +306,7 @@ function invoiceAddRow(tableId, rowCount){
 	if (["I", "SQ"].includes($('#invoice_type').val())){
 		let changeDD = document.getElementById("invoice_item_id_"+rowlength);
 		$.ajax({
-			url:  "/"+controller_name+"/getIssueDD",
+			url:  "/"+controller_name+"/get_issue_dd",
 			data: {project_id: $("#invoiceTable #project_id_"+rowlength).val() },
 			success: function(resData){
 				updateUserDD(resData, changeDD, 1, true, false, label_prod_item);
@@ -734,13 +734,13 @@ function setDescription(isonload){
 }
 
 function showQuantityDetails(invItemId, itemType) {
-	var url = "/wkinvoice/getQuantityDetails";
+	var url = "/wkinvoice/get_quantity_details";
 	var data = {inv_item_id: invItemId, itemType}
 	getSpentDetails(url, data)
 }
 
 function showUnbillQtyDetails(project_id, issue_id, start_date, end_date, parent_id, parent_type, itemType) {
-	var url = "/wkinvoice/getUnbilledQtyDetails";
+	var url = "/wkinvoice/get_unbilled_qty_details";
 	var data = {project_id, start_date, end_date, parent_id, parent_type, issue_id, itemType}
 	getSpentDetails(url, data)
 }
@@ -763,7 +763,7 @@ function getSpentDetails(url, data){
 
 
 function selectEntryPopup() {
-	var url = "/wkinvoice/generateTimeEntries";
+	var url = "/wkinvoice/generate_time_entries";
 	var dateval = new Date(document.getElementById("to").value);
 	var fromdateval = new Date(document.getElementById("from").value);
 	toDate = dateval.getFullYear() + '-' + (("0" + (dateval.getMonth() + 1)).slice(-2)) + '-' + (("0" + dateval.getDate()).slice(-2));
@@ -997,17 +997,17 @@ function invItemChange(ele){
 	switch(itemType){
 		case 'm':
 			$("#invoiceTable #invoice_item_type_"+row).val('WkInventoryItem');
-			url = "/wklogmaterial/modifyProductDD";
+			url = "/wklogmaterial/modify_product_dd";
 			data = {ptype: 'product_item', log_type: 'I', module_type: 'invoice'};
 			break;
 		case 'a':
 			$("#invoiceTable #invoice_item_type_"+row).val('WkInventoryItem');
-			url = "/wklogmaterial/modifyProductDD";
+			url = "/wklogmaterial/modify_product_dd";
 			data = {ptype: 'product_item', log_type: 'A', module_type: 'invoice'};
 			break;
 		default:
 			$("#invoiceTable #invoice_item_type_"+row).val('Issue');
-			url = "/"+controller_name+"/getIssueDD";
+			url = "/"+controller_name+"/get_issue_dd";
 			data = {project_id: $("#invoiceTable #project_id_"+row).val() };
 	}
 
@@ -1017,7 +1017,7 @@ function invItemChange(ele){
 		success: function(resData){
 			if(additional_item_type && itemType =='a'){
 				$.ajax({
-					url: "/wklogmaterial/modifyProductDD",
+					url: "/wklogmaterial/modify_product_dd",
 					data: {ptype: 'product_item', log_type: additional_item_type, module_type: 'invoice'},
 					success: function(resData1){
 						resData = resData+resData1
@@ -1043,7 +1043,7 @@ function fillInvFields(row){
 	var project_id = $("#invoiceTable #project_id_"+row).val();
 	var invoice_type = $("#invoice_type").val();
 	var data = {};
-	url = "/wkorderentity/getInvDetals";
+	url = "/wkorderentity/get_inv_detals";
 	data = {item_id: inventory_id, itemType: itemType, invoice_type: invoice_type, project_id: project_id};
 	$.ajax({
 		url: url,
@@ -1085,7 +1085,7 @@ function saveEntity(){
 		}
 	});
 	keys = Object.keys(qty)
-	url = "/wkorderentity/checkQty";
+	url = "/wkorderentity/check_qty";
 	data = {inventory_itemID: keys }
 	$.ajax({
 		url: url,

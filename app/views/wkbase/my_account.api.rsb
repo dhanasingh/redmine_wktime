@@ -40,9 +40,9 @@ api.user do
     api.tax_id WkUser.decrypt_user_credentials(@user&.id, 'tax_id')
     api.ss_id WkUser.decrypt_user_credentials(@user&.id, 'ss_id')
     api.retirement_account @user&.erpmineuser&.retirement_account
-    api.encrypt_tax_id WkUser.showEncryptdData(@user&.id, 'tax_id')
-    api.encrypt_ss_id WkUser.showEncryptdData(@user&.id, 'ss_id')
-    api.encrypt_account_number WkUser.showEncryptdData(@user&.id, 'account_number')
+    api.encrypt_tax_id WkUser.show_data(@user&.id, 'tax_id')
+    api.encrypt_ss_id WkUser.show_data(@user&.id, 'ss_id')
+    api.encrypt_account_number WkUser.show_data(@user&.id, 'account_number')
     api.id1 @user&.erpmineuser&.id1
     api.id2 @user&.erpmineuser&.id2
     api.id3 @user&.erpmineuser&.id3

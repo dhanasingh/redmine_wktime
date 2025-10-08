@@ -1,7 +1,7 @@
 <%= javascript_include_tag 'crmactivity', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript">
-	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds', :additionalContactType => controller.additionalContactType, :additionalAccountType => controller.additionalAccountType)}" %>";
+	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'get_act_related_ids', :additionalContactType => controller.additionalContactType, :additionalAccountType => controller.additionalAccountType)}" %>";
 </script>
 <%
 	hr = []

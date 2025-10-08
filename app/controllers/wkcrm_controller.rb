@@ -22,12 +22,12 @@ class WkcrmController < WkbaseController
   before_action :check_crm_admin_and_redirect, :only => [:destroy]
   include WkcrmHelper
   include WktimeHelper
-  accept_api_auth :getActRelatedIds, :getCrmUsers
+  accept_api_auth :get_act_related_ids, :get_crm_users
 
 	def index
 	end
 
-	def getActRelatedIds
+	def get_act_related_ids
 		relatedArr = params[:format] == "json" ? [] : ""
 		relatedId = nil
 
@@ -102,7 +102,7 @@ class WkcrmController < WkbaseController
 		true
 	end
 
-	def getCrmUsers
+	def get_crm_users
 		render json: get_crm_Users
 	end
 
@@ -124,6 +124,7 @@ class WkcrmController < WkbaseController
 		wkaccount.name = params[:account_name]
 		wkaccount.account_type = getAccountType
 		wkaccount.account_number = params[:account_number]
+		wkaccount.assigned_user_id = params[:assigned_user_id]
 		wkaccount.account_category = params[:account_category]
 		wkaccount.description = params[:description]
 		wkaccount.tax_number = params[:tax_number]
@@ -178,34 +179,60 @@ class WkcrmController < WkbaseController
 	end
 
 	def convert
-		leadConvert(params)
-		rm_resident_id = @hookType.blank? ? nil : @hookType[0][2]
-		unless @account.blank?
-			controllerName = @hookType.blank? ? 'wkcrmaccount' : @hookType[0][1]
-			flash[:notice] = l(:notice_successful_convert)
-			redirect_to controller: controllerName, action: 'edit', account_id: @account.id, id: @account.id, rm_resident_id: rm_resident_id
-		else
-			controllerName = @hookType.blank? ? 'wkcrmcontact' : @hookType[0][1]
-			if @lead.valid?
-				flash[:notice] = l(:notice_successful_convert)
+		notice    = l(:notice_successful_convert)
+		error_msg = nil
+		redirect_params = { action: 'edit' }
+		target = nil
+		target_id = nil
+
+		WkLead.transaction do
+			error_msg = leadConvert(params)
+			redirect_params = { account_id: @account&.id, contact_id: @contact&.id, lead_id: @lead&.id }
+				if @hookType.present? && @hookType[0].present? && @hookType[0][3].present?
+					redirect_params[@hookType[0][3]] = @hookType[0][2]
+				end
+
+			if @account.present?
+				target = @hookType.blank? ? 'wkcrmaccount' : @hookType[0][1]
+				target_id = @account.id
 			else
-				flash[:error] = @lead.errors.full_messages.join("<br>")
-				controllerName = 'wklead'
+				target = @hookType.blank? ? 'wkcrmcontact' : @hookType[0][1]
+				target = 'wklead' if error_msg.present?
+				target = 'wkreferrals' if @contact&.contact_type == 'IC'
+				target_id = @lead&.id
 			end
-			controllerName = "wkreferrals" if @contact.contact_type == "IC"
-		  redirect_to controller: controllerName, action: 'edit', contact_id: @contact.id, lead_id: @lead.id, id: @lead.id, rm_resident_id: rm_resident_id
+			if error_msg.blank?
+				res = post_conversion
+				if res.present?
+					target = res[:target] 
+					target_id = res[:target_id]
+					redirect_params[:action] = res[:action]
+				end
+			else
+				raise ActiveRecord::Rollback
+			end
 		end
+
+		if error_msg.present?
+			flash[:error] = error_msg
+		elsif notice.present?
+			flash[:notice] = notice
+		end
+
+		redirect_to redirect_params.merge(controller: target, id: target_id, tab: target)
 	end
 
 	def leadConvert(params)
 		@lead = nil
-		errorMsg = nil
+		errorMsg = ""
 		@lead = WkLead.find(params[:lead_id]) unless params[:lead_id].blank?
 		@lead.status = 'C'
 		@lead.updated_by_user_id = User.current.id
 		@contact = @lead.contact
 		if @contact.contact_type == "IC"
-			@lead.save
+			unless @lead.save
+				errorMsg += @lead.errors.full_messages.join("<br>")
+			end
 			convertToContact
 		else
 			@account = @lead.account
@@ -215,30 +242,31 @@ class WkcrmController < WkbaseController
 			else
 				@contact.contact_type = @hookType.blank? ? getContactType : @hookType[0][0]
 			end
-			@lead.save
-			convertToAccount unless @account.blank?
-			convertToContact
+			unless @lead.save
+				errorMsg += @lead.errors.full_messages.join("<br>")
+			end
+			errorMsg += convertToAccount unless @account.blank?
+			errorMsg += convertToContact
 		end
+		errorMsg
 	end
 
 	def convertToAccount
-		# @account.account_type = 'A'
 		@account.updated_by_user_id = User.current.id
 		address = nil
 		unless @contact.address.blank?
 			address = copyAddress(@contact.address)
 			@account.address_id = address.id
 		end
-		@account.save
+		@account.save ? "" : @account.errors.full_messages.join("<br>")
 	end
 
-	def convertToContact #(contactType)
+	def convertToContact
 		@contact.updated_by_user_id = User.current.id
-		#@contact.contact_type = contactType
 		unless @account.blank?
 			@contact.account_id = @account.id
 		end
-		@contact.save
+		@contact.save ? "" : @contact.errors.full_messages.join("<br>")
 	end
 
 	def copyAddress(source)
@@ -246,6 +274,9 @@ class WkcrmController < WkbaseController
 		target = source.dup
 		target.save
 		target
+	end
+
+	def post_conversion
 	end
 
 	def is_referral

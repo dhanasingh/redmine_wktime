@@ -2,8 +2,8 @@
 <%= back_url_hidden_field_tag %>
 <script type="text/javascript">
 	no_asset = '<%=l(:label_no_asset_current_product) %>';
-	assetUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
-	productAssetUrl="<%= "#{url_for(controller: "wkasset", action: 'getProductAsset', newDepr: 'true')}" %>";
+	assetUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modify_product_dd')}" %>";
+	productAssetUrl="<%= "#{url_for(controller: "wkasset", action: 'get_product_asset', newDepr: 'true')}" %>";
 </script>
 <%
 logmaterial_helper = Object.new.extend(WklogmaterialHelper)

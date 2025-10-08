@@ -61,7 +61,7 @@ module Wkcrmdashboard
       data
     end
 
-    def getDetailReport(param = {})
+    def get_detail_report(param = {})
       to = param[:to].end_of_week
       from = param[:to].beginning_of_week
 

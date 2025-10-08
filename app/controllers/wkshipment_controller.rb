@@ -307,7 +307,7 @@ include WkinventoryHelper
 		6
 	end
 
-	def populateProductItemDD
+	def load_product_items
 		itemArr = ""
 		sqlCond = " product_id = #{params[:product_id].to_i}"
 		if params[:update_DD] == 'product_attribute_id' && !params[:product_id].blank?
@@ -342,7 +342,7 @@ include WkinventoryHelper
 		end
 	end
 
-	def getSupplierInvoices
+	def get_supplier_invoices
 		siArr = ""
 		supplier_invoices = WkInvoice.get_invoice_numbers(params[:parent_type], params[:parent_id], 'SI')
 		siArr << "" + ',' +  "" + "\n"
@@ -367,7 +367,7 @@ include WkinventoryHelper
 		false
 	end
 
-	def getProductUOMID
+	def get_product_uom
 		uomID = ''
 		product = WkProduct.find(params[:product_id].to_i)
 		uomId = product.uom_id if product.present?
@@ -394,7 +394,7 @@ include WkinventoryHelper
 		invoice.update(:status => 'o') if invoice_items.sum(:quantity) > received_qty_total
 	end
 
-	def checkQuantityAndSave
+	def check_quantity
 		invoice = WkInvoice.find(params[:si_id].to_i)
 		received_qty = 0
 		invoice_items = WkInvoice.filterInvItems(invoice)

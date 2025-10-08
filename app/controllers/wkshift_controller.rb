@@ -84,7 +84,7 @@ class WkshiftController < WkbaseController
 
 	end
 
-	def shiftRoleUpdate
+	def shift_role_update
 		count = 0
 		errorMsg = ""
 		unless params[:actual_ids].blank?

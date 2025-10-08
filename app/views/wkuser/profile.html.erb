@@ -1,0 +1,214 @@
+<%= javascript_include_tag 'wkuser', :plugin => "redmine_wktime" %>
+<%= title l(:label_employee) %>
+<%= render partial: "wkattendance/render_hr_tabs" unless validateERPPermission('A_EMP') %>
+
+<p><b><%=l(:field_user)%> : <%= @user.name %></b></p><br>
+<div>
+  <div class="splitcontent">
+    <div class="splitcontentleft">
+      <fieldset class="box tabular">
+        <legend><%=l(:label_employee)%> <%=l(:label_details)%></legend>
+        <table>
+          <tr>
+            <th align="left"><%= l(:label_ftte_supervisor) %></th>
+            <td> <%= ": #{@user.supervisor&.name}" %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_join_date) %></th>
+            <td> <%= ": " + @wkuser&.join_date.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_termination_date) %></th>
+            <td> <%= ": " + @wkuser&.termination_date.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_birth_date) %></th>
+            <td> <%= ": " + @wkuser&.birth_date.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_role) %></th>
+            <td> <%= ": " + @wkuser&.role&.name.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_gender) %></th>
+            <td> <%= ": " + get_genders[@wkuser&.gender].to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:label_marital_status) %></th>
+            <td> <%= ": " + @wkuser&.marital&.name.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_emergency_contact) %></th>
+            <td> <%= ": " + @wkuser&.emergency_contact.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:label_emerg_contact_type) %></th>
+            <td> <%= ": " + @wkuser&.emerg_type&.name.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:label_employee_id) %></th>
+            <td> <%= ": " + @wkuser&.employee_id.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:label_state_insurance) %></th>
+            <td> <%= ": " + @wkuser&.state_insurance.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_location) %></th>
+            <td> <%= ": " + @wkuser&.location&.name.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_department) %></th>
+            <td> <%= ": " + @wkuser&.department&.name.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:label_dept_section) %></th>
+            <td> <%= ": " + @wkuser&.dept_section&.name.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_is_schedulable) %></th>
+            <td> <%= ": " + (@wkuser&.is_schedulable ? "Yes" : "No")%> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_shift) %></th>
+            <td> <%= ": " + @wkuser&.shift&.name.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_bank_name) %></th>
+            <td> <%= ": " + @wkuser&.bank_name.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_account_number) %></th>
+            <% if @wkuser&.account_number.present? %>
+              <td style="display: flex; align-items: center; gap: 5px;">
+                <span id="wkuser_account_number"><%= ": " + @wkuser&.show_account.to_s %></span>
+                <%= link_to popup_svg, "javascript: show_data('#{@user&.id}', '#{'account_number'}', '#{l(:label_account_number)}');" %>
+              </td>
+            <% else %>
+              <td> <%= ": " %> </td>
+            <% end %>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_bank_code) %></th>
+            <td> <%= ": " + @wkuser&.bank_code.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_tax) %></th>
+            <% if @wkuser&.tax_id.present? %>
+              <td style="display: flex; align-items: center; gap: 5px;">
+                <span id="wkuser_tax_id"><%= ": " + @wkuser&.show_tax.to_s %></span>
+                <%= link_to popup_svg, "javascript: show_data('#{@user&.id}', '#{'tax_id'}', '#{l(:field_tax)}');"%>
+              </td>
+            <% else %>
+              <td> <%= ": " %> </td>
+            <% end %>
+            </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_ss) %></th>
+            <% if @wkuser&.ss_id.present? %>
+              <td style="display: flex; align-items: center; gap: 5px;">
+                <span id="wkuser_ss_id"><%= ": " + @wkuser&.show_ss.to_s %></span>
+                <%= link_to popup_svg, "javascript: show_data('#{@user&.id}', '#{'ss_id'}',  '#{l(:field_ss)}');" %>
+              </td>
+            <% else %>
+              <td> <%= ": " %> </td>
+            <% end %>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_retirement_account) %></th>
+            <td> <%= ": " + @wkuser&.retirement_account.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_notes) %></th>
+            <td> <%= ": " + @wkuser&.notes.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_id1) %></th>
+            <td> <%= ": " + @wkuser&.id1.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_id2) %></th>
+            <td> <%= ": " + @wkuser&.id2.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_id3) %></th>
+            <td> <%= ": " + @wkuser&.id3.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_custom_number1) %></th>
+            <td> <%= ": " + @wkuser&.custom_number1.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_custom_number2) %></th>
+            <td> <%= ": " + @wkuser&.custom_number2.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_custom_date1) %></th>
+            <td> <%= ": " + @wkuser&.custom_date1.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_custom_date2) %></th>
+            <td> <%= ": " + @wkuser&.custom_date2.to_s %> </td>
+          </tr>
+        </table>
+      </fieldset>
+    </div>
+    <div class="splitcontentright">
+      <fieldset class="box tabular">
+        <legend><%=l(:label_content_information, l(:label_contact))%></legend>
+        <table>
+          <tr>
+            <th align="left"><%= l(:label_work_phone) %></th>
+            <td> <%= ": " + @wkuser&.address&.work_phone.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:label_mobile) %></th>
+            <td> <%= ": " + @wkuser&.address&.mobile.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_mail) %></th>
+            <td> <%= ": " + @wkuser&.address&.email.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:label_fax) %></th>
+            <td> <%= ": " + @wkuser&.address&.fax.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:label_website) %></th>
+            <td> <%= ": " + @wkuser&.address&.website.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:label_account_address1) %></th>
+            <td> <%= ": " + @wkuser&.address&.address1.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:label_account_address2) %></th>
+            <td> <%= ": " + @wkuser&.address&.address2.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:label_city) %></th>
+            <td> <%= ": " + @wkuser&.address&.city.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:label_state) %></th>
+            <td> <%= ": " + @wkuser&.address&.state.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:label_country) %></th>
+            <td> <%= ": " + @wkuser&.address&.country.to_s %> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:label_pin) %></th>
+            <td> <%= ": " + @wkuser&.address&.pin.to_s %> </td>
+          </tr>
+        </table>
+      </fieldset>
+
+      <%= render partial: "wkdocument/attachment_form", locals: { container: @user, container_type: "Principal", editable: false, deletable: false, hideImage: true } %>
+    </div>
+  </div>
+</div>
+
+
+<div id="user-dlg"></div>

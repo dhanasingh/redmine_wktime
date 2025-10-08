@@ -91,7 +91,7 @@
 
 		<td class="lbl-txt-align" headers="project_id">
 			<%= hidden_field_tag("project_id_#{row_index}", entry.project_id, id: "hidden" ) %>
-			<%= select_tag("project_id_#{row_index.to_s}", options_for_select(getProjects, selected: entry.project_id), disabled: isDisable, style: "width: 80px;") %>
+			<%= select_tag("project_id_#{row_index.to_s}", options_for_select(get_projects, selected: entry.project_id), disabled: isDisable, style: "width: 80px;") %>
 		</td>
 		<td></td>
 	<% else %>
@@ -154,7 +154,7 @@
 		</td>
 
 		<td class="lbl-txt-align" headers="project_id">
-			<%= select_tag("project_id_#{row_index.to_s}", options_for_select(getProjects, selected: entry.project_id), disabled: isDisable, style: "width: 80px;") %>
+			<%= select_tag("project_id_#{row_index.to_s}", options_for_select(get_projects, selected: entry.project_id), disabled: isDisable, style: "width: 80px;") %>
 		</td>
 
 		<td>

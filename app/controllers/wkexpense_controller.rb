@@ -22,7 +22,7 @@ class WkexpenseController < WktimeController
   before_action :find_optional_project, :only => [:reportdetail, :report]
   before_action :check_module_permission, :only => [:index]
 
-  accept_api_auth :reportdetail, :index, :edit, :update, :destroy , :deleteEntries, :getCurrency
+  accept_api_auth :reportdetail, :index, :edit, :update, :destroy , :delete_entries, :get_currency
 
   include WkexpenseHelper
   include SortHelper
@@ -91,7 +91,7 @@ class WkexpenseController < WktimeController
     end
   end
 
-  def deleteEntry
+  def delete_entry
     respond_to do |format|
       format.html {
         if delete(params[:id])
@@ -128,7 +128,7 @@ class WkexpenseController < WktimeController
 	0
   end
 
-  def getCurrency
+  def get_currency
     wkCurrency = options_for_currency
     currencies = wkCurrency.map { |cur| { value: cur[1], label: cur[0] }}
     render json: currencies
@@ -348,7 +348,7 @@ private
     session[:wkexpense][:user_id]
   end
 
-  def getStatusFromSession
+  def get_statusFromSession
     session[:wkexpense][:status]
   end
 

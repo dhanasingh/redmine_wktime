@@ -19,7 +19,7 @@ class WkreferralsController < WkleadController
 
   before_action :require_login, :check_module_permission
   before_action :check_perm_and_redirect, only: [:update, :destroy]
-  before_action :check_permission, only: :getEmpDetails
+  before_action :check_permission, only: :get_emp_details
 	menu_item :wkattendance
   include WkreferralsHelper
 
@@ -81,7 +81,7 @@ class WkreferralsController < WkleadController
     redirect_to action: "index", tab: "wkreferrals"
   end
 
-	def getEmpDetails
+	def get_emp_details
     referral = WkLead.referrals(true, params[:id]).first
     attachment_ids = referral.attachments.pluck(:id) if referral.attachments.any?
     data = {
@@ -90,6 +90,49 @@ class WkreferralsController < WkleadController
     }
     render json: data
 	end
+
+  def hired_employee
+    @contact = WkCrmContact.find_by(id: params[:id])
+
+    @user = User.new
+    @user.firstname = @contact&.first_name
+    @user.lastname = @contact&.last_name
+    @user.mail = @contact&.address&.email if @contact&.address.present?
+
+    if request.post?
+      err = ""
+      ActiveRecord::Base.transaction do
+        @user.assign_attributes(user_params)
+
+        @user.build_wk_user(
+          source_id:   @contact.id,
+          source_type: @contact.class.name,
+          location_id: @contact.location_id || WkLocation.default_id
+        )
+
+        if @contact&.address.present?
+          addr_attrs = @contact.address.attributes.slice(
+            'address1', 'address2', 'work_phone', 'home_phone', 'mobile', 'email', 'fax',
+            'city', 'state', 'country', 'pin', 'website'
+          )
+          @user.build_address(addr_attrs)
+        end
+    
+        unless @user.save
+          err = @user.errors.full_messages.join('<br>')
+        end
+      end
+
+      if err.blank?
+        flash[:notice] = l(:notice_successful_create)
+        redirect_to controller: 'wkreferrals', action: 'index', tab: 'wkreferrals'
+      else
+        flash[:error] = err
+        redirect_to action: 'hired_employee', id: @contact&.id
+      end
+    end
+  end
+
 
   def deletePermission
     validateERPPermission("A_REFERRAL")
@@ -139,5 +182,15 @@ class WkreferralsController < WkleadController
 
   def get_filter(key)
     return session[controller_name] && session[controller_name][key]
+  end
+
+  def post_conversion
+    { target: controller_name, action: :hired_employee, target_id: @contact&.id }
+  end
+
+  def user_params
+    params.require(:user).permit(
+      :login, :mail, :firstname, :lastname, :password, :password_confirmation
+    )
   end
 end

@@ -9,7 +9,7 @@ $(function()
 function leaveAvailable(){
     var issueID = $('#leave_type_id').val();
     var userID = $('#user_id').val();
-	var url = "/wkleaverequest/getLeaveAvailableHours?issue_id="+ issueID +"&user_id=" + userID;
+	var url = "/wkleaverequest/get_leave_available_hours?issue_id="+ issueID +"&user_id=" + userID;
       $.ajax({
         url: url,
 		type: 'get',

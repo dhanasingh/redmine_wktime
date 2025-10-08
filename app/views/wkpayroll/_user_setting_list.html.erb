@@ -1,77 +1,128 @@
 <%= javascript_include_tag 'wkpayroll', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+
 <style>
-.table-wrapper {
-	overflow-x:scroll;
-	margin-left: 260px;
+/* Section: Table scroll container */
+#userpayroll {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  min-width: 100%;
 }
-th:first-child {
-	white-space: normal !important;
-	text-align: left;
-	left: 5px;
-	width: 260px;
-	position: absolute;
+
+/* Section: Cell defaults */
+#userpayroll th,
+#userpayroll td {
+  white-space: nowrap;
+}
+
+/* Section: Sticky first column */
+#userpayroll .sticky-col {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 2;
+  background: #fff;
+  min-width: 260px;
+  text-align: left;
+  white-space: normal;
+  box-shadow: 2px 0 0 rgba(0,0,0,0.08);
 }
 </style>
+
 <% if validateERPPermission('A_PAYRL') %>
-	<fieldset>
-		<legend><%= l(:label_filter_plural) %></legend>
-		<%= form_tag({:controller => controller_name, :action => 'usrsettingsindex'}, :method => :get) do %>
-			<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
-			<%= hidden_field_tag('tab', 'payroll') %>
-			<%= hidden_field_tag "searchlist", controller_name %>
-			<%	groupid =session[:wkpayroll].try(:[], :group_id) %>
-			<b><label for='status'><%= l(:field_status) %>:</label></b>
-			<%= select_tag 'status', users_status_options_for_select(@status), :class => "small", :onchange => "this.form.submit(); return false;"  %>
+  <fieldset>
+    <legend><%= l(:label_filter_plural) %></legend>
+    <%= form_tag({:controller => controller_name, :action => 'usrsettingsindex'}, :method => :get) do %>
+      <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
+      <%= hidden_field_tag('tab', 'payroll') %>
+      <%= hidden_field_tag "searchlist", controller_name %>
+      <% groupid = session[:wkpayroll].try(:[], :group_id) %>
 
-			<% if @groups.present? %>
-				<b><label for='group_id' style="padding-left: 10px;"><%= l(:label_group) %>:</label></b>
-				<%= select_tag 'group_id', content_tag('option') + options_from_collection_for_select(@groups, :id, :name,  !groupid.nil? ? groupid.to_i: 0), :onchange => "this.form.submit(); return false;"  %>
-			<% end %>
+      <b><label for='status'><%= l(:field_status) %>:</label></b>
+      <%= select_tag 'status',
+            users_status_options_for_select(@status),
+            :class => "small",
+            :onchange => "this.form.submit(); return false;" %>
 
-			<b><label for='name' style="padding-left: 10px;"><%= l(:label_user) %>:</label></b>
-			<%= text_field_tag 'name', session[controller_name].try(:[], :name), :size => 30 %>
-			<%= submit_tag l(:button_apply), :class => "small", :name => "list" %>
-			<%= link_to sprite_icon('reload', l(:button_clear)), {tab: 'payroll', clear: true}, class: 'icon icon-reload' %>
-		<% end %>
-	</fieldset>
+      <% if @groups.present? %>
+        <b><label for='group_id' style="padding-left: 10px;"><%= l(:label_group) %>:</label></b>
+        <%= select_tag 'group_id',
+              content_tag('option') +
+              options_from_collection_for_select(@groups, :id, :name, !groupid.nil? ? groupid.to_i : 0),
+              :onchange => "this.form.submit(); return false;" %>
+      <% end %>
+
+      <b><label for='name' style="padding-left: 10px;"><%= l(:label_user) %>:</label></b>
+      <%= text_field_tag 'name', session[controller_name].try(:[], :name), :size => 30 %>
+      <%= submit_tag l(:button_apply), :class => "small", :name => "list" %>
+      <%= link_to sprite_icon('reload', l(:button_clear)), {tab: 'payroll', clear: true}, class: 'icon icon-reload' %>
+    <% end %>
+  </fieldset>
 <% end %>
-	&nbsp;
-	<div class="table-wrapper">
-		<table class="list odd-even" id="userpayroll">
-			<thead>
-				<tr>
-					<th><%= l(:field_user) %></th>
-					<% @salary_components.each do |compoment| %>
-						<th style="text-align: center;">
-							<label style="padding-right: 10px;"><%= compoment.name %></label>
-							<% if validateERPPermission('A_PAYRL') %>
-								<%= link_to_function sprite_icon('edit'), "bulk_edit(#{compoment.id})", class: "icon icon-edit", id: compoment.id, style: "cursor: pointer;", action: 'Edit' %>
-								<%= link_to_function sprite_icon('save'), "bulk_edit(#{compoment.id})", class: "icon icon-save", id: "saveIcon_"+compoment.id.to_s, style: "cursor: pointer;display: none;" %>
-							<% end %>
-						</th>
-					<% end %>
-					<th></th>
-				</tr>
-			</thead>
-			<tbody>
-				<% @payroll_entries.each do |entry| -%>
-					<tr class="time-entry <%= cycle("odd", "even") %> <%= entry.status == 3 ? "user locked" : "" %>" >
-						<th id="rowheader_<%=entry.user_id%>"><%=h entry.firstname + ' ' + entry.lastname%></th>
-						<% @salary_components.each do |compoment|
-							salComp = @userSalCompHash[compoment.id.to_s + "_" + entry.user_id.to_s]
-							factor = salComp.present? ? salComp.factor : 0.00
-							depID = salComp.dependent_id
-						%>
-							<%= hidden_field_tag('dep_'+ compoment.id.to_s + '_' + entry.user_id.to_s, depID) %>
-							<td class="rowcontent_<%=entry.user_id%>" style="text-align: center;" id="td_<%= compoment.id.to_s + '_' + entry.user_id.to_s %>"><%= factor %></td>
-						<% end %>
-						<td align="center">
-							<%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'user_salary_settings', :user_id => entry.user_id, :tab => 'payroll'},
-															   :title => l(:button_edit) %>
-						</td>
-					</tr>
-				<% end -%>
-			</tbody>
-		</table>
-	</div>
+
+&nbsp;
+
+<table class="list odd-even" id="userpayroll">
+  <thead>
+    <tr>
+      <th class="sticky-col"><%= l(:field_user) %></th>
+      <% @salary_components.each do |compoment| %>
+        <th style="text-align: center;">
+          <label style="padding-right: 10px;"><%= compoment.name %></label>
+          <% if validateERPPermission('A_PAYRL') %>
+            <%= link_to_function sprite_icon('edit'),
+                  "bulk_edit(#{compoment.id})",
+                  class: "icon icon-edit",
+                  id: compoment.id,
+                  style: "cursor: pointer;",
+                  action: 'Edit' %>
+            <%= link_to_function sprite_icon('save'),
+                  "bulk_edit(#{compoment.id})",
+                  class: "icon icon-save",
+                  id: "saveIcon_"+compoment.id.to_s,
+                  style: "cursor: pointer;display: none;" %>
+          <% end %>
+        </th>
+      <% end %>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @payroll_entries.each do |entry| -%>
+      <tr class="time-entry <%= cycle("odd", "even") %> <%= entry.status == 3 ? "user locked" : "" %>">
+        <th class="sticky-col" id="rowheader_<%= entry.user_id %>">
+          <%= link_to entry&.user&.name,
+                { :controller => controller.controller_name,
+                  :action => 'user_salary_settings',
+                  :user_id => entry.user_id,
+                  :tab => 'payroll' },
+                style: "color: #0c66e4" %>
+        </th>
+
+        <% @salary_components.each do |compoment|
+            salComp = @userSalCompHash[compoment.id.to_s + "_" + entry.user_id.to_s]
+            factor = salComp.present? ? salComp.factor : 0.00
+            depID = salComp&.dependent_id
+          %>
+          <%= hidden_field_tag('dep_' + compoment.id.to_s + '_' + entry.user_id.to_s, depID) %>
+          <td class="rowcontent_<%= entry.user_id %>"
+              style="text-align: center;"
+              id="td_<%= compoment.id.to_s + '_' + entry.user_id.to_s %>"><%= factor %></td>
+        <% end %>
+
+        <td align="center">
+          <%= link_to sprite_icon('edit'),
+                { :controller => controller.controller_name,
+                  :action => 'user_salary_settings',
+                  :user_id => entry.user_id,
+                  :tab => 'payroll' },
+                :title => l(:button_edit) %>
+        </td>
+      </tr>
+    <% end -%>
+  </tbody>
+</table>

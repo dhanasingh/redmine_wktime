@@ -3,7 +3,7 @@
 	<%= render :partial => 'sidebar' %>
 </div>
 <%= render partial: "wkproduct/render_inventory_tabs" %>
-<%= form_tag({:controller => "wkproduct", :action => 'updateCategory', :tab => 'wkproduct'}, :method => :get, :id => 'query_form') do %>
+<%= form_tag({:controller => "wkproduct", :action => 'update_category', :tab => 'wkproduct'}, :method => :get, :id => 'query_form') do %>
 <table class="list" id="commit-keywords">
   <thead>
     <tr>

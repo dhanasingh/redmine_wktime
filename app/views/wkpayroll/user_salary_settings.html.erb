@@ -35,7 +35,7 @@
 	<div><br/>
 
 	<% if actualSalValHash.present?%>
-		<%= form_tag({:controller => 'wkpayroll', :action => 'updateUserSalary'}, :method => :post, :id => 'query_form') do %>
+		<%= form_tag({:controller => 'wkpayroll', :action => 'update_user_salary'}, :method => :post, :id => 'query_form') do %>
 			<%=h hidden_field_tag('user_id', userId) %>
 			<%= hidden_field_tag('gross', grossVal) %>
 			<fieldset style="width: 94%;margin:1px 34px 0px 1px;background-color:#F6F6F6;float:right"><legend><b><%=l(:label_basic)%></b></legend>

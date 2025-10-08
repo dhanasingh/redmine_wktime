@@ -3,8 +3,8 @@
 <script type="text/javascript">
 	prevTab = 'tab-<%= "wkreport" %>';
 	wkattnReportUrl = '<%=url_for(:controller => "wkreport", :action => "index", :tab => "wkreport")%>';
-	grpUrl="<%= "#{url_for(:controller => "wkreport", :action => 'getMembersbyGroup')}" %>";
-	//getMembersbyGroup
+	grpUrl="<%= "#{url_for(:controller => "wkreport", :action => 'get_membersby_group')}" %>";
+	//get_membersby_group
 </script>
 <%= form_tag({:controller => controller_name, :action => "export"}, :method => :get, :id => 'query_form') do %>
 	<%
@@ -46,7 +46,7 @@
 	<th align="left"><label><%= l(:label_project) %></label></th>
 	<td style="padding-left:20px;"><%=h select_tag('project_id', options_for_select(projArr, :selected => projectId.nil? ? projArr : projectId)) %></td>
 	</table>
-	<%= render :partial => 'wkreport/date_range' %>
+	<%= render :partial => 'wktime/date_range' %>
 	<%= hidden_field_tag "searchlist",  controller_name%>
 	<p class="buttons">
 		<%= link_to_function sprite_icon('checked', l(:button_apply)), "javascript: openReportPopup();", class: 'icon icon-checked' %>

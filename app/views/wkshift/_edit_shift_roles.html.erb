@@ -1,4 +1,4 @@
-<%= form_tag({:controller => "wkshift", :action => 'shiftRoleUpdate', :tab => 'wkshift'}, :method => :post, :id => 'query_form') do %>
+<%= form_tag({:controller => "wkshift", :action => 'shift_role_update', :tab => 'wkshift'}, :method => :post, :id => 'query_form') do %>
 <% roleArr = Role.order(:name).pluck(:name, :id) %>
 <% actualIds = "" %>
 <%= hidden_field_tag "shift_id",  @shiftentry.blank? ? shift_id : @shiftentry[0].shift_id  %>

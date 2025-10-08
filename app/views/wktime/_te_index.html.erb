@@ -2,124 +2,132 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <script type="text/javascript">
 	prevTab = 'tab-<%= "#{controller_name}" %>';
-	grpUrl="<%= "#{url_for(:controller => controller_name, :action => 'getMembersbyGroup')}" %>";
+	grpUrl="<%= "#{url_for(:controller => controller_name, :action => 'get_membersby_group')}" %>";
 	userUrl="<%= "#{url_for(:controller => controller_name, :action => 'getusers')}" %>";
-	rSubEmailUrl="<%= "#{url_for(:controller => controller_name, :action => 'sendSubReminderEmail')}" %>";
-	rAppEmailUrl="<%= "#{url_for(:controller => controller_name, :action => 'sendApprReminderEmail')}" %>";
+	rSubEmailUrl="<%= "#{url_for(:controller => controller_name, :action => 'send_sub_reminder_email')}" %>";
+	rAppEmailUrl="<%= "#{url_for(:controller => controller_name, :action => 'send_appr_reminder_email')}" %>";
 </script>
-<% if @currentUser_loggable_projects.present? %>
-	<div class="contextual">
-	<% if (validateERPPermission('A_TE_PRVLG')) %>
-		<%= link_to sprite_icon('lock', l(:label_lock)), url_for(:controller => controller_name, :action => 'lockte'), :class => 'icon icon-lock' %>
+<fieldset>
+	<% if @currentUser_loggable_projects.present? %>
+		<div class="contextual">
+		<% if (validateERPPermission('A_TE_PRVLG')) %>
+			<%= link_to sprite_icon('lock', l(:label_lock)), url_for(:controller => controller_name, :action => 'lockte'), :class => 'icon icon-lock' %>
+		<% end %>
+		<%= link_to sprite_icon('time-add', l(:"button_new_#{controller_name}")), url_for(action: 'edit', user_id: User.current.id, startday: Date.today, prev_template: true), :class => 'icon icon-time-add' %>
+		</div>
 	<% end %>
-	<%= link_to sprite_icon('time-add', l(:"button_new_#{controller_name}")), url_for(action: 'edit', user_id: User.current.id, startday: Date.today, prev_template: true), :class => 'icon icon-time-add' %>
-	</div>
-<% end %>
-<% if !@manage_projects.blank? %>
+	<% if !@manage_projects.blank? %>
 
-	<div id="reminder-email-dlg">
-		<fieldset>
-			<p>
-				<label><%= l(:label_wk_reminder_notes) %></label>
-				<textarea name="email_notes" id="email_notes" value="" style="width: 300px;min-height: 35px;"> </textarea>
-			</p>
-			<p><%= radio_button_tag 'reminder', '1' %><span><%= l(:label_wk_sub_reminder) %></span></p>
-			<p><%= radio_button_tag 'reminder', '2' %><span><%= l(:label_wk_appr_reminder) %></span></p>
-		</fieldset>
-	</div>
+		<div id="reminder-email-dlg">
+			<fieldset>
+				<p>
+					<label><%= l(:label_wk_reminder_notes) %></label>
+					<textarea name="email_notes" id="email_notes" value="" style="width: 300px;min-height: 35px;"> </textarea>
+				</p>
+				<p><%= radio_button_tag 'reminder', '1' %><span><%= l(:label_wk_sub_reminder) %></span></p>
+				<p><%= radio_button_tag 'reminder', '2' %><span><%= l(:label_wk_appr_reminder) %></span></p>
+			</fieldset>
+		</div>
 
-<% end %>
-<%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
-
-<%=h hidden_field_tag('tab', controller_name) %>
-<%= hidden_field_tag "searchlist", controller_name %>
-
-<%
-	projectid = session[controller_name].try(:[], :project_id)
-	groupid =session[controller_name].try(:[], :group_id)
-	userid = session[controller_name].try(:[], :user_id)
-	status = session[controller_name].try(:[], :status)
-	filter_type = session[controller_name].try(:[], :filter_type)
-	projGrp =false
-	if filter_type == '1' || filter_type.blank?
-		projGrp = true
-	end
-%>
-
-<% #filters = call_hook(:view_te_filter) %>
-<% if isSupervisorApproval %>
-	<%#=	filters %>
-	<%= render :partial => 'wktime/supervisor_index' %>
-<% else %>
-<% if !@manage_view_spenttime_projects.blank? %>
-<div class="div-left">
-<table>
-<script type="text/javascript">
-$(document).ready(function()
-{
-	<% if projGrp %>
-		$("#group_id").attr("disabled", true);
-		$("#project_id").removeAttr("disabled");
-	<% else %>
-		$("#project_id").attr("disabled", true);
-		$("#group_id").removeAttr("disabled");
 	<% end %>
+	<%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
 
-});
- </script>
-<tr>
-<th><%= radio_button_tag 'filter_type', '1', projGrp,
- :onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#user_id").removeAttr("disabled");$("#group_id").attr("disabled", true);$("#project_id").removeAttr("disabled");' %>
-<%=l(:field_project)%></th>
-<td class="project" align="left"><%=h select_tag('project_id',
-	options_for_select(options_for_wktime_project(@manage_view_spenttime_projects),
-	:selected => !projectid.nil? ? projectid.to_i: @selected_project.id),:disabled => @use_group,
-	:onchange => "projChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %></td>
-</tr>
-<% if !@groups.blank? %>
-<tr>
-<th><%= radio_button_tag 'filter_type', '2', !projGrp,
-:onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#user_id").removeAttr("disabled");$("#group_id").removeAttr("disabled");$("#project_id").attr("disabled", true);' %>
-<%=l(:label_group_plural)%></th>
-<td>
-	<%=h select_tag('group_id',
-	options_for_select( @groups.collect {|p| [p.name, p.id ]},
-	:selected => (groupid.nil? ? 0 : groupid)),:disabled => !@use_group,
-	:onchange => "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>
-</td>
-</tr>
-<% end %>
-<tr>
-<th><%=l(:label_member)%></th>
-<td>
-<%# show the blank value if more than one user is in the list %>
-<%=h select_tag('user_id',
-	options_for_select( [[l(:all_users_for_select),"0"]] + (@members.blank? ? [] : @members),
-		:selected => userid.nil? ? (@user.nil? ? User.current.id : @user.id) : userid),
-	:onchange => 'this.form.submit();', :style=> "width:200px;") %></td>
-</tr>
+		<%=h hidden_field_tag('tab', controller_name) %>
+		<%= hidden_field_tag "searchlist", controller_name %>
 
-</table>
-</div>
-<% end %>
-<% end %>
+		<%
+			projectid = session[controller_name].try(:[], :project_id)
+			groupid =session[controller_name].try(:[], :group_id)
+			userid = session[controller_name].try(:[], :user_id)
+			status = session[controller_name].try(:[], :status)
+			filter_type = session[controller_name].try(:[], :filter_type)
+			projGrp =false
+			if filter_type == '1' || filter_type.blank?
+				projGrp = true
+			end
+		%>
 
-<div id="rightMenu" class="div-right">
-<table>
-<tr>
-<th valign="top"><%=l(:field_status)%></th>
-<td class="status" align="left"><%=h select_tag('status',
-	options_for_select(options_wk_status_select(status),
-	:selected => status.nil? ? 0 : status.to_s ),
-	:multiple=> true) %></td>
-</tr>
-</table>
-</div>
-<div style="clear:both"></div>
-<%= render :partial => 'wktime/date_range' %>
 
-<% end %>
+		<% #filters = call_hook(:view_te_filter) %>
+		<% if isSupervisorApproval %>
+			<%#=	filters %>
+			<%= render :partial => 'wktime/supervisor_index' %>
+		<% else %>
+			<% if !@manage_view_spenttime_projects.blank? %>
+				<div>
+					<table>
+						<script type="text/javascript">
+						$(document).ready(function()
+						{
+							<% if projGrp %>
+								$("#group_id").attr("disabled", true);
+								$("#project_id").removeAttr("disabled");
+							<% else %>
+								$("#project_id").attr("disabled", true);
+								$("#group_id").removeAttr("disabled");
+							<% end %>
 
+						});
+						</script>
+						<tr>
+							<th><%= radio_button_tag 'filter_type', '1', projGrp,
+							:onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#user_id").removeAttr("disabled");$("#group_id").attr("disabled", true);$("#project_id").removeAttr("disabled");' %>
+							<%=l(:field_project)%></th>
+							<td class="project" align="left"><%=h select_tag('project_id',
+							options_for_select(options_for_wktime_project(@manage_view_spenttime_projects),
+							:selected => !projectid.nil? ? projectid.to_i: @selected_project.id),:disabled => @use_group,
+							:onchange => "projChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %></td>
+
+							<% if !@groups.blank? %>
+								<th><%= radio_button_tag 'filter_type', '2', !projGrp,
+								:onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#user_id").removeAttr("disabled");$("#group_id").removeAttr("disabled");$("#project_id").attr("disabled", true);' %>
+								<%=l(:label_group_plural)%></th>
+								<td>
+									<%=h select_tag('group_id',
+									options_for_select( @groups.collect {|p| [p.name, p.id ]},
+									:selected => (groupid.nil? ? 0 : groupid)),:disabled => !@use_group,
+									:onchange => "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>
+								</td>
+
+								<th><%=l(:label_member)%></th>
+								<td>
+								<%# show the blank value if more than one user is in the list %>
+								<%=h select_tag('user_id',
+									options_for_select( [[l(:all_users_for_select),"0"]] + (@members.blank? ? [] : @members),
+										:selected => userid.nil? ? (@user.nil? ? User.current.id : @user.id) : userid),
+									:onchange => 'this.form.submit();', :style=> "width:200px;") %></td>
+							<% end %>
+						</tr>
+					</table>
+				</div>
+			<% end %>
+		<% end %>
+
+		<div style="display: flex; align-items: center; gap: 10px;padding-top: 5px;">
+			<%= render :partial => 'wktime/date_range' %>
+
+			<!-- Status -->
+			<label style="font-weight: bold; margin: 0 5px 0 0;">
+				<%= l(:field_status) %>
+			</label>
+			<div class="status">
+				<%= h select_tag('status',
+					options_for_select(options_wk_status_select(status),
+					:selected => status.nil? ? 0 : status.to_s),
+					:multiple => true) %>
+			</div>
+		</div>
+		<p class="buttons">
+			<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
+			<%= link_to sprite_icon('reload', l(:button_clear)), {project_id: @project, issue_id: @issue, tab: controller_name, clear: true}, class: 'icon icon-reload' %>
+			<% if (!Setting.plugin_redmine_wktime['wktime_use_approval_system'].blank? && Setting.plugin_redmine_wktime['wktime_use_approval_system'].to_i == 1) %>
+				<% if !@manage_projects.blank? %>
+					<%= link_to sprite_icon('email', l(:label_wk_reminder)), "javascript:showReminderEmailDlg('Send Reminder Email');", :class => 'icon icon-email-add'%>
+				<% end %>
+			<% end %>
+		</p>
+	<% end %>
+</fieldset>
 <% if @entries.present? %>
 	<div class="total-hours">
 		<p><%= l(:label_total) %>: <%= "#{@unit}" %>&nbsp;<%= controller.total_all(@total_hours) %></p>

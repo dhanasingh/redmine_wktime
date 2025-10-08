@@ -273,7 +273,7 @@ var url = 'http://adhi36:3000/';
 		if(isValidCall()){			
 				var module = $('#ddModule').val();	
 				var responseType = $('#response_type').val();	
-				var urlDelete = url + module + '/deleteEntries.' + responseType ;	
+				var urlDelete = url + module + '/delete_entries.' + responseType ;	
 				var postData = $('#request_data').val();
 				var conType = "application/xml";
 				if(responseType == 'json'){
