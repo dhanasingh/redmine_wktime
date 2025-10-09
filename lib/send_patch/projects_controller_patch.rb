@@ -8,7 +8,7 @@ module SendPatch::ProjectsControllerPatch
 				@project.safe_attributes = params[:project]
 
 				if @project.save
-					# ============= ERPmine_patch Redmine 6.0 =====================
+					# ============= ERPmine_patch Redmine 6.1 =====================
 					 @project.erpmineproject.safe_attributes = params[:erpmineproject]
 					 @project.erpmineproject.save
 					# =============================
@@ -45,7 +45,7 @@ module SendPatch::ProjectsControllerPatch
 			def update
 				@project.safe_attributes = params[:project]
 				if @project.save
-					# ============= ERPmine_patch Redmine 6.0 =====================
+					# ============= ERPmine_patch Redmine 6.1 =====================
 					 @project.erpmineproject.safe_attributes = params[:erpmineproject]
 					 @project.erpmineproject.save
 					# =============================
@@ -75,7 +75,7 @@ module SendPatch::ProjectsControllerPatch
 
 			 	@project_to_destroy = @project
 				if api_request? || params[:confirm] == @project_to_destroy.identifier
-				# ============= ERPmine_patch Redmine 6.0 =====================
+				# ============= ERPmine_patch Redmine 6.1 =====================
 					wktime_helper = Object.new.extend(WktimeHelper)
 					ret = wktime_helper.get_status_Project_Issue(nil,@project_to_destroy.id)
 					if ret

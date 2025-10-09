@@ -14,7 +14,7 @@ module SendPatch::TimelogHelperPatch
 						else
 						"##{obj.id}"
 						end
-			# ============= ERPmine_patch Redmine 6.0  =====================
+			# ============= ERPmine_patch Redmine 6.1  =====================
 					elsif obj.is_a?(WkInventoryItem)
 						brandName = obj.product_item.brand.blank? ? "" : obj.product_item.brand.name
 						modelName = obj.product_item.product_model.blank? ? "" : obj.product_item.product_model.name
@@ -36,7 +36,7 @@ module SendPatch::TimelogHelperPatch
 			def report_to_csv(report)
 				Redmine::Export::CSV.generate(:encoding => params[:encoding]) do |csv|
 					# Column headers
-			# ============= ERPmine_patch Redmine 6.0  =====================
+			# ============= ERPmine_patch Redmine 6.1  =====================
 					@showEstimate = session[:timelog][:spent_type] == "T" ? true : false
 						# ========================
 					headers =
@@ -45,7 +45,7 @@ module SendPatch::TimelogHelperPatch
 						end
 					headers += report.periods
 					headers << l(:label_total_time)
-			# ============= ERPmine_patch Redmine 6.0  =====================
+			# ============= ERPmine_patch Redmine 6.1  =====================
 					headers << l(:field_total_estimated_hours) if @showEstimate
 						# ========================
 					csv << headers
@@ -62,20 +62,20 @@ module SendPatch::TimelogHelperPatch
 						row << (sum > 0 ? sum : '')
 					end
 					row << total
-			# ============= ERPmine_patch Redmine 6.0  =====================
+			# ============= ERPmine_patch Redmine 6.1  =====================
 					row << @estimatedTotal if @showEstimate
 						# ========================
 					csv << row
 				end
 			end
 
-			# ============= ERPmine_patch Redmine 6.0  =====================
+			# ============= ERPmine_patch Redmine 6.1  =====================
 
 			def report_criteria_to_csv(csv, available_criteria, columns, criteria, periods, hours, level=0, filters = {})
 				# ==================================
 				hours.collect {|h| h[criteria[level]].to_s}.uniq.each do |value|
 					hours_for_value = select_hours(hours, criteria[level], value)
-				# ============= ERPmine_patch Redmine 6.0  =====================
+				# ============= ERPmine_patch Redmine 6.1  =====================
 					filters.each{|key, value| filters.except!(value) if level < key.to_i}
 					criteriaLevel = criteria[level].include?("cf_") ? "cf" : criteria[level]
 					filters[level] = criteriaLevel
@@ -93,7 +93,7 @@ module SendPatch::TimelogHelperPatch
 						row << (sum > 0 ? sum : '')
 					end
 					row << total
-					# ============= ERPmine_patch Redmine 6.0  =====================
+					# ============= ERPmine_patch Redmine 6.1  =====================
 					estimatedHours = estimated_hours(filters, criteria[level])
 					@estimatedTotal ||= 0
 					@estimatedTotal += estimatedHours if level == 0
@@ -106,7 +106,7 @@ module SendPatch::TimelogHelperPatch
 				end
 			end
 
-			# ============= ERPmine_patch Redmine 6.0  =====================
+			# ============= ERPmine_patch Redmine 6.1  =====================
 			def estimated_hours(filters, criteria)
 				cf_id = nil
 				filters.each{|k, v| cf_id = v.first if k == "cf" }

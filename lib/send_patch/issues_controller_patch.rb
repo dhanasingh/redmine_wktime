@@ -10,7 +10,7 @@ module SendPatch::IssuesControllerPatch
 				time_entries = TimeEntry.where(:issue_id => issues_and_descendants_ids)
 				@hours = time_entries.sum(:hours).to_f
 
-				# ============= ERPmine_patch Redmine 6.0 =====================
+				# ============= ERPmine_patch Redmine 6.1 =====================
 				expense_entries = WkExpenseEntry.where(:issue_id => issues_and_descendants_ids)
 				@amount = expense_entries.sum(:amount).to_f
 
@@ -41,7 +41,7 @@ module SendPatch::IssuesControllerPatch
                 return
               else
                 time_entries.update_all(:issue_id => nil)
-                # ============= ERPmine_patch Redmine 6.0 ===========
+                # ============= ERPmine_patch Redmine 6.1 ===========
                 expense_entries.update_all(:issue_id => nil)
                 material_entries.update_all(:issue_id => nil) #for material and resident entry update
                 # ==============================================
@@ -56,7 +56,7 @@ module SendPatch::IssuesControllerPatch
                 return
               else
                 time_entries.update_all(:issue_id => reassign_to.id, :project_id => reassign_to.project_id)
-                # ============= ERPmine_patch Redmine 6.0 ===========
+                # ============= ERPmine_patch Redmine 6.1 ===========
                 expense_entries.update_all(:issue_id => reassign_to.id, :project_id => reassign_to.project_id)
 
                 #for material and resident entry update
@@ -67,7 +67,7 @@ module SendPatch::IssuesControllerPatch
               # display the destroy form if it's a user request
               return unless api_request?
             end
-          # ============= ERPmine_patch Redmine 6.0 ===========
+          # ============= ERPmine_patch Redmine 6.1 ===========
 					end
           # ==============================================
 				end
