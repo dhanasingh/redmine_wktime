@@ -254,8 +254,9 @@ class WkdashboardController < WkbaseController
 			
 			result = inv_tot.merge(pay_tot) { |_key, v1, v2| v1 - v2 }
 
-			data[:data] = result.map do |(id, model_name, parent_name), balance|
-											{ name: parent_name.presence || "N/A", balance: "#{currency} #{sprintf('%.2f', balance)}" }
+			data[:data] = result.each_with_object([]) do |((id, type, parent_name), balance), arr|
+											next if balance < 1
+											arr << { name: parent_name || "N/A", balance: "#{currency} #{format('%.2f', balance)}" }
 										end
 
 		end
