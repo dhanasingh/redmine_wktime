@@ -135,7 +135,7 @@
 		</td>
 		<th align="right"><%= l(:label_available_quantity) %></th>
 		<% availableQuantity = itemObj.blank? ? " " : itemObj.available_quantity  %>
-		<td align="left" ><label id="available_quantity" style="padding-left: 125px; text-align:right;"><%=h html_hours("%.2f" % availableQuantity ) unless availableQuantity.blank? %></label></td>
+		<td align="left" style="padding-left: 45px;"><label id="available_quantity"><%=h html_hours("%.2f" % availableQuantity ) unless availableQuantity.blank? %></label></td>
 	</tr>
 	<tr>
 		<th align="right" ><%= l(:label_product) %><span style="color:red;">*</span></th>
@@ -144,7 +144,7 @@
 		</td>
 		<% totQuantity = @materialEntry.blank? ? 1 : @materialEntry.quantity  %>
 		<th align="right"><%= l(:field_quantity) %><span style="color:red;">*</span></th>
-		<td align="left" style="padding-left: 40px;">
+		<td align="left" style="padding-left: 20px;">
 			<%=h text_field_tag("product_quantity", ("%.2f" % totQuantity  ),:size => 10, :style => "width:80px;text-align:right;", :onchange => "updateTotal(this.id, 'product_sell_price', 'total', 'spcurrency');", :disabled => disable) %>
 			<%=h select_tag("uom_id", options_for_select(uomArr, :selected => uomId.blank? ? uomArr  : uomId), :disabled => disable) %>
 		</td>
@@ -156,8 +156,8 @@
 			<span><%= link_to sprite_icon('document', l(:label_details)), logmaterial_helper.get_item_details_url(itemId, @spentType), class: 'icon' if itemId.present? %></span>
 		</td>
 		<th align="right"><%= l(:label_sell_price) %><span style="color:red;">*</span></th>
-		<td align="left" colspan="3" >
-			<label id="spcurrency" style="padding-left:45px;"><%=h (itemObj.blank? ? "" : itemObj.currency) %></label>
+		<td align="left" colspan="3" style="padding-left: 30px;" >
+			<label id="spcurrency"><%=h (itemObj.blank? ? "" : itemObj.currency) %></label>
 			<% sellPrice = @materialEntry.blank? ? "" : @materialEntry.selling_price  %>
 			<%=h text_field_tag("product_sell_price", sellPrice.blank? ? "" : ("%.2f" % sellPrice),:size => 20, :style => "width:80px; text-align:right;", :onchange => "updateTotal(this.id, 'product_quantity', 'total', 'spcurrency');", :disabled => disable) %>
 			<label id="unittext" style="float:right;padding-left: 120px; " >
@@ -189,10 +189,10 @@
 			<td></td>
 		<% end %>
 		<th align="right"><%= l(:label_total) %></th>
-		<td>
+		<td align="left" style="padding-left: 95px;">
 			<!-- <label id="totalcurrency" style="padding-left: 40px;"><%#=h (itemObj.blank? ? "" : itemObj.currency) %></label> -->
 			<% netTotal = @materialEntry.blank? ? 0 : (@materialEntry.selling_price * @materialEntry.quantity)  %>
-			<label id="total" style="padding-left: 127px; text-align:right;"><%=h (itemObj.blank? ? "" : itemObj.currency) %><%=h html_hours("%.2f" % netTotal ) unless netTotal.blank? %></label>
+			<label id="total"><%=h (itemObj.blank? ? "" : itemObj.currency) %><%=h html_hours("%.2f" % netTotal ) unless netTotal.blank? %></label>
 		</td>
 	</tr>
 </table>
