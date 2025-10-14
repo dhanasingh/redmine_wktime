@@ -77,7 +77,7 @@ module SendPatch::ProjectsControllerPatch
 				if api_request? || params[:confirm] == @project_to_destroy.identifier
 				# ============= ERPmine_patch Redmine 6.0 =====================
 					wktime_helper = Object.new.extend(WktimeHelper)
-					ret = wktime_helper.getStatus_Project_Issue(nil,@project_to_destroy.id)
+					ret = wktime_helper.get_status_Project_Issue(nil,@project_to_destroy.id)
 					if ret
 						#render_403
 						#return false

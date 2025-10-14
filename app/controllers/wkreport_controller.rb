@@ -28,14 +28,14 @@ include WkcrmHelper
 before_action :require_login
 before_action :check_perm_and_redirect
 
-accept_api_auth :get_reports, :getReportData, :export
+accept_api_auth :get_reports, :get_report_data, :export
 
 	def index
 		@groups = Group.sorted.all
 		set_filter_session
 		retrieve_date_range
 		@members = Array.new
-		userList = getGroupMembers
+		userList = get_group_members
 		userList.each do |users|
 			@members << [users.name,users.id.to_s()]
 		end
@@ -58,11 +58,11 @@ accept_api_auth :get_reports, :getReportData, :export
 		super(filters, {:from => @from, :to => @to, user_id: User.current.id})
 	end
 
-	def getMembersbyGroup
+	def get_membersby_group
 		group_by_users=""
 		userList=[]
 		#set_managed_projects
-		userList = getGroupMembers
+		userList = get_group_members
 		userList.each do |users|
 			group_by_users << users.id.to_s() + ',' + users.name + "\n"
 		end
@@ -71,7 +71,7 @@ accept_api_auth :get_reports, :getReportData, :export
 		end
 	end
 
-	def getGroupMembers
+	def get_group_members
 		userList = nil
 		group_id = nil
 		if (!params[:group_id].blank?)
@@ -98,7 +98,7 @@ accept_api_auth :get_reports, :getReportData, :export
 		render json: {wk_reports: reportType, headers: headers}
 	end
 
-	def getReportData
+	def get_report_data
 		user_id = params[:user_id] || User.current.id
 		group_id = params[:group_id] || "0"
 		projId = params[:project_id] || "0"

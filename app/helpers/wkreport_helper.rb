@@ -27,7 +27,8 @@ module WkreportHelper
 							[l(:label_this_week), 'current_week'],
 							[l(:label_last_week), 'last_week'],
 							[l(:label_this_month), 'current_month'],
-							[l(:label_last_month), 'last_month']],
+							[l(:label_last_month), 'last_month'],
+    					[l(:label_custom_range), 'custom']],
 							value.blank? ? 'current_week' : value)
 	end
 

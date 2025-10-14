@@ -58,7 +58,19 @@ class WkUser < ApplicationRecord
     decryptVal
   end
 
-  def self.showEncryptdData(userID, columnName)
+  def show_account
+    WkUser.show_data(self.user_id, 'account_number')
+  end
+
+  def show_ss
+    WkUser.show_data(self.user_id, 'ss_id')
+  end
+
+  def show_tax
+    WkUser.show_data(self.user_id, 'tax_id')
+  end
+
+  def self.show_data(userID, columnName)
     decryptVal = decrypt_user_credentials(userID, columnName)
     if decryptVal.present? && decryptVal.length > 5
       randomTxtLength = decryptVal.length - 4

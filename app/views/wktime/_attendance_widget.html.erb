@@ -137,7 +137,7 @@ var label_no_data = "<%= l(:label_no_data) %>";
 			});
 		}
 	<% end %>
-	<%=h hidden_field_tag('clockinout_url',  "#{url_for(:controller => 'wkbase', :action => 'updateClockInOut', :host => host_with_subdir, :only_path => true)}" )  %>
+	<%=h hidden_field_tag('clockinout_url',  "#{url_for(:controller => 'wkbase', :action => 'update_clockinout', :host => host_with_subdir, :only_path => true)}" )  %>
 	<div style="clear: both;"></div>
 	<div id="clockINOUT">
 		<span id="appendlabel"><%= totalhours1 %></span>

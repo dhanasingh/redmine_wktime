@@ -1,7 +1,7 @@
 <script type="text/javascript">
 	prevTab = 'tab-<%= "clcok" %>';
 	clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>';
-	grpUrl="<%= "#{url_for(:controller => "wkattendance", :action => 'getMembersbyGroup')}" %>";
+	grpUrl="<%= "#{url_for(:controller => "wkattendance", :action => 'get_membersby_group')}" %>";
 </script>
 <%
 	wktime_helper = Object.new.extend(WktimeHelper)
@@ -16,25 +16,30 @@
 	<%= hidden_field_tag "searchlist", controller_name %>
 	<%= hidden_field_tag :page, params[:page]%>
 	<fieldset>
-		<legend><%= l(:label_filter_plural) %></legend>
 		<% if validateERPPermission('A_ATTEND') %>
 			<div style="float:right">
 				<%= link_to l(:"label_import_attendance"), url_for(:controller => "wkimportattendance", :action => 'new', :tab => controller.controller_name)%>
 			</div>
-			<label><%= l(:label_group_plural) %></label>&nbsp;
-			<% if !@groups.blank? %>
-				<%=h select_tag('group_id',
-					options_for_select( [["",0]] + (@groups.collect {|p| [p.name, p.id ]}),
-					:selected => !groupid.nil? ? groupid.to_i: 0), :onchange => "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>&nbsp;
-			<% end %>
-			<label><%= l(:label_member) %></label>&nbsp;
-			<%# show the blank value if more than one user is in the list %>
-			<%=h select_tag('user_id',
-				options_for_select( [[l(:all_users_for_select),"0"]] + @members,
-				:selected => userid.nil? ? (@user.nil? ? User.current.id : @user.id) : userid),
-				:style=> "width:200px;") %>
 		<% end %>
-		<%= render :partial => 'wkattendance/date_range' %>
+		<legend><%= l(:label_filter_plural) %></legend>
+		<div style="display: flex; align-items: center; gap: 10px;">
+			<% if validateERPPermission('A_ATTEND') %>
+				<label><%= l(:label_group_plural) %></label>&nbsp;
+				<% if !@groups.blank? %>
+					<%=h select_tag('group_id',
+						options_for_select( [["",0]] + (@groups.collect {|p| [p.name, p.id ]}),
+						:selected => !groupid.nil? ? groupid.to_i: 0), :onchange => "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>&nbsp;
+				<% end %>
+				<label><%= l(:label_member) %></label>&nbsp;
+				<%# show the blank value if more than one user is in the list %>
+				<%=h select_tag('user_id',
+					options_for_select( [[l(:all_users_for_select),"0"]] + @members,
+					:selected => userid.nil? ? (@user.nil? ? User.current.id : @user.id) : userid),
+					:style=> "width:200px;") %>
+			<% end %>
+			<%= render :partial => 'wktime/date_range' %>
+		</div>
+		<div style="padding-top: 5px;">
 		<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit()', class: 'icon icon-checked' %>&nbsp;
 		<%= link_to sprite_icon('reload', l(:button_clear)), {tab: 'clock', clear: true}, class: 'icon icon-reload' %>
 		<% if wktime_helper.isChecked('att_save_geo_location') %>
@@ -43,6 +48,7 @@
 				<%= l(:label_show_on_map) %>
 			</label>
 		<% end %>
+		</div>
 	</fieldset>
 <% end %>
 

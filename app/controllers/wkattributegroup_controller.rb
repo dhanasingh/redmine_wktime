@@ -19,8 +19,8 @@ class WkattributegroupController < WkinventoryController
 
    menu_item :wkproduct
    before_action :require_login
-   before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :edit_product_attribute, :updateProductAttribute]
-   before_action :check_admin_redirect, :only => [:destroy, :destroyProductAttribute]
+   before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :edit_product_attribute, :update_product_attribute]
+   before_action :check_admin_redirect, :only => [:destroy, :destroy_product_attribute]
 
 
     def index
@@ -103,7 +103,7 @@ class WkattributegroupController < WkinventoryController
 		end
 	end
 
-	def updateProductAttribute
+	def update_product_attribute
 		if params[:product_attribute_id].blank?
 		  productAttr = WkProductAttribute.new
 		else
@@ -121,7 +121,7 @@ class WkattributegroupController < WkinventoryController
 		end
 	end
 
-	def destroyProductAttribute
+	def destroy_product_attribute
 		productAttr = WkProductAttribute.find(params[:product_attribute_id].to_i)
 		groupId = productAttr.group_id
 		if productAttr.destroy

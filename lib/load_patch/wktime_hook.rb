@@ -15,8 +15,8 @@ module LoadPatch
 			"<div id='divError'>
 				<font color='red'></font>
 			</div>
-			<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'getStatus', :host => host_with_subdir, :only_path => true, :user_id => user_id)}'>
-			<input type='hidden' id='getissuetracker_url' value='#{url_for(:controller => 'wktime', :action => 'getTracker', :host => host_with_subdir, :only_path => true)}'>
+			<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'get_status', :host => host_with_subdir, :only_path => true, :user_id => user_id)}'>
+			<input type='hidden' id='getissuetracker_url' value='#{url_for(:controller => 'wktime', :action => 'get_tracker', :host => host_with_subdir, :only_path => true)}'>
 			<input type='hidden' id='log_time_page' value='#{log_time_page}'>
 			<input type='hidden' id='label_issue_warn' value='#{l(:label_warning_wktime_issue_tracker)}'>
 			<input type='hidden' id='label_time_warn' value='#{l(:label_warning_wktime_time_entry)}'>"
@@ -35,10 +35,6 @@ module LoadPatch
 		end
 		render_on :view_layouts_base_content, :partial => 'wktime/attendance_widget'
 		render_on :view_timelog_edit_form_bottom, :partial => 'wklogmaterial/log_material'
-		render_on :view_users_form, :partial => 'wkuser/wk_user', locals: { myaccount: false }
-		render_on :view_users_form_preferences, :partial => 'wkuser/wk_user_address', locals: { myaccount: false }
-		render_on :view_my_account, :partial => 'wkuser/wk_user', locals: { myaccount: true }
-		render_on :view_my_account_preferences, :partial => 'wkuser/wk_user_address', locals: { myaccount: true }
 		render_on :view_issues_form_details_bottom, :partial => 'wkissues/wk_issue_fields'
 
 		def controller_issues_edit_before_save(context={})

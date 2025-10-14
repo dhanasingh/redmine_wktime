@@ -1,7 +1,7 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'accountproject', :plugin => "redmine_wktime" %>
 <script type="text/javascript">
-	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
+	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modify_product_dd')}" %>";
 </script>
 <%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
 	<%	if @inventoryItem.blank?

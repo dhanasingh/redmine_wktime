@@ -18,7 +18,7 @@
 class WkproductController < WkinventoryController
 
   before_action :require_login
-  before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :category, :updateCategory]
+  before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :category, :update_category]
 
 
 	def index
@@ -126,7 +126,7 @@ class WkproductController < WkinventoryController
 		formPagination(entries)
 	end
 
-	def updateCategory
+	def update_category
 		arrId = WkProductCategory.all.pluck(:id)
 		for i in 0..params[:category_id].length-1
 			if params[:category_id][i].blank?

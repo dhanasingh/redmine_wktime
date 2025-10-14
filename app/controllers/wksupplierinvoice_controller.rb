@@ -45,7 +45,7 @@ class WksupplierinvoiceController < WksupplierorderentityController
 		savePoSupInv(params[:si_id], params[:si_inv_id], @invoice.id)
 	end
 
-	def getRfqPoIds
+	def get_rfq_po_ids
 		quoteIds = ""
 		rfqObj = ""
 		rfqObj = WkInvoice.where(id: getInvoiceIds(params[:rfq_id].to_i, 'PO', false), parent_id: params[:parent_id].to_i, parent_type: params[:parent_type], status: 'o').order(:id)

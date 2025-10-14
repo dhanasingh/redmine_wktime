@@ -33,20 +33,23 @@
 			<td align="left"><%= select_tag("assignee", options_for_select(users, :selected => !assignee.blank? ? assignee : ""), :style => "width:200px;") %></td>
 		</td>
 		</table>
-	<%= render :partial => 'wkcrmactivity/date_range' %>
-  <%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
-  <%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
-  <% if isChecked('crm_save_geo_location') %>
-    <label style="padding-left:5px">
-      <%= check_box_tag('show_on_map', true, show_on_map || false) %>
-      <%= l(:label_show_on_map) %>
-    </label>
-  <% end %>
+		<%= render :partial => 'wktime/date_range' %>
+		<%= hidden_field_tag('generate', false) %>
+		<div style="padding-top: 5px;">
+			<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
+			<%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
+			<% if isChecked('crm_save_geo_location') %>
+				<label style="padding-left:5px">
+					<%= check_box_tag('show_on_map', true, show_on_map || false) %>
+					<%= l(:label_show_on_map) %>
+				</label>
+			<% end %>
 
-    <label style="padding-left:5px">
-      <%= check_box_tag('show_calendar', true, params[:show_calendar] || false) %>
-			<%= l(:label_show_calendar) %>
-    </label>
+			<label style="padding-left:5px">
+				<%= check_box_tag('show_calendar', true, params[:show_calendar] || false) %>
+				<%= l(:label_show_calendar) %>
+			</label>
+		</div>
 <% end %>
 </fieldset>
 

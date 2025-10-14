@@ -17,7 +17,7 @@
 
 class WkinvoiceController < WkorderentityController
 
-	accept_api_auth :index, :edit, :update, :getInvProj, :getAccountProjIds, :export
+	accept_api_auth :index, :edit, :update, :get_inv_proj, :get_account_proj_ids, :export
 	@@invmutex = Mutex.new
 
 	def newOrderEntity(parentId, parentType)
@@ -220,7 +220,7 @@ class WkinvoiceController < WkorderentityController
 		end
 	end
 
-	def getAccountProjIds
+	def get_account_proj_ids
 		accProjId = getProjArrays(params[:parent_id], params[:parent_type] )
 		accPjt = WkAccountProject.where(parent_id: params[:parent_id], parent_type: params[:parent_type])
 		accProjs = ""
@@ -313,7 +313,7 @@ class WkinvoiceController < WkorderentityController
 		header
 	end
 
-	def getQuantityDetails
+	def get_quantity_details
 		spentEntries = WkSpentFor.getSpentDetails(params[:inv_item_id])
 		data = spentEntries.map do |entry|
 			spent = entry.spent
@@ -328,7 +328,7 @@ class WkinvoiceController < WkorderentityController
 		render json: {data: data, header: getSpentDetailHeaders, title: l(:field_quantity)}
 	end
 
-	def getUnbilledQtyDetails
+	def get_unbilled_qty_details
 		data = []
 		invoiceFreq = getInvFreqAndFreqStart
 		invIntervals = getIntervals(params[:start_date].to_date, params[:end_date].to_date, invoiceFreq["frequency"], invoiceFreq["start"], true, false)
@@ -348,7 +348,7 @@ class WkinvoiceController < WkorderentityController
 		render json: {data: data, header: getSpentDetailHeaders, title: l(:field_quantity)}
 	end
 
-	def generateTimeEntries
+	def generate_time_entries
 		parent_type = ""
 		parent_id = ""
 		if params[:filter_type] == "2"
@@ -395,7 +395,7 @@ class WkinvoiceController < WkorderentityController
 		@invComps = invoiceComp.map{|comp| [comp.name + '|' + comp.value.to_s, comp.id.to_s + '|' + comp.name + '|' + comp.value.to_s] } if invoiceComp.present?
 	end
 
-	def saveInvoiceComponents
+	def save_invoice_components
 		errorMsg = ""
 		if params[:invoice]['comp_del_ids'].present?
 			ids = params[:invoice]['comp_del_ids'].split('|')

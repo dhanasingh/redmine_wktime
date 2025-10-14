@@ -1,0 +1,27 @@
+<table class="list time-entries">
+  <thead>
+    <tr>
+      <%= sort_header_tag('user_name', caption: l(:field_user), class: "lbl-txt-align") %>
+      <%= sort_header_tag('email', caption: l(:field_mail), class: "lbl-txt-align") %>
+      <th class="lbl-txt-align"><%= l(:label_ftte_supervisor) %></th>
+      <th class="lbl-txt-align"><%= l(:field_role) %></th>
+      <th class="lbl-txt-align"><%= l(:field_join_date) %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @userEntries.each do |entry| %>
+      <tr>
+        <td class="lbl-txt-align"><%= entry.name %></td>
+        <td class="lbl-txt-align"><%= entry.mail %></td>
+        <td class="lbl-txt-align"><%= entry&.supervisor&.name%></td>
+        <td class="lbl-txt-align"><%= entry&.erpmineuser&.role%></td>
+        <td class="lbl-txt-align"><%= entry&.erpmineuser&.join_date %></td>
+        <td align="center">
+          <%= link_to sprite_icon('edit'), {action: 'edit', id: entry&.id, tab: controller_name},
+            title: l(:button_edit), class: "icon icon-edit" %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

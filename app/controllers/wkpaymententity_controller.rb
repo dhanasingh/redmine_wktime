@@ -125,7 +125,7 @@ class WkpaymententityController < WkbillingController
 		end
 	end
 
-	def showInvoices
+	def show_invoices
 		parentType = params[:related_to]
 		parentId = params[:related_parent]
 		projectId = params[:project_id]
@@ -181,7 +181,7 @@ class WkpaymententityController < WkbillingController
 		rangeStr
 	end
 
-	def getBillableProjIds
+	def get_billable_proj_ids
 		projArr = ""
 		billProjId = getProjArrays(params[:related_to], params[:related_parent])
 		if !billProjId.blank?

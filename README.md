@@ -1,16 +1,16 @@
-# Webinar on ERPmine – Attendance, Aug 26th, 2025,(11:30 AM GMT)
+# Webinar on ERPmine – Inventory, Sep 30th, 2025,(11:30 AM GMT)
 
 Please click here to register if interested,
-[https://us02web.zoom.us/meeting/register/mYUfoL_iQReuGIdqz6JZTQ](https://us02web.zoom.us/meeting/register/mYUfoL_iQReuGIdqz6JZTQ)]
+[https://us02web.zoom.us/meeting/register/aM-1Nt__TBafjqbeJQjdVw]
 
 **Topics**:
--   Clock In / Clock Out
- -   Review Leave Status
- -   Leave Request
- -   Integrate with Attendance Devices
- -   Attendance Report
- -   Attendance on Map
- -   Mobile App
+ -   Receive Goods (Shipments)
+ -   Product and items
+ -   Material Log
+ -   Invoice
+ -   Asset and depreciation
+ -   Disposed Asset
+ -   Asset and stock Report
 
 -----
 
@@ -100,6 +100,11 @@ For more information on features, please refer to the user guide
   rake redmine:plugins:migrate NAME=redmine_wktime RAILS_ENV=production
   ```
 
+- Run the following command to load default data
+  ```sh
+  bundle exec rake erpmine:load_default_data RAILS_ENV=production
+  ```
+
 - Please make sure public/plugin_asset/redmine_wktime has proper access.
 
 - For rufus-scheduler to work, the rails application should be up all the time.
@@ -119,7 +124,7 @@ For more information on features, please refer to the user guide
 
 | **Redmine** | **ERPmine** |
 |-------------|-------------|
-| 6.0.x | 4.8, 4.8.1, 4.8.2, 4.8.3, 4.8.4, 4.8.5 |
+| 6.0.x | 4.8, 4.8.1, 4.8.2, 4.8.3, 4.8.4, 4.8.5, 4.9 |
 | 5.1.x | 4.7.1, 4.7.2, 4.7.3, 4.7.4, 4.7.5, 4.7.6 |
 | 5.0.x | 4.5.2, 4.6, 4.7 |
 | 4.2.0 | 4.2.1, 4.3, 4.3.1, 4.4, 4.4.1, 4.5, 4.5.1 |
@@ -128,26 +133,24 @@ For more information on features, please refer to the user guide
 | 4.0.x | 3.4, 3.5, 3.6, 3.7, 3.8, 3.9 |
 | 3.4.x | 2.9, 3.0, 3.1, 3.2, 3.3 |
 
-## Release Notes for v4.8.5
+## Release Notes for v4.9
 
 - **Features**
   ```text
-   - Added timesheet Status column in spent time page
-   - Added time exceeded mail notification for parent issue
-   - Added Calendar Week Number in timesheet list page
-   - Added CRM dashboard
-   - Added mail reminder for scheduled activities
-   - Added activity calender
-   - Added status and assignee filter in CRM activity page
-   - Enhanced jQuery accordion UI
-   - Added balance amount for account and contact pages
+   - Set ERPmine dashboard as the welcome page
+   - Added Assignee field to Contact and Account modules
+   - Added task script to load the ERPmine default dataset
+   - Reduced the filter area size in the list page
+   - Replaced image icons with SVG icons
+   - Added edit hyperlink in User Payroll settings list
+   - Moved Employee List page under HR
+   - Updated CRM Dashboard and Admin Dashboard layouts
+   - Moved the Resident menu after the CRM menu
   ```
 - **Bug fixes**
   ```text
-   - Delete button disabled for rejected timesheets with partial approvals
-   - Fixed default option is not loading in the currency dropdown
+   - Fixed the Notes popup icon issue in the Timesheet detail page
   ```
-We would like to thank Creative Synergies Group LLC for partially sponsored this release.
 
 ## Customization
 
@@ -187,7 +190,7 @@ Please provide your rating at [https://www.redmine.org/plugins/wk-time](https://
 - [https://www.youtube.com/watch?v=hTgDepFzGXY](https://www.youtube.com/watch?v=hTgDepFzGXY)
 - [https://www.youtube.com/watch?v=5IgBbhrVF4k](https://www.youtube.com/watch?v=5IgBbhrVF4k)
 - [https://www.youtube.com/watch?v=ik4jgTMtbvU](https://www.youtube.com/watch?v=ik4jgTMtbvU)
-- [https://www.youtube.com/watch?v=weZk70ReZXA)
+- [https://www.youtube.com/watch?v=weZk70ReZXA]
 
 **For more**:
 

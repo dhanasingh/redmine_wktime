@@ -25,7 +25,7 @@
 				<td align="center">
 				 <%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'edit_product_model', :product_model_id => entry.id, :brand_id => entry.brand_id, id: entry.id}, :title => l(:button_edit) %>
 				 <% if controller.hasDeletePermission %>
-					<%= link_to sprite_icon('del'), {:controller => controller.controller_name, :action => 'destroyProductModel', :product_model_id => entry.id, :tab => controller.controller_name, id: entry.id},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+					<%= link_to sprite_icon('del'), {:controller => controller.controller_name, :action => 'destroy_product_model', :product_model_id => entry.id, :tab => controller.controller_name, id: entry.id},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
 				<% end %>
 				</td>
 			</tr>

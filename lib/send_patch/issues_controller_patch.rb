@@ -26,7 +26,7 @@ module SendPatch::IssuesControllerPatch
 
 					wktime_helper = Object.new.extend(WktimeHelper)
 					issue_id = @issues.map(&:id)
-					ret = wktime_helper.getStatus_Project_Issue(issue_id[0],nil)
+					ret = wktime_helper.get_status_Project_Issue(issue_id[0],nil)
 					if ret
 						flash.now[:error] = l(:error_project_issue_associate)
 						return

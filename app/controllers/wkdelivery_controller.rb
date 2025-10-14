@@ -269,7 +269,7 @@ class WkdeliveryController < WkinventoryController
 		6
 	end
 
-	def populateProductItemDD
+	def load_product_items
 		itemArr = ""
 		if params[:update_DD] =='inventory_item'
 			item = WkInventoryItem.getProductDetails(params[:id].to_i)&.first
@@ -298,7 +298,7 @@ class WkdeliveryController < WkinventoryController
 		invoice.parent.name + "\n" + (invoice.parent.address.blank? ? "" : invoice.parent.address.fullAddress)
 	end
 
-	def getInvoiceNos
+	def get_invoice_no
 		invoiceArr = ""
 		invoices = WkInvoice.get_invoice_numbers(params[:parent_type], params[:parent_id], 'I')
 		invoiceArr << "" + ',' +  "" + "\n"

@@ -6,7 +6,7 @@ module WkdashboardHelper
 
   def get_graphs_yaml_path
 		permittedfiles = []
-		ymlFiles = Dir["plugins/redmine_wktime/app/lib/wkdashboard/*.rb"].map{ |file| file }
+		ymlFiles = Dir["plugins/redmine_wktime/lib/wkdashboard/*.rb"].map{ |file| file }
 		ymlFiles.each do |file|
 			fileName = File.basename(file).split("_").first
 			nonPermChart = !['graph001', 'graph002', 'graph003', 'graph004', 'graph005', 'graph006'].include?(fileName)
@@ -25,7 +25,8 @@ module WkdashboardHelper
 							[l(:label_last_week), 'last_week'],
 							[l(:label_this_month), 'current_month'],
 							[l(:label_last_month), 'last_month'],
-							[l(:label_this_year), 'current_year']],
+							[l(:label_this_year), 'current_year'],
+    					[l(:label_custom_range), 'custom']],
 							value.blank? ? 'current_month' : value)
   end
 

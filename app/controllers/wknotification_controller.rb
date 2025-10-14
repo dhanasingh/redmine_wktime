@@ -17,7 +17,7 @@
 
 class WknotificationController < WkbaseController
   menu_item :wkcrmenumeration
-  accept_api_auth :index, :updateUserNotification, :markReadNotification
+  accept_api_auth :index, :update_user_notification, :mark_read_notification
 
   def index
     @notification = WkNotification.getActiveNotification.pluck(:name)
@@ -63,7 +63,7 @@ class WknotificationController < WkbaseController
     end
   end
 
-  def updateUserNotification
+  def update_user_notification
 		errorMsg = nil
     usrNotification = WkUserNotification.find(params[:id])
     if usrNotification.user_id == User.current.id
@@ -78,7 +78,7 @@ class WknotificationController < WkbaseController
 		render json: errorMsg
   end
 
-  def markReadNotification
+  def mark_read_notification
     errorMsg = nil
     user_id = User.current.id
     errorMsg = WkUserNotification.where(user_id: user_id, seen_on: nil).update_all(seen: true, seen_on: Time.now)

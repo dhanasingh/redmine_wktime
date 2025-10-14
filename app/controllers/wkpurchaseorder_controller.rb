@@ -59,7 +59,7 @@ class WkpurchaseorderController < WksupplierorderentityController
 		savePurchaseOrderQuotes(params[:po_id],  @invoice.id, params[:po_quote_id] )
 	end
 
-	def getRfqQuoteIds
+	def get_rfq_quote_ids
 		quoteIds = ""
 		rfqObj = ""
 		rfqObj = WkInvoice.where(:id => getInvoiceIds(params[:rfq_id].to_i, 'Q', true), :parent_id => params[:parent_id].to_i, :parent_type => params[:parent_type]).order(:id)

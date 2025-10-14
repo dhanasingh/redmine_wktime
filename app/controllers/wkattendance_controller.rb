@@ -25,11 +25,11 @@ class WkattendanceController < WkbaseController
 
 	before_action :require_login
 	before_action :check_perm_and_redirect, :only => [:edit, :clockedit]
-	before_action :check_update_permission, :only => [:update, :saveClockInOut]
+	before_action :check_update_permission, :only => [:update, :save_clock_in_out]
 	before_action :check_index_perm, :only => [:index]
 	require 'csv'
 
-	accept_api_auth :clockindex, :clockedit, :saveClockInOut, :getClockHours, :index, :edit, :update
+	accept_api_auth :clockindex, :clockedit, :save_clock_in_out, :get_clock_hours, :index, :edit, :update
 
 	def index
 		sort_init 'id', 'asc'
@@ -106,7 +106,7 @@ class WkattendanceController < WkbaseController
 		retrieve_date_range
 		@members = Array.new
 		userIds = Array.new
-		userList = getGroupMembers
+		userList = get_group_members
 		userList.each do |users|
 			@members << [users.name,users.id.to_s()]
 			userIds << users.id
@@ -182,10 +182,10 @@ class WkattendanceController < WkbaseController
 		end
 	end
 
-	def getMembersbyGroup
+	def get_membersby_group
 		group_by_users=""
 		userList=[]
-		userList = getGroupMembers
+		userList = get_group_members
 		userList.each do |users|
 			group_by_users << users.id.to_s() + ',' + users.name + "\n"
 		end
@@ -194,7 +194,7 @@ class WkattendanceController < WkbaseController
 		end
 	end
 
-	def getGroupMembers
+	def get_group_members
 		userList = nil
 		group_id = nil
 		if (!params[:group_id].blank?)
@@ -284,7 +284,7 @@ class WkattendanceController < WkbaseController
 		end
 	end
 
-	def runPeriodEndProcess
+	def run_period_end_process
 		populateWkUserLeaves(params[:fromdate].to_s.to_date)
 		respond_to do |format|
 			format.html {
@@ -333,7 +333,7 @@ class WkattendanceController < WkbaseController
     respond_to do |format|
       format.html {
         if errorMsg.nil?
-          redirect_to :controller => 'wkattendance',:action => 'index' , :tab => 'wkattendance'
+          redirect_to :controller => 'wkattendance',:action => 'index' , :tab => 'leave'
           flash[:notice] = l(:notice_successful_update)
         else
           flash[:error] = errorMsg
@@ -383,7 +383,7 @@ class WkattendanceController < WkbaseController
 		return [selectColStr, queryStr]
 	end
 
-	def getIssuesByProject
+	def get_issues_by_project
 		issue_by_project=""
 		issueList=[]
 		issueList = getPrjIssues
@@ -431,7 +431,7 @@ class WkattendanceController < WkbaseController
 		end
 	end
 
-	def getProjectByIssue
+	def get_project_by_issue
 		project_id = ""
 		project_by_issue=""
 		if !params[:issue_id].blank?
@@ -482,7 +482,7 @@ class WkattendanceController < WkbaseController
 		rangeStr
 	end
 
-	def saveClockInOut
+	def save_clock_in_out
 		endtime = nil
 		errorMsg = []
 		if api_request?
@@ -618,7 +618,7 @@ class WkattendanceController < WkbaseController
 		wkattendance
 	end
 
-	def getClockHours
+	def get_clock_hours
 		entries = findLastAttnEntry(true).first
 		showClock = isChecked("wktime_enable_clock_in_out") && isChecked("wktime_enable_attendance_module")
 		clock = {total_hours: 0, showClock: showClock, geoLocation: isChecked('att_save_geo_location')}
@@ -648,6 +648,7 @@ class WkattendanceController < WkbaseController
 				leaveSettings = WkSetting.where("name = 'leave_settings'").first
 				leaveSettings.destroy if leaveSettings.present?
 			end
+			redirect_to controller: 'wkattendance', action: 'leavesettings', tab: 'leave'
 			flash[:notice] = l(:notice_successful_update)
 		end
 		@leaveSettings = getLeaveSettings

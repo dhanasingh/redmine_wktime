@@ -2,7 +2,7 @@ class WklogmaterialController < TimelogController
 
 	prepend_before_action :change_params_controller
   before_action :require_login
-	accept_api_auth :loadSpentType, :index, :spent_log, :modifyProductDD, :create, :update
+	accept_api_auth :load_spent_type, :index, :spent_log, :modify_product_dd, :create, :update
   helper :queries
   include QueriesHelper
 
@@ -15,7 +15,7 @@ class WklogmaterialController < TimelogController
     end
   end
 
-  def modifyProductDD
+  def modify_product_dd
 		pctArr = ""
 		productDetail = []
 		productType = 'I'
@@ -115,7 +115,7 @@ class WklogmaterialController < TimelogController
 		end
 	end
 
-	def loadSpentType
+	def load_spent_type
 		wklogtime_helper = Object.new.extend(WklogmaterialHelper)
 		spentTypeHash = wklogtime_helper.getLogHash
 		respond_to do |format|

@@ -30,7 +30,8 @@ module WktimeHelper
 							[l(:label_last_week), 'last_week'],
 							[l(:label_this_month), 'current_month'],
 							[l(:label_last_month), 'last_month'],
-							[l(:label_this_year), 'current_year']],
+							[l(:label_this_year), 'current_year'],
+    					[l(:label_custom_range), 'custom']],
 							value.blank? ? 'current_month' : value)
 	end
 
@@ -623,9 +624,10 @@ end
 			tabs = []
 			tabs << {:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime} if showTime
 			tabs << {:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense} if showExpense
-		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" || params[:controller] == "wkscheduling"  || params[:controller] == "wkschedulepreference" || params[:controller] == "wkshift" || params[:controller] == "wkpublicholiday" || params[:controller] == "wksurvey" || params[:controller] == "wkleaverequest" || params[:controller] == "wkskill" || params[:controller] == "wkreferrals"
+		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" || params[:controller] == "wkscheduling"  || params[:controller] == "wkschedulepreference" || params[:controller] == "wkshift" || params[:controller] == "wkpublicholiday" || params[:controller] == "wksurvey" || params[:controller] == "wkleaverequest" || params[:controller] == "wkskill" || params[:controller] == "wkreferrals" || params[:controller] == "wkuser"
 				tabs = []
 				if showAttendance
+					tabs <<	{name: 'wkuser', partial: 'wktime/tab_content', :label => :label_employee}
 					tabs << {:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave}
 					tabs <<	{:name => 'wkleaverequest', :partial => 'wktime/tab_content', :label => :label_leave_request}
 					tabs <<	{:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock}
@@ -855,7 +857,7 @@ end
       str == 'true'
     end
 
-	def getStatus_Project_Issue(issue_id,project_id)
+	def get_status_Project_Issue(issue_id,project_id)
 		if !issue_id.blank?
 			cond = getIssueSqlString(issue_id)
 		end
@@ -1600,7 +1602,7 @@ end
 		members = members.to_a.uniq if !members.nil?
 	end
 
-	def getGroupMembersByCond(grpId,cond)
+	def get_group_membersByCond(grpId,cond)
 		scope=User.in_group(grpId).where(cond)
 		members = scope.sort
 		members
@@ -2039,5 +2041,13 @@ end
 		approvers.each do |user|
 			WkUserNotification.userNotification(user.id, issue, 'timeExceeded')
 		end
+	end
+
+	def with_notes_svg
+		'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMTZiZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1leHRlcm5hbC1saW5rIj4KICA8cGF0aCBkPSJNMTggMTN2NmEyIDIgMCAwIDEtMiAySDVhMiAyIDAgMCAxLTItMlY4YTIgMiAwIDAgMSAyLTJoNiIvPgogIDxwb2x5bGluZSBwb2ludHM9IjE1LDMgMjEsMyAyMSw5Ii8+CiAgPGxpbmUgeDE9IjEwIiB5MT0iMTQiIHgyPSIyMSIgeTI9IjMiLz4KPC9zdmc+Cg=='
+	end
+
+	def without_notes_svg
+		'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWV4dGVybmFsLWxpbmsiPgogIDxwYXRoIGQ9Ik0xOCAxM3Y2YTIgMiAwIDAgMS0yIDJINWEyIDIgMCAwIDEtMi0yVjhhMiAyIDAgMCAxIDItMmg2Ii8+CiAgPHBvbHlsaW5lIHBvaW50cz0iMTUsMyAyMSwzIDIxLDkiLz4KICA8bGluZSB4MT0iMTAiIHkxPSIxNCIgeDI9IjIxIiB5Mj0iMyIvPgo8L3N2Zz4K'
 	end
 end

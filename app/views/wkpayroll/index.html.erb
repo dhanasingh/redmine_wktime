@@ -14,6 +14,8 @@
 			<div style="float:right">
 				<%= render :partial => 'sidebar' %>
 			</div>
+			
+		<div style="display: flex; align-items: center; gap: 10px;">
 			<table>
 				<% if wktime_helper.validateERPPermission('A_PAYRL') %>
 					<tr>
@@ -36,7 +38,20 @@
 					</tr>
 				<% end %>
 			</table>
-			<%= render :partial => 'wkpayroll/date_range' %>
+			<%= render :partial => 'wktime/date_range' %>
+		</div>
+			<%=h hidden_field_tag('generate', '') %>
+			<p class="buttons">
+				<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
+				<%= link_to sprite_icon('reload', l(:button_clear)), {tab: 'payroll', clear: true}, class: 'icon icon-reload' %>
+				<% if validateERPPermission('A_PAYRL') %>
+				<%= link_to sprite_icon('document', l(:label_generate_salary)), 'javascript:payrollFormSubmission(true);', :name => 'generate', :class => 'icon' %>
+				<%= link_to sprite_icon('document', l(:label_preview_salary)), 'javascript:payrollFormSubmission(false);', :class => 'icon' %>
+				<% end %>
+			</p>
+
+			<%= content_tag :div, class: "label_confirmation_salary_text", data: {confirmation: l(:label_confirmation_salary_text)} do %>
+			<% end %>
 		</fieldset>
 <% end %>
 <% if @payrollEntries.present? %>

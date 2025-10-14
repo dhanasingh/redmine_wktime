@@ -20,7 +20,7 @@ class WkleaverequestController < WkbaseController
   include WkleaverequestHelper
 	include WkpayrollHelper
   include WksurveyHelper
-  accept_api_auth :index, :edit, :save, :getLeaveType
+  accept_api_auth :index, :edit, :save, :get_leave_type
 
   def index
     sort_init [["start_date", "desc"], ["submitted_date", "asc"]]
@@ -178,7 +178,7 @@ class WkleaverequestController < WkbaseController
   end
 
 	def set_filter_session
-    filters = [:group_id, :user_id, :leave_type, :lveStatus, :period, :from, :to]
+    filters = [:group_id, :user_id, :leave_type, :lveStatus, :period, :period_type, :from, :to]
 		super(filters, {:from => @from, :to => @to})
   end
 
@@ -233,7 +233,7 @@ class WkleaverequestController < WkbaseController
 
   end
 
-  def getLeaveAvailableHours
+  def get_leave_available_hours
     available_hours = 0
     data = []
     userHours = WkUserLeave.leaveAvailableHours(params[:issue_id], params[:user_id]).first
@@ -242,7 +242,7 @@ class WkleaverequestController < WkbaseController
     render :json => data
   end
 
-  def getLeaveType
+  def get_leave_type
 		leaves = get_leave_type
 		leaveType = []
 		leaveType = leaves.map { |leave| { value: leave[1], label: leave[0] }}
