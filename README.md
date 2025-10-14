@@ -124,6 +124,7 @@ For more information on features, please refer to the user guide
 
 | **Redmine** | **ERPmine** |
 |-------------|-------------|
+| 6.1.x | 4.9.1 |
 | 6.0.x | 4.8, 4.8.1, 4.8.2, 4.8.3, 4.8.4, 4.8.5, 4.9 |
 | 5.1.x | 4.7.1, 4.7.2, 4.7.3, 4.7.4, 4.7.5, 4.7.6 |
 | 5.0.x | 4.5.2, 4.6, 4.7 |
@@ -133,23 +134,17 @@ For more information on features, please refer to the user guide
 | 4.0.x | 3.4, 3.5, 3.6, 3.7, 3.8, 3.9 |
 | 3.4.x | 2.9, 3.0, 3.1, 3.2, 3.3 |
 
-## Release Notes for v4.9
+## Release Notes for v4.9.1
 
 - **Features**
   ```text
-   - Set ERPmine dashboard as the welcome page
-   - Added Assignee field to Contact and Account modules
-   - Added task script to load the ERPmine default dataset
-   - Reduced the filter area size in the list page
-   - Replaced image icons with SVG icons
-   - Added edit hyperlink in User Payroll settings list
-   - Moved Employee List page under HR
-   - Updated CRM Dashboard and Admin Dashboard layouts
-   - Moved the Resident menu after the CRM menu
+   - Redmine 6.1 compatibility
   ```
 - **Bug fixes**
   ```text
-   - Fixed the Notes popup icon issue in the Timesheet detail page
+   - Fixed Balance detail issue in Dashboard page
+   - Fixed date range onchange issue in the Report page
+   - Fixed Empty dropdown Rendering issue in Spent time detail page
   ```
 
 ## Customization
