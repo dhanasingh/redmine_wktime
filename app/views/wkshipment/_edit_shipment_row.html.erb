@@ -46,7 +46,7 @@
 		<%=h select_tag("product_type_#{row_index.to_s}",options_for_select(productTypeArr, :selected => entry.blank? ? productTypeArr : entry.product_type ), :disabled => isDisable, :required => true, :style => "width: 100px;") %>
 	</td>
 	<td class="lbl-txt-align" headers="product_item_id">
-		<%=h select_tag("product_item_id_#{row_index.to_s}", product_item_select(sqlCond, false, productItem.blank? ? nil :productItem.id), :disabled => isDisable, :required => true, :style => "width: 100px;", :required => true) %>
+		<%=h select_tag("product_item_id_#{row_index.to_s}", product_item_select(sqlCond, false, productItem.blank? ? nil :productItem.id), :disabled => isDisable, :required => true, :style => "width: 100px;") %>
 	</td>
 	<td class="lbl-txt-align" headers="product_attribute_id">
 		<%=h select_tag("product_attribute_id_#{row_index.to_s}", generic_options_for_select(WkProductAttribute, attributeSql, 'name', 'name', 'id',  entry.blank? ? nil :entry.product_attribute_id, true), :disabled => isDisable, :style => "width: 100px;") %>

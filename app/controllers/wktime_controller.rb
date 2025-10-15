@@ -747,7 +747,7 @@ include ActionView::Helpers::TagHelper
 		usrBillableProjects = WkAccountProject.includes(:parent).where(:project_id => projectids)
 		# locationBillProject = usrBillableProjects.select {|bp| bp.parent.location_id == usrLocationId}
 		locationBillProject = usrBillableProjects.sort_by{|parent_type| parent_type}
-		billableClients = locationBillProject.collect {|billProj| [billProj.parent.name, billProj.parent_type.to_s + '_' + billProj.parent_id.to_s]}
+		billableClients = locationBillProject.collect {|billProj| [billProj&.parent&.name, billProj.parent_type.to_s + '_' + billProj.parent_id.to_s]}
 		billableClients.unshift(["", ""]) if needBlank
 		billableClients = billableClients.uniq
 		billableClients

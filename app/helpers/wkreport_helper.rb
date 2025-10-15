@@ -141,7 +141,7 @@ module WkreportHelper
 	def getAccountContactSql(rptName=nil)
 		parentSql = ""
 		if ActiveRecord::Base.connection.adapter_name == 'Mysql2'
-			encoding = ActiveRecord::Base.connection_config[:encoding]
+			encoding = ActiveRecord::Base.connection_db_config.configuration_hash[:encoding]
 			encoding ||= "utf8"
 			parentSql = "COLLATE #{encoding}_unicode_ci"
 		end

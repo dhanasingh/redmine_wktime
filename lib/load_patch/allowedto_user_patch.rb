@@ -3,13 +3,13 @@ module LoadPatch::AllowedtoUserPatch
     base.class_eval do
 
       def allowed_to?(action, context, options={}, &block)
-        # ======= ERPmine_patch Redmine 6.0 ==========
+        # ======= ERPmine_patch Redmine 6.1 ==========
         wktime_helper = Object.new.extend(WktimeHelper)
         valid_ERP_perm = wktime_helper.validateERPPermission('A_TE_PRVLG')
         isSupervisor = wktime_helper.isSupervisor
         # =============================
         if context && context.is_a?(Project)
-          # ======= ERPmine_patch Redmine 6.0 ==========
+          # ======= ERPmine_patch Redmine 6.1 ==========
           # For allow supervisor and TEadmin to view time_entry
           if ((valid_ERP_perm || isSupervisor) && action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
             return true
@@ -28,12 +28,12 @@ module LoadPatch::AllowedtoUserPatch
           return false unless roles
           roles.any? do |role|
             (context.is_public? || role.member?) &&
-            role.allowed_to?(action) &&
+            role.allowed_to?(action, @oauth_scope) &&
             (block ? yield(role, self) : true)
           end
         elsif context && context.is_a?(Array)
           if context.empty?
-          false
+            false
           else
           # Authorize if user is authorized on every element of the array
           context.map {|project| allowed_to?(action, project, options, &block)}.reduce(:&)
@@ -44,7 +44,7 @@ module LoadPatch::AllowedtoUserPatch
           # Admin users are always authorized
           return true if admin?
 
-          # ======= ERPmine_patch Redmine 6.0 ==========
+          # ======= ERPmine_patch Redmine 6.1 ==========
           if ((valid_ERP_perm || isSupervisor) && action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
           return true
           end
@@ -56,12 +56,12 @@ module LoadPatch::AllowedtoUserPatch
           # authorize if user has at least one role that has this permission
           roles = self.roles.to_a | [builtin_role]
           roles.any? do |role|
-          # ======= ERPmine_patch Redmine 6.0 ==========
+          # ======= ERPmine_patch Redmine 6.1 ==========
           if (action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
             (role.allowed_to?(:log_time) || role.allowed_to?(:edit_time_entries) || role.allowed_to?(:edit_own_time_entries))
           else
           # =============================
-            role.allowed_to?(action) &&
+            role.allowed_to?(action, @oauth_scope) &&
             (block ? yield(role, self) : true)
           end
           end

@@ -61,7 +61,7 @@ module SendPatch::ApplicationHelperPatch
           else
             object.filename
           end
-          # ============= ERPmine_patch Redmine 6.0  =====================
+          # ============= ERPmine_patch Redmine 6.1  =====================
         when WkInventoryItem
           brandName = object.product_item.brand.blank? ? "" : object.product_item.brand.name
           modelName = object.product_item.product_model.blank? ? "" : object.product_item.product_model.name

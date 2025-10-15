@@ -156,7 +156,7 @@
 			# locationBillProject = projBillList.select {|bp| bp.parent.location_id == usrLocationId unless bp.parent.nil?}
 			locationBillProject = projBillList.sort_by{|parent_type| parent_type}
 			billableProject = locationBillProject.detect {|billProj| billProj.parent_type == parentType && billProj.parent_id == parentId} unless entry.nil?
-			billableProjects = locationBillProject.collect {|billProj| [billProj.parent.name, billProj.parent_type.to_s + '_' + billProj.parent_id.to_s]}
+			billableProjects = locationBillProject.collect {|billProj| [billProj&.parent&.name, billProj.parent_type.to_s + '_' + billProj.parent_id.to_s]}
 		end
 	%>
 	<% if showBilling && controller.showSpentFor %>

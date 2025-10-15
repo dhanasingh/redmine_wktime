@@ -2,7 +2,7 @@ module LoadPatch::ScopeTimeEntryQueryPatch
   def self.included(base)
     base.class_eval do
 
-        # ============= ERPmine_patch Redmine 6.0  =====================
+        # ============= ERPmine_patch Redmine 6.1  =====================
       def base_scope(options={})
         if options[:nonSpentTime].present?
           TimeEntry.
@@ -14,12 +14,19 @@ module LoadPatch::ScopeTimeEntryQueryPatch
           where(TimeEntry.visible_condition(User.current))
         else
         # ======================================
-          TimeEntry.visible.
-          joins(:project, :user).
-          includes(:activity).
-          references(:activity).
-          left_join_issue.
-          where(statement)
+          scope = TimeEntry.visible
+                     .joins(:project, :user)
+                     .includes(:activity)
+                     .references(:activity)
+                     .left_join_issue
+                     .where(statement)
+
+          if Redmine::Database.mysql? && ActiveRecord::Base.connection.supports_optimizer_hints?
+            # Provides MySQL with a hint to use a better join order and avoid slow response times
+            scope.optimizer_hints('JOIN_ORDER(time_entries, projects, users)')
+          else
+            scope
+          end
         end
       end
 
@@ -42,7 +49,7 @@ module LoadPatch::ScopeTimeEntryQueryPatch
         order_option = [group_by_sort_order, (options[:order] || sort_clause)].flatten.reject(&:blank?)
 
         order_option << "#{TimeEntry.table_name}.id ASC"
-        # ============= ERPmine_patch Redmine 6.0  =====================
+        # ============= ERPmine_patch Redmine 6.1  =====================
         if options[:nonSpentTime].present?
           base_scope(options)
         else
@@ -53,7 +60,7 @@ module LoadPatch::ScopeTimeEntryQueryPatch
         end
       end
 
-      #========= ERPmine_patch Redmine 6.0 for get supervision condition string ======
+      #========= ERPmine_patch Redmine 6.1 for get supervision condition string ======
       def getSupervisorCondStr
         orgCondStatement = statement
         condStatement = orgCondStatement

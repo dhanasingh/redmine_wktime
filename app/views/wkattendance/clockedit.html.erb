@@ -57,7 +57,7 @@
 				<% loop do  %>
 				<tr class="time-entry <%= cycle("odd", "even") %>">
 					<%=h hidden_field_tag("attnEntriesId#{j}",  (entry_id.blank? ? "" : entry_id[j]) )  %>
-					<td><%=h text_field_tag("attnstarttime#{j}", start_time.blank? ? "" : start_time[j] ,:onchange => "#{} ", :size => 10, :disabled => isDisable, :required => true,  :onchange => "validateHr(this,#{(j)}, ['attnstarttime#{j}', 'attnendtime#{j}', 'hoursdiff#{j}', #{true}]);") %>
+					<td><%=h text_field_tag("attnstarttime#{j}", start_time.blank? ? "" : start_time[j] , :size => 10, :disabled => isDisable, :required => true,  :onchange => "validateHr(this,#{(j)}, ['attnstarttime#{j}', 'attnendtime#{j}', 'hoursdiff#{j}', #{true}]);") %>
 					</td>
 					<td><%=h text_field_tag("attnendtime#{j}", end_time.blank? ? "" : end_time[j],:size => 10, :disabled => isDisable, :onchange => "validateHr(this,#{(j)}, ['attnstarttime#{j}', 'attnendtime#{j}', 'hoursdiff#{j}', #{true}]);") %>
 					</td>

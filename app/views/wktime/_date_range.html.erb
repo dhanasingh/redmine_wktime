@@ -62,10 +62,11 @@
       $("#from,#to").removeAttr("disabled");
       $("#period_type").val("2");    // set hidden to 2 (custom)
     } else {
+      var ctrl_name = form.dataset.controller;
       $("#date_range_wrapper").hide();
       $("#from,#to").attr("disabled", true);
       $("#period_type").val("1");    // set hidden to 1 (dropdown)
-      form.submit();
+      ctrl_name == "wkreport" ? openReportPopup() : form.submit();
     }
   }
 

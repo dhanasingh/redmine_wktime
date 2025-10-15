@@ -229,31 +229,36 @@ class WkdashboardController < WkbaseController
 			invoices = WkInvoice
 				.joins(:invoice_items)
 				.where(invoice_type: "I")
-				.group_by(&:parent_id)
+				.group(:parent_id, :parent_type)
+				.select('wk_invoices.parent_id, wk_invoices.parent_type, SUM(wk_invoice_items.amount) AS total_amount')
 
 			payments = WkPayment
 				.joins(payment_items: :invoice)
 				.where(wk_payment_items: { is_deleted: false }, wk_invoices: { invoice_type: "I" })
-				.group_by(&:parent_id)
+				.group(:parent_id, :parent_type)
+				.select('wk_payments.parent_id, wk_payments.parent_type, SUM(wk_payment_items.amount) AS total_amount')
 
-			parent_ids = (invoices.keys + payments.keys).uniq
 
-			data[:data] = parent_ids.map do |pid|
-				inv_set = invoices[pid] || []
-				pay_set = payments[pid] || []
+			currency =  Setting.plugin_redmine_wktime['wktime_currency']
 
-				parent = inv_set.first&.parent || pay_set.first&.parent
-    		currency =  Setting.plugin_redmine_wktime['wktime_currency'] || inv_set.first&.invoice_items&.first&.currency ||
-               pay_set.first&.payment_items&.first&.invoice&.invoice_items&.first&.currency
+			inv_tot = invoices.each_with_object({}) do |r, h|
+				next unless r.parent_id && r.parent_type
+				parent_name = r.parent&.name || "N/A"
+				h[[r&.parent_id, r&.parent_type, parent_name]] = r&.total_amount&.to_f
+			end
+			pay_tot = payments.each_with_object({}) do |r, h|
+				next unless r.parent_id && r.parent_type
+				parent_name = r.parent&.name || "N/A"
+				h[[r&.parent_id, r&.parent_type, parent_name]] = r&.total_amount&.to_f
+			end
+			
+			result = inv_tot.merge(pay_tot) { |_key, v1, v2| v1 - v2 }
 
-				total_invoice = inv_set.sum { |inv| inv.invoice_items.sum(:amount).to_f }
-				total_payment = pay_set.sum { |pay| pay.payment_items.sum(:amount).to_f }
+			data[:data] = result.each_with_object([]) do |((id, type, parent_name), balance), arr|
+											next if balance < 1
+											arr << { name: parent_name || "N/A", balance: "#{currency} #{format('%.2f', balance)}" }
+										end
 
-				balance = total_invoice - total_payment
-				next unless balance > 1
-
-				{ name: parent&.name || "N/A",  balance: "#{currency} #{sprintf('%.2f', balance)}" }
-			end.compact
 		end
 
 		render json: (data || {})
