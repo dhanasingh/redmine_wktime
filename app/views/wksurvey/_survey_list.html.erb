@@ -10,6 +10,7 @@ if params[:isIssue]
 else
     style = "list time-entries"
 end
+points =  helperObj.showSurveyPoints(params,nil)
 %>
 <table class="<%= style %>">
     <tr>
@@ -21,9 +22,13 @@ end
             <th class="lbl-txt-align"><%= l(:label_survey) %></th>
             <th><%= l(:field_status) %></th>
         <% end %>
+        <% if points[:show_points].present? %>
+            <th><%= l(:label_points) %></th>
+        <% end %>
         <th></th>
     </tr>
     <% @all_surveys.each_with_index do |entry, index| %>
+        <% points =  helperObj.showSurveyPoints(params,entry.id) %>
         <% urlhash = { :survey_id => entry.id, :surveyForType => entry.survey_for_type, :surveyForID => entry.survey_for_id, id: entry.id} %>
         <% surveyLink = helperObj.get_survey_with_userGroup(entry.id, false) %>
         <tr>
@@ -36,6 +41,9 @@ end
                 <% end %>
             </td>
             <td class="colorcode-bg-setup col-status-<%= entry.status %>"><%=h helperObj.getSurveyStatus.invert[entry.status] %></td>
+            <% if points[:show_points].present? && points[:id].present? %>
+                <td class="colorcode-bg-setup col-status-<%= entry.status %>"><% if entry.use_points %><%=h h entry.total_points.to_f  %><% end %></td>
+            <% end %>
             <td class="lbl-txt-align">
                 <% if !entry.hide_response && (["O","C"].include? entry.status) %>
                     <%= link_to sprite_icon('list'),

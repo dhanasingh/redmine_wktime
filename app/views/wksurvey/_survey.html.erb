@@ -1,15 +1,22 @@
 <% if @response.present? %>
+<% points =  Object.new.extend(WksurveyHelper).showSurveyPoints(params,@survey.id) %>
 	<fieldset class="box tabular">
 		<table width="40%" style="text-align: justify;">
 			<tr>
 				<th class="lbl-txt-align"><%= l(:label_response_status) %></th>
 				<th class="lbl-txt-align"><%= l(:label_response_by) %></th>
 				<th class="lbl-txt-align"><%= l(:label_response_date) %></th>
+				<%  if points[:show_points].present?  %>
+					<th class="lbl-txt-align"><%= l(:label_points) %></th>
+				<% end %>
 			</tr>
 			<tr>
 				<td><%= getResponseStatus.invert[@response.status] %></td>
 				<td><%= @response.user.name %></td>
 				<td><%= @response.status_date.strftime("%Y-%m-%d") %></td>
+				<%  if points[:show_points].present?  %>
+					<td><%= @response.total_points %></td>
+				<% end %>
 			</tr>
 		</table>
 	</fieldset>

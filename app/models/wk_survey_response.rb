@@ -143,6 +143,6 @@ class WkSurveyResponse < ApplicationRecord
       .where("survey_id = #{survey.id} " + " AND wk_survey_responses.survey_for_type " + surveyForType)
       .group("survey_id, wk_survey_responses.id, wk_surveys.name, wk_surveys.survey_for_type, wk_surveys.survey_for_id, wk_statuses.status, U.firstname, U.lastname, U.parent_id, wk_survey_responses.group_name, wk_survey_responses.user_id, wk_survey_responses.survey_for_id")
       .select("MAX(wk_statuses.status_date) AS status_date, wk_statuses.status, survey_id, wk_survey_responses.group_name, wk_survey_responses.id, user_id, wk_surveys.name,
-      wk_surveys.survey_for_type, wk_survey_responses.survey_for_id, U.firstname, U.lastname, U.parent_id").order("user_id ASC")
+      wk_surveys.survey_for_type, wk_survey_responses.survey_for_id, wk_survey_responses.total_points, wk_survey_responses.total_points, U.firstname, U.lastname, U.parent_id").order("user_id ASC")
   end
 end

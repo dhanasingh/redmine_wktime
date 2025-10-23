@@ -1,25 +1,32 @@
-$(function(){
+$.widget.bridge("uiAccordion", $.ui.accordion);
+$(function () {
 	$('input[type=text]').blur();
-	$( "#accordion" ).accordion({
+	$("#accordion").uiAccordion({
 		icons: { "header": "ui-icon-circle-triangle-e", "activeHeader": "ui-icon-circle-triangle-s" },
 		collapsible: true,
 		heightStyle: "content"
 	});
 
-	$('[id^=question_type_]').each(function(){
-		question_type_changed(((this.name).split('_'))[2]);
+	if ($('#questions-accordion').children().length === 0) {
+		$('#questions-accordion').css('display', 'none');
+	}
+
+	$(".group-accordion-item").uiAccordion({
+		icons: { "header": "ui-icon-circle-triangle-e", "activeHeader": "ui-icon-circle-triangle-s" },
+		collapsible: true,
+		heightStyle: "content"
 	});
 
-	if($('#survey_status').val() != 'O')
+	if ($('#survey_status').val() != 'O')
 		$('.icon-email-add').hide();
 
-	$('#survey_for').change(function(){
+	$('#survey_for').change(function () {
 		$('#survey_for_id').val('');
 	});
 
 	validateSurveyFor();
 
-	$('#survey_for_id, #survey_for').change(function(){
+	$('#survey_for_id, #survey_for').change(function () {
 		validateSurveyFor();
 	});
 
@@ -27,74 +34,76 @@ $(function(){
 		autoOpen: false,
 		resizable: false,
 		modal: true,
-		width:	380,
+		width: 380,
 		buttons: [
-		{
-			text: 'Ok',
-			id: 'btnOk',
-			click: function() {
+			{
+				text: 'Ok',
+				id: 'btnOk',
+				click: function () {
 
-				var email_notes = $('#email_notes').val();
-				var survey_id = $('#survey_id').val();
-				var user_group = $('#user_group').val();
-				var includeUserGroup = $('#includeUserGroup').prop("checked");
-				var additional_emails = $('#additional_emails').val();
-				var isNotValid = false;
+					var email_notes = $('#email_notes').val();
+					var survey_id = $('#survey_id').val();
+					var user_group = $('#user_group').val();
+					var includeUserGroup = $('#includeUserGroup').prop("checked");
+					var additional_emails = $('#additional_emails').val();
+					var isNotValid = false;
 
-				if(additional_emails != ''){
-					additional_emails = additional_emails.split(';');
-					$.each(additional_emails, function( index, email ) {
-						if(!validateEmail(email))
-							isNotValid = true;
+					if (additional_emails != '') {
+						additional_emails = additional_emails.split(';');
+						$.each(additional_emails, function (index, email) {
+							if (!validateEmail(email))
+								isNotValid = true;
+						});
+					}
+
+					if (isNotValid || (additional_emails == '' && !includeUserGroup)) {
+						alert('Validation failed');
+						return false;
+					}
+					var url = '/wksurvey/email_user';
+					$.ajax({
+						url: url,
+						type: 'get',
+						data: {
+							user_group: user_group, survey_id: survey_id, email_notes: email_notes, additional_emails: additional_emails,
+							includeUserGroup: includeUserGroup
+						},
+						success: function (data) {
+							if (data != "ok") alert(data);
+							$("#reminder-email-dlg").dialog("close");
+						},
+						error: function (xhr, status, error) {
+							$('#email_notes').val('');
+						},
+						beforeSend: function () {
+							$(this).parent().addClass('ajax-loading');
+						},
+						complete: function () {
+							$(this).parent().removeClass('ajax-loading');
+						}
 					});
 				}
-
-				if(isNotValid || (additional_emails == '' && !includeUserGroup)){
-					alert('Validation failed');
-					return false;
+			},
+			{
+				text: 'Cancel',
+				id: 'btnCancel',
+				click: function () {
+					$(this).dialog("close");
 				}
-				var url = '/wksurvey/email_user';
-				$.ajax({
-					url: url,
-					type: 'get',
-					data: { user_group: user_group, survey_id: survey_id, email_notes: email_notes, additional_emails: additional_emails,
-							includeUserGroup: includeUserGroup},
-					success: function(data){
-						if(data != "ok") alert(data);
-						$("#reminder-email-dlg").dialog("close");
-					},
-					error: function(xhr,status,error) {
-						$('#email_notes').val('');
-					},
-					beforeSend: function(){
-						$(this).parent().addClass('ajax-loading');
-					},
-					complete: function(){
-						$(this).parent().removeClass('ajax-loading');
-					}
-				});
-			}
-		},
-		{
-			text: 'Cancel',
-			id: 'btnCancel',
-			click: function() {
-				$( this ).dialog( "close" );
-			}
-		}]
+			}]
 	});
 
 	showHideRecurEvery();
-	$('#recur').change(function(){
+	$('#recur').change(function () {
 		showHideRecurEvery();
 	});
 
-	$('#review').on('change', function(){
-		if($('#review:checked').val())
+	$('#review').on('change', function () {
+		if ($('#review:checked').val())
 			$('.revieweronly').show();
-		else{
+		else {
 			$('.revieweronly').hide();
-			$("input[id^='reviewerOnly_']").each(function(){
+			$("input[id^='reviewerOnly_']").each(function () {
 				$(this).prop("checked", false);
 			});
 		}
@@ -106,259 +115,392 @@ $(function(){
 		resizable: false,
 		modal: true,
 		buttons: [
-		{
-			 text: 'Ok',
-			 id: 'btnOk',
-			 click: function(){
-			$("#closedResp_form").submit();
-			 }
-		},
-		{
-			text: 'Cancel',
-			id: 'btnCancel',
-			click: function() {
-				$( this ).dialog( "close" );
-			}
-		}]
+			{
+				text: 'Ok',
+				id: 'btnOk',
+				click: function () {
+					$("#closedResp_form").submit();
+				}
+			},
+			{
+				text: 'Cancel',
+				id: 'btnCancel',
+				click: function () {
+					$(this).dialog("close");
+				}
+			}]
 
 	});
 
 	//To render without choice question, append the choice next to question label
-	$('[id^=tr_question_]').each(function(){
+	$('[id^=tr_question_]').each(function () {
 		const id = (this.id.split('_')).pop();
-		if($('.tr_choice_'+id).length == 1 && $('.td_choice_name_'+id).text().length == 0)
-			$(this).append($('.tr_choice_'+id).contents());
+		if ($('.tr_choice_' + id).length == 1 && $('.td_choice_name_' + id).text().length == 0)
+			$(this).append($('.tr_choice_' + id).contents());
 	});
 
 	var radio = false;
 	//Uncheck If single Radio button/Check box element present
-		$("input:radio").mouseup(function(){
-			radio = $(this).is(':checked');
-		}).click(function(){
-			if(radio) $(this).prop("checked", false);
-		});
+	$("input:radio").mouseup(function () {
+		radio = $(this).is(':checked');
+	}).click(function () {
+		if (radio) $(this).prop("checked", false);
+	});
+
+	reOrderIndex();
+
 });
 
-function addrows(qINDEX, qID)
-{
-	var lastEleName = $('[id^=questionChoices_'+ qID + '_'+ qINDEX +']').last().attr('name');
-	var namearr = lastEleName.split("_");
-	var cINDEX = parseInt(namearr[4]) + 1;
-	var param = qINDEX +","+ (qID == '' ? -1 : qID) +","+ cINDEX +", -1"
-	var newele = "<tr><td></td><td></td><td align='left'> <input type='text' name='questionChoices_"+ qID +'_'+ qINDEX +"__"+cINDEX+"' id='questionChoices_"+ qID +'_'+ qINDEX +"__"+cINDEX+"' size='40%' maxlength='255'/>&nbsp;<a title='Delete' href='javascript:deleterow("+ param +");'>"+delImg+" </a> </td><td align='right'><b>Points</b>&nbsp;<input type='text' name='points_"+ qID +'_'+ qINDEX +"__"+cINDEX+"' id='points_"+ qID +'_'+ qINDEX +"__"+cINDEX+"' size='5' maxlength='10'/></td></tr>";
-	$("#lastrow_"+qINDEX).before(newele);
-	$('#questionChoices_'+ qID +'_'+ qINDEX +'__'+cINDEX).focus();
-}
+function reOrderIndex() {
+	// Reset all numbering
+	var groupCounter = 0;
 
-function deleterow(qINDEX, qID, cINDEX, cID)
-{
+	// Process grouped questions
+	$('.group-accordion-item').each(function () {
+		groupCounter++;
+		var questionCounter = 0;
 
-	cID = cID == '-1' ? '' : cID;
-	qID = qID == '-1' ? '' : qID;
+		// Find the group container first
+		var $groupContainer = $(this).find('.group-questions');
+		if ($groupContainer.length) {
+			$groupContainer.find('.surveyquestion').each(function () {
+				questionCounter++;
+				$(this).find('td.indexNo').html('<b>' + groupCounter + '.' + questionCounter + '.</b>');
+			});
+		}
+	});
 
-	if(cID != '' && qID != ''){
-		$('#deleteChoiceIds_'+qINDEX).val(function(){
-			if(this.value == ''){
-				return cID;
-			}
-			return this.value + ',' + cID;
-		});
-	}
-	$('#questionChoices_'+ qID +'_'+ qINDEX +'_'+cID+'_'+cINDEX).closest('tr').remove();
-}
-
-function addquestion()
-{
-	var clonedDiv = $('#add_question_template').html();
-	if($(".surveyquestions").length > 1){
-		var lastEleName = $('[id^=questionName_]').eq(-2).attr('name');
-		var namearr = lastEleName.split("_");
-		var qID = parseInt(namearr[2]) + 1;
-	}
-	else{
-		var qID = $(".surveyquestions").length
-	}
-	clonedDiv = clonedDiv.replace(/\SINDEX/g,qID);
-	clonedDiv = clonedDiv.replace(/\QINDEX/g,qID);
-	$('#add_link').before(clonedDiv);
-	reOrderIndex();
-}
-
-function deletequestion(qINDEX, qID)
-{
-	if(qID != ''){
-		$('#delete_question_ids').val(function(){
-			if(this.value == ''){
-				return qID;
-			}
-			return this.value + ',' + qID;
-		});
-	}
-	$('#QuestionID_'+ qINDEX ).remove();
-	reOrderIndex();
-}
-
-function reOrderIndex(){
-
-	$('.indexNo').each(function(index){
-		$(this).html('<b>'+(index+1)+'.</b>');
+	// Process ungrouped questions
+	var ungropquestionCounter = 0;
+	$('.ungrouped-questions .surveyquestion:visible').each(function () {
+		ungropquestionCounter++;
+		$(this).find('td.indexNo').html('<b>' + ungropquestionCounter + '.</b>');
 	});
 }
 
-function question_type_changed(qIndex){
-	var question_type = $('#question_type_'+qIndex).val();
-	$('[id^=questionChoices_]').each(function(){
-		var ele_index = ((this.name).split('_'))[2];
-		var choice_id = ((this.name).split('_'))[3];
-		var choice_index = ((this.name).split('_'))[4];
-		var quesID = ((this.name).split('_'))[1];
+function questionTypeChanged(dropdown) {
+	const $select = $(dropdown);
+	const value = $select.val();
+	const $row = $select.closest("tr");
+	const $choiceRows = $row.nextUntil("tr:has(select[name*='question_type'])");
+	const $pointsCell = $row.find('.text-points');
 
-		if((question_type == 'TB' || question_type == 'MTB') && ele_index == qIndex){
-			$(this).parents('tr').hide();
-			$('[id^=lastrow_'+qIndex+']').hide();
-			if(!$('#lastColQuesType_'+qIndex).children().length){
-				if($('#points_'+qIndex+':first').length){
-					var clonedDiv = $('#points_'+qIndex+':first').html();
-				}
-				else{
-					var clonedDiv = $('#points_QINDEX').html();
-					clonedDiv = clonedDiv.replace(/\QINDEX/g,qIndex);
-				}
-				$('#lastColQuesType_'+qIndex).html(clonedDiv);
-				$('#points_'+quesID+'_'+ele_index+'_'+choice_id+'_'+choice_index).attr('name','qpoints_'+qIndex);
-				$('#points_'+quesID+'_'+ele_index+'_'+choice_id+'_'+choice_index).attr('id','qpoints_'+qIndex);
-				$('#allowPoints_'+qIndex).val(true);
+	// Extract group and question indices from the select name
+	const nameAttr = $select.attr("name");
+	const match = nameAttr.match(/\[wk_survey_que_groups_attributes\]\[(\d+)\]\[wk_survey_questions_attributes\]\[(\d+)\]/);
+	const groupIndex = match ? match[1] : "0";
+	const questionIndex = match ? match[2] : "0";
+
+	if (value === "RB" || value === "CB") {
+		$choiceRows.show();
+		const destroyField = $pointsCell.find("input[name*='[_destroy]']");
+		if (destroyField.length > 0) destroyField.first().val('1');
+		$pointsCell.css('display', 'none');
+
+		if ($choiceRows.filter(".choice-row").length === 0) {
+
+			// Build new choice row with correct indices
+			const newRow = `
+        <tr class="choice-row">
+          <td></td>
+          <th align="left">Choice</th>
+          <td align="left" style="display:flex;">
+            <input type="hidden" name="wksurvey[wk_survey_que_groups_attributes][${groupIndex}][wk_survey_questions_attributes][${questionIndex}][wk_survey_choices_attributes][1][id]">
+            <input size="40" maxlength="255" type="text"
+                   name="wksurvey[wk_survey_que_groups_attributes][${groupIndex}][wk_survey_questions_attributes][${questionIndex}][wk_survey_choices_attributes][1][name]">
+          </td>
+          <td align="left">
+            <input size="5" maxlength="10" type="text"
+                   name="wksurvey[wk_survey_que_groups_attributes][${groupIndex}][wk_survey_questions_attributes][${questionIndex}][wk_survey_choices_attributes][1][points]">
+          </td>
+        </tr>
+      `;
+
+			const $lastChoice = $row.nextAll(".choice-row").last();
+			if ($lastChoice.length) {
+				$lastChoice.after(newRow);
+			} else {
+				$row.after(newRow);
 			}
 
-			if(choice_id != ''){
-				$('#deleteChoiceIds_' + qIndex).val(function(){
-					var choice_IDs = (this.value).split(',');
-					var return_value = this.value;
-
-					if($.inArray(choice_id, choice_IDs) == -1){
-							return_value = (return_value == '') ? choice_id : (return_value + ',' + choice_id);
-					}
-					return return_value;
-				});
-			}
-			else{
-				$(this).val('');
-			}
+			console.log("   ✅ Default choice row inserted");
 		}
-		else if(ele_index == qIndex){
-			$(this).parents('tr').show();
-			$('[id^=lastrow_'+qIndex+']').show();
-			$('#lastColQuesType_'+qIndex).html("");
-
-			if(choice_id != '' && $('#deleteChoiceIds_' + qIndex).val() != ''){
-				$('#deleteChoiceIds_' + qIndex).val(function(){
-					var choice_IDs = (this.value).split(',');
-					var return_value = '';
-					$.each(choice_IDs, function(index, choiceID){
-
-						if(choice_id != choiceID)
-							return_value = (return_value == '') ? choiceID : (return_value + ',' + choiceID);
-					});
-					return return_value;
-				});
-			}
+	} else {
+		console.log("   Hiding choice rows and removing them");
+		$choiceRows.hide();
+		$pointsCell.css('display', 'inline-block');
+		if ($choiceRows.length) {
+			$choiceRows.filter(".choice-row").each(function () {
+				const destroyField = this.querySelector("input[name*='[_destroy]']");
+				if (destroyField) destroyField.value = '1';
+				this.style.display = 'none';
+			});
+			const nextIndex = $choiceRows.length;
+			const inputHtml = `
+				<input type="hidden"
+					name="wksurvey[wk_survey_que_groups_attributes][${groupIndex}][wk_survey_questions_attributes][${questionIndex}][wk_survey_choices_attributes][${nextIndex}][name]">
+				<input type="text" size="5" maxlength="10"
+					name="wksurvey[wk_survey_que_groups_attributes][${groupIndex}][wk_survey_questions_attributes][${questionIndex}][wk_survey_choices_attributes][${nextIndex}][points]">`;
+			$pointsCell.html(inputHtml);
 		}
-	});
+	}
 }
 
-function validateSurveyFor(){
+function addChoiceRow(link) {
+	const adderRow = link.closest('tr');
+	const table = adderRow.closest('table');
+	const questionSelect = table.querySelector("select[name*='question_type']");
+	const nameAttr = questionSelect?.name || '';
+	const match = nameAttr.match(/\[wk_survey_que_groups_attributes\]\[(\d+)\]\[wk_survey_questions_attributes\]\[(\d+)\]/);
+	const groupIndex = match?.[1] || '0';
+	const questionIndex = match?.[2] || '0';
+
+	const choiceRows = table.querySelectorAll('.choice-row');
+	const nextIndex = choiceRows.length;
+
+	const newRow = document.createElement('tr');
+	newRow.className = 'choice-row';
+	newRow.innerHTML = `
+    <td></td>
+		<th align="left"></th>
+    <td align="left" style="display:flex;">
+      <input type="text" size="40" maxlength="255"
+        name="wksurvey[wk_survey_que_groups_attributes][${groupIndex}][wk_survey_questions_attributes][${questionIndex}][wk_survey_choices_attributes][${nextIndex}][name]">
+				<a title="Delete" href="javascript:void(0);" onclick="this.closest('tr').remove()" style="margin-left:10px;">`+ delImg + `</a>
+		</td>
+		<td align="left">
+      <input type="text" size="5" maxlength="10"
+        name="wksurvey[wk_survey_que_groups_attributes][${groupIndex}][wk_survey_questions_attributes][${questionIndex}][wk_survey_choices_attributes][${nextIndex}][points]">
+    </td>
+  `;
+
+	adderRow.parentNode.insertBefore(newRow, adderRow);
+}
+
+// Delete row
+function DeleteChoice(link) {
+	const row = link.closest("tr");
+	const destroyField = row.querySelector("input[name*='[_destroy]']");
+	if (destroyField) destroyField.value = '1';
+	row.style.display = 'none';
+}
+
+function DeleteGroup(element) {
+	const container = element.closest('.group-accordion-item') || element.closest('.surveyquestion') || element.closest('tr');
+	const destroyField = container.querySelector('input[name*="_destroy"]');
+
+	if (destroyField) {
+		destroyField.value = '1';
+	}
+	container.style.display = 'none';
+	reOrderIndex();
+};
+
+function DeleteQuestion(element) {
+	const container = element.closest('.surveyquestion') || element.closest('tr');
+	const destroyField = container.querySelector('input[name*="_destroy"]');
+
+	if (destroyField) {
+		destroyField.value = '1';
+	}
+	container.style.display = 'none';
+	reOrderIndex();
+};
+
+function addUngroupedQues() {
+	const template = document.getElementById("group_template");
+	const clone = template.content.cloneNode(true);
+	const $tempContainer = $('<div>').append(clone);
+
+	const $tempQues = $tempContainer.find('.surveyquestion');
+
+	const $unGroup = $('<div class="ungrouped-questions">').append($tempQues);
+	const $unGroupQues = $('<div class="group-ungrouped-questions">').append($unGroup);
+	const $temp = $('<div>').append($unGroupQues);
+
+	// 1. Find the elements to remove (label and input) inside the first <td>
+	const $inputToRemove = $tempContainer.find(".group-actions");
+	const $linkToRemove = $tempContainer.find(".add-question-link");
+	const $headerToRemove = $tempContainer.find(".group-accordion-header");
+
+	if ($inputToRemove.length > 0) {
+		$inputToRemove.remove();
+		$linkToRemove.remove();
+		$headerToRemove.remove();
+	}
+
+	let html = $temp.html();
+
+	const groupIndex = $(".group-ungrouped-questions").length + 1;
+
+	html = html.replace(/__GROUP_INDEX__/g, groupIndex)
+		.replace(/__QUESTION_INDEX__/g, 1);
+
+	$("#groups_container").append(html);
+	reOrderIndex();
+}
+
+// Add a new group dynamically
+function addSurveyGroup() {
+	const template = document.getElementById("group_template");
+
+	const clone = template.content.cloneNode(true);
+	const groupIndexNo = $(".group-ungrouped-questions .group-questions").length + 1;
+	const groupIndex = $(".group-ungrouped-questions").length + 1;
+
+	let html = $('<div>').append(clone).html();
+	html = html.replace(/__GROUP_INDEX__/g, groupIndex)
+		.replace(/__QUESTION_INDEX__/g, 1)
+		.replace(/__GROUP_INDEX_NO__/g, groupIndexNo);
+
+	$("#groups_container").append(html);
+
+	initializeGroupAccordion(groupIndex);
+	console.log("New group added for edit page:", groupIndex);
+	reOrderIndex();
+}
+
+function initializeGroupAccordion(groupIndex) {
+	const $questionsAccordion = $("#group-" + groupIndex);
+
+	$questionsAccordion.uiAccordion({
+		icons: { "header": "ui-icon-circle-triangle-e", "activeHeader": "ui-icon-circle-triangle-s" },
+		collapsible: true,
+		active: false,
+		heightStyle: "content"
+	});
+	$questionsAccordion.uiAccordion("refresh");
+}
+
+
+function addQuestions(button) {
+	const group = button.closest('.group-questions');
+	const template = group.querySelector('#question-template');
+	if (!group || !template) {
+		console.error('Missing elements');
+		return;
+	}
+
+	// Clone template
+	const clone = template.content.cloneNode(true);
+	const wrapper = document.createElement('div');
+	wrapper.appendChild(clone);
+
+	let html = wrapper.innerHTML;
+	const existingQuestions = group.querySelectorAll('.surveyquestion').length;
+	const newId = existingQuestions + 1;
+	html = html.replace(/NEW_RECORD/g, newId).replace(/__GROUP_INDEX__/g, 1)
+		.replace(/__QUESTION_INDEX__/g, 1);
+
+	const addLink = group.querySelector('.add-question-link');
+	if (addLink) {
+		addLink.insertAdjacentHTML('beforebegin', html);
+	} else {
+		group.insertAdjacentHTML('beforeend', html);
+	}
+	reOrderIndex();
+}
+
+// Update group header when name changes
+function updateGroupHeader(input) {
+	const header = input.closest('.group-accordion-item').querySelector('.group-accordion-header');
+	header.textContent = input.value || 'Group Name';
+};
+
+
+function validateSurveyFor() {
 
 	var surveyFor = $('#survey_for').val();
 	var surveyForID = $('#survey_for_id').val();
-	if(surveyForID != '' && surveyFor != ''){
-	var URL = "/wksurvey/find_survey_for?surveyFor="+ surveyFor +"&surveyForID="+surveyForID+"&method=filter";
-      $.ajax({
-        url: URL,
-		type: 'get',
-		success: function(data){
-			var result = data[0];
-			if(data.length > 0){
-				$('#SurveyFor').show();
-				var label = '<b>' + result.label + '</b>';
-				$('#SurveyFor').html(label);
-				$('#IsSurveyForValid').val(true);
+	if (surveyForID != '' && surveyFor != '') {
+		var URL = "/wksurvey/find_survey_for?surveyFor=" + surveyFor + "&surveyForID=" + surveyForID + "&method=filter";
+		$.ajax({
+			url: URL,
+			type: 'get',
+			success: function (data) {
+				var result = data[0];
+				if (data.length > 0) {
+					$('#SurveyFor').show();
+					var label = '<b>' + result.label + '</b>';
+					$('#SurveyFor').html(label);
+					$('#IsSurveyForValid').val(true);
+				}
+				else {
+					$('#SurveyFor').hide();
+					$('#IsSurveyForValid').val(false);
+				}
 			}
-			else{
-				$('#SurveyFor').hide();
-				$('#IsSurveyForValid').val(false);
-			}
-		}
-	  });
+		});
 	}
-	else if(surveyForID == '' || surveyFor == ''){
-				$('#SurveyFor').hide();
-				$('#IsSurveyForValid').val(false);
+	else if (surveyForID == '' || surveyFor == '') {
+		$('#SurveyFor').hide();
+		$('#IsSurveyForValid').val(false);
 	}
 }
 
-observeAutocompleteField('survey_for_id',	function(request, callback) {
-		var url = "/wksurvey/find_survey_for?surveyFor="+ $('#survey_for').val() +"&surveyForID="+ $('#survey_for_id').val()+"&method=search";
-		var data = {
-			term: request.term
-		};
+observeAutocompleteField('survey_for_id', function (request, callback) {
+	var url = "/wksurvey/find_survey_for?surveyFor=" + $('#survey_for').val() + "&surveyForID=" + $('#survey_for_id').val() + "&method=search";
+	var data = {
+		term: request.term
+	};
 
-		data['scope'] = 'all';
+	data['scope'] = 'all';
 
-		$.get(url, data, null, 'json')
-			.done(function(data){
-				callback(data);
-			})
-			.fail(function(jqXHR, status, error){
-				callback([]);
-			});
-	},
+	$.get(url, data, null, 'json')
+		.done(function (data) {
+			callback(data);
+		})
+		.fail(function (jqXHR, status, error) {
+			callback([]);
+		});
+},
 	{
-		select: function(event, ui) {
+		select: function (event, ui) {
 			$('#SurveyFor').text('');
 			$('#survey_for_id').val(ui.item.value).change();
 		}
 	}
 );
 
-function showConfirmationDlg(){
+function showConfirmationDlg() {
 
 	$('#email_notes').val('');
 	$('#additional_emails').val('');
-	$( "#reminder-email-dlg" ).dialog( "open" );
+	$("#reminder-email-dlg").dialog("open");
 }
 
-function addGrpName(){
-	$( "#add-grp-name" ).dialog( "open" );
+function addGrpName() {
+	$("#add-grp-name").dialog("open");
 }
 function validateEmail($email) {
-  var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
-  return emailReg.test( $email );
+	var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+	return emailReg.test($email);
 }
 
-function showHideRecurEvery(){
-	if($("#recur").prop("checked")){
+function showHideRecurEvery() {
+	if ($("#recur").prop("checked")) {
 		$("#tr_recur_every").show();
 		$("#recur_every").prop('required', true);
 	}
-	else{
+	else {
 		$("#tr_recur_every").hide();
 		$("#recur_every").prop('required', false);
 	}
 }
 
-function survey_submit(){
-	$("[name^='survey_sel_choice_']").each(function(){
+function survey_submit() {
+	$("[name^='survey_sel_choice_']").each(function () {
 		$(this).prop('required', false);
 	});
 	$("#commit").val("Save");
 	$("#survey_form").submit();
 }
 
-function validation(){
+function validation() {
 	var isUnAnswered = false;
 	var checkBoxClass = null;
-	$("[name^='survey_sel_choice_']:required").each(function(){
-		switch(this.type) {
+	$("[name^='survey_sel_choice_']:required").each(function () {
+		switch (this.type) {
 			// case "text":
 			// 	if($(this).val() == ""){
 			// 		isUnAnswered = true;
@@ -366,11 +508,11 @@ function validation(){
 			// 	}
 			// break;
 			case "radio":
-				if(!$.isNumeric($("input[name='"+this.name+"']:checked").val())){
+				if (!$.isNumeric($("input[name='" + this.name + "']:checked").val())) {
 					isUnAnswered = true;
 					return false;
 				}
-			break;
+				break;
 			// case "textarea":
 			// 	if($(this).val() == ""){
 			// 		isUnAnswered = true;
@@ -379,30 +521,63 @@ function validation(){
 			// break;
 			case "checkbox":
 				let answered = false;
-				if(checkBoxClass != this.className){
+				if (checkBoxClass != this.className) {
 					checkBoxClass = this.className;
-					$("."+this.className).each(function(){
+					$("." + this.className).each(function () {
 						answered = answered || this.checked;
 					});
-					if(!answered){
+					if (!answered) {
 						isUnAnswered = true;
 						return false;
 					}
 				}
-			break;
+				break;
 			default:
-				if($(this).val() == ""){
+				if ($(this).val() == "") {
 					isUnAnswered = true;
 					return false;
 				}
 		}
 	});
 
-	if(!isUnAnswered && confirm(warn_survey_submit)){
+	if (!isUnAnswered && confirm(warn_survey_submit)) {
 		$("#commit").val("Submit");
 		$("#survey_form").submit();
 	}
-	else if(isUnAnswered){
+	else if (isUnAnswered) {
 		alert(warn_survey_mandatory);
 	}
+}
+
+function updateTotalPoints() {
+	let totalpts = 0;
+	//For RB, CB
+	document.querySelectorAll("input[type='checkbox'][data-points], input[type='radio'][data-points]").forEach(function (el) {
+		let elementid = '.' + el.id;
+		if (el.checked) {
+			totalpts += parseFloat(el.dataset.points) || 0;
+			document.querySelectorAll(elementid).forEach(span => {
+				span.style.fontWeight = 'bold';
+			});
+		} else {
+			document.querySelectorAll(elementid).forEach(span => {
+				span.style.fontWeight = 'normal';
+			});
+		}
+	});
+
+	//For TB, MTB
+	document.querySelectorAll("input[data-points-field='true'], textarea[data-points-field='true']").forEach(function (el) {
+		if (el.value.trim().length > 0) {
+			totalpts += parseFloat(el.dataset.points) || 0;
+		}
+
+	});
+
+	let totalFixed = totalpts.toFixed(1);
+	document.querySelectorAll("#total_points").forEach(el => {
+		el.textContent = totalFixed;
+	});
+	let hdnTotalPts = document.getElementById("hdn_total_points");
+	if (hdnTotalPts) hdnTotalPts.value = totalFixed;
 }

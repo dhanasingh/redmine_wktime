@@ -82,6 +82,10 @@ module WksurveyHelper
         surveys = surveys.where(survey_for_type: @surveyForType, survey_for_id: [nil, @surveyForID])
         surveys = surveys.where(status: ["O", "C"]) unless params[:isIssue].blank?
     end
+    points = showSurveyPoints(params,nil)
+    if points[:id].present?
+      surveys = surveys.with_total_points(points[:id].to_i)
+    end
     surveys
   end
 
@@ -345,5 +349,23 @@ module WksurveyHelper
       response_grp << [l(:label_trend_chart), "trendChart"]
     end
     response_grp
+  end
+
+  def showSurveyPoints(params, survey_id = nil)
+    survey_points = { show_points: false }
+
+    survey_points_data = call_hook(:survey_points, params: params)
+    if survey_points_data.present?
+      points = survey_points_data.is_a?(Array) ? survey_points_data.first : survey_points_data
+      survey_points[:id] = eval(points) if points.is_a?(String)
+      survey_points[:show_points] = true if points.is_a?(String)
+    end
+
+    if survey_points[:id].blank? && survey_id.present?
+      survey = WkSurvey.find_by(id: survey_id)
+      survey_points[:show_points] = survey&.use_points?
+    end
+    
+    survey_points
   end
 end

@@ -26,6 +26,9 @@
         <%= sort_header_tag('Response_By', :caption => l(:label_response_by)) %>
         <%= sort_header_tag('Response_date', :caption => l(:label_response_date)) %>
         <%= sort_header_tag('Cls_Resp_date', :caption => l(:label_clos_responses)) %>
+        <% if @survey.use_points %>
+          <th class="lbl-txt-align"><%= l(:label_points) %></th>
+        <% end %>
     </tr>
     <% @response_entries.each_with_index do |entry, index| %>
       <% if User.current.id == entry.user_id || (reviewers.include? entry.user_id) || validateERPPermission("E_SUR") %>
@@ -42,9 +45,10 @@
             <td class="lbl-txt-align"><%= survey_helper.getResponseStatus.invert[entry.status] %></td>
             <td class="lbl-txt-align"><%= entry.firstname + " " + entry.lastname %></td>
             <td class="lbl-txt-align"><%= entry.status_date.strftime("%Y-%m-%d") %></</td>
-            <td class="lbl-txt-align">
-                    <%= entry.group_name if entry.group_name.present? %>
-            </td>
+            <td class="lbl-txt-align"><%= entry.group_name if entry.group_name.present? %></td>
+            <% if @survey.use_points %>
+              <td class="lbl-txt-align"><%= entry.total_points.to_f%></td>
+            <% end %>
         </tr>
       <% end %>
     <% end %>
