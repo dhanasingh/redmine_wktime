@@ -3,22 +3,20 @@
 <script type="text/javascript">
 	delImg = '<%= sprite_icon("del") %>';
 </script>
-<% 	@isBlankSurvey = @survey.blank?
-	survey_name = @isBlankSurvey ? nil : @survey.name
+<% 	@isBlankSurvey = @survey.new_record?
 	status = @isBlankSurvey ? nil : @survey.status
-	survey_id = @isBlankSurvey ? nil : @survey.id
 	group_id = @isBlankSurvey ? '' : @survey.group_id
-	isDisable = @isBlankSurvey ? false : @survey.status != 'N'
+	isDisable = @survey.persisted? && @survey.status != 'N'
 	recur = @isBlankSurvey ? false : @survey.recur
 	recur_every = @isBlankSurvey ? nil : @survey.recur_every
 	survey_for = @isBlankSurvey ? @surveyForType : @survey.survey_for_type
 	survey_for_id = @isBlankSurvey ? @surveyForID : @survey.survey_for_id
 	is_review =  @isBlankSurvey ? false : @survey.is_review
 %>
-<% if @survey.blank?%>
-	<%= title l(:label_new_survey) %>
+<% if @isBlankSurvey %>
+	<%= title controller.newItemLabel %>
 <% else %>
-	<%= title l(:label_edit_survey) %>
+	<%= title controller.editItemLabel %>
 <% end %>
 
 <%= form_with model: @survey, url: { controller: 'wksurvey', action: 'save_survey' }, scope: :wksurvey, id: 'survey_form', method: :post do |f| %>
@@ -27,19 +25,19 @@
 	<%= f.hidden_field :id %>
 
   <fieldset class="box tabular">
-		<table>
+		<table width="100%">
 			<tr>
 				<td width="50%" valign="top">
 					<table>
 						<tr>
 							<th align="left"><%= l(:label_survey_name) %><span style="color:red;">*</span></th>
-							<td align="left"><%= f.text_field :name, disabled: (@survey.persisted? && @survey.status != 'N'), size: 40, maxlength: 100, required: true %></td>
+							<td align="left"><%= f.text_field :name, disabled: isDisable, size: 40, maxlength: 100, required: true %></td>
 						</tr>
 						<tr>
 							<th align="left"><%= l(:label_survey_for) %></th>
 							<td>
-								<%= f.select :survey_for_type, options_for_select(getSurveyFor, @survey.survey_for_type),{}, {disabled: (@survey.persisted? && @survey.status != 'N'), id: "survey_for"} %>
-								<%= f.text_field :survey_for_id, id: "survey_for_id", disabled: (@survey.persisted? && @survey.status != 'N'), size: 3, maxlength: 30 %>
+								<%= f.select :survey_for_type, options_for_select(getSurveyFor, survey_for),{}, {disabled: isDisable, id: "survey_for"} %>
+								<%= f.text_field :survey_for_id, value: survey_for_id, id: "survey_for_id", disabled: isDisable, size: 3, maxlength: 30 %>
 								<span id="SurveyFor"></span>
 								<%= hidden_field_tag 'IsSurveyForValid', false %>
 							</td>
@@ -53,7 +51,7 @@
 						<tr>
 							<th align="left"><%= l(:label_user_group) %></th>
 							<td>
-								<%= f.select :group_id, options_for_select(getUserGroup, selected: @survey.group_id), disabled: (@survey.persisted? && @survey.status != 'N') %>
+								<%= f.select :group_id, options_for_select(getUserGroup, selected: @survey.group_id), disabled: isDisable %>
 								<%= hidden_field_tag 'user_group', @survey.group_id %>
 							</td>
 						</tr>
@@ -64,10 +62,10 @@
 						<tr>
 							<th align="left"><%= l(:label_recur) %></th>
 							<td>
-								<%= f.check_box :recur, id: "recur", disabled: (@survey.persisted? && @survey.status != 'N') %>
+								<%= f.check_box :recur, id: "recur", disabled: isDisable %>
 								<span id="tr_recur_every">
 								<b><%= l(:label_recur_every) %></b>
-								<%= f.text_field :recur_every, size: 3, maxlength: 10, id: "recur_every", disabled: (@survey.persisted? && @survey.status != 'N') %>
+								<%= f.text_field :recur_every, size: 3, maxlength: 10, id: "recur_every", disabled: isDisable %>
 								<b>&nbsp;<%= l(:label_day_plural) %></b>
 								<% if @survey.try(:status) == 'O' %>
 								<%= link_to l(:label_clos_curr_resp), 'javascript:addGrpName();' %>
@@ -77,19 +75,19 @@
 						</tr>
 						<tr>
 							<th align="left"><%= l(:label_review) %></th>
-							<td><%= f.check_box :is_review, disabled: (@survey.persisted? && @survey.status != 'N') %></td>
+							<td><%= f.check_box :is_review, disabled: isDisable %></td>
 						</tr>
 						<tr>
 							<th align="left"><%= l(:label_save_allowed) %></th>
-							<td><%= f.check_box :save_allowed, disabled: (@survey.persisted? && @survey.status != 'N') %></td>
+							<td><%= f.check_box :save_allowed, disabled: isDisable %></td>
 						</tr>
 						<tr>
 							<th align="left"><%= l(:label_hide_response) %></th>
-							<td><%= f.check_box :hide_response, disabled: (@survey.persisted? && @survey.status != 'N') %></td>
+							<td><%= f.check_box :hide_response, disabled: isDisable %></td>
 						</tr>
 						<tr>
 							<th align="left"><%= l(:label_use_points) %></th>
-							<td><%= f.check_box :use_points, disabled: (@survey.persisted? && @survey.status != 'N') %></td>
+							<td><%= f.check_box :use_points, disabled: isDisable %></td>
 						</tr>
 					</table>
 				</td>
@@ -101,7 +99,7 @@
 		<h2><%= l(:label_survey_question_grp) %></h2>
 			<div id="groups_container">
 				<%= f.fields_for :wk_survey_que_groups  do |g| %>
-					<%= render partial: 'question_accordion_section', locals: { f: g, :survey => @survey, isDisable: (@survey.persisted? && @survey.status != 'N') } %>
+					<%= render partial: 'question_accordion_section', locals: { f: g, :survey => @survey, isDisable: isDisable } %>
 				<% end %>
 			</div>
 	</div>
@@ -110,14 +108,12 @@
 	<!-- GROUP TEMPLATE -->
   <template id="group_template">
 		<%= f.fields_for :wk_survey_que_groups, WkSurveyQueGroup.new, child_index: '__GROUP_INDEX__' do |g| %>
-			<%= render partial: 'group_section_template', locals: { f: g ,isDisable:(@survey.persisted? && @survey.status != 'N')} %>
+			<%= render partial: 'group_section_template', locals: { f: g ,isDisable:isDisable} %>
 		<% end %>
   </template>
 	<div class="wk-contextual">
-		<% unless (@survey.persisted? && @survey.status != 'N') %>
-			<%= link_to sprite_icon('add', l(:button_add_group)), 'javascript:void(0)', onclick: 'addSurveyGroup()', class: 'icon icon-add' %>
-		<% end %>
 		<% unless isDisable %>
+			<%= link_to sprite_icon('add', l(:button_add_group)), 'javascript:void(0)', onclick: 'addSurveyGroup()', class: 'icon icon-add' %>
 			<%= link_to sprite_icon('add', l(:button_add_question)), 'javascript:void(0)', onclick: 'addUngroupedQues(this)', class: 'icon icon-add' %>
 		<% end %>
 	</div>

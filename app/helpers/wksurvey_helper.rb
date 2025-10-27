@@ -368,4 +368,21 @@ module WksurveyHelper
     
     survey_points
   end
+
+  def getSurveyLabel(params)
+    survey_label = {}
+    label = call_hook(:get_survey_label, {params: params})
+		unless label.blank?
+      mergeHash = eval(label)
+      survey_label =  survey_label.merge(mergeHash)
+		end
+    survey_label
+  end
+
+  def showSurveyLink(params, entry)
+		showLink = false
+    type = getSurveyForType(params)
+    showLink = call_hook(:show_survey_link, {type: type})
+		showLink
+  end
 end

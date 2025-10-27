@@ -5,11 +5,13 @@
   <%= f.hidden_field :sort_order %>
 
   <h3 class="group-accordion-header">
+    <span id="group-name">
     <% if f.object&.persisted? %>
       <%= f.object&.name.presence%>
     <% else %>
       Group-__GROUP_INDEX_NO__
     <% end %>
+    </span>
   </h3>
 
   <div class="group-accordion-content">
@@ -21,7 +23,7 @@
             <%= f.text_field :name, size: 20, maxlength: 255, class: 'group-name-input',
                              onchange: 'updateGroupHeader(this)' %>
           </td>
-          <td align="left" width="10%">
+          <td width="25%" align="right">
             <%= f.check_box :_destroy, class: 'hide', style: 'display:none' %>
             <%= link_to sprite_icon('del', l(:button_delete_group)),
                           'javascript:void(0)',
