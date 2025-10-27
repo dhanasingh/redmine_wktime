@@ -3,7 +3,7 @@
 	<fieldset>
 		<% if checkEditSurveyPermission %>
 			<div style="float:right">
-					<%= link_to sprite_icon('add', l(:label_new_survey)), url_for(:project_id => params[:project_id], :controller => "wksurvey", :action => "edit"), :class => 'icon icon-add' %>
+					<%= link_to sprite_icon('add', controller.newItemLabel), url_for(:project_id => params[:project_id], :controller => "wksurvey", :action => "edit"), :class => 'icon icon-add' %>
 			</div>
 		<% end %>
 		<table>

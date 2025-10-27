@@ -554,4 +554,16 @@ class WksurveyController < WkbaseController
   def check_permission
     render_404 if @survey.blank? || @survey.hide_response
   end
+
+	def ItemLabel
+		l(:label_survey)
+	end
+
+	def newItemLabel
+		l(:label_new_survey)
+	end
+
+	def editItemLabel
+		l(:label_edit_survey)
+	end
 end

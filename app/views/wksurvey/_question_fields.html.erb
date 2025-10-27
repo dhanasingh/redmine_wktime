@@ -76,7 +76,7 @@
         <% is_first = c.index.zero? %>
         <tr class="choice-row">
           <td></td>
-          <th align="left"><%= l(:label_question_choices) %></th>
+          <th align="left"><%= l(:label_question_choices) if is_first %></th>
           <td align="left" style="display:flex;">
             <%= c.hidden_field :id %>
             <%= c.text_field :name, size: 40, maxlength: 100, disabled: isDisable %>

@@ -7,13 +7,10 @@ $(function () {
 		heightStyle: "content"
 	});
 
-	if ($('#questions-accordion').children().length === 0) {
-		$('#questions-accordion').css('display', 'none');
-	}
-
 	$(".group-accordion-item").uiAccordion({
 		icons: { "header": "ui-icon-circle-triangle-e", "activeHeader": "ui-icon-circle-triangle-s" },
 		collapsible: true,
+		active: true,
 		heightStyle: "content"
 	});
 
@@ -147,32 +144,43 @@ $(function () {
 		if (radio) $(this).prop("checked", false);
 	});
 
-	reOrderIndex();
-
+	reOrderIndex(false);
 });
 
-function reOrderIndex() {
-	// Reset all numbering
+function reOrderIndex(onlyVisible = true) {
+	var visibleFilter = (onlyVisible === true) ? ':visible' : '';
 	var groupCounter = 0;
 
-	// Process grouped questions
-	$('.group-accordion-item').each(function () {
+	$('.accordion ,.group-accordion-item:visible').each(function () {
 		groupCounter++;
-		var questionCounter = 0;
+		// 1. Header name change
+		var $groupHeader = $(this).find('.group-accordion-header');
+		var currentText = $groupHeader.text().trim();
+		var newText = '';
 
-		// Find the group container first
+		if (/^Group\s*[-]?\s*\d+$/i.test(currentText)) {
+			newText = currentText.replace(/Group\s*[-]?\s*\d+/i, 'Group-' + groupCounter);
+			const $iconElem = $groupHeader.find('#group-name');
+
+			if ($iconElem.length) {
+				$iconElem.text(newText);
+			}
+		}
+
+		var questionCounter = 0;
+		// 2. Process grouped questions
 		var $groupContainer = $(this).find('.group-questions');
 		if ($groupContainer.length) {
-			$groupContainer.find('.surveyquestion').each(function () {
+			$groupContainer.find('.surveyquestion' + visibleFilter).each(function () {
 				questionCounter++;
 				$(this).find('td.indexNo').html('<b>' + groupCounter + '.' + questionCounter + '.</b>');
 			});
 		}
 	});
 
-	// Process ungrouped questions
+	// 3. Process ungrouped questions
 	var ungropquestionCounter = 0;
-	$('.ungrouped-questions .surveyquestion:visible').each(function () {
+	$('.ungrouped-questions .surveyquestion' + visibleFilter).each(function () {
 		ungropquestionCounter++;
 		$(this).find('td.indexNo').html('<b>' + ungropquestionCounter + '.</b>');
 	});
@@ -293,7 +301,7 @@ function DeleteGroup(element) {
 		destroyField.value = '1';
 	}
 	container.style.display = 'none';
-	reOrderIndex();
+	reOrderIndex(false);
 };
 
 function DeleteQuestion(element) {
@@ -404,8 +412,12 @@ function addQuestions(button) {
 // Update group header when name changes
 function updateGroupHeader(input) {
 	const header = input.closest('.group-accordion-item').querySelector('.group-accordion-header');
-	header.textContent = input.value || 'Group Name';
-};
+	const nameElement = header.querySelector('#group-name');
+
+	if (nameElement) {
+		nameElement.textContent = input.value || 'Group Name';
+	}
+}
 
 
 function validateSurveyFor() {

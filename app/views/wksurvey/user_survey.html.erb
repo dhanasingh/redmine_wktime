@@ -1,11 +1,11 @@
 <%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
-<%= title l(:label_survey) %>
+<%= title controller.ItemLabel %>
 <%= render partial: "wkattendance/render_hr_tabs" %>
 
 <div class="autoscroll">
     <% if checkEditSurveyPermission %>
         <div class="contextual">
-            <%= link_to sprite_icon('add', l(:label_new_survey)), url_for(:controller => "wksurvey", :action => "edit", :surveyForType => 'User', :surveyForID => User.current.id), :class => 'icon icon-add' %>
+            <%= link_to sprite_icon('add', controller.newItemLabel), url_for(:controller => "wksurvey", :action => "edit", :surveyForType => 'User', :surveyForID => User.current.id), :class => 'icon icon-add' %>
         </div>
     <% end %>
 

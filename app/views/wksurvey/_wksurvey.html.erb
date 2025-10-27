@@ -1,11 +1,12 @@
-<label><%= l(:label_survey) %></label>
 <%
     survey_helper = Object.new.extend(WksurveyHelper)
     surveyFor = survey_helper.getSurveyForType(params)
+    label = survey_helper.getSurveyLabel(params)
 %>
+<label><%= label["header"] || l(:label_survey) %></label>
 <div>
     <div class="wk-contextual">
-		<%= link_to sprite_icon('add', l(:label_new_survey)), url_for(:controller => "wksurvey", :action => "edit", :surveyForType => surveyFor[:surveyForType], :surveyForID => surveyFor[:surveyForID]), :class => 'icon icon-add' %>
+		<%= link_to sprite_icon('add', label["newItemLabel"] || l(:label_new_survey)), url_for(:controller => "wksurvey", :action => "edit", :surveyForType => surveyFor[:surveyForType], :surveyForID => surveyFor[:surveyForID]), :class => 'icon icon-add' %>
     </div>
 	<%= render :partial => 'wksurvey/survey_list', :local => {:params => params}%>
 </div>
