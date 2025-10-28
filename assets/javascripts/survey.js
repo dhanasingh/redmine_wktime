@@ -301,6 +301,8 @@ function DeleteGroup(element) {
 	const container = element.closest('.group-accordion-item') || element.closest('.surveyquestion') || element.closest('tr');
 	const destroyField = container.querySelector('input[name*="_destroy"]');
 
+	if (!confirm(deleteGrp)) return;
+
 	if (destroyField) {
 		destroyField.value = '1';
 	}
