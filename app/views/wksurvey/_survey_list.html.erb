@@ -37,7 +37,7 @@ label =  helperObj.getSurveyLabel(params)
         <tr>
             <td><%=h index+1 %></td>
             <td class="lbl-txt-align">
-                <% if surveyLink.blank? || (@surveyForID.blank? && !@surveyForType.blank? && !helperObj.showSurveyLink(params, entry)) %>
+                <% if surveyLink.blank? || (@surveyForID.blank? && !@surveyForType.blank? && helperObj.showSurveyLink(params, entry)) %>
                     <%=h entry.name %>
                 <% else %>
                     <%=h link_to entry.name, url_for(helperObj.get_survey_url(urlhash, params, "survey")), id: "survey_link_#{entry.id.to_s}"%>

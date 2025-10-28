@@ -380,9 +380,8 @@ module WksurveyHelper
   end
 
   def showSurveyLink(params, entry)
-		showLink = false
     type = getSurveyForType(params)
-    showLink = call_hook(:show_survey_link, {type: type})
-		showLink
+    showLink = call_hook(:show_survey_link, {type: type, params: params})
+		!to_boolean(showLink)
   end
 end
