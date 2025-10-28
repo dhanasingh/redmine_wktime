@@ -2,6 +2,9 @@
 <%= stylesheet_link_tag 'wk-time', plugin: 'redmine_wktime' %>
 <script type="text/javascript">
 	delImg = '<%= sprite_icon("del") %>';
+	deleteQues = "<%=l(:text_are_you_sure_want_to, l(:button_delete_question)) %>";
+	deleteGrp = "<%=l(:text_are_you_sure_want_to, l(:button_delete_group)) %>";
+	deleteGrpQuesWarning = "<%=l(:text_wk_warning_group_ques_delete) %>";
 </script>
 <% 	@isBlankSurvey = @survey.new_record?
 	status = @isBlankSurvey ? nil : @survey.status

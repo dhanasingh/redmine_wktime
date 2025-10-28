@@ -7,7 +7,11 @@
         <%= f.hidden_field :id %>
         <%= f.hidden_field :sort_order %>
 
-        <h3 class="group-accordion-header"><%= group.name.presence || l(:label_group) +"-1" %></h3>
+        <h3 class="group-accordion-header">
+          <span id="group-name">
+            <%= group.name.presence || l(:label_group) +"-1" %>
+          </span>
+        </h3>
         <div class="group-accordion-content">
             <span class="group-actions">
               <table width="100%" style="padding-bottom: 1px;">

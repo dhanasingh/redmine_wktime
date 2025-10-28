@@ -1293,3 +1293,4 @@ en:
   button_delete_group: Delete Group
   button_add_choice: Add Choice
   button_delete_choice: Delete Choice
+  text_wk_warning_group_ques_delete: Unable to delete. A group must contain at least one question.

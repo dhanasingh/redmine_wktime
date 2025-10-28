@@ -14,6 +14,10 @@ $(function () {
 		heightStyle: "content"
 	});
 
+	$('#groups_container').find('.group-accordion-header')
+		.first().addClass('ui-accordion-header-active ui-state-active');
+	$('#groups_container').find('.group-accordion-content').first().show();
+
 	if ($('#survey_status').val() != 'O')
 		$('.icon-email-add').hide();
 
@@ -305,15 +309,30 @@ function DeleteGroup(element) {
 };
 
 function DeleteQuestion(element) {
-	const container = element.closest('.surveyquestion') || element.closest('tr');
-	const destroyField = container.querySelector('input[name*="_destroy"]');
+	const $el = $(element);
+	const $groupContainer = $el.closest('.group-ungrouped-questions');
 
-	if (destroyField) {
-		destroyField.value = '1';
+	if ($groupContainer.length) {
+		const hasGroupHeader = $groupContainer.find('.group-accordion-header').length > 0;
+		const questionCount = $groupContainer.find('.surveyquestion:visible').length;
+
+		if (hasGroupHeader && questionCount <= 1) {
+			alert(deleteGrpQuesWarning);
+			return;
+		}
 	}
-	container.style.display = 'none';
+
+	if (!confirm(deleteQues)) return;
+
+	const $question = $el.closest('.surveyquestion').length ? $el.closest('.surveyquestion') : $el.closest('tr');
+
+	const $destroyField = $question.find('input[name*="_destroy"]');
+	if ($destroyField.length) {
+		$destroyField.val('1');
+	}
+	$question.hide();
 	reOrderIndex();
-};
+}
 
 function addUngroupedQues() {
 	const template = document.getElementById("group_template");
@@ -365,7 +384,7 @@ function addSurveyGroup() {
 
 	initializeGroupAccordion(groupIndex);
 	console.log("New group added for edit page:", groupIndex);
-	reOrderIndex();
+	reOrderIndex(false);
 }
 
 function initializeGroupAccordion(groupIndex) {
