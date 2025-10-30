@@ -102,7 +102,7 @@
 				</tr>
 				<% if (Setting.plugin_redmine_wktime['wktime_hide_amount_in_words'].to_i != 1) %>
 					<tr style="width:100%;">
-						<td align="left" colspan="6" width="30%"><b><%= l(:label_amount_in_words) + " : "%></b><%= numberInWords(@invoiceItem.sum(:original_amount)) + " " + l(:label_only) + "." %></td>
+						<td align="left" colspan="6" width="30%"><b><%= l(:label_amount_in_words) + " : "%></b><%= numberInWords(@invoiceItem.sum(:original_amount))+" "+ l(:label_only) + "." %></td>
 					</tr>
 				<% end %>
 								<% if invoiceComp.present? %>

@@ -193,7 +193,7 @@ post 'wkleaverequest/save', :to => 'wkleaverequest#save'
 
 get 'wkleaverequest/get_leave_available_hours', :to => 'wkleaverequest#get_leave_available_hours'
 
-get 'wkleaverequest/get_leave_type', :to => 'wkleaverequest#get_leave_type'
+get 'wkleaverequest/get_leave_options', :to => 'wkleaverequest#get_leave_options'
 
 #For HR payroll
 
