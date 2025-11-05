@@ -18,7 +18,8 @@
             <% end %>
           </p>
           <p><%= f.password_field :password_confirmation, :required => @user.new_record?, :size => 25  %></p>
-      </fieldset>
+      		<%= call_hook(:view_users_form, :user => @user, :form => f) %>
+      	</fieldset>
     </div>
   </div>
   <div style="clear:left;"></div>

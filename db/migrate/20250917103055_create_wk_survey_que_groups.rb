@@ -1,4 +1,4 @@
-class CreateWkSurveyQueGroups < ActiveRecord::Migration[5.2]
+class CreateWkSurveyQueGroups < ActiveRecord::Migration[6.1]
   def change
     # Create wk_survey_que_groups table
     create_table :wk_survey_que_groups do |t|
