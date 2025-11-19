@@ -20,7 +20,7 @@ class WkleaverequestController < WkbaseController
   include WkleaverequestHelper
 	include WkpayrollHelper
   include WksurveyHelper
-  accept_api_auth :index, :edit, :save, :get_leave_type
+  accept_api_auth :index, :edit, :save, :get_leave_options
 
   def index
     sort_init [["start_date", "desc"], ["submitted_date", "asc"]]
@@ -242,7 +242,7 @@ class WkleaverequestController < WkbaseController
     render :json => data
   end
 
-  def get_leave_type
+  def get_leave_options
 		leaves = get_leave_type
 		leaveType = []
 		leaveType = leaves.map { |leave| { value: leave[1], label: leave[0] }}

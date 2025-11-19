@@ -1,0 +1,65 @@
+<%= stylesheet_link_tag 'wk-time', plugin: 'redmine_wktime' %>
+<div class="group-ungrouped-questions">
+<div class="group-accordion-item" id="group-__GROUP_INDEX__">
+  <%= f.hidden_field :id %>
+  <%= f.hidden_field :sort_order %>
+
+  <h3 class="group-accordion-header">
+    <span id="group-name">
+    <% if f.object&.persisted? %>
+      <%= f.object&.name.presence%>
+    <% else %>
+      Group-__GROUP_INDEX_NO__
+    <% end %>
+    </span>
+  </h3>
+
+  <div class="group-accordion-content">
+    <span class="group-actions">
+      <table width="100%" style="padding-bottom: 1px;">
+        <tr>
+          <td id="group-name" align="left">
+            <%= f.label :name, l(:label_grp_name) %><span style="color:red;">*</span>
+            <%= f.text_field :name, size: 20, maxlength: 255, class: 'group-name-input',
+                             onchange: 'updateGroupHeader(this)' %>
+          </td>
+          <td width="25%" align="right">
+            <%= f.check_box :_destroy, class: 'hide', style: 'display:none' %>
+            <%= link_to sprite_icon('del', l(:button_delete_group)),
+                          'javascript:void(0)',
+                          title: l(:button_delete_group),
+                          class: 'icon-del',
+                          onclick: 'DeleteGroup(this)' %>
+            </a>
+          </td>
+        </tr>
+      </table>
+    </span>
+
+    <div class="group-questions">
+      <!-- Questions container -->
+      <div class="questions_container">
+        <%= f.fields_for :wk_survey_questions, WkSurveyQuestion.new.tap { |q| q.wk_survey_choices.build } , child_index: '__QUESTION_INDEX__' do |q| %>
+          <%= render partial: 'question_fields', locals: { f: q, isDisable: isDisable } %>
+        <% end %>
+      </div>
+
+
+      <template id="question-template">
+        <%= f.fields_for :wk_survey_questions, WkSurveyQuestion.new.tap { |q| q.wk_survey_choices.build } ,child_index: "NEW_RECORD" do  |q| %>
+          <%= render partial: 'question_fields', locals: { f: q, isDisable: isDisable } %>
+        <% end %>
+      </template>
+
+      <% unless isDisable %>
+        <div class="add-question-link">
+          <%= link_to sprite_icon('add', l(:button_add_question)),
+                            'javascript:void(0)',
+                            onclick: 'addQuestions(this)', class: 'icon icon-add' %>
+        </div>
+      <% end %>
+    </div>
+    </div>
+  </div>
+</div>
+</div>

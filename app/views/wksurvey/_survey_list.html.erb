@@ -10,32 +10,43 @@ if params[:isIssue]
 else
     style = "list time-entries"
 end
+points =  helperObj.showSurveyPoints(params,nil)
+label =  helperObj.getSurveyLabel(params)
 %>
 <table class="<%= style %>">
     <tr>
         <th>#</th>
         <% if ["index", "user_survey"].include? action_name %>
-            <%= sort_header_tag('survey', :caption => l(:label_survey), class: "lbl-txt-align") %>
+            <%= sort_header_tag('survey', :caption => label["header"] || l(:label_survey), class: "lbl-txt-align") %>
             <%= sort_header_tag('status', :caption => l(:field_status)) %>
         <% else %>
-            <th class="lbl-txt-align"><%= l(:label_survey) %></th>
+            <th class="lbl-txt-align"><%= label["header"] || l(:label_survey) %></th>
             <th><%= l(:field_status) %></th>
+        <% end %>
+        <% if points[:show_points].present? %>
+            <th><%= l(:label_points) %></th>
         <% end %>
         <th></th>
     </tr>
     <% @all_surveys.each_with_index do |entry, index| %>
+        <% points =  helperObj.showSurveyPoints(params,entry.id) %>
         <% urlhash = { :survey_id => entry.id, :surveyForType => entry.survey_for_type, :surveyForID => entry.survey_for_id, id: entry.id} %>
         <% surveyLink = helperObj.get_survey_with_userGroup(entry.id, false) %>
+        <% params["surveyForID"] = entry.survey_for_id %>
+        <%= call_hook(:resident_evaluation, params: params, link: url_for(helperObj.get_survey_url(urlhash, params, "survey"))) %>
         <tr>
             <td><%=h index+1 %></td>
             <td class="lbl-txt-align">
-                <% if surveyLink.blank? || (@surveyForID.blank? && !@surveyForType.blank?) %>
+                <% if surveyLink.blank? || (@surveyForID.blank? && !@surveyForType.blank? && helperObj.showSurveyLink(params, entry)) %>
                     <%=h entry.name %>
                 <% else %>
-                    <%=h link_to entry.name, url_for(helperObj.get_survey_url(urlhash, params, "survey")) %>
+                    <%=h link_to entry.name, url_for(helperObj.get_survey_url(urlhash, params, "survey")), id: "survey_link_#{entry.id.to_s}"%>
                 <% end %>
             </td>
             <td class="colorcode-bg-setup col-status-<%= entry.status %>"><%=h helperObj.getSurveyStatus.invert[entry.status] %></td>
+            <% if points[:show_points].present? && points[:id].present? %>
+                <td class="colorcode-bg-setup col-status-<%= entry.status %>"><% if entry.use_points %><%=h h entry.total_points.to_f  %><% end %></td>
+            <% end %>
             <td class="lbl-txt-align">
                 <% if !entry.hide_response && (["O","C"].include? entry.status) %>
                     <%= link_to sprite_icon('list'),

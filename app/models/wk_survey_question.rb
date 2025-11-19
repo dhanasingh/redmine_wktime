@@ -17,10 +17,11 @@
 
 class WkSurveyQuestion < ApplicationRecord
 
-  belongs_to :survey , :class_name => 'WkSurvey'
-  has_many :wk_survey_choices, foreign_key: "survey_question_id", class_name: "WkSurveyChoice", :dependent => :destroy
+  belongs_to :survey, class_name: 'WkSurvey', foreign_key: 'survey_id', inverse_of: :wk_survey_questions
+  has_many :wk_survey_choices, foreign_key: "survey_question_id", class_name: "WkSurveyChoice", :dependent => :destroy, inverse_of: :survey_question
   has_many :wk_survey_answers, foreign_key: "survey_question_id", class_name: "WkSurveyAnswer", :dependent => :destroy
   has_many :wk_survey_responses, through: :wk_survey_answers, source: :survey_response
+  belongs_to :wk_survey_que_group, class_name: 'WkSurveyQueGroup', foreign_key: 'group_id', inverse_of: :wk_survey_questions
 
   accepts_nested_attributes_for :wk_survey_choices, allow_destroy: true
   validates_presence_of :name

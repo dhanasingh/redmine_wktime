@@ -4,95 +4,132 @@
   <%= hidden_field_tag("survey_id", @survey.id) %>
   <%= hidden_field_tag("isReview", @isReview) %>
   <%= hidden_field_tag("survey_response_id", @response.try(:id)) %>
-  <% questions = @survey.wk_survey_questions.order("is_reviewer_only, wk_survey_questions.id") %>
-  <% questions.each do |entry| %>
-    <%
-      isReviewerOnly = ActiveModel::Type::Boolean.new.cast(entry.is_reviewer_only)
-      isMandatory = ActiveModel::Type::Boolean.new.cast(entry.is_mandatory)
-      reviewerOnlyQIDs = nil
-    %>
-    <% if !isReviewerOnly || @isReviewed || (isReviewerOnly && @isReview)
-        disableAnswer = @survey.status != "O" || !isReviewerOnly && (["C", "R"].include?(@response.try(:status)) || isPrint) || isReviewerOnly && @isReviewed
-        reviewerOnlyQIDs = reviewerOnlyQIDs.blank? ? entry.id.to_s : (reviewerOnlyQIDs + "," + entry.id.to_s) if isReviewerOnly
-        review = @response.present? ? @response.wk_survey_reviews.where("survey_question_id=#{entry.id}") : []
-        comment_text = review.first.try(:comment_text)
-        reviewerName = review.first.try(:user).try(:name)
-    %>
-      <%= hidden_field_tag("question_type_"+ (entry.id).to_s, entry.question_type) %>
-      <%= hidden_field_tag("isReviewerOnly_"+ (entry.id).to_s, isReviewerOnly) %>
-      <fieldset class="box tabular"><table>
-        <tr id="tr_question_<%= entry.id %>">
-          <th align="left" style="padding-left:10px;"><%= entry.name %><%= isMandatory ? content_tag(:span, "*", class: "required") : nil %></th>
-        </tr>
-        <% if ["RB","CB"].include? entry.question_type %>
-          <% entry.wk_survey_choices.new if entry.wk_survey_choices.blank? %>
-          <% entry.wk_survey_choices.each do |choice_entry| %>
-            <%
-              survey_ans = entry.wk_survey_answers.where(survey_response_id: @response&.id)
-              survey_ans = survey_ans&.where("survey_choice_id = #{choice_entry.id}") if choice_entry.id.present?
-              survey_ans = survey_ans&.first
-              isChecked = @response.present? && survey_ans.present?
-            %>
-            <tr class="tr_choice_<%= entry.id %>">
+
+  <%
+    # Group questions by their survey group
+    questions_by_group = @survey.wk_survey_questions
+                             .includes(:wk_survey_que_group)
+                             .order("is_reviewer_only, wk_survey_questions.id")
+                             .group_by { |q| q.wk_survey_que_group }
+  %>
+  <% points =  Object.new.extend(WksurveyHelper).showSurveyPoints(params,@survey.id) %>
+  <% questions_by_group.each do |group, questions| %>
+    <fieldset class="box tabular">
+    <% if group.present? %>
+      <h3 style="border-bottom: 1px solid #eee; padding-bottom: 1px;">
+        <%= group.name if group.name.present? %>
+      </h3>
+    <% end %>
+
+    <% questions.each do |entry| %>
+      <%
+        isReviewerOnly = ActiveModel::Type::Boolean.new.cast(entry.is_reviewer_only)
+        isMandatory = ActiveModel::Type::Boolean.new.cast(entry.is_mandatory)
+        reviewerOnlyQIDs = nil
+        survey_points = 0
+      %>
+      <% if !isReviewerOnly || @isReviewed || (isReviewerOnly && @isReview)
+          disableAnswer = @survey.status != "O" || !isReviewerOnly && (["C", "R"].include?(@response.try(:status)) || isPrint) || isReviewerOnly && @isReviewed
+          reviewerOnlyQIDs = reviewerOnlyQIDs.blank? ? entry.id.to_s : (reviewerOnlyQIDs + "," + entry.id.to_s) if isReviewerOnly
+          review = @response.present? ? @response.wk_survey_reviews.where("survey_question_id=#{entry.id}") : []
+          comment_text = review.first.try(:comment_text)
+          reviewerName = review.first.try(:user).try(:name)
+      %>
+        <%= hidden_field_tag("question_type_"+ (entry.id).to_s, entry.question_type) %>
+        <%= hidden_field_tag("isReviewerOnly_"+ (entry.id).to_s, isReviewerOnly) %>
+
+
+        <table width="100%" style="border-bottom: 1px solid #eee; padding-bottom: 1px;">
+          <tr>
+            <td align="left" ><em><%= entry.header %></em></td>
+          </tr>
+          <tr id="tr_question_<%= entry.id %>">
+            <th align="left" style="padding-left:10px;"><%= entry.name %><%= isMandatory ? content_tag(:span, "*", class: "required") : nil %></th>
+          </tr>
+          <% if ["RB","CB"].include? entry.question_type %>
+            <% entry.wk_survey_choices.new if entry.wk_survey_choices.blank? %>
+            <% entry.wk_survey_choices.each do |choice_entry| %>
+              <%
+                survey_ans = entry.wk_survey_answers.where(survey_response_id: @response&.id)
+                survey_ans = survey_ans&.where("survey_choice_id = #{choice_entry.id}") if choice_entry.id.present?
+                survey_ans = survey_ans&.first
+                isChecked = @response.present? && survey_ans.present?
+                survey_points = choice_entry.points || 0.0
+              %>
+              <tr class="tr_choice_<%= entry.id %>">
+                <td align="left" style="padding-left:30px;">
+                  <% case entry.question_type %>
+                  <% when 'CB' %>
+                     <%= check_box_tag("survey_sel_choice_"+ (entry.id).to_s + "_" + (choice_entry.id).to_s, choice_entry.id || entry.id, isChecked, data: { points: survey_points }, onchange: "updateTotalPoints()", disabled: disableAnswer, required: isMandatory,
+                      class: "survey_sel_choice_"+ (entry.id).to_s) %>
+                    <span class="survey_sel_choice_<%= entry.id %>_<%= choice_entry.id %> choice-text"><%= choice_entry.name %>&nbsp;<% if points[:show_points].present? %><span style="font-size: 10px;">&nbsp;(<%= survey_points %>)</span><% end %></span>
+                  <% when 'RB' %>
+                    <%= radio_button_tag("survey_sel_choice_"+ (entry.id).to_s + "_", choice_entry.id || entry.id, isChecked, data: { points: survey_points }, onchange: "updateTotalPoints()", disabled: disableAnswer, required: isMandatory) %>
+                    <span class="survey_sel_choice_<%= entry.id %>__<%= choice_entry.id %> choice-text"><%= choice_entry.name %>&nbsp;<% if points[:show_points].present? %><span style="font-size: 10px;">&nbsp;(<%= survey_points %>)</span><% end %></span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+
+          <% elsif ["TB","MTB"].include? entry.question_type %>
+            <% choice_text = @response.present? ? @response.wk_survey_answers.where("survey_question_id = #{entry.id}").first.try(:choice_text) : nil %>
+            <%= hidden_field_tag("hdn_survey_select_choice_"+ (entry.id).to_s, entry.wk_survey_choices.first&.id || 'null') %>
+            <% survey_points = entry.wk_survey_choices.first&.points || 0 %>
+            <tr>
               <td align="left" style="padding-left:30px;">
                 <% case entry.question_type %>
-                <% when 'CB' %>
-                  <%= check_box_tag("survey_sel_choice_"+ (entry.id).to_s + "_" + (choice_entry.id).to_s, choice_entry.id || entry.id, isChecked, disabled: disableAnswer, required: isMandatory,
-                    class: "survey_sel_choice_"+ (entry.id).to_s) %>
-                  <span class="td_choice_name_<%= entry.id %>"><%= choice_entry.name %></span>
-                <% when 'RB' %>
-                  <%= radio_button_tag("survey_sel_choice_"+ (entry.id).to_s + "_", choice_entry.id || entry.id, isChecked, disabled: disableAnswer, required: isMandatory) %>
-                  <span class="td_choice_name_<%= entry.id %>"><%= choice_entry.name %></span>
+                <% when 'TB' %>
+                     <%= isPrint ? choice_text : text_field_tag("survey_sel_choice_"+ (entry.id).to_s + "_", choice_text, data: { points_field: true, points: survey_points }, oninput: "updateTotalPoints()", size: 60,
+                      disabled: disableAnswer, required: isMandatory, style: "outline: none;") %><% if points[:show_points].present? %><span style="font-size: 10px;">&nbsp;(<%= survey_points %>)<% end %></span>
+                <% when 'MTB' %>
+                    <%= isPrint ? choice_text : text_area_tag("survey_sel_choice_"+ (entry.id).to_s + "_", choice_text, data: { points_field: true, points: survey_points }, oninput: "updateTotalPoints()", rows: 5, cols: 60,
+                      disabled: disableAnswer, required: isMandatory) %><% if points[:show_points].present? %><span style="font-size: 10px;">&nbsp;(<%= survey_points %>)<% end %></span>
                 <% end %>
               </td>
             </tr>
           <% end %>
 
-        <% elsif ["TB","MTB"].include? entry.question_type %>
-          <% choice_text = @response.present? ? @response.wk_survey_answers.where("survey_question_id = #{entry.id}").first.try(:choice_text) : nil %>
-          <tr>
-            <td align="left" style="padding-left:30px;">
-              <% case entry.question_type %>
-              <% when 'TB' %>
-                  <%= isPrint ? choice_text : text_field_tag("survey_sel_choice_"+ (entry.id).to_s + "_", choice_text, size: 60,
-                      disabled: disableAnswer, required: isMandatory, style: "outline: none;") %>
-              <% when 'MTB' %>
-                  <%= isPrint ? choice_text : text_area_tag("survey_sel_choice_"+ (entry.id).to_s + "_", choice_text, rows: 5, cols: 60,
-                      disabled: disableAnswer, required: isMandatory)%>
-              <% end %>
-            </td>
-          </tr>
-        <% end %>
-
-        <% if (@isReview || @isReviewed) && !isReviewerOnly %>
-          <tr>
-            <th style="float:left;"><%= l(:label_review_comment) %></th>
-          </tr>
-          <tr>
-            <td style="padding-left:30px;">
-                <%= isPrint ? comment_text :
-                  text_area_tag("survey_review_"+ (entry.id).to_s, comment_text, rows: 5, cols: 60, disabled: @isReviewed, required: false)
-                %>
-            </td>
-          </tr>
-          <% if reviewerName.present? %>
+          <% if (@isReview || @isReviewed) && !isReviewerOnly %>
             <tr>
-              <th style="float:left;"><%= l(:label_reviewed_by) %></th>
-              <td style="float:left;padding-left: 10px;"><%= reviewerName %></td>
+              <th style="float:left;"><%= l(:label_review_comment) %></th>
             </tr>
+            <tr>
+              <td style="padding-left:30px;">
+                  <%= isPrint ? comment_text :
+                    text_area_tag("survey_review_"+ (entry.id).to_s, comment_text, rows: 5, cols: 60, disabled: @isReviewed, required: false)
+                  %>
+              </td>
+            </tr>
+            <% if reviewerName.present? %>
+              <tr>
+                <th style="float:left;"><%= l(:label_reviewed_by) %></th>
+                <td style="float:left;padding-left: 10px;"><%= reviewerName %></td>
+              </tr>
+            <% end %>
           <% end %>
-        <% end %>
-
-      </table></fieldset>
+          <tr>
+            <td align="left" ><em><%= entry.footer %></em></td>
+          </tr>
+        </table>
+      <% end %>
+      <%= hidden_field_tag("reviewerOnlyQuestions", reviewerOnlyQIDs) %>
     <% end %>
-    <%= hidden_field_tag("reviewerOnlyQuestions", reviewerOnlyQIDs) %>
+     </fieldset>
   <% end %>
 
   <% if @survey.status == "O" && !@isReviewed && (!isPrint && (@response.blank? || @response.status == "O" || @isReview)) %>
     <div>
-    <%= button_tag(l(:button_save), type: 'button', onclick: 'survey_submit();') if @survey.save_allowed %>
-    <%= button_tag(l(:button_submit), type: 'button', onclick: 'validation();') %>
-    <%= hidden_field_tag("commit", "") %>
+      <div>
+        <%= button_tag(l(:button_save), type: 'button', onclick: 'survey_submit();') if @survey.save_allowed %>
+        <%= button_tag(l(:button_submit), type: 'button', onclick: 'validation();') %>
+        <%= hidden_field_tag("commit", "") %>
+      </div>
+      <% if points[:show_points].present? %>
+        <div style="float: right; padding-right: 12px">
+          <b><%= l(:label_points) %> : </b><span id="total_points"><%=@response&.total_points || 0.0%></span>
+          <%= hidden_field_tag("hdn_total_points", @response&.total_points || 0.0) %>
+        </div>
+	    <% end %>
     </div>
-  <% end %>
+	  <% end %>
 <% end %>

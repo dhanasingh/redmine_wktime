@@ -19,13 +19,15 @@ class WkSurvey < ApplicationRecord
 
 	belongs_to :group , :class_name => 'Group'
   belongs_to :survey_for, :polymorphic => true
-  has_many :wk_survey_questions, foreign_key: "survey_id", class_name: "WkSurveyQuestion", :dependent => :destroy
+  has_many :wk_survey_questions, foreign_key: "survey_id", class_name: "WkSurveyQuestion", :dependent => :destroy, inverse_of: :survey
   has_many :wk_survey_choices, through: :wk_survey_questions
   has_many :wk_survey_responses, foreign_key: "survey_id", :dependent => :destroy
   has_many :wk_survey_answers, through: :wk_survey_responses
   has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
+  has_many :wk_survey_que_groups, foreign_key: "survey_id", dependent: :destroy, inverse_of: :wk_survey
 
   accepts_nested_attributes_for :wk_survey_questions, allow_destroy: true
+  accepts_nested_attributes_for :wk_survey_que_groups, allow_destroy: true
 
   validates_presence_of :name
   after_save :survey_notification
@@ -60,6 +62,11 @@ class WkSurvey < ApplicationRecord
     .where("wk_surveys.id = #{survey_id} and wk_survey_choices.survey_question_id = #{question_id}")
     .select("wk_survey_choices.name")
     .group("wk_survey_choices.name")
+  }
+
+  scope :with_total_points, ->(surveyForId){
+    joins("LEFT JOIN wk_survey_responses ON wk_survey_responses.survey_id = wk_surveys.id AND wk_survey_responses.survey_for_id = #{surveyForId.to_i}")
+    .select("wk_surveys.*, wk_survey_responses.total_points")
   }
 
   def self.getMailUsers(user_group)

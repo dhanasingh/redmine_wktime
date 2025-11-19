@@ -18,6 +18,6 @@
 class WkSurveyChoice < ApplicationRecord
 
   has_many :wk_survey_answers, foreign_key: "survey_choice_id", class_name: "WkSurveyAnswer", :dependent => :destroy
-  belongs_to :survey_question , :class_name => 'WkSurveyQuestion'
+  belongs_to :survey_question , :class_name => 'WkSurveyQuestion', foreign_key: "survey_question_id", inverse_of: :wk_survey_choices
 
 end

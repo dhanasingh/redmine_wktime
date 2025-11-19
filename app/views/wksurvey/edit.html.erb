@@ -1,106 +1,133 @@
-<%= javascript_include_tag 'survey', :plugin => "redmine_wktime" %>
-<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'survey', plugin: 'redmine_wktime' %>
+<%= stylesheet_link_tag 'wk-time', plugin: 'redmine_wktime' %>
 <script type="text/javascript">
 	delImg = '<%= sprite_icon("del") %>';
+	deleteQues = "<%=l(:text_are_you_sure_want_to, l(:button_delete_question)) %>";
+	deleteGrp = "<%=l(:text_are_you_sure_want_to, l(:button_delete_group)) %>";
+	deleteGrpQuesWarning = "<%=l(:text_wk_warning_group_ques_delete) %>";
 </script>
-<% 	@isBlankSurvey = @survey.blank?
-	survey_name = @isBlankSurvey ? nil : @survey.name
+<% 	@isBlankSurvey = @survey.new_record?
 	status = @isBlankSurvey ? nil : @survey.status
-	survey_id = @isBlankSurvey ? nil : @survey.id
 	group_id = @isBlankSurvey ? '' : @survey.group_id
-	isDisable = @isBlankSurvey ? false : @survey.status != 'N'
+	isDisable = @survey.persisted? && @survey.status != 'N'
 	recur = @isBlankSurvey ? false : @survey.recur
 	recur_every = @isBlankSurvey ? nil : @survey.recur_every
 	survey_for = @isBlankSurvey ? @surveyForType : @survey.survey_for_type
 	survey_for_id = @isBlankSurvey ? @surveyForID : @survey.survey_for_id
 	is_review =  @isBlankSurvey ? false : @survey.is_review
 %>
-<% if @survey.blank?%>
-	<%= title l(:label_new_survey) %>
+<% if @isBlankSurvey %>
+	<%= title controller.newItemLabel %>
 <% else %>
-	<%= title l(:label_edit_survey) %>
+	<%= title controller.editItemLabel %>
 <% end %>
 
-<%= form_tag({:controller => 'wksurvey', :action => 'save_survey'}, :method => :post, :id => 'survey_form') do %>
-	<%=h hidden_field_tag('project_id', params[:project_id]) %>
-	<%=h hidden_field_tag('survey_id', survey_id) %>
-	<%=h hidden_field_tag('delete_question_ids', "") %>
+<%= form_with model: @survey, url: { controller: 'wksurvey', action: 'save_survey' }, scope: :wksurvey, id: 'survey_form', method: :post do |f| %>
 
-	<fieldset class="box tabular">
-	<table>
-		<tr>
-		<th align="left"><%= l(:label_survey_name) %><span style="color:red;">*</span></th>
-		<td align="left">
-			<%=h text_field_tag("survey_name", survey_name, :disabled => isDisable, :size => "40%", :maxlength => 100) %>
-		</td>
-		<tr>
-		<th align="left"><%= l(:label_survey_for) %></th>
-		<td>
-			<%=h select_tag("survey_for", options_for_select(getSurveyFor, survey_for), :disabled => isDisable) %>
-			<%=h text_field_tag("survey_for_id", survey_for_id, :disabled => isDisable, :size => 3, :maxlength => 30) %>
-			<span id="SurveyFor"></span>
-			<%=h hidden_field_tag('IsSurveyForValid', false) %>
-		</td>
-				</tr>
-				<tr>
-						<th align="left"><%= l(:field_status) %></th>
-						<td align="left">
-							<%=h select_tag("survey_status", options_for_select(getSurveyStatus.drop(1), status)) %>
-						</td>
-				</tr>
-		<tr>
-			<th align="left"><%= l(:label_user_group) %></th>
-			<td>
-				<%=h select_tag('group_id', options_for_select(getUserGroup, :selected => group_id), :disabled => isDisable) %>
-				<%=h hidden_field_tag('user_group', group_id) %>
-			</td>
-			<td></td>
-		</tr>
-		<tr>
-			<th align="left"><%= l(:label_recur) %></th>
-			<td>
-				<%= check_box_tag 'recur', true, recur, :disabled => isDisable  %>
-				<span id="tr_recur_every">
-					<b><%= l(:label_recur_every) %></b>
-					<%=h text_field_tag("recur_every", recur_every, :size => "3", :maxlength => 10, :disabled => isDisable) %>&nbsp;<b><%= l(:label_day_plural) %></b> &nbsp;
-          <% if @isBlankSurvey ? false : @survey.status == 'O'%>
-						<%= link_to l(:label_clos_curr_resp), "javascript:addGrpName();" %>
-					<% end %>
-				</span>
-			</td>
-		</tr>
-		<tr>
-		<th align="left"><%= l(:label_review) %></th>
-		<td><%= check_box_tag 'review', true, is_review, :disabled => isDisable %></td>
-		</tr>
-		<tr>
-			<th align="left"><%= l(:label_save_allowed) %></th>
-			<td>
-				<%= check_box_tag 'save_allowed', true, @survey.try(:save_allowed), :disabled => isDisable  %>
-			</td>
-		</tr>
-		<tr>
-			<th align="left"><%= l(:label_hide_response) %></th>
-			<td>
-				<%= check_box_tag 'hide_response', true, @survey.try(:hide_response), :disabled => isDisable  %>
-			</td>
-		</tr>
-	</table>
+  <%= hidden_field_tag 'project_id', params[:project_id] %>
+	<%= f.hidden_field :id %>
+
+  <fieldset class="box tabular">
+		<table width="100%">
+			<tr>
+				<td width="50%" valign="top">
+					<table>
+						<tr>
+							<th align="left"><%= l(:label_survey_name) %><span style="color:red;">*</span></th>
+							<td align="left"><%= f.text_field :name, disabled: isDisable, size: 40, maxlength: 100, required: true %></td>
+						</tr>
+						<tr>
+							<th align="left"><%= l(:label_survey_for) %></th>
+							<td>
+								<%= f.select :survey_for_type, options_for_select(getSurveyFor, survey_for),{}, {disabled: isDisable, id: "survey_for"} %>
+								<%= f.text_field :survey_for_id, value: survey_for_id, id: "survey_for_id", disabled: isDisable, size: 3, maxlength: 30 %>
+								<span id="SurveyFor"></span>
+								<%= hidden_field_tag 'IsSurveyForValid', false %>
+							</td>
+						</tr>
+
+						<tr>
+							<th align="left"><%= l(:field_status) %></th>
+							<td align="left"><%= f.select :status, options_for_select(getSurveyStatus.drop(1), @survey.status),{}, {id: "survey_status"} %></td>
+						</tr>
+
+						<tr>
+							<th align="left"><%= l(:label_user_group) %></th>
+							<td>
+								<%= f.select :group_id, options_for_select(getUserGroup, selected: @survey.group_id), disabled: isDisable %>
+								<%= hidden_field_tag 'user_group', @survey.group_id %>
+							</td>
+						</tr>
+					</table>
+				</td>
+				<td width="50%" valign="top">
+					<table>
+						<tr>
+							<th align="left"><%= l(:label_recur) %></th>
+							<td>
+								<%= f.check_box :recur, id: "recur", disabled: isDisable %>
+								<span id="tr_recur_every">
+								<b><%= l(:label_recur_every) %></b>
+								<%= f.text_field :recur_every, size: 3, maxlength: 10, id: "recur_every", disabled: isDisable %>
+								<b>&nbsp;<%= l(:label_day_plural) %></b>
+								<% if @survey.try(:status) == 'O' %>
+								<%= link_to l(:label_clos_curr_resp), 'javascript:addGrpName();' %>
+								<% end %>
+								</span>
+							</td>
+						</tr>
+						<tr>
+							<th align="left"><%= l(:label_review) %></th>
+							<td><%= f.check_box :is_review, disabled: isDisable %></td>
+						</tr>
+						<tr>
+							<th align="left"><%= l(:label_save_allowed) %></th>
+							<td><%= f.check_box :save_allowed, disabled: isDisable %></td>
+						</tr>
+						<tr>
+							<th align="left"><%= l(:label_hide_response) %></th>
+							<td><%= f.check_box :hide_response, disabled: isDisable %></td>
+						</tr>
+						<tr>
+							<th align="left"><%= l(:label_use_points) %></th>
+							<td><%= f.check_box :use_points, disabled: isDisable %></td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
 	</fieldset>
 
 	<div id="accordion">
-		<%= render :partial => "question_accordion_section", :locals => {:isDisable => isDisable} %>
+		<h2><%= l(:label_survey_question_grp) %></h2>
+			<div id="groups_container">
+				<%= f.fields_for :wk_survey_que_groups  do |g| %>
+					<%= render partial: 'question_accordion_section', locals: { f: g, :survey => @survey, isDisable: isDisable } %>
+				<% end %>
+			</div>
+	</div>
+
+
+	<!-- GROUP TEMPLATE -->
+  <template id="group_template">
+		<%= f.fields_for :wk_survey_que_groups, WkSurveyQueGroup.new, child_index: '__GROUP_INDEX__' do |g| %>
+			<%= render partial: 'group_section_template', locals: { f: g ,isDisable:isDisable} %>
+		<% end %>
+  </template>
+	<div class="wk-contextual">
+		<% unless isDisable %>
+			<%= link_to sprite_icon('add', l(:button_add_group)), 'javascript:void(0)', onclick: 'addSurveyGroup()', class: 'icon icon-add' %>
+			<%= link_to sprite_icon('add', l(:button_add_question)), 'javascript:void(0)', onclick: 'addUngroupedQues(this)', class: 'icon icon-add' %>
+		<% end %>
 	</div>
 
 	<div>
-		<%= submit_tag l(:button_save), :id => 'wksurvey_save' %>
-		<%= link_to sprite_icon('email', l(:button_email_user)), "javascript:showConfirmationDlg();", :class => 'icon icon-email-add'%>
+		<%= submit_tag l(:button_save), id: 'wksurvey_save' %>
+		<%= link_to sprite_icon('email', l(:button_email_user)), 'javascript:showConfirmationDlg();', class: 'icon icon-email-add' %>
 	</div>
 <% end %>
 
-<%= render :partial => 'question_section_template' %>
-
-<% userGroupName = group_id.blank? ? l(:all_users_for_select) : getUserGroup.invert[group_id] + " Group" %>
+<% userGroupName = @survey.group_id.blank? ? l(:all_users_for_select) : getUserGroup.invert[@survey.group_id] + " Group" %>
 <div id="reminder-email-dlg" title="<%=l(:label_email_users) %>">
 	<fieldset>
 		<p> <label><%= l(:field_notes) %></label>
@@ -121,7 +148,7 @@
 
 <div id="add-grp-name" title="<%=l(:label_alert)%>">
 	<%= form_tag({action: 'close_current_response'}, method: :post, id: 'closedResp_form') do %>
-	<%= hidden_field_tag('survey_id', survey_id) %>
+	<%= hidden_field_tag('survey_id', @survey.id) %>
 		<fieldset>
 			<p> <label><%= l(:label_grp_name) %></label>
 				<input type="text" name="grp_name" id="grp_name" value="" maxlength="255">

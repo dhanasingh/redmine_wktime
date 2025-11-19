@@ -610,7 +610,7 @@ include WkpayrollHelper
 			if thrDigitVal > 0
 				hundredStr = getNumberAsStr[thrDigitVal/100].blank? ? "" : (getNumberAsStr[thrDigitVal/100] + " " +  l(:label_hundred))
 				twoDigStr = getTwoDigitNumberStr(thrDigitVal%100)
-				numStr = hundredStr.blank? || twoDigStr.blank? ? (hundredStr + twoDigStr)  : (hundredStr + " "+ l('support.array.sentence_connector') + twoDigStr)
+				numStr = hundredStr.blank? || twoDigStr.blank? ? (hundredStr + twoDigStr)  : (hundredStr + " "+ l('support.array.two_words_connector') + twoDigStr)
 			end
 		end
 		numStr = " " + numStr unless numStr.blank?

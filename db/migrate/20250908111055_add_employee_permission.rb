@@ -1,4 +1,4 @@
-class AddEmployeePermission < ActiveRecord::Migration[7.2]
+class AddEmployeePermission < ActiveRecord::Migration[6.1]
 	def change
 
 		#For Employee Admin permission

@@ -109,13 +109,15 @@ fieldset label {
 }
 
 .ui-state-default,
-.ui-state-active {
+.ui-state-active,
+.ui-widget-content .ui-state-active {
     background-color: #FFF;
 }
 
 .accordion-icon-header,
 .ui-state-hover .ui-icon,
-.ui-state-focus .ui-icon {
+.ui-state-focus .ui-icon,
+.ui-widget-content .ui-icon {
     background-image: url('data:image/svg+xml,%3C%3Fxml version="1.0" encoding="UTF-8"%3F%3E%3Csvg width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="%23646363"%3E%3Cpath fill-rule="evenodd" clip-rule="evenodd" d="M8.71299 18.6929C8.43273 18.5768 8.25 18.3033 8.25 18V5.99998C8.25 5.69663 8.43273 5.42315 8.71299 5.30707C8.99324 5.19098 9.31583 5.25515 9.53033 5.46965L15.5303 11.4696C15.8232 11.7625 15.8232 12.2374 15.5303 12.5303L9.53033 18.5303C9.31583 18.7448 8.99324 18.809 8.71299 18.6929Z" fill="%23646363"%3E%3C/path%3E%3C/svg%3E');
     background-repeat: no-repeat;
     background-position: center center;

@@ -1,0 +1,107 @@
+<% q = f.object %>
+<fieldset class="surveyquestion">
+  <%= f.hidden_field :id %>
+
+  <table width="100%">
+    <tr>
+      <td class="indexNo">
+        <b>
+          <%= f.id.present? ? f.id : "__GROUP_INDEX__.__QUESTION_INDEX__" %>
+        </b>
+      </td>
+      <th width="15%" align="left"><%= l(:label_question_name) %><span style="color:red;">*</span></th>
+      <td align="left"><%= f.text_field :name, size: 40, maxlength: 255, disabled: isDisable %></td>
+      <% unless isDisable %>
+        <td width="55%" align="right">
+          <%= f.check_box :_destroy, class: 'hide', style: 'display:none' %>
+          <%= link_to sprite_icon('del', l(:button_delete_question)), 'javascript:void(0)', title: l(:button_delete_question),
+                                class: 'icon-del', onclick: 'DeleteQuestion(this)' %>
+        </td>
+      <% end %>
+    </tr>
+
+    <tr>
+      <td></td>
+      <th align="left"><%= l(:label_mandatory) %></th>
+      <td><%= f.check_box :is_mandatory, disabled: isDisable %></td>
+    </tr>
+
+    <tr>
+      <td></td>
+      <th align="left"><%= l(:label_not_rpt) %></th>
+      <td><%= f.check_box :not_in_report, disabled: isDisable %></td>
+    </tr>
+
+    <tr>
+      <td></td>
+      <th align="left"><%= l(:label_pre_text) %></th>
+      <td><%= f.text_field :header, size: 40, maxlength: 255, disabled: isDisable %></td>
+    </tr>
+
+    <tr>
+      <td></td>
+      <th align="left"><%= l(:label_post_text) %></th>
+      <td><%= f.text_field :footer, size: 40, maxlength: 255, disabled: isDisable %></td>
+    </tr>
+
+    <tr>
+      <td></td>
+      <th align="left"><%= l(:label_question_type) %></th>
+      <td>
+        <%= f.select :question_type,
+                     options_for_select(getQuestionType, selected: q.question_type || 'RB'),
+                     {}, {
+                       onchange: 'questionTypeChanged(this)',
+                       disabled: isDisable
+                     } %>
+      </td>
+      <th align="left" width="55%"><%= l(:label_points) %>
+      <span align="right" class="text-points">
+        <% if q.question_type == 'TB' || q.question_type == 'MTB' %>
+          <%= f.fields_for :wk_survey_choices, f.object.wk_survey_choices.presence || [f.object.wk_survey_choices.build] do |c| %>
+            <%= c.hidden_field :id %>
+            <%= c.hidden_field :name, maxlength: 100 %>
+            <%= c.text_field :points, size: 5, maxlength: 10, disabled: isDisable %>
+            <%= c.check_box :_destroy, class: 'hide', style: 'display:none' %>
+          <% end %>
+        <% end %>
+      </span>
+      </th>
+      <td></td>
+    </tr>
+
+    <% if q.question_type == 'RB' || q.question_type == 'CB' %>
+
+      <%= f.fields_for :wk_survey_choices do |c| %>
+        <% is_first = c.index.zero? %>
+        <tr class="choice-row">
+          <td></td>
+          <th align="left"><%= l(:label_question_choices) if is_first %></th>
+          <td align="left" style="display:flex;">
+            <%= c.hidden_field :id %>
+            <%= c.text_field :name, size: 40, maxlength: 100, disabled: isDisable %>
+            <%= c.check_box :_destroy, class: 'hide', style: 'display:none' %>
+
+            <% unless isDisable || is_first %>
+					    <%= link_to sprite_icon('del'), 'javascript:void(0)', onclick: 'DeleteChoice(this)', title: l(:button_delete) %>
+            <% end %>
+          </td>
+          <td align="left">
+            <%= c.text_field :points, size: 5, maxlength: 10, disabled: isDisable %>
+          </td>
+        </tr>
+      <% end %>
+
+      <% unless isDisable %>
+        <tr class="choice-adder-row" style="<%= %w[RB CB].include?(q.question_type) ? '' : 'display:none' %>">
+          <td></td><td></td>
+          <td align="left">
+            <%= link_to sprite_icon('add', l(:button_add_choice)), 'javascript:void(0)',
+                                  onclick: 'addChoiceRow(this)', class: 'icon icon-add' %>
+          </td>
+          <td></td>
+        </tr>
+      <% end %>
+    <% end %>
+  </table>
+</fieldset>

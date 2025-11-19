@@ -853,7 +853,7 @@ en:
   label_survey: Survey
   label_new_survey: New Survey
   label_edit_survey: Edit Survey
-  label_question_choices: Question Choices
+  label_question_choices: Choices
   label_open: Open
   label_archived: Archived
   label_survey_name: Survey Name
@@ -1285,3 +1285,12 @@ en:
   label_dashboard_as_home: Set Dashboard as Home page
   ADMIN EMPLOYEE PRIVILEGE: Admin Employee Privilege 
   label_employee_creation: Employee Created
+  label_use_points: Use Points
+  label_pre_text: Pre Text
+  label_post_text: Post Text
+  button_add_group: Add Group
+  label_survey_question_grp: Survey Question Groups
+  button_delete_group: Delete Group
+  button_add_choice: Add Choice
+  button_delete_choice: Delete Choice
+  text_wk_warning_group_ques_delete: Unable to delete. A group must contain at least one question.

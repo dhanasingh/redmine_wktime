@@ -1192,18 +1192,27 @@ ta-IN:
   field_custom_number2: விருப்ப எண் 2
   field_custom_date1: விருப்ப தேதி 1
   field_custom_date2: விருப்ப தேதி 2
-  label_rejected_date: Rejected Date
-  label_approved_date: Approved Date
-  label_time_exceeded: Time Exceeded
-  label_exc_est: exceeds estimation
-  label_task_exc_est: The following task has exceeded estimation
-  label_show_calendar: Show Calendar
-  label_mail_act_reminder: Email activity reminder
-  label_upcoming: Upcoming
-  label_upcoming_activity_reminder: You have an upcoming activity
-  label_vs: vs
-  label_scheduled: Scheduled
-  label_custom_range: Custom Range
-  label_dashboard_as_home: Set Dashboard as Home page
-  ADMIN EMPLOYEE PRIVILEGE: Admin Employee Privilege 
-  label_employee_creation: Employee Created
+  label_rejected_date: நிராகரிக்கப்பட்ட தேதி  
+  label_approved_date: அங்கீகரிக்கப்பட்ட தேதி  
+  label_time_exceeded: நேரம் மீறப்பட்டது  
+  label_exc_est: மதிப்பீட்டை மீறுகிறது  
+  label_task_exc_est: பின்வரும் பணி மதிப்பீட்டை மீறியுள்ளது  
+  label_show_calendar: காலண்டரை காட்டு  
+  label_mail_act_reminder: மின்னஞ்சல் செயல்பாட்டு நினைவூட்டல்  
+  label_upcoming: வரவிருக்கும்  
+  label_upcoming_activity_reminder: உங்களுக்கு வரவிருக்கும் ஒரு செயல்பாடு உள்ளது  
+  label_vs: எதிர் (vs)  
+  label_scheduled: திட்டமிடப்பட்டது  
+  label_custom_range: தனிப்பயன் வரம்பு  
+  label_dashboard_as_home: டாஷ்போர்டை முகப்புப் பக்கமாக அமைக்கவும்  
+  ADMIN EMPLOYEE PRIVILEGE: நிர்வாக பணியாளர் சலுகை  
+  label_employee_creation: பணியாளர் உருவாக்கப்பட்டது
+  label_use_points: புள்ளிகளை பயன்படுத்தவும்
+  label_pre_text: முன் உரை
+  label_post_text: பின் உரை
+  button_add_group: குழுவைச் சேர்க்கவும்
+  label_survey_question_grp: கருத்துக்கணிப்பு கேள்வி குழுக்கள்
+  button_delete_group: குழுவை நீக்கவும்
+  button_add_choice: விருப்பத்தைச் சேர்க்கவும்
+  button_delete_choice: விருப்பத்தை நீக்கவும்
+  text_wk_warning_group_ques_delete: நீக்க முடியாது. ஒரு குழுவில் குறைந்தபட்சம் ஒரு கேள்வி இருக்க வேண்டும்.

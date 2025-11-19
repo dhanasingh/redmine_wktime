@@ -65,7 +65,7 @@
 	<% params[:isIssue] = true %>
 	<% params[:issue_id] = @issue.id %>
 	<fieldset>
-		<legend><b><%= l(:label_survey) %></b></legend>
+		<legend><b><%= controller.ItemLabel %></b></legend>
 		<%= render :partial => 'wksurvey/survey_list', locals:{ :params => params} %>
 	</fieldset>
 <% end %>
