@@ -1,16 +1,17 @@
-# Webinar on ERPmine – Inventory, Sep 30th, 2025,(11:30 AM GMT)
+# Webinar on ERPmine – Billing, Jan 27th, 2026,(11:30 AM GMT)
 
 Please click here to register if interested,
-[https://us02web.zoom.us/meeting/register/aM-1Nt__TBafjqbeJQjdVw]
+[[https://us02web.zoom.us/meeting/register/aM-1Nt__TBafjqbeJQjdVw](https://us02web.zoom.us/meeting/register/eMucdfo3Rgq-v_sig_jfJQ)]
 
 **Topics**:
- -   Receive Goods (Shipments)
- -   Product and items
- -   Material Log
- -   Invoice
- -   Asset and depreciation
- -   Disposed Asset
- -   Asset and stock Report
+ -  Billing Projects
+ -   Invoice Setup
+ -   Contract Setup
+ -   Preview Unbilled Invoice
+ -   Generate Invoice
+ -   Accept Payment
+ -   Reports
+ -   Mobile app
 
 -----
 
