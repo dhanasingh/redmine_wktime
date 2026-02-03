@@ -765,6 +765,25 @@ en:
   label_txn_payment_with_credit_with_ledger: Payment Credit Ledger
   label_txn_payment_with_debit_with_ledger: Payment Debit Ledger
 
+  # Payment Gateway Configuration
+  label_pay_gateway: Payment Gateway
+  label_pg_timeout: Payment Timeout
+  label_pg_config: Gateway Configuration
+  label_merchant_id: Merchant ID
+  label_work_key: Working Key
+  label_access_code: Access Code
+  label_redirect_url: Redirect URL
+  label_cancel_url: Cancel URL
+  label_pg_url: Gateway URL
+  label_mins: Mins
+  label_pg_config_missing: Payment gateway configuration is missing
+  error_create_order_failed: "Failed to create payment order: "
+  error_payment_response_not_found: "Payment response not found for order: %{order_id}"
+  error_invalid_auth_token: Invalid authentication token
+  error_data_missing: Response data missing
+  notice_payment_res_failed: Payment response processing failed
+  notice_payment_processed: Payment already processed
+
   gender_hash_male: Male
   gender_hash_female: Female
   gender_hash_others: Others

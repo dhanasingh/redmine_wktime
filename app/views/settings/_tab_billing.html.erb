@@ -1,3 +1,12 @@
+<style type="text/css">
+.pg-config-select { width: 350px; height: 80px; }
+.pg-timeout-input { width: 60px; }
+#pgconfig-dlg { display: none; }
+.pg-config-table { width: 100%; }
+.pg-config-table th { width: 120px; text-align: left; padding: 8px 10px 8px 0; }
+.pg-config-table td { padding: 5px 0; }
+.pg-config-input { width: 100%; box-sizing: border-box; padding: 4px; }
+</style>
 <script type="text/javascript"> 
 lblInvCompName = "<%=l(:field_name) %>";
 lblInvCompVal = "<%=l(:field_value) %>";
@@ -119,3 +128,70 @@ lblInvCompVal = "<%=l(:field_value) %>";
 	</p>
 	-->
 </fieldset>
+
+<fieldset>
+	<legend><%= l(:label_pay_gateway) %></legend>
+	<p>
+		<label><%= l(:label_pg_timeout) %><%= " [#{l(:label_mins)}]" %></label>
+		<%= text_field_tag 'settings[wktime_pg_timeout]', @settings['wktime_pg_timeout'], :class => "pg-timeout-input" %>
+	</p>
+
+	<p>
+		<%
+			pgConfigs = []
+			if @settings['wktime_pg_config'].present?
+				@settings['wktime_pg_config'].each do |element|
+					listboxArr = element.split('|')
+					pg_config_name, pg_currency, pg_merchant_id, pg_work_key, pg_access_code, pg_redirect_url, pg_cancel_url, pg_url = listboxArr.map { |val| val.presence || "" }
+					optionText = "#{pg_config_name} | #{pg_currency} | #{pg_merchant_id}"
+					pgConfigs << [optionText, element]
+				end
+			end
+		%>
+		<label><%= l(:label_pay_gateway) %></label>
+		<%= select_tag('settings[wktime_pg_config][]',
+			options_for_select(pgConfigs, :selected => 'settings[wktime_pg_config]'), :multiple=> true, :class => 'pg-config-select multi-row', :id => 'settings_wktime_pg_config')%>
+	</p>
+	<p>
+		<%= link_to l(:button_add), "javascript:showPgConfigDialog('Add', 'settings_wktime_pg_config');", :class => "button"%>  |
+		<%= link_to l(:button_edit), "javascript:showPgConfigDialog('Edit', 'settings_wktime_pg_config');", :class => "button"%>  |
+		<%= link_to l(:button_delete), "javascript:removeSelectedPgConfig('settings_wktime_pg_config');", :class => "button" %>
+	</p>
+</fieldset>
+
+<div id="pgconfig-dlg" title="<%= l(:label_pg_config) %>" style="display:none;">
+	<table class="pg-config-table">
+		<tr>
+			<th align="left"><label><%= l(:field_name) %></label></th>
+			<td><%= text_field_tag 'pg_config_name','', :class => "pg-config-input" %></td>
+		</tr>
+		<tr>
+			<th align="left"><label><%= l(:field_currency) %></label></th>
+			<td><%= text_field_tag 'pg_currency','', :class => "pg-config-input" %></td>
+		</tr>
+		<tr>
+			<th align="left"><label><%= l(:label_merchant_id) %></label></th>
+			<td><%= text_field_tag 'pg_merchant_id','', :class => "pg-config-input" %></td>
+		</tr>
+		<tr>
+			<th align="left"><label><%= l(:label_work_key) %></label></th>
+			<td><%= text_field_tag 'pg_work_key','', :class => "pg-config-input" %></td>
+		</tr>
+		<tr>
+			<th align="left"><label><%= l(:label_access_code) %></label></th>
+			<td><%= text_field_tag 'pg_access_code','', :class => "pg-config-input" %></td>
+		</tr>
+		<tr>
+			<th align="left"><label><%= l(:label_redirect_url) %></label></th>
+			<td><%= text_field_tag 'pg_redirect_url','', :class => "pg-config-input" %></td>
+		</tr>
+		<tr>
+			<th align="left"><label><%= l(:label_cancel_url) %></label></th>
+			<td><%= text_field_tag 'pg_cancel_url','', :class => "pg-config-input" %></td>
+		</tr>
+		<tr>
+			<th align="left"><label><%= l(:label_pg_url) %></label></th>
+			<td><%= text_field_tag 'pg_url','', :class => "pg-config-input" %></td>
+		</tr>
+	</table>
+</div>
