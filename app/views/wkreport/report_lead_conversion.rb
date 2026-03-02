@@ -1,13 +1,15 @@
 module ReportLeadConversion
   include WkreportHelper
 
-  def calcReportData(user_id, group_id, projId, from, to)
+  def calcReportData(user_id, group_id, projId, from, to, location_id = nil)
     if user_id.blank?
       user_id = validateERPPermission("B_CRM_PRVLG") ? User.current.id : 0
     end
     leads = {}
 	  leadList = getLeadList(from, to, group_id, user_id)
-    leadList.each do |lead|
+    leadList = leadList.joins(:contact).where(wk_crm_contacts: { location_id: location_id }) if location_id.present?
+    filteredList = leadList.to_a
+    filteredList.each do |lead|
       key = lead.id.to_s
       leads[key] = {}
       leads[key]['name'] = lead.contact.name
@@ -21,9 +23,9 @@ module ReportLeadConversion
     data = {leads: leads, convRate: convRate, from: from.strftime("%d-%b-%Y"), to: to.strftime("%d-%b-%Y") }
   end
 
-  def getExportData(user_id, group_id, projId, from, to)
+  def getExportData(user_id, group_id, projId, from, to, location_id = nil)
     data = {headers: {}, data: []}
-    reportData = calcReportData(user_id, group_id, projId, from, to)
+    reportData = calcReportData(user_id, group_id, projId, from, to, location_id)
     data[:headers] = {lead: l(:label_lead), status: l(:field_status), created: l(:field_created_on), converted: l(:label_converted), sal_cycle: l(:label_sales_cycle)+' '+l(:label_day_plural), assignee: l(:field_assigned_to)}
     reportData[:leads].each do |key, lead|
       data[:data] << {name: lead['name'], status: lead['status'], Created: lead['Created'], Converted:  lead['Converted'], days: lead['days'], assignee: lead['Assignee']}

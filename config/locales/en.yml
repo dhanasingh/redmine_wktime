@@ -1313,3 +1313,15 @@ en:
   button_add_choice: Add Choice
   button_delete_choice: Delete Choice
   text_wk_warning_group_ques_delete: Unable to delete. A group must contain at least one question.
+  report_move_in_move_out_by_date: Move in - Move out by date
+  report_occupancy_by_day: Occupancy By Day
+  label_move_ins: Move-Ins
+  label_move_outs: Move-Outs
+  label_si_no: SI. No.
+  label_facility: Facility
+  label_reason: Reason
+  label_total_move_in: Total Move-In
+  label_total_move_out: Total Move-Out
+  label_no_move_in_records: No Move-In records found.
+  label_no_move_out_records: No Move-Out records found.
+  label_date_to: to

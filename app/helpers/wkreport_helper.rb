@@ -217,6 +217,12 @@ module WkreportHelper
 		return {data: [], headers: {}}
 	end
 
+	LOCATION_SUPPORTED_REPORTS = ['report_move_in_move_out_by_date', 'report_lead_conversion_web', 'report_asset_web'].freeze
+
+	def report_supports_location?(report_type)
+		LOCATION_SUPPORTED_REPORTS.include?(report_type.to_s)
+	end
+
 	def decrypt_values(value)
     key = YAML::load_file(Rails.root+'plugins/redmine_wktime/config/config.yml')
     crypt = ActiveSupport::MessageEncryptor.new(key['encryption_key'])

@@ -54,7 +54,7 @@ accept_api_auth :get_reports, :get_report_data, :export
 	end
 
 	def set_filter_session
-		filters = [:report_type, :period_type, :period, :from, :to, :group_id, :project_id, :user_id]
+		filters = [:report_type, :period_type, :period, :from, :to, :group_id, :project_id, :user_id, :location_id]
 		super(filters, {:from => @from, :to => @to, user_id: User.current.id})
 	end
 
@@ -128,7 +128,7 @@ accept_api_auth :get_reports, :get_report_data, :export
 				return nil
 			end
 			report = Object.new.extend(report_type.camelize.constantize)
-			reportData = report.getExportData(getSession(:user_id) || User.current.id, getSession(:group_id).to_i, getSession(:project_id), @from, @to)
+			reportData = report.getExportData(getSession(:user_id) || User.current.id, getSession(:group_id).to_i, getSession(:project_id), @from, @to, getSession(:location_id))
 			pdf = report.pdf_export(**reportData, location: getMainLocation, from: @from, to: @to, logo: WkLocation.getMainLogo)
 			csv = reportData[:customize].blank? ? csv_export(reportData) : report.csv_export(reportData)
 		end
