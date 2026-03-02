@@ -58,7 +58,7 @@ class WkcontactController < WkcrmController
 				wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id #{get_comp_condition('wk_leads')}")
 				.where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where.not(:account_id => nil)
 			else
-				wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id").where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => accountId)
+				wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id #{get_comp_condition('wk_leads')}").where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => accountId)
 			end
 
 		elsif !contactName.blank? &&  accountId.blank?
