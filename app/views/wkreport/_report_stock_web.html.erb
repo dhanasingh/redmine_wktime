@@ -5,8 +5,9 @@
 	to = session[controller_name].try(:[], :to)
 	groupId = session[controller_name].try(:[], :group_id)
 	projId = session[controller_name].try(:[], :project_id) ||  0
+	location_id = session[controller_name].try(:[], :location_id)
 	stock_report = Object.new.extend(ReportStock)
-	stock = stock_report.calcReportData(userId, groupId, projId, from, to)
+	stock = stock_report.calcReportData(userId, groupId, projId, from, to, location_id)
 %>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
 	<div style="float:left; width:90%;">

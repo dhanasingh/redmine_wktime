@@ -22,7 +22,7 @@ module ReportPayslip
 	include WkpayrollHelper
   include WkreportHelper
 
-	def calcReportData(userId, groupId, projId, from, to)
+	def calcReportData(userId, groupId, projId, from, to, location_id = nil)
 		minSalaryDate = WkSalary.where("salary_date between '#{from}' and '#{to}'").minimum(:salary_date)
 		if minSalaryDate.blank?
 			@wksalaryEntries = nil
@@ -75,7 +75,7 @@ module ReportPayslip
 		total
 	end
 
-	def getExportData(user_id, group_id, projID, from, to)
+	def getExportData(user_id, group_id, projID, from, to, location_id = nil)
 		user_id = User.current.id if user_id.to_i < 1
 		resData = calcReportData(user_id, group_id, projID, from, to)
 		detail = resData[:userDetail] || {}

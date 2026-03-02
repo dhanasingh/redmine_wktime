@@ -1,7 +1,7 @@
 module ReportProjectProfitability
   include WkreportHelper
 
-  def calcReportData(userId, groupId, projectId, from, to)
+  def calcReportData(userId, groupId, projectId, from, to, location_id = nil)
     te_from = from -1.month
     te_to = to -1.month
     betwn_mnth_count = getInBtwMonthsArr(from, to)
@@ -201,7 +201,7 @@ module ReportProjectProfitability
     data = {detail_entries: detail_entries, row_total: row_total, ProjProfit: profit, ProjPercentage: percentage, mnthPercentage: mnthPercentage, mnthProfit: mnthProfit, ovrAllProf: ovrAllProf, ovrAllAvg: ovrAllAvg}
   end
 
-  def getExportData(user_id, group_id, projId, from, to)
+  def getExportData(user_id, group_id, projId, from, to, location_id = nil)
     data = {headers: {}, data: []}
     reportData = calcReportData(user_id, group_id, projId, from, to)
     entry = reportData[:totlProfitAvg]

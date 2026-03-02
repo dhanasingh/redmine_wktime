@@ -1,0 +1,127 @@
+<%
+  require_relative './report_move_in_move_out_by_date'
+
+  from   = session[controller_name].try(:[], :from)
+  to     = session[controller_name].try(:[], :to)
+  projId = session[controller_name].try(:[], :project_id)
+  locId  = params[:location_id] || session[controller_name].try(:[], :location_id)
+
+  helperObj = Object.new.extend(ReportMoveInMoveOutByDate)
+  data = helperObj.getData(from, to, projId, locId)
+
+  total_move_ins  = data[:move_in]&.values&.flatten&.size  || 0
+  total_move_outs = data[:move_out]&.values&.flatten&.size || 0
+%>
+
+<%= stylesheet_link_tag 'application', :media => 'all' %>
+<%= stylesheet_link_tag 'wk-time', :plugin => 'redmine_wktime' %>
+
+<div style="padding: 0 40px;">
+
+  <div style="text-align:center; margin: 1em 0 1.5em;">
+    <h2 style="margin:0; padding:0; font-weight:bold;">
+      <%= l(:report_move_in_move_out_by_date) %>
+    </h2>
+    <div style="color:#555; font-size:0.95em; margin-top:4px;">
+      <p><%= from.to_formatted_s(:long) + " " + l(:label_date_to) + " " + to.to_formatted_s(:long) %></p>
+    </div>
+  </div>
+
+
+  <!-- ================= MOVE INS ================= -->
+
+  <h4 style="margin-top:1.5em; font-weight:bold; text-align:center;"><%= l(:label_move_ins) %></h4>
+
+  <% if data[:move_in].present? %>
+  <table style="width:100%; border-collapse:collapse;">
+    <thead>
+      <tr style="background:#f2f2f2;">
+        <th style="border:1px solid #666; padding:6px;"><%= l(:label_si_no) %></th>
+        <th style="border:1px solid #666; padding:6px;"><%= l(:label_move_in_date) %></th>
+        <th style="border:1px solid #666; padding:6px;"><%= l(:label_facility) %></th>
+        <th style="border:1px solid #666; padding:6px;"><%= l(:label_resident) %></th>
+        <th style="border:1px solid #666; padding:6px;"><%= l(:label_apartment) %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% serial_out = 0 %>
+      <% data[:move_in].each do |date, rows| %>
+        <% rows.each do |r| %>
+          <% serial_out += 1 %>
+          <tr>
+            <td style="border:1px solid #666; padding:6px;"><%= serial_out %></td>
+            <td style="border:1px solid #666; padding:6px;"><%= date %></td>
+            <td style="border:1px solid #666; padding:6px;"><%= r[:location].present? ? r[:location] : '—' %></td>
+            <td style="border:1px solid #666; padding:6px;"><%= r[:resident] %></td>
+            <td style="border:1px solid #666; padding:6px;">
+              <%= r[:apartment].present? ?
+                  [r[:apartment], ("#{l(:label_bed)} #{r[:bed]}" if r[:bed].present?)].compact.join(' - ')
+                  : '—' %>
+            </td>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+    <tfoot>
+      <tr style="background:#f2f2f2;">
+        <td colspan="2" style="background:#fff;"></td>
+        <td colspan="1" style="border:1px solid #666; padding:6px; font-weight:bold; text-align:right;"><%= l(:label_total_move_in) %></td>
+        <td style="border:1px solid #666; padding:6px; font-weight:bold;"><%= data[:move_in].values.sum(&:size) %></td>
+      </tr>
+    </tfoot>
+  </table>
+  <% else %>
+    <p style="color:#777;"><%= l(:label_no_move_in_records) %></p>
+  <% end %>
+
+
+  <br><br>
+
+  <!-- ================= MOVE OUTS ================= -->
+  <h4 style="margin-top:1.5em; font-weight:bold; text-align:center;"><%= l(:label_move_outs) %></h4>
+
+  <% if data[:move_out].present? %>
+  <table style="width:100%; border-collapse:collapse; ">
+    <thead>
+      <tr style="background:#f2f2f2;">
+        <th style="border:1px solid #666; padding:6px;"><%= l(:label_si_no) %></th>
+        <th style="border:1px solid #666; padding:6px;"><%= l(:field_move_out_date) %></th>
+        <th style="border:1px solid #666; padding:6px;"><%= l(:label_facility) %></th>
+        <th style="border:1px solid #666; padding:6px;"><%= l(:label_resident) %></th>
+        <th style="border:1px solid #666; padding:6px;"><%= l(:label_apartment) %></th>
+        <th style="border:1px solid #666; padding:6px;"><%= l(:label_reason) %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% serial_out = 0 %>
+      <% data[:move_out].each do |date, rows| %>
+        <% serial_out += 1 %>
+        <% rows.each do |r| %>
+          <tr>
+            <td style="border:1px solid #666; padding:6px;"><%= serial_out %></td>
+            <td style="border:1px solid #666; padding:6px;"><%= date %></td>
+            <td style="border:1px solid #666; padding:6px;"><%= r[:location].present? ? r[:location] : '—' %></td>
+            <td style="border:1px solid #666; padding:6px;"><%= r[:resident] %></td>
+            <td style="border:1px solid #666; padding:6px;">
+              <%= r[:apartment].present? ?
+                  [r[:apartment], ("#{l(:label_bed)} #{r[:bed]}" if r[:bed].present?)].compact.join(' - ')
+                  : '—' %>
+            </td>
+            <td style="border:1px solid #666; padding:6px;"><%= r[:reason] || '—' %></td>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+    <tfoot>
+      <tr style="background:#f2f2f2;">
+        <td colspan="2" style="background:#fff;"></td>
+        <td colspan="1" style="border:1px solid #666; padding:6px; font-weight:bold; text-align:right;"><%= l(:label_total_move_out) %></td>
+        <td style="border:1px solid #666; padding:6px; font-weight:bold;"><%= data[:move_out].values.sum(&:size) %></td>
+      </tr>
+    </tfoot>
+  </table>
+  <% else %>
+    <p style="color:#777;"><%= l(:label_no_move_out_records) %></p>
+  <% end %>
+
+</div>

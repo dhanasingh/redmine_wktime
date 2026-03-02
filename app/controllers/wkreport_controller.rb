@@ -54,7 +54,7 @@ accept_api_auth :get_reports, :get_report_data, :export
 	end
 
 	def set_filter_session
-		filters = [:report_type, :period_type, :period, :from, :to, :group_id, :project_id, :user_id]
+		filters = [:report_type, :period_type, :period, :from, :to, :group_id, :project_id, :user_id, :location_id]
 		super(filters, {:from => @from, :to => @to, user_id: User.current.id})
 	end
 
@@ -93,8 +93,10 @@ accept_api_auth :get_reports, :get_report_data, :export
 		reportType = getReportType(true)
 		projects = Project.active.order('name')
 		groups = Group.sorted.givable
+		locations = WkLocation.order(:name)
 		headers[:projects] = projects.map{ |p| [p.name, p.id]}
 		headers[:groups] = groups.map{ |g| [g.name, g.id]}
+		headers[:locations] = locations.map{ |l| [l.name, l.id]}
 		render json: {wk_reports: reportType, headers: headers}
 	end
 
@@ -102,6 +104,7 @@ accept_api_auth :get_reports, :get_report_data, :export
 		user_id = params[:user_id] || User.current.id
 		group_id = params[:group_id] || "0"
 		projId = params[:project_id] || "0"
+		locId = params[:location_id] || "0"
 		from = params[:from].to_date || Date.today.beginning_of_month
 		to = params[:to].to_date || Date.today.end_of_month
 		attachment = WkLocation.getMainLogo
@@ -109,7 +112,7 @@ accept_api_auth :get_reports, :get_report_data, :export
 		if(params[:report_type].present?)
 			require_relative "../views/wkreport/#{params[:report_type]}"
 			report = Object.new.extend(params[:report_type].camelize.constantize)
-			reportData = report.calcReportData(user_id, group_id, projId, from, to)
+			reportData = report.calcReportData(user_id, group_id, projId, from, to, locId)
 		end
 		reportDetails = { reportData: reportData, location: getMainLocation, address: getAddress, logo: base64Image }
 		render json: reportDetails
@@ -128,7 +131,7 @@ accept_api_auth :get_reports, :get_report_data, :export
 				return nil
 			end
 			report = Object.new.extend(report_type.camelize.constantize)
-			reportData = report.getExportData(getSession(:user_id) || User.current.id, getSession(:group_id).to_i, getSession(:project_id), @from, @to)
+			reportData = report.getExportData(getSession(:user_id) || User.current.id, getSession(:group_id).to_i, getSession(:project_id), @from, @to, getSession(:location_id))
 			pdf = report.pdf_export(**reportData, location: getMainLocation, from: @from, to: @to, logo: WkLocation.getMainLogo)
 			csv = reportData[:customize].blank? ? csv_export(reportData) : report.csv_export(reportData)
 		end

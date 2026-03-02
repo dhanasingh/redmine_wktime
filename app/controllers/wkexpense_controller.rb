@@ -22,7 +22,7 @@ class WkexpenseController < WktimeController
   before_action :find_optional_project, :only => [:reportdetail, :report]
   before_action :check_module_permission, :only => [:index]
 
-  accept_api_auth :reportdetail, :index, :edit, :update, :destroy , :delete_entries, :get_currency
+  accept_api_auth :reportdetail, :index, :edit, :update, :destroy , :delete_entries, :get_currency, :get_projects
 
   include WkexpenseHelper
   include SortHelper

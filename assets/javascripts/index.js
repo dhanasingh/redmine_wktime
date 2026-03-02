@@ -270,6 +270,15 @@ $(document).ready(function() {
 		let serialNumbers = getSerialNumbersRange(full_serno_ele[0], full_serno_ele[1], full_serno_ele[2]);
 		showHideSnNote($(this).val(), JSON.stringify(serialNumbers));
 	});
+
+	var reportTypeEl = document.getElementById('report_type');
+	if (reportTypeEl) {
+		toggleLocationFilter(reportTypeEl.value);
+
+		$(reportTypeEl).on('change', function() {
+		toggleLocationFilter(this.value);
+		});
+	}
 });
 
 function showHideSnNote(consumed_sn, serialNumbers=[]){
@@ -285,41 +294,62 @@ function showHideSnNote(consumed_sn, serialNumbers=[]){
 	else $("#warn_serial_number").hide();
 }
 
-function openReportPopup(){
-	var popupUrl, periodType;
-	var reportType = document.getElementById('report_type').value;
-	var groupId = "", userId = "", actionType = "", projectId = "";
-	if(document.getElementById('group_id')) {
-		groupId = document.getElementById('group_id').value;
-		userId = document.getElementById('user_id').value;
-	}
-	if(document.getElementById('action_type')) {
-	   actionType = document.getElementById('action_type').value;
-	}
+function openReportPopup() {
+  var popupUrl, periodType;
+  var reportType = document.getElementById('report_type').value;
+  var groupId = "", userId = "", actionType = "", projectId = "";
+  if (document.getElementById('group_id')) {
+    groupId = document.getElementById('group_id').value;
+    userId = document.getElementById('user_id').value;
+  }
+  if (document.getElementById('action_type')) {
+    actionType = document.getElementById('action_type').value;
+  }
+ 
+  if (document.getElementById('project_id')) {
+    projectId = document.getElementById('project_id').value;
+  }
+ 
+  var locationId = "";
+  if (document.getElementById('location_id')) {
+    locationId = document.getElementById('location_id').value;
+  }
+ 
+  var period = document.getElementById('period').value;
+  var searchlist = document.getElementById('searchlist').value;
+  var periodTypes = document.getElementsByName('period_type');
+  var fromVal = document.getElementById('from').value;
+  var toVal = document.getElementById('to').value;
+  for (var i = 0, length = periodTypes.length; i < length; i++) {
+    if (periodTypes[i].checked) {
+      periodType = periodTypes[i].value
+      break;
+    }
+  }
+ 
+  popupUrl = wkattnReportUrl + '&report_type=' + reportType + '&group_id=' + groupId + '&action_type=' + actionType + '&user_id=' + userId + '&period_type=' + periodType + '&searchlist=' + searchlist + '&project_id=' + projectId + '&location_id=' + locationId;
+  if (periodType > 1) {
+    popupUrl = popupUrl + '&from=' + fromVal + '&to=' + toVal
+  } else {
+    popupUrl = popupUrl + '&period=' + period
+  }
+  window.open(popupUrl, '_blank', 'location=yes,scrollbars=yes,status=yes, resizable=yes');
+}
 
-	if(document.getElementById('project_id')) {
-		projectId = document.getElementById('project_id').value;
-	}
+// Location filter toggle
+var locationSupportedReports = []; // will be overridden by value set in ERB script block
 
-	var period = document.getElementById('period').value;
-	var searchlist = document.getElementById('searchlist').value;
-	var periodTypes = document.getElementsByName('period_type');
-	var fromVal = document.getElementById('from').value;
-	var toVal = document.getElementById('to').value;
-	for (var i = 0, length = periodTypes.length; i < length; i++) {
-		if (periodTypes[i].checked) {
-			periodType = periodTypes[i].value
-			break;
-		}
-	}
+function toggleLocationFilter(reportType) {
+  var locationRow = document.getElementById('location_filter_row');
+  if (!locationRow) return;
 
-	popupUrl = wkattnReportUrl + '&report_type=' + reportType + '&group_id=' + groupId + '&action_type=' + actionType + '&user_id=' + userId + '&period_type=' + periodType + '&searchlist=' + searchlist + '&project_id=' + projectId;
-	if(periodType>1){
-		popupUrl = popupUrl + '&from=' + fromVal + '&to=' + toVal
-	}else{
-		popupUrl = popupUrl + '&period=' + period
-	}
-	window.open(popupUrl, '_blank', 'location=yes,scrollbars=yes,status=yes, resizable=yes');
+  if (locationSupportedReports.indexOf(reportType) !== -1) {
+    locationRow.style.display = 'block';
+  } else {
+    locationRow.style.display = 'none';
+    var locationEl = document.getElementById('location_id');
+    if (locationEl) locationEl.value = '';
+  }
 }
 
 function showReminderEmailDlg(title) {
