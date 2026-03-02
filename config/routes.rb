@@ -118,6 +118,8 @@ get 'wkexpense/get_currency', :to => 'wkexpense#get_currency'
 
 get 'wkexpense/lockte', :to => 'wkexpense#lockte'
 
+get 'wkexpense/get_projects', :to => 'wkexpense#get_projects'
+
 resources :projects do
 	resources :wk_expense_entries, :controller => 'wkexpense' do
 		collection do
@@ -823,6 +825,8 @@ post 'wksurvey/close_current_response', :to => 'wksurvey#close_current_response'
 get 'wksurvey/print_survey_result', :to => 'wksurvey#print_survey_result'
 
 get 'wksurvey/print_survey', :to => 'wksurvey#print_survey'
+
+get 'wksurvey/export', :to => 'wksurvey#export'
 
 #For Report
 
