@@ -1,0 +1,59 @@
+<%= stylesheet_link_tag 'payment_portal', :plugin => "redmine_wktime" %>
+
+<div class="pp-wrapper">
+  <div class="pp-card pp-card-sm">
+    <!-- Header -->
+    <div class="pp-header-w">
+      <div class="pp-header-w-icon">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <h2><%= l(:label_payment_verification_code) %></h2>
+      <p class="pp-header-w-sub"><%= l(:label_enter_verification_code) %></p>
+    </div>
+
+    <!-- Step Indicator -->
+    <div class="pp-steps">
+      <div class="pp-step done">
+        <span class="pp-step-dot">&#10003;</span> <%= l(:label_step_details) %>
+      </div>
+      <span class="pp-step-line"></span>
+      <div class="pp-step active">
+        <span class="pp-step-dot">2</span> <%= l(:label_step_verify) %>
+      </div>
+      <span class="pp-step-line"></span>
+      <div class="pp-step">
+        <span class="pp-step-dot">3</span> <%= l(:label_step_pay) %>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="pp-body">
+      <!-- Email Badge -->
+      <div class="<%= @otp_not_sent ? 'pp-email-badge pp-email-badge-error' : 'pp-email-badge' %>">
+        <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <%= l(:label_otp_sent) %>
+      </div>
+
+      <%= form_tag payment_verify_path, method: :post do %>
+        
+        <div class="pp-verify-group">
+          <label for="verification_code">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <%= l(:label_verification_code) %>
+          </label>
+          <%= text_field_tag 'verification_code', nil, class: 'pp-code-input', maxlength: 6, required: true, placeholder: '------', autocomplete: 'off', autofocus: true %>
+          <p class="pp-code-hint"><%= l(:label_enter_verification_code) %></p>
+        </div>
+
+        <button type="submit" class="pp-btn"><%= l(:label_verify) %></button>
+      <% end %>
+
+      <div class="pp-resend">
+        <a href="<%= payment_path %>">
+          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          <%= l(:label_resend_code) %>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

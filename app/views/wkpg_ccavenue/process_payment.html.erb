@@ -1,0 +1,94 @@
+<%# CCAvenue Payment Gateway Redirect Form %>
+<%# This form auto-submits encrypted payment data to CCAvenue %>
+
+<div class="payment-redirect-container">
+  <h2><%= l(:label_redirecting_to_payment) %></h2>
+  <p><%= l(:text_please_wait_redirecting) %></p>
+  
+  <div class="payment-spinner">
+    <div class="spinner"></div>
+  </div>
+</div>
+
+<form method="post" name="ccavenue" id="ccavenue_form" action="<%= @adapter_url %>">
+  <input type="hidden" name="encRequest" value="<%= @encrypted_data %>" />
+  <input type="hidden" name="access_code" value="<%= @access_code %>" />
+</form>
+
+<noscript>
+  <div class="noscript-warning">
+    <p><%= l(:text_javascript_disabled) %></p>
+    <button type="submit" form="ccavenue_form" class="button">
+      <%= l(:button_continue_to_payment) %>
+    </button>
+  </div>
+</noscript>
+
+<style>
+  .payment-redirect-container {
+    text-align: center;
+    padding: 50px 20px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .payment-redirect-container h2 {
+    color: #333;
+    margin-bottom: 15px;
+  }
+  
+  .payment-redirect-container p {
+    color: #666;
+    margin-bottom: 30px;
+  }
+  
+  .payment-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .noscript-warning {
+    text-align: center;
+    padding: 30px;
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 5px;
+    margin: 20px auto;
+    max-width: 500px;
+  }
+  
+  .noscript-warning p {
+    margin-bottom: 15px;
+    color: #856404;
+  }
+  
+  .noscript-warning .button {
+    padding: 10px 25px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  // Auto-submit the form after brief delay for user feedback
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+      document.getElementById('ccavenue_form').submit();
+    }, 1500);
+  });
+</script>

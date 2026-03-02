@@ -102,4 +102,12 @@ include Redmine::I18n
 			Rails.logger.error "Mail send error: #{e.message}"
 		end
 	end
+
+	def send_verification_code(email, code)
+		subject = l(:label_payment_verification_code)
+		body = l(:text_verification_code_body, code: code)
+		body += "\n\n" + l(:text_verification_code_expiry)
+		
+		mail :from => Setting.mail_from, :to => email, :subject => subject, :body => body
+	end
  end

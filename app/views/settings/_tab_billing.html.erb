@@ -157,6 +157,13 @@ lblInvCompVal = "<%=l(:field_value) %>";
 		<%= link_to l(:button_edit), "javascript:showPgConfigDialog('Edit', 'settings_wktime_pg_config');", :class => "button"%>  |
 		<%= link_to l(:button_delete), "javascript:removeSelectedPgConfig('settings_wktime_pg_config');", :class => "button" %>
 	</p>
+	<p>
+		<% pg_pay_types = WkCrmEnumeration.where(enum_type: 'PT').order(:position, :name).pluck(:name, :id) %>
+		<label><%= l(:label_payment_type) %></label>
+		<%= select_tag 'settings[wktime_pg_payment_type_id]',
+			options_for_select([["", ""]] + pg_pay_types, :selected => @settings['wktime_pg_payment_type_id']),
+			:id => 'settings_wktime_pg_payment_type_id' %>
+	</p>
 </fieldset>
 
 <div id="pgconfig-dlg" title="<%= l(:label_pg_config) %>" style="display:none;">
