@@ -19,7 +19,7 @@ module ReportBalanceSheet
 	include WkaccountingHelper
   include WkreportHelper
 
-	def calcReportData(userId, groupId, projId, from, to)
+	def calcReportData(userId, groupId, projId, from, to, location_id = nil)
 		from = from.to_date
 		to = to.to_date
 		mainEntriesHash = Hash.new
@@ -48,7 +48,7 @@ module ReportBalanceSheet
 		data
 	end
 
-	def getExportData(user_id, group_id, projId, from, to)
+	def getExportData(user_id, group_id, projId, from, to, location_id = nil)
     rptData = calcReportData(user_id, group_id, projId, from, to)
     headers = {}
     data = []

@@ -100,7 +100,7 @@ module ReportTax
 		taxData
 	end
 
-	def getExportData(user_id, group_id, projId, from, to)
+	def getExportData(user_id, group_id, projId, from, to, location_id = nil)
     data = {headers: {}, data: []}
     reportData = calcReportData(user_id, group_id, projId, from, to)
 		reportData[:taxData].each do |mnth, val|

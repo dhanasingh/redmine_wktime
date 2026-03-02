@@ -1,14 +1,14 @@
 module ReportOrderToCash
   include WkreportHelper
 
-  def calcReportData(user_id, group_id, projId, from, to)
+  def calcReportData(user_id, group_id, projId, from, to, location_id = nil)
     from = Date.civil(from.year,from.month, 1)
     to = Date.civil((to + 1.month).year,(to + 1.month).month, 1) - 1
     inBtwMonths = getInBtwMonthsArr(from, to)
     sqlStr = "select ac.*, idt.inv_amount, pdt.pay_amount, idt.inv_currency, pdt.pay_currency, oi.prv_invoice_amount, op.prv_payment_amount,
     coalesce(a.name, CONCAT(cc.first_name,' ',cc.last_name)) as name from (select p.parent_id, p.parent_type, #{getDatePart('v.selected_date','year','year_val')}, #{getDatePart('v.selected_date','month','month_val')} from
     #{getDatesSql(from, 1, 'month', to)},
-    (#{getAccountContactSql}) p
+    (#{getAccountContactSql(nil, location_id)}) p
     ) ac
     left join
     (select inv.parent_id, inv.parent_type, inv.inv_month, inv.inv_year, sum(inv.amount) as inv_amount, inv.inv_currency from
@@ -100,9 +100,9 @@ module ReportOrderToCash
   end
 
 
-  def getExportData(user_id, group_id, projId, from, to)
+  def getExportData(user_id, group_id, projId, from, to, location_id = nil)
     data = {headers: {}, data: []}
-    reportData = calcReportData(user_id, group_id, projId, from, to)
+    reportData = calcReportData(user_id, group_id, projId, from, to, location_id)
     data[:headers] = {account:  l(:field_account), labels: '', prev_bal: l(:label_previous)+' '+l(:wk_field_balance)}
     reportData[:periods].each do |monthVal|
       data[:headers].store(monthVal, monthVal[0].to_s+' '+I18n.t("date.abbr_month_names")[monthVal[1]].to_s)

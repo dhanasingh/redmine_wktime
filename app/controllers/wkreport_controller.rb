@@ -93,8 +93,10 @@ accept_api_auth :get_reports, :get_report_data, :export
 		reportType = getReportType(true)
 		projects = Project.active.order('name')
 		groups = Group.sorted.givable
+		locations = WkLocation.order(:name)
 		headers[:projects] = projects.map{ |p| [p.name, p.id]}
 		headers[:groups] = groups.map{ |g| [g.name, g.id]}
+		headers[:locations] = locations.map{ |l| [l.name, l.id]}
 		render json: {wk_reports: reportType, headers: headers}
 	end
 
@@ -102,6 +104,7 @@ accept_api_auth :get_reports, :get_report_data, :export
 		user_id = params[:user_id] || User.current.id
 		group_id = params[:group_id] || "0"
 		projId = params[:project_id] || "0"
+		locId = params[:location_id] || "0"
 		from = params[:from].to_date || Date.today.beginning_of_month
 		to = params[:to].to_date || Date.today.end_of_month
 		attachment = WkLocation.getMainLogo
@@ -109,7 +112,7 @@ accept_api_auth :get_reports, :get_report_data, :export
 		if(params[:report_type].present?)
 			require_relative "../views/wkreport/#{params[:report_type]}"
 			report = Object.new.extend(params[:report_type].camelize.constantize)
-			reportData = report.calcReportData(user_id, group_id, projId, from, to)
+			reportData = report.calcReportData(user_id, group_id, projId, from, to, locId)
 		end
 		reportDetails = { reportData: reportData, location: getMainLocation, address: getAddress, logo: base64Image }
 		render json: reportDetails

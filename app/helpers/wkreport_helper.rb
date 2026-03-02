@@ -138,7 +138,7 @@ module WkreportHelper
 		inBtwMnthArr
 	end
 
-	def getAccountContactSql(rptName=nil)
+	def getAccountContactSql(rptName=nil, location_id=nil)
 		parentSql = ""
 		if ActiveRecord::Base.connection.adapter_name == 'Mysql2'
 			encoding = ActiveRecord::Base.connection_db_config.configuration_hash[:encoding]
@@ -152,7 +152,11 @@ module WkreportHelper
 			accCond = "A"
 			conCond = "'C', 'RA'"
 		end
-		sqlStr = "select 'WkAccount' #{parentSql} as parent_type, id as parent_id from wk_accounts where account_type = '#{accCond}' " + get_comp_cond('wk_accounts') + " union select 'WkCrmContact' #{parentSql} as parent_type, id as parent_id from wk_crm_contacts where contact_type in (#{conCond})  " + get_comp_cond('wk_crm_contacts')
+		locationCond = ""
+		if location_id.present? && location_id.to_s != "0"
+			locationCond = " AND location_id = #{location_id.to_i}"
+		end
+		sqlStr = "select 'WkAccount' #{parentSql} as parent_type, id as parent_id from wk_accounts where account_type = '#{accCond}' " + get_comp_cond('wk_accounts') + locationCond + " union select 'WkCrmContact' #{parentSql} as parent_type, id as parent_id from wk_crm_contacts where contact_type in (#{conCond})  " + get_comp_cond('wk_crm_contacts') + locationCond
 		sqlStr
 	end
 
@@ -213,7 +217,7 @@ module WkreportHelper
 		end
 	end
 
-	def getExportData(user_id, group_id, projId, from, to)
+	def getExportData(user_id, group_id, projId, from, to, location_id = nil)
 		return {data: [], headers: {}}
 	end
 

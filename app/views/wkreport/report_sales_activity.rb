@@ -52,7 +52,7 @@ module ReportSalesActivity
 		stock
 	end
 
-  def getExportData(user_id, group_id, projId, from, to)
+  def getExportData(user_id, group_id, projId, from, to, location_id = nil)
     data = {headers: {}, data: []}
     reportData = calcReportData(user_id, group_id, projId, from, to)
     data[:headers] = {activity_type: l(:label_activity_type), subject: l(:field_subject), status: l(:field_status), relates_to: l(:label_relates_to), name: l(:field_name), start_date_time: l(:label_start_date_time), complete_date: 'Completed Date', assignee: l(:field_assigned_to), duration: l(:label_duration)+' '+l(:label_day_plural)}

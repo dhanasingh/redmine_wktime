@@ -77,7 +77,7 @@ module ReportPurchaseCycle
 		purchase
 	end
 
-	def getExportData(user_id, group_id, projId, from, to)
+	def getExportData(user_id, group_id, projId, from, to, location_id = nil)
 		data = {headers: {}, data: []}
 		reportData = calcReportData(user_id, group_id, projId, from, to)
 		data[:headers] = {rfq: l(:label_rfq), purchase_cycle: l(:report_purchase_cycle)+''+ l(:label_in_days), poCycle: '', siCycle: '', payCycle:''}

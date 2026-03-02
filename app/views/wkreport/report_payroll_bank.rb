@@ -89,7 +89,7 @@ module ReportPayrollBank
     data = {headerarr: @headerarr, rowval: @rowval, usercol: usercol, syscurrency: syscurrency, salary_data: @salary_data, compTotalHash: compTotalHash, period: period}
   end
 
-  def getExportData(user_id, group_id, projId, from, to)
+  def getExportData(user_id, group_id, projId, from, to, location_id = nil)
     rptData = calcReportData(user_id, group_id, projId, from, to)
     headers = {}
     data = []

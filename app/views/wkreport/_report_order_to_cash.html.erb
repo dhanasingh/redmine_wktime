@@ -5,8 +5,9 @@
 	projId = session[controller_name].try(:[], :project_id)
 	user_id = session[controller_name].try(:[], :user_id)
 	group_id = session[controller_name].try(:[], :group_id)
+	location_id = session[controller_name].try(:[], :location_id)
 	helperObj = Object.new.extend(ReportOrderToCash)
-	order_cash = helperObj.calcReportData(user_id, group_id, projId, from, to)
+	order_cash = helperObj.calcReportData(user_id, group_id, projId, from, to, location_id)
 	inBtwMonths = order_cash[:periods]
 %>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
