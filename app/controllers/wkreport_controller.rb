@@ -49,7 +49,13 @@ accept_api_auth :get_reports, :get_report_data, :export
 			redirect_to :action => 'time_rpt', :controller => 'wkexpense'
 		elsif !params[:report_type].blank?
 			@reportType = params[:report_type]
-			render :action => 'report', :layout => false
+			view_path = []
+			call_hook(:get_report_view_path, report_type: @reportType, view_path: view_path)
+			if view_path.first.present?
+				render :template => view_path.first, :layout => false
+			else
+				render :action => 'report', :layout => false
+			end
 		end
 	end
 
@@ -110,9 +116,15 @@ accept_api_auth :get_reports, :get_report_data, :export
 		attachment = WkLocation.getMainLogo
 		base64Image = getBase64Image(attachment)
 		if(params[:report_type].present?)
-			require_relative "../views/wkreport/#{params[:report_type]}"
-			report = Object.new.extend(params[:report_type].camelize.constantize)
-			reportData = report.calcReportData(user_id, group_id, projId, from, to, locId)
+			begin
+				require_relative "../views/wkreport/#{params[:report_type]}"
+				report = Object.new.extend(params[:report_type].camelize.constantize)
+			rescue LoadError
+				report_module = []
+				call_hook(:load_report_module, report_type: params[:report_type], report_module: report_module)
+				report = report_module.first
+			end
+			reportData = report.calcReportData(user_id, group_id, projId, from, to, locId) if report.present?
 		end
 		reportDetails = { reportData: reportData, location: getMainLocation, address: getAddress, logo: base64Image }
 		render json: reportDetails
@@ -126,14 +138,17 @@ accept_api_auth :get_reports, :get_report_data, :export
 			report_type.slice!("_web") if report_type.include? "_web"
 			begin
 				require_relative "../views/wkreport/#{report_type}"
+				report = Object.new.extend(report_type.camelize.constantize)
 			rescue LoadError
-				puts "#{report_type} file was not found"
-				return nil
+				report_module = []
+				call_hook(:load_report_module, report_type: report_type, report_module: report_module)
+				report = report_module.first
 			end
-			report = Object.new.extend(report_type.camelize.constantize)
-			reportData = report.getExportData(getSession(:user_id) || User.current.id, getSession(:group_id).to_i, getSession(:project_id), @from, @to, getSession(:location_id))
-			pdf = report.pdf_export(**reportData, location: getMainLocation, from: @from, to: @to, logo: WkLocation.getMainLogo)
-			csv = reportData[:customize].blank? ? csv_export(reportData) : report.csv_export(reportData)
+			if report.present?
+				reportData = report.getExportData(getSession(:user_id) || User.current.id, getSession(:group_id).to_i, getSession(:project_id), @from, @to, getSession(:location_id))
+				pdf = report.pdf_export(**reportData, location: getMainLocation, from: @from, to: @to, logo: WkLocation.getMainLogo)
+				csv = reportData[:customize].blank? ? csv_export(reportData) : report.csv_export(reportData)
+			end
 		end
 
 		respond_to do |format|

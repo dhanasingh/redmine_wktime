@@ -43,6 +43,7 @@ module WkreportHelper
 		  label = fileName.remove("_web")
 		  reportTypeArr << [l(:"#{label}"), fileName] if hasViewPermission(label) && (!apiRequest || !(fileName.end_with?("_web")))
 		end
+		call_hook(:add_report_type, reports: reportTypeArr, apiRequest: apiRequest)
 		reportTypeArr.sort!
 	end
 
@@ -221,10 +222,12 @@ module WkreportHelper
 		return {data: [], headers: {}}
 	end
 
-	LOCATION_SUPPORTED_REPORTS = ['report_move_in_move_out_by_date', 'report_lead_conversion_web', 'report_asset_web', 'report_account_payable_web', 'report_order_to_cash', 'report_stock_web'].freeze
+	LOCATION_SUPPORTED_REPORTS = ['report_lead_conversion_web', 'report_asset_web', 'report_account_payable_web', 'report_order_to_cash', 'report_stock_web'].freeze
 
 	def report_supports_location?(report_type)
-		LOCATION_SUPPORTED_REPORTS.include?(report_type.to_s)
+		reports = LOCATION_SUPPORTED_REPORTS.dup
+		call_hook(:add_location_supported_reports, reports: reports)
+		reports.include?(report_type.to_s)
 	end
 
 	def decrypt_values(value)
