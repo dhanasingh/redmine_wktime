@@ -140,7 +140,7 @@ class WkpaymentauthenticateController < ApplicationController
 
     if log.blank? || log.type_value != email
       flash[:error] = l(:error_verification_session_invalid)
-      redirect_to payment_path(email: email)
+      redirect_to payment_path
       return
     end
 
@@ -148,7 +148,7 @@ class WkpaymentauthenticateController < ApplicationController
     if Time.current > log.expires_at
       session[:payment_verification_id] = nil
       flash[:error] = l(:error_verification_expired)
-      redirect_to payment_path(email: email)
+      redirect_to payment_path
       return
     end
 
@@ -156,7 +156,7 @@ class WkpaymentauthenticateController < ApplicationController
     if log.attempts >= 3
       session[:payment_verification_id] = nil
       flash[:error] = l(:error_verification_max_attempts)
-      redirect_to payment_path(email: email)
+      redirect_to payment_path
       return
     end
 
@@ -166,7 +166,7 @@ class WkpaymentauthenticateController < ApplicationController
       log.increment!(:attempts)
       
       flash[:error] = l(:error_invalid_verification_code_attempts, count: (3 - log.attempts))
-      redirect_to payment_verify_path(email: email)
+      redirect_to payment_verify_path
       return
     end
 

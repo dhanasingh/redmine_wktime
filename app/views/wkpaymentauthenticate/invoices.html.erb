@@ -36,17 +36,21 @@
             }
           }
 
-          function validateInvoiceSelection() {
+          function paySelectedInvoices() {
             var checkboxes = document.getElementsByName('invoice_ids[]');
-            for(var i = 0; i < checkboxes.length; i++) {
-              if(checkboxes[i].checked) return true;
+            var anyChecked = false;
+            for (var i = 0; i < checkboxes.length; i++) {
+              if (checkboxes[i].checked) { anyChecked = true; break; }
             }
-            alert('<%= j l(:error_no_invoices_selected) %>');
-            return false;
+            if (!anyChecked) {
+              alert('<%= j l(:error_no_invoices_selected) %>');
+              return;
+            }
+            document.getElementById('invoice-pay-form').submit();
           }
         </script>
 
-        <%= form_tag payment_process_path, method: :post, onsubmit: "return validateInvoiceSelection();" do %>
+        <%= form_tag payment_process_path, method: :post, id: 'invoice-pay-form' do %>
           <div class="pp-table-container">
             <table class="pp-inv-table">
               <thead>
@@ -85,7 +89,7 @@
           </div>
 
           <div style="text-align: center;">
-            <button type="submit" class="pp-btn-pay">
+            <button type="button" class="pp-btn-pay" onclick="paySelectedInvoices()">
               <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
               <%= l(:label_pay_selected) %>
             </button>
