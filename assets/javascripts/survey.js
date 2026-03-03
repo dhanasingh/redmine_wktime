@@ -228,11 +228,29 @@ function questionTypeChanged(dropdown) {
         </tr>
       `;
 
+			const newAdderRow = `
+            <tr class="choice-adder-row">
+                <td></td>
+                <td></td>
+                <td align="left">
+                  <a href="javascript:void(0)"  onclick="addChoiceRow(this)"  class="icon icon-add"> Add Choice </a>
+                </td>
+                <td></td>
+            </tr>
+        `;
+			const $newChoice = $(newRow);
+			const $newAdder = $(newAdderRow);
+
 			const $lastChoice = $row.nextAll(".choice-row").last();
 			if ($lastChoice.length) {
-				$lastChoice.after(newRow);
+				// $lastChoice.after(newRow);
+				$lastChoice.after($newChoice);
+				$newChoice.after($newAdder);
+
 			} else {
-				$row.after(newRow);
+				// $row.after(newRow);
+				$row.after($newChoice);
+				$newChoice.after($newAdder);
 			}
 
 			console.log("   ✅ Default choice row inserted");
