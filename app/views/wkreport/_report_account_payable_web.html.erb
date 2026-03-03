@@ -11,25 +11,11 @@
 	inBtwMonths = acc_payable[:periods]
 %>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
-	<div style="float:left; width:90%;">
-		<p style="text-align: center;">
-			<caption style="text-align:center"><b>
-				<%= getMainLocation %><br><%= l(:report_account_payable) %></b></br>
-				<%= acc_payable[:from] + " " + l(:label_date_to) + " " + acc_payable[:to]%>
-			</caption>
+	<div style="float:right"><%= renderReportLogo %></div>
+	<div style="text-align:center;">
+		<p><b><%= getMainLocation %><br><%= l(:report_account_payable) %></b><br>
+			<%= acc_payable[:from] + " " + l(:label_date_to) + " " + acc_payable[:to]%>
 		</p>
-	</div>
-	<div style="float:right">
-		<table>
-			<tr>
-				<td>
-					<% attachment = WkLocation.getMainLogo() %>
-					<% if attachment.present? %>
-						<%= image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image') %>
-					<% end %>
-				</td>
-			</tr>
-		</table>
 	</div>
 	<div style="clear:both;"></div>
 	<table style="width:100%;">

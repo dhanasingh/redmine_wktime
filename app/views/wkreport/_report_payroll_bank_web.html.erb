@@ -21,25 +21,11 @@
 		}
  </style>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
-	<div style="float:left; width:90%;">
-		<p style="text-align: center;">
-			<caption style="text-align:center"><b>
-				<%= getMainLocation %></br><%= l(:report_payroll_bank) %></b></br>
-				<b><%= l(:label_wages_period) %>:</b> <%= data[:period] %>
-			</caption>
+	<div style="float:right"><%= renderReportLogo %></div>
+	<div style="text-align:center;">
+		<p><b><%= getMainLocation %><br><%= l(:report_payroll_bank) %></b><br>
+			<b><%= l(:label_wages_period) %>:</b> <%= data[:period] %>
 		</p>
-	</div>
-	<div style="float:right">
-		<table>
-			<tr>
-				<td>
-					<% attachment = WkLocation.getMainLogo() %>
-					<% if attachment.present? %>
-						<%= image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image') %>
-					<% end %>
-				</td>
-			</tr>
-		</table>
 	</div>
 	<div style="clear:both;"></div>
 <table class="tbl-report" border="1" style="border-collapse:collapse;",frame="box">

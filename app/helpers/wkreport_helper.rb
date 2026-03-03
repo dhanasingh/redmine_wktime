@@ -169,6 +169,12 @@ module WkreportHelper
 		allLocation
 	end
 
+	def renderReportLogo
+		attachment = WkLocation.getMainLogo()
+		return ''.html_safe unless attachment.present?
+		image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image', style: 'min-height:30px; min-width:90px; max-height:120px; max-width:360px;')
+	end
+
 	def getAddress
 		address_list = WkAddress.joins("RIGHT JOIN wk_locations ON wk_addresses.id = wk_locations.address_id" + get_comp_cond('wk_locations') )
 		mainAddress = address_list.where("wk_locations.is_main = #{booleanFormat(true)}")
@@ -220,14 +226,6 @@ module WkreportHelper
 
 	def getExportData(user_id, group_id, projId, from, to, location_id = nil)
 		return {data: [], headers: {}}
-	end
-
-	LOCATION_SUPPORTED_REPORTS = ['report_lead_conversion_web', 'report_asset_web', 'report_account_payable_web', 'report_order_to_cash', 'report_stock_web'].freeze
-
-	def report_supports_location?(report_type)
-		reports = LOCATION_SUPPORTED_REPORTS.dup
-		call_hook(:add_location_supported_reports, reports: reports)
-		reports.include?(report_type.to_s)
 	end
 
 	def decrypt_values(value)

@@ -271,14 +271,6 @@ $(document).ready(function () {
 		showHideSnNote($(this).val(), JSON.stringify(serialNumbers));
 	});
 
-	var reportTypeEl = document.getElementById('report_type');
-	if (reportTypeEl) {
-		toggleLocationFilter(reportTypeEl.value);
-
-		$(reportTypeEl).on('change', function () {
-			toggleLocationFilter(this.value);
-		});
-	}
 });
 
 function showHideSnNote(consumed_sn, serialNumbers = []) {
@@ -337,22 +329,6 @@ function openReportPopup() {
 		popupUrl += '&period=' + period;
 	}
 	window.open(popupUrl, '_blank', 'location=yes,scrollbars=yes,status=yes, resizable=yes');
-}
-
-// Location filter toggle
-var locationSupportedReports = []; // will be overridden by value set in ERB script block
-
-function toggleLocationFilter(reportType) {
-	var locationRow = document.getElementById('location_filter_row');
-	if (!locationRow) return;
-
-	if (locationSupportedReports.indexOf(reportType) !== -1) {
-		locationRow.style.display = 'block';
-	} else {
-		locationRow.style.display = 'none';
-		var locationEl = document.getElementById('location_id');
-		if (locationEl) locationEl.value = '';
-	}
 }
 
 function showReminderEmailDlg(title) {

@@ -5,7 +5,6 @@
 	wkattnReportUrl = '<%=url_for(:controller => "wkreport", :action => "index", :tab => "wkreport")%>';
 	grpUrl="<%= "#{url_for(:controller => "wkreport", :action => 'get_membersby_group')}" %>";
 	//get_membersby_group
-	var locationSupportedReports = <%= getReportType.map { |_label, name| name }.select { |name| report_supports_location?(name) }.to_json.html_safe %>;
 </script>
 <%= form_tag({:controller => controller_name, :action => "export"}, :method => :get, :id => 'query_form',
       data: { controller: controller_name}) do %>
@@ -49,7 +48,7 @@
 	<td style="padding-left:20px;"><%=h select_tag('project_id', options_for_select(projArr, :selected => projectId.nil? ? projArr : projectId)) %></td>
 	</table>
 	<%= render :partial => 'wktime/date_range' %>
-	<div id="location_filter_row" style="margin-top:5px; <%= 'display:none;' unless report_supports_location?(rpttype) %>">
+	<div id="location_filter_row" style="margin-top:5px;">
 	<label><strong><%= l(:field_location) %></strong></label>
 	<%= select_tag 'location_id',
 		generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', session[controller_name].try(:[], :location_id), true),
