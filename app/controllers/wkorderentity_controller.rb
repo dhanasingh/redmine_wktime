@@ -528,6 +528,7 @@ class WkorderentityController < WkbillingController
 
 	def destroy
 		isDelete = true
+		invoice = nil
 		WkInvoice.transaction do
 			begin
 			invoice = WkInvoice.find(params[:invoice_id].to_i)#.destroy
@@ -543,7 +544,7 @@ class WkorderentityController < WkbillingController
 		if isDelete
 			flash[:notice] = l(:notice_successful_delete)
 		else
-			flash[:error] = invoice.errors.full_messages.join("<br>")
+			flash[:error] = invoice.present? ? invoice.errors.full_messages.join("<br>") : l(:label_unable_delete)
 		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end
