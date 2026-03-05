@@ -1,17 +1,16 @@
-# Webinar on ERPmine – CRM, Feb 24th, 2026,(11:30 AM GMT)
+# Webinar on ERPmine – Inventory, Mar 31st, 2026,(11:30 AM GMT)
 
 Please click here to register if interested,
-[[https://us02web.zoom.us/meeting/register/aM-1Nt__TBafjqbeJQjdVw]](https://us02web.zoom.us/meeting/register/8M1jhRftTmezDJZUNvuEcw)
+[[[https://us02web.zoom.us/meeting/register/aM-1Nt__TBafjqbeJQjdVw]](https://us02web.zoom.us/meeting/register/M-XiYRmFReyBoqleXFnTZw)]
 
 **Topics**:
- -  Leads
- -   Accounts
- -   Contacts 
- -   Opportunities
- -   Activities
- -   Sales Quote
- -   Reports
- -   Mobile app
+ -  Receive Goods (Shipments)
+ -   Product and items
+ -   Material Log
+ -   Invoice
+ -   Asset and depreciation
+ -   Disposed Asset
+ -   Asset and stock Report
 
 -----
 
