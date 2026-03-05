@@ -104,7 +104,7 @@ $(function () {
 			$('.revieweronly').show();
 		else {
 			$('.revieweronly').hide();
-			$("input[id^='reviewerOnly_']").each(function () {
+			$("input[id$='_is_reviewer_only']").each(function () {
 				$(this).prop("checked", false);
 			});
 		}
@@ -385,6 +385,7 @@ function addUngroupedQues() {
 
 	$("#groups_container").append(html);
 	reOrderIndex();
+	$('#review').trigger("change");
 }
 
 // Add a new group dynamically
@@ -405,6 +406,7 @@ function addSurveyGroup() {
 	initializeGroupAccordion(groupIndex);
 	console.log("New group added for edit page:", groupIndex);
 	reOrderIndex(false);
+	$('#review').trigger("change");
 }
 
 function initializeGroupAccordion(groupIndex) {
@@ -446,6 +448,7 @@ function addQuestions(button) {
 		group.insertAdjacentHTML('beforeend', html);
 	}
 	reOrderIndex();
+	$('#review').trigger("change");
 }
 
 // Update group header when name changes

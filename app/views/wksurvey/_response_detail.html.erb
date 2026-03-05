@@ -9,7 +9,7 @@
     # Group questions by their survey group
     questions_by_group = @survey.wk_survey_questions
                              .includes(:wk_survey_que_group)
-                             .order("is_reviewer_only, wk_survey_questions.id")
+                             .order("wk_survey_questions.id")
                              .group_by { |q| q.wk_survey_que_group }
   %>
   <% points =  Object.new.extend(WksurveyHelper).showSurveyPoints(params,@survey.id) %>
