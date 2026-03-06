@@ -4,12 +4,11 @@
 class WkPgPaymentItem < ApplicationRecord
   # Associations
   belongs_to :wk_pg_payment
-  belongs_to :wk_invoice, class_name: 'WkInvoice', foreign_key: 'invoice_id'
+  belongs_to :wk_invoice, class_name: 'WkInvoice', foreign_key: 'invoice_id', optional: true
   belongs_to :created_by, class_name: 'User', optional: true
   belongs_to :updated_by, class_name: 'User', optional: true
 
   # Validations - Note: wk_pg_payment_id is set automatically via nested attributes
-  validates :invoice_id, presence: true
   validates :amount, presence: true, numericality: { greater_than: 0 }
 
   # Delegate invoice methods for convenience

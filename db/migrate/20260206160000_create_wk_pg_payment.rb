@@ -29,7 +29,7 @@ class CreateWkPgPayment < ActiveRecord::Migration[6.1]
       t.integer :parent_id
       
       # Link to actual payment after success
-      t.references :wk_payment, foreign_key: true, null: true
+      t.integer :wk_payment_id, null: true
       
       # Audit fields
       t.references :created_by, foreign_key: { to_table: :users }
@@ -45,7 +45,7 @@ class CreateWkPgPayment < ActiveRecord::Migration[6.1]
     # Payment gateway payment items - links invoices to pg payment
     create_table :wk_pg_payment_items do |t|
       t.references :wk_pg_payment, foreign_key: true, null: false
-      t.references :invoice, foreign_key: { to_table: :wk_invoices }, null: false
+      t.integer :invoice_id, null: true
       
       # Amount details per invoice
       t.decimal :amount, precision: 15, scale: 4

@@ -33,6 +33,7 @@ class WkInvoice < ApplicationRecord
   has_many :notifications, through: "po_quote", :dependent => :destroy
   has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
   has_many :billing_schedules, foreign_key: "invoice_id", class_name: "WkBillingSchedule"
+  has_many :wk_pg_payment_items, foreign_key: "invoice_id"
 
   # scope :invoices, lambda {where :invoice_type => 'I'}
   # scope :quotes, lambda {where :invoice_type => 'Q'}

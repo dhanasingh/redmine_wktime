@@ -103,8 +103,12 @@ class WkpaymentauthenticateController < ApplicationController
       is_verified: false
     )
 
-    # Reset session to prevent session fixation attacks, then store new ID
-    reset_session
+    # For logged-in users, preserve Redmine session; for guests, full reset
+    if User.current.logged?
+      clear_payment_session
+    else
+      reset_session
+    end
     session[:payment_verification_id] = log.id
     session[:payment_verification_email] = email
 

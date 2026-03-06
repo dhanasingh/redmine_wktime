@@ -215,7 +215,7 @@ class WkpgBaseController < ApplicationController
       pg_payment.update!(wk_payment_id: payment.id)
 
       # Update invoice statuses to closed
-      pg_items.each { |pg_item| pg_item.wk_invoice.update!(status: 'c') }
+      pg_items.each { |pg_item| pg_item.wk_invoice&.update!(status: 'c') }
 
       Rails.logger.info "Payment created successfully: ID=#{payment.id}, PG_ID=#{pg_payment.pg_id}"
       result = [true, l(:notice_payment_successful)]
