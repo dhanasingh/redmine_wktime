@@ -140,7 +140,9 @@ class WkpgBaseController < ApplicationController
         amount: exchanged_amount,
         currency: to_currency,
         original_amount: org_amount,
-        original_currency: inv_currency
+        original_currency: inv_currency,
+        created_by_id: User.current.logged? ? User.current.id : nil,
+        updated_by_id: User.current.logged? ? User.current.id : nil
       }
     end
 
@@ -154,6 +156,8 @@ class WkpgBaseController < ApplicationController
       original_currency: original_currency,
       parent_type: parent_type,
       parent_id: parent_id,
+      created_by_id: User.current.logged? ? User.current.id : nil,
+      updated_by_id: User.current.logged? ? User.current.id : nil,
       wk_pg_payment_items_attributes: pg_items_attributes
     )
 
@@ -182,6 +186,7 @@ class WkpgBaseController < ApplicationController
       # pg_payment's parent is the verified invoice; WkPayment needs the invoice's parent (Account/Contact)
       verified_inv = pg_payment.parent
       invoice_parent = verified_inv.parent
+      modifier_id = User.current.logged? ? User.current.id : pg_payment.created_by_id
       payment = WkPayment.new
       payment.parent_type = invoice_parent.class.name
       payment.parent_id = invoice_parent.id
@@ -189,6 +194,8 @@ class WkpgBaseController < ApplicationController
       payment.payment_type_id = Setting.plugin_redmine_wktime['wktime_pg_payment_type_id'].presence&.to_i ||
                                 WkCrmEnumeration.where(enum_type: 'PT').order(:position, :name).first&.id
       payment.reference_number = pg_payment.pg_id
+      payment.created_by_user_id = modifier_id
+      payment.modified_by_user_id = modifier_id
       payment.description = "AccName:#{parent_name} InvNo:#{inv_numbers} PaymentAmt:#{total_original_currency}#{total_original_amount}"
 
       unless payment.save
@@ -204,6 +211,8 @@ class WkpgBaseController < ApplicationController
         pay_item.payment_id = payment.id
         pay_item.invoice_id = pg_item.invoice_id
         pay_item.is_deleted = false
+        pay_item.created_by_user_id = modifier_id
+        pay_item.modified_by_user_id = modifier_id
         pay_item.original_amount = pg_item.original_amount
         pay_item.original_currency = pg_item.original_currency
         pay_item.currency = to_currency
@@ -212,7 +221,7 @@ class WkpgBaseController < ApplicationController
       end
 
       # Link pg_payment to actual payment
-      pg_payment.update!(wk_payment_id: payment.id)
+      pg_payment.update!(wk_payment_id: payment.id, updated_by_id: User.current.logged? ? User.current.id : nil)
 
       # Update invoice statuses to closed
       pg_items.each { |pg_item| pg_item.wk_invoice&.update!(status: 'c') }

@@ -53,7 +53,7 @@ class WkpgCcavenueController < WkpgBaseController
       }
 
       # Save request data for audit
-      @pg_payment.update!(pg_request: request_data.to_json)
+      @pg_payment.update!(pg_request: request_data.to_json, updated_by_id: User.current.logged? ? User.current.id : nil)
 
       # Build query string and encrypt
       merchant_data = request_data.map { |k, v| "#{k}=#{v}" }.join('&')
@@ -106,6 +106,7 @@ class WkpgCcavenueController < WkpgBaseController
             pg_payment.pg_pay_method = response_data['payment_mode']
             pg_payment.pg_trans_date = parse_trans_date(response_data['trans_date'])
             pg_payment.pg_response = response_data.to_json
+            pg_payment.updated_by_id = User.current.id if User.current.logged?
 
             if pg_payment.save
               redirect_to wkpg_ccavenue_redirect_handler_path(id: pg_payment.id)

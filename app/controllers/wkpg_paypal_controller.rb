@@ -74,6 +74,7 @@ class WkpgPaypalController < WkpgBaseController
             pg_payment.pg_pay_method = response_data.dig('payment_source')&.keys&.first
             pg_payment.pg_response = response_data.to_json
             pg_payment.pg_trans_date = response_data.dig('purchase_units', 0, 'payments', 'captures', 0, 'create_time') || Time.current
+            pg_payment.updated_by_id = User.current.id if User.current.logged?
 
             if pg_payment.save && pg_payment.successful?
               success, message = create_payment(pg_payment)
@@ -172,7 +173,8 @@ class WkpgPaypalController < WkpgBaseController
       # Save PayPal order ID
       pg_payment.update!(
         pg_id: response_json['id'],
-        pg_request: response_json.to_json
+        pg_request: response_json.to_json,
+        updated_by_id: User.current.logged? ? User.current.id : nil
       )
 
       if approval_url.present?
@@ -189,7 +191,8 @@ class WkpgPaypalController < WkpgBaseController
         pg_id: response_json['id'],
         pg_request: response_json.to_json,
         status: 'FA',
-        pg_msg: response_json['message']
+        pg_msg: response_json['message'],
+        updated_by_id: User.current.logged? ? User.current.id : nil
       )
 
       error_details = (response_json['details'] || []).map { |d| "#{d['field']}: #{d['issue']}" }.join(', ')
