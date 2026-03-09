@@ -76,6 +76,9 @@ api.wk_survey do
     elsif @survey.survey_for_type == "User"
       api.survey_for_type "User"
       api.survey_for_id User.current.id
+    elsif params[:surveyForID].present?
+      api.survey_for_type params[:surveyForType]
+      api.survey_for_id params[:surveyForID]
     end
   end
 

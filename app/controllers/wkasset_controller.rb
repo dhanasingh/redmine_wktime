@@ -143,8 +143,12 @@ class WkassetController < WkproductitemController
 	def getCsvData(entries)
 		rate = getRatePerHash(false)
 		asset_type = getAssetTypeHash(false)
-		data = entries.map{|entry| {project_name: entry['project_name'] || '', product_name: entry['product_name'] || '', parent_name: entry['parent_name'], asset_name: entry['asset_name'],  product_attribute_name: entry['product_attribute_name'], serial_number: entry['serial_number'], owner_type: asset_type[entry['owner_type']], rate: rate[entry['rate_per']], is_loggable: entry.is_loggable?, location_name: entry['location_name'] || ''}
-		}
+		data = entries.map do |entry|
+			asset_rate = entry['rate'] ? "#{entry.asset_currency}#{entry['rate']}#{rate[entry['rate_per']]}" : ''
+			{
+				project_name: entry['project_name'] || '', product_name: entry['product_name'] || '', parent_name: entry['parent_name'], asset_name: entry['asset_name'],  product_attribute_name: entry['product_attribute_name'], serial_number: entry['serial_number'], owner_type: asset_type[entry['owner_type']], rate: asset_rate, is_loggable: entry.is_loggable?, location_name: entry['location_name'] || ''
+			}
+		end
 	end
 
 	def get_material_entries
