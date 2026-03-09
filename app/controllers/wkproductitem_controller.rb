@@ -344,6 +344,7 @@ class WkproductitemController < WkinventoryController
 		assetProperty.name = params[:asset_name]
 		assetProperty.rate = params[:rate]
 		assetProperty.rate_per = params[:rate_per]
+		assetProperty.currency = params[:currency].presence || sysCurrency
 		assetProperty.current_value = params[:current_value]
 		assetProperty.owner_type = params[:owner_type]
 		if isChecked('asset_save_geo_location') && params[:save_current_location].to_i  == 1
