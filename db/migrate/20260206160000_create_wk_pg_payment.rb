@@ -32,8 +32,8 @@ class CreateWkPgPayment < ActiveRecord::Migration[6.1]
       t.integer :wk_payment_id, null: true
       
       # Audit fields
-      t.references :created_by, foreign_key: { to_table: :users }
-      t.references :updated_by, foreign_key: { to_table: :users }
+      t.references :created_by, class: "User"
+      t.references :updated_by, class: "User"
       
       t.timestamps
     end
@@ -54,8 +54,8 @@ class CreateWkPgPayment < ActiveRecord::Migration[6.1]
       t.string :original_currency, limit: 10
       
       # Audit fields
-      t.references :created_by, foreign_key: { to_table: :users }
-      t.references :updated_by, foreign_key: { to_table: :users }
+      t.references :created_by, class: "User"
+      t.references :updated_by, class: "User"
       
       t.timestamps
     end
