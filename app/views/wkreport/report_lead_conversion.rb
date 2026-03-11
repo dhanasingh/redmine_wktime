@@ -7,7 +7,7 @@ module ReportLeadConversion
     end
     leads = {}
 	  leadList = getLeadList(from, to, group_id, user_id)
-    leadList = leadList.joins(:contact).where(wk_crm_contacts: { location_id: location_id }) if location_id.present?
+    leadList = leadList.joins(:contact).where(wk_crm_contacts: { location_id: location_id }) if location_id.present? && location_id.to_s != "0"
     filteredList = leadList.to_a
     filteredList.each do |lead|
       key = lead.id.to_s
