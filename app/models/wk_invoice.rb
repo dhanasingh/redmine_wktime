@@ -59,6 +59,10 @@ class WkInvoice < ApplicationRecord
 	self.payment_items.current_items.sum(:original_amount)
   end
 
+  def has_outstanding_balance?
+    total_invoice_amount - total_paid_amount > 0
+  end
+
   def increase_inv_key
 	lastInvKey = WkInvoice.where(:invoice_type => invoice_type).maximum(:invoice_num_key)
 	self.invoice_num_key = lastInvKey.blank? ? 1 : (lastInvKey + 1) if self.new_record?

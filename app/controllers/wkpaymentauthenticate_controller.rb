@@ -40,7 +40,7 @@ class WkpaymentauthenticateController < ApplicationController
     end
 
     # Check if invoice is already paid
-    if invoice.status != 'o'
+    unless invoice.has_outstanding_balance?
       flash[:error] = l(:error_invoice_already_paid)
       redirect_to payment_path
       return
@@ -209,14 +209,13 @@ class WkpaymentauthenticateController < ApplicationController
       # Auth code's parent is the verified invoice — get the invoice's parent (account/contact)
       verified_invoice = last_log.parent
       if verified_invoice
-        # Find all open invoices for the same account/contact
+        # Find all invoices with outstanding balance for the same account/contact
         invoice_types = ['I', 'SI']
         @pending_invoices = WkInvoice.where(
           parent_type: verified_invoice.parent_type,
           parent_id: verified_invoice.parent_id,
-          invoice_type: invoice_types,
-          status: 'o'
-        ).order(invoice_date: :asc)
+          invoice_type: invoice_types
+        ).order(invoice_date: :asc).select(&:has_outstanding_balance?)
       else
         @pending_invoices = WkInvoice.none
       end
@@ -268,9 +267,8 @@ class WkpaymentauthenticateController < ApplicationController
     invoices = WkInvoice.where(
       id: invoice_ids,
       parent_type: verified_invoice.parent_type,
-      parent_id: verified_invoice.parent_id,
-      status: 'o'
-    )
+      parent_id: verified_invoice.parent_id
+    ).select(&:has_outstanding_balance?)
 
     if invoices.empty?
       flash[:error] = l(:error_invalid_invoices)

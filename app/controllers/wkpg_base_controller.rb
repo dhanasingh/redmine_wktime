@@ -223,9 +223,6 @@ class WkpgBaseController < ApplicationController
       # Link pg_payment to actual payment
       pg_payment.update!(wk_payment_id: payment.id, updated_by_id: User.current.logged? ? User.current.id : nil)
 
-      # Update invoice statuses to closed
-      pg_items.each { |pg_item| pg_item.wk_invoice&.update!(status: 'c') }
-
       Rails.logger.info "Payment created successfully: ID=#{payment.id}, PG_ID=#{pg_payment.pg_id}"
       result = [true, l(:notice_payment_successful)]
     end
@@ -262,12 +259,11 @@ class WkpgBaseController < ApplicationController
     verified_invoice = @auth_log.parent
     return nil unless verified_invoice
 
-    # Validate invoices belong to the same account/contact
+    # Validate invoices belong to the same account/contact and have outstanding balance
     WkInvoice.where(
       id: invoice_ids,
       parent_type: verified_invoice.parent_type,
-      parent_id: verified_invoice.parent_id,
-      status: 'o'
-    )
+      parent_id: verified_invoice.parent_id
+    ).select(&:has_outstanding_balance?)
   end
 end

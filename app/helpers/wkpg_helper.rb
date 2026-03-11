@@ -91,8 +91,8 @@ module WkpgHelper
     
     WkPgPaymentItem.joins(:wk_pg_payment)
       .where(invoice_id: invoice_ids)
-      .where("(wk_pg_payments.status = ? AND wk_pg_payment_items.created_at >= ?) OR wk_pg_payments.status = ?",
-             WkPgPayment::STATUS_INITIATED, timeout_threshold, WkPgPayment::STATUS_SUCCESS)
+      .where("wk_pg_payments.status = ? AND wk_pg_payment_items.created_at >= ?",
+             WkPgPayment::STATUS_INITIATED, timeout_threshold)
       .exists?
   end
 
