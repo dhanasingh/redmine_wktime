@@ -1388,7 +1388,7 @@ en:
   label_resend_code: "Resend Code"
   label_payment_verification_code: "Payment Portal - Verification Code"
   text_verification_code_body: "We received a request to access the payment portal for your invoices.\n\nYour secure verification code is: %{code}\n\nPlease enter this code to securely view and pay your pending invoices."
-  text_verification_code_expiry: "For your security, this code will expire in 10 minutes and can only be used once.\nIf you did not request this code, you can safely ignore this email."
+  text_verification_code_expiry: "For your security, this code will expire in 10 minutes and can only be used once."
   text_verification_code_sent: "A verification code has been sent to your email"
   error_email_not_found: "No account found with this email address"
   error_no_account_project_found: "No associated account/project found for this email"

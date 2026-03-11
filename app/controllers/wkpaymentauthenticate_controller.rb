@@ -278,6 +278,14 @@ class WkpaymentauthenticateController < ApplicationController
       return
     end
 
+    # Check if a payment is already in progress for selected invoices
+    update_pgpay_timeout(invoice_ids)
+    if pgpay_exists?(invoice_ids)
+      flash[:error] = l(:error_payment_already_processing)
+      redirect_to payment_path
+      return
+    end
+
     # Get currency from the first invoice item
     currency = invoices.first.invoice_items.first&.original_currency
     if currency.blank?
