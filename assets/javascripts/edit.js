@@ -681,6 +681,7 @@ function addRow(){
 	{
 		submitButton.disabled = false;
 	}
+	checkLogPermissions(rowCount - (headerRows + footerRows - 1));
 	issuetr = $('#issueTable').children('tbody').first().children('tr').get((rowCount -1 )-(headerRows + footerRows - 1))
 	issuetd = $(issuetr).children('td').get(1);
 	$(issuetd).children('select').first().select2();
@@ -1593,43 +1594,81 @@ function convertSecToTime(seconds)
  return timeVal;
 }
 
+function getPermissionProjectIds(fieldId){
+	var value = $("#" + fieldId).val();
+	if ($.isArray(value)) {
+		return $.map(value, function(projectId) {
+			return projectId != null ? projectId.toString() : null;
+		});
+	}
+	if(value == null || value === ""){
+		return [];
+	}
+	value = value.toString();
+	return value.match(/\d+/g) || [];
+}
+
+function setPermissionLinkState(link, enabled){
+	if(!link || link.length === 0){
+		return;
+	}
+	if(enabled){
+		link.removeClass('disabled').css('pointer-events', '').off('click.wktimePermission');
+	}else{
+		link.addClass('disabled').css('pointer-events', 'none').on('click.wktimePermission', function(event){
+			event.preventDefault();
+			return false;
+		});
+	}
+}
+
+function setPermissionCellState(cellContainer, row, enabled){
+	var hourField = cellContainer.find("input[name='hours"+row+"[]']").first();
+	var disabledField = cellContainer.find("input[name='disabled"+row+"[]']").first();
+	var detailImage = cellContainer.find("img[name='custfield_img"+row+"[]']").first();
+	var detailLink = detailImage.parent('a');
+
+	hourField.prop('disabled', !enabled);
+	if(disabledField.length > 0){
+		disabledField.val(!enabled);
+	}
+	setPermissionLinkState(detailLink, enabled);
+}
+
 function checkLogPermissions(row){
-	//If desn't have log for other users then disable hours
-	const manage_others_log = $('#manage_others_log').val() || [];
-	const manage_edit_projects = $('#manage_edit_projects').val() || [];
-	const logtime_projects = $('#logtime_projects').val() || [];
-	const edit_own_logs = $('#edit_own_logs').val() || [];
-	const current_user = $('#current_user').val() == 'true';
-	let url = new URL(window.location.href);
-	const sheetView = url.searchParams.get('sheet_view');
-	$("input[name='hours"+row+"[]'], [name='custfield_img"+row+"[]']").each(function(){
-    const projID = $(this).closest('tr').children('td:first').find('select').val();
-		const hours = ($(this).closest('div').children().first()).val();
-		const disabled = $(this).closest('div').find('input[name="disabled'+row+'[]"]').val();
-		const deleteTd = $(this).closest('tr').children('td:last');
-		if(sheetView != 'I' && (!current_user && (hours == '' && !manage_others_log.includes(projID) || hours != '' && !manage_edit_projects.includes(projID)) ||
-			(current_user && !edit_own_logs.includes(projID) && hours != '') || !logtime_projects.includes(projID)))
-		{
-			if(this.type){
-				$(this).prop('disabled', true);
-				($(this).siblings('#disabled'+row+'_').first()).val(true);
-				($(deleteTd).children('a').first()).bind('click', false);
-			}
-			else{
-				$(this).parent('a').bind('click', false);
-			}
-		}
-		else if(!hours && manage_others_log.includes(projID) && !disabled ){
-			if(this.type){
-				$(this).prop('disabled', false);
-				($(this).siblings('#disabled'+row+'_').first()).val(false);
-				($(deleteTd).children('a').first()).unbind('click', false);
-			}
-			else{
-				$(this).parent('a').unbind('click', false);
-			}
-		}
+	var sheetView = new URL(window.location.href).searchParams.get('sheet_view');
+	var hourFields = $("input[name='hours"+row+"[]']");
+	var currentUser = $('#current_user').val() == 'true';
+	var manageOthersLog = getPermissionProjectIds('manage_others_log');
+	var manageEditProjects = getPermissionProjectIds('manage_edit_projects');
+	var logtimeProjects = getPermissionProjectIds('logtime_projects');
+	var editOwnLogs = getPermissionProjectIds('edit_own_logs');
+	var timeEntryRow, projectField, projectId, canLogTime, canEditEntries, hasExistingEntries, deleteLink;
+
+	if(sheetView == 'I' || hourFields.length === 0)
+	{
+		return;
+	}
+
+	timeEntryRow = hourFields.first().closest('tr');
+	projectField = timeEntryRow.find("[name='time_entry[][project_id]']").first();
+	projectId = projectField.length > 0 && projectField.val() != null ? projectField.val().toString() : '';
+	canLogTime = currentUser ? logtimeProjects.includes(projectId) : manageOthersLog.includes(projectId);
+	canEditEntries = currentUser ? editOwnLogs.includes(projectId) : manageEditProjects.includes(projectId);
+	hasExistingEntries = false;
+	deleteLink = timeEntryRow.children('td:last').find('a').first();
+
+	hourFields.each(function(){
+		var cellContainer = $(this).closest('div');
+		var entryId = $.trim(cellContainer.find("input[name='ids"+row+"[]']").first().val() || '');
+		var hasEntry = entryId !== '';
+		var canEditCell = hasEntry ? canEditEntries : canLogTime;
+
+		hasExistingEntries = hasExistingEntries || hasEntry;
+		setPermissionCellState(cellContainer, row, canEditCell);
 	});
+
+	setPermissionLinkState(deleteLink, hasExistingEntries ? canEditEntries : canLogTime);
 }
 
 function renameAttachment(ele, row){
