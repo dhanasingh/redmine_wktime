@@ -79,7 +79,7 @@ module ReportPf
 		return {data: pf_data, total: total}
 	end
 
-	def getExportData(user_id, group_id, projId, from, to)
+	def getExportData(user_id, group_id, projId, from, to, location_id = nil)
     data = {headers: {}, data: []}
     reportData = calcReportData(user_id, group_id, projId, from, to)
     data[:headers] = {s_no: l(:label_attn_sl_no), uan: l(:label_uan), name: l(:field_name), wages1: l(:label_wages)+'-'+l(:label_basic), wages2: l(:label_wages)+'-'+l(:label_eps_wages), wages3: l(:label_wages)+'-'+l(:label_epf_wages), wages4: l(:label_wages)+'-'+l(:label_edli_wages), contribution_remitted1: 'CR-'+l(:label_ee_remitted), contribution_remitted2: 'CR-'+l(:label_eps_wages), contribution_remitted3: 'CR-'+l(:label_er_remitted)}

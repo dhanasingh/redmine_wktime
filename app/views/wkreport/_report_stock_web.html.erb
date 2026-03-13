@@ -5,28 +5,14 @@
 	to = session[controller_name].try(:[], :to)
 	groupId = session[controller_name].try(:[], :group_id)
 	projId = session[controller_name].try(:[], :project_id) ||  0
+	location_id = session[controller_name].try(:[], :location_id)
 	stock_report = Object.new.extend(ReportStock)
-	stock = stock_report.calcReportData(userId, groupId, projId, from, to)
+	stock = stock_report.calcReportData(userId, groupId, projId, from, to, location_id)
 %>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
-	<div style="float:left; width:90%;">
-		<p style="text-align: center;">
-			<caption style="text-align:center"><b>
-				<%= getMainLocation %></br><%= l(:report_stock) %></b></br>
-			</caption>
-		</p>
-	</div>
-	<div style="float:right">
-		<table>
-			<tr>
-				<td>
-					<% attachment = WkLocation.getMainLogo() %>
-					<% if attachment.present? %>
-						<%= image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image') %>
-					<% end %>
-				</td>
-			</tr>
-		</table>
+	<div style="float:right"><%= renderReportLogo %></div>
+	<div style="text-align:center;">
+		<p><b><%= getMainLocation %><br><%= l(:report_stock) %></b></p>
 	</div>
 	<div style="clear:both;"></div>
 	<div id="attn-rpt-dlg", style="overflow-x:auto;">

@@ -127,7 +127,7 @@ module ReportAttendance
 		return 'attendance'
 	end
 
-	def getExportData(user_id, group_id, projId, from, to)
+	def getExportData(user_id, group_id, projId, from, to, location_id = nil)
     rptData = calcReportData(user_id, group_id, projId, from, to)
     headers = {}
     data = []

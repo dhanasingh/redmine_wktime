@@ -53,10 +53,10 @@ label =  helperObj.getSurveyLabel(params)
                         url_for(helperObj.get_survey_url(urlhash, params, "survey_response")), :title => l(:label_survey_response) %>&emsp;
                 <% else %>&emsp;&emsp;&nbsp;
                 <% end %>
-                <% if (entry.status == "O" && helperObj.validateERPPermission("E_SUR")) || entry.status == "C" || helperObj.getResponseGroup(entry.id).present? %>
+                <% if ((entry.status == "O" && helperObj.validateERPPermission("E_SUR")) || entry.status == "C" || helperObj.getResponseGroup(entry.id).present?) && helperObj.showSurveyResult(params) %>
                     <%= link_to sprite_icon('stats'), url_for(helperObj.get_survey_url(urlhash, params, "survey_result")),
                         :title => l(:label_survey_result) %>&emsp;
-                <% else %>&emsp;&emsp;&nbsp;
+                <% else %><%= helperObj.showSurveyResult(params) ? "&emsp;&emsp;&nbsp;".html_safe : "" %>
                 <% end %>
                 <% if helperObj.checkEditSurveyPermission && params[:isIssue].blank? %>
                     <%= link_to sprite_icon('edit'), url_for(helperObj.get_survey_url(urlhash, params, "edit")),

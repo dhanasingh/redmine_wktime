@@ -35,18 +35,7 @@
 				</tr>  
 			</table>
 		</div>
-		<div style="float:right">
-			<table>
-				<tr>
-					<td>
-						<% attachment = WkLocation.getMainLogo() %>
-						<% if attachment.present? %>
-							<%= image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image') %>
-						<% end %>
-					</td>
-				</tr>
-			</table>
-		</div>
+		<div style="float:right"><%= renderReportLogo %></div>
 		</div>
 		<div style="clear:both;"></div>
 		<table border="1" style="border-collapse:collapse;" cellspacing="0", frame="box"  >

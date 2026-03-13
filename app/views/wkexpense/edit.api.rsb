@@ -28,4 +28,5 @@ api.wk_expense do
 end
 api.headers do
   api.currency options_for_currency
+	api.default_currency number_currency_format_unit
 end

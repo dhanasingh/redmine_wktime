@@ -49,12 +49,18 @@ accept_api_auth :get_reports, :get_report_data, :export
 			redirect_to :action => 'time_rpt', :controller => 'wkexpense'
 		elsif !params[:report_type].blank?
 			@reportType = params[:report_type]
-			render :action => 'report', :layout => false
+			view_path = []
+			call_hook(:get_report_view_path, report_type: @reportType, view_path: view_path)
+			if view_path.first.present?
+				render :template => view_path.first, :layout => false
+			else
+				render :action => 'report', :layout => false
+			end
 		end
 	end
 
 	def set_filter_session
-		filters = [:report_type, :period_type, :period, :from, :to, :group_id, :project_id, :user_id]
+		filters = [:report_type, :period_type, :period, :from, :to, :group_id, :project_id, :user_id, :location_id]
 		super(filters, {:from => @from, :to => @to, user_id: User.current.id})
 	end
 
@@ -93,8 +99,10 @@ accept_api_auth :get_reports, :get_report_data, :export
 		reportType = getReportType(true)
 		projects = Project.active.order('name')
 		groups = Group.sorted.givable
+		locations = WkLocation.order(:name)
 		headers[:projects] = projects.map{ |p| [p.name, p.id]}
 		headers[:groups] = groups.map{ |g| [g.name, g.id]}
+		headers[:locations] = locations.map{ |l| [l.name, l.id]}
 		render json: {wk_reports: reportType, headers: headers}
 	end
 
@@ -102,14 +110,21 @@ accept_api_auth :get_reports, :get_report_data, :export
 		user_id = params[:user_id] || User.current.id
 		group_id = params[:group_id] || "0"
 		projId = params[:project_id] || "0"
+		locId = params[:location_id] || "0"
 		from = params[:from].to_date || Date.today.beginning_of_month
 		to = params[:to].to_date || Date.today.end_of_month
 		attachment = WkLocation.getMainLogo
 		base64Image = getBase64Image(attachment)
 		if(params[:report_type].present?)
-			require_relative "../views/wkreport/#{params[:report_type]}"
-			report = Object.new.extend(params[:report_type].camelize.constantize)
-			reportData = report.calcReportData(user_id, group_id, projId, from, to)
+			begin
+				require_relative "../views/wkreport/#{params[:report_type]}"
+				report = Object.new.extend(params[:report_type].camelize.constantize)
+			rescue LoadError
+				report_module = []
+				call_hook(:load_report_module, report_type: params[:report_type], report_module: report_module)
+				report = report_module.first
+			end
+			reportData = report.calcReportData(user_id, group_id, projId, from, to, locId) if report.present?
 		end
 		reportDetails = { reportData: reportData, location: getMainLocation, address: getAddress, logo: base64Image }
 		render json: reportDetails
@@ -123,14 +138,17 @@ accept_api_auth :get_reports, :get_report_data, :export
 			report_type.slice!("_web") if report_type.include? "_web"
 			begin
 				require_relative "../views/wkreport/#{report_type}"
+				report = Object.new.extend(report_type.camelize.constantize)
 			rescue LoadError
-				puts "#{report_type} file was not found"
-				return nil
+				report_module = []
+				call_hook(:load_report_module, report_type: report_type, report_module: report_module)
+				report = report_module.first
 			end
-			report = Object.new.extend(report_type.camelize.constantize)
-			reportData = report.getExportData(getSession(:user_id) || User.current.id, getSession(:group_id).to_i, getSession(:project_id), @from, @to)
-			pdf = report.pdf_export(**reportData, location: getMainLocation, from: @from, to: @to, logo: WkLocation.getMainLogo)
-			csv = reportData[:customize].blank? ? csv_export(reportData) : report.csv_export(reportData)
+			if report.present?
+				reportData = report.getExportData(getSession(:user_id) || User.current.id, getSession(:group_id).to_i, getSession(:project_id), @from, @to, getSession(:location_id))
+				pdf = report.pdf_export(**reportData, location: getMainLocation, from: @from, to: @to, logo: WkLocation.getMainLogo)
+				csv = reportData[:customize].blank? ? csv_export(reportData) : report.csv_export(reportData)
+			end
 		end
 
 		respond_to do |format|

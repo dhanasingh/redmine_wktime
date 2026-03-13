@@ -1,0 +1,106 @@
+<%= stylesheet_link_tag 'payment_portal', :plugin => "redmine_wktime" %>
+
+<div class="pp-wrapper">
+  <div class="pp-card">
+    <!-- Header -->
+    <div class="pp-header-w">
+      <div class="pp-header-w-icon">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      </div>
+      <h2><%= l(:label_pending_invoices) %></h2>
+    </div>
+
+    <!-- Step Indicator -->
+    <div class="pp-steps">
+      <div class="pp-step done">
+        <span class="pp-step-dot">&#10003;</span> <%= l(:label_step_details) %>
+      </div>
+      <span class="pp-step-line"></span>
+      <div class="pp-step done">
+        <span class="pp-step-dot">&#10003;</span> <%= l(:label_step_verify) %>
+      </div>
+      <span class="pp-step-line"></span>
+      <div class="pp-step active">
+        <span class="pp-step-dot">3</span> <%= l(:label_step_pay) %>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="pp-body">
+      <% if @pending_invoices.any? %>
+        <script>
+          function toggleCheckboxes(source) {
+            var checkboxes = document.getElementsByName('invoice_ids[]');
+            for(var i = 0; i < checkboxes.length; i++) {
+              checkboxes[i].checked = source.checked;
+            }
+          }
+
+          function paySelectedInvoices() {
+            var checkboxes = document.getElementsByName('invoice_ids[]');
+            var anyChecked = false;
+            for (var i = 0; i < checkboxes.length; i++) {
+              if (checkboxes[i].checked) { anyChecked = true; break; }
+            }
+            if (!anyChecked) {
+              alert('<%= j l(:error_no_invoices_selected) %>');
+              return;
+            }
+            document.getElementById('invoice-pay-form').submit();
+          }
+        </script>
+
+        <%= form_tag payment_process_path, method: :post, id: 'invoice-pay-form' do %>
+          <div class="pp-table-container">
+            <table class="pp-inv-table">
+              <thead>
+                <tr>
+                  <th style="width:36px;"><%= check_box_tag 'check_all', '', false, onclick: "toggleCheckboxes(this)" %></th>
+                  <th>
+                    <%= l(:label_invoice_number) %>
+                  </th>
+                  <th>
+                    <%= l(:label_invoice_date) %>
+                  </th>
+                  <th>
+                    <%= l(:label_project_name) %>
+                  </th>
+                  <th>
+                    <%= l(:field_amount) %>
+                  </th>
+                  <th>
+                    <%= l(:field_end_date) %>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @pending_invoices.each do |invoice| %>
+                  <tr>
+                    <td><%= check_box_tag 'invoice_ids[]', invoice.id %></td>
+                    <td><span class="pp-inv-number"><%= invoice.invoice_number %></span></td>
+                    <td><%= format_date(invoice.invoice_date) %></td>
+                    <td><%= invoice.invoice_items.first&.project&.name %></td>
+                    <td><span class="pp-inv-amount"><%= invoice.invoice_items.first&.original_currency %> <%= invoice.total_invoice_amount %></span></td>
+                    <td><%= format_date(invoice.end_date) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <div style="text-align: center;">
+            <button type="button" class="pp-btn-pay" onclick="paySelectedInvoices()">
+              <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              <%= l(:label_pay_selected) %>
+            </button>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="pp-nodata">
+          <svg viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+          <p><%= l(:label_no_data) %></p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

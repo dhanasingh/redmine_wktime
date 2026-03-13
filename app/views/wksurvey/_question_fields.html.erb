@@ -26,6 +26,12 @@
       <td><%= f.check_box :is_mandatory, disabled: isDisable %></td>
     </tr>
 
+    <tr class="revieweronly">
+      <td></td>
+      <th align="left"><%= l(:label_reviewer_only) %></th>
+      <td><%= f.check_box :is_reviewer_only, disabled: isDisable %></td>
+    </tr>
+
     <tr>
       <td></td>
       <th align="left"><%= l(:label_not_rpt) %></th>

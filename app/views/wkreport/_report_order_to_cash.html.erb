@@ -5,30 +5,17 @@
 	projId = session[controller_name].try(:[], :project_id)
 	user_id = session[controller_name].try(:[], :user_id)
 	group_id = session[controller_name].try(:[], :group_id)
+	location_id = session[controller_name].try(:[], :location_id)
 	helperObj = Object.new.extend(ReportOrderToCash)
-	order_cash = helperObj.calcReportData(user_id, group_id, projId, from, to)
+	order_cash = helperObj.calcReportData(user_id, group_id, projId, from, to, location_id)
 	inBtwMonths = order_cash[:periods]
 %>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
-	<div style="float:left; width:90%;">
-		<p style="text-align: center;">
-			<caption style="text-align:center"><b>
-				<%= getMainLocation %><br><%= l(:report_order_to_cash) %></b></br>
-				<%= order_cash[:from] + " " + l(:label_date_to) + " " + order_cash[:to] %>
-			</caption>
+	<div style="float:right"><%= renderReportLogo %></div>
+	<div style="text-align:center;">
+		<p><b><%= getMainLocation %><br><%= l(:report_order_to_cash) %></b><br>
+			<%= order_cash[:from] + " " + l(:label_date_to) + " " + order_cash[:to] %>
 		</p>
-	</div>
-	<div style="float:right">
-		<table>
-			<tr>
-				<td>
-					<% attachment = WkLocation.getMainLogo() %>
-					<% if attachment.present? %>
-						<%= image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image') %>
-					<% end %>
-				</td>
-			</tr>
-		</table>
 	</div>
 	<div style="clear:both;"></div>
 	<table style="width:100%;">

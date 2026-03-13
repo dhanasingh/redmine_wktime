@@ -95,19 +95,20 @@
       });
 
       // Set Map Marker imgages
+      var imagePath = '';
       switch (locations[i][3]) {
-        case 'C': var imageName = 'current_location_marker.png';
+        case 'C': imagePath = '<%= image_path("plugin_assets/redmine_wktime/current_location_marker.png") %>';
         break;
-        case 'S': var imageName = 's_location_marker.png';
+        case 'S': imagePath = '<%= image_path("plugin_assets/redmine_wktime/s_location_marker.png") %>';
         break;
-        case 'E': var imageName = 'e_location_marker.png';
+        case 'E': imagePath = '<%= image_path("plugin_assets/redmine_wktime/e_location_marker.png") %>';
         break;
-        case 'T': var imageName = 'transit_location_marker.png';
+        case 'T': imagePath = '<%= image_path("plugin_assets/redmine_wktime/transit_location_marker.png") %>';
         break;
-        default: var imageName = 'e_location_marker.png';
+        default: imagePath = '<%= image_path("plugin_assets/redmine_wktime/current_location_marker.png") %>';
       }
       (window['location'+i]).setStyle( new ol.style.Style({
-          image: new ol.style.Icon({ src: '/plugin_assets/redmine_wktime/images/'+imageName})
+          image: new ol.style.Icon({ src: imagePath })
         }));
       mapPoints.push(window['location'+i]);
     }

@@ -3,21 +3,32 @@ api.wk_survey do
   api.name @survey.name
   api.status @survey.status
   api.is_review @survey.is_review
+  api.use_points @survey.use_points
 
-  api.array :questions do
-    @survey.wk_survey_questions.each do |q|
-      api.questions do
-        api.id q.id
-        api.name q.name
-        api.question_type q.question_type
-        api.is_mandatory q.is_mandatory
-        api.is_reviewer_only q.is_reviewer_only
-        api.array :choices do
-          q.wk_survey_choices.each do |c|
-            api.choices do
-              api.id c.id
-              api.name c.name
-              api.points c.points
+  api.array :groups do
+    @survey.wk_survey_que_groups.each do |g|
+      api.groups do
+        api.id g.id
+        api.name g.name
+        api.array :questions do
+          g.wk_survey_questions.each do |q|
+            api.questions do
+              api.id q.id
+              api.name q.name
+              api.header q.header
+              api.footer q.footer
+              api.question_type q.question_type
+              api.is_mandatory q.is_mandatory
+              api.is_reviewer_only q.is_reviewer_only
+              api.array :choices do
+                q.wk_survey_choices.each do |c|
+                  api.choices do
+                    api.id c.id
+                    api.name c.name
+                    api.points c.points
+                  end
+                end
+              end
             end
           end
         end
@@ -33,6 +44,7 @@ api.wk_survey do
       api.user_id @response.user_id
       api.survey_for_type @response.survey_for_type
       api.survey_for_id @response.survey_for_id
+      api.total_points @response.total_points
 
       if @response.wk_survey_answers.present?
         api.array :answers do
@@ -42,6 +54,7 @@ api.wk_survey do
               api.survey_question_id a.survey_question_id
               api.survey_choice_id a.survey_choice_id
               api.choice_text a.choice_text
+              api.points a.points
             end
           end
         end
@@ -63,6 +76,9 @@ api.wk_survey do
     elsif @survey.survey_for_type == "User"
       api.survey_for_type "User"
       api.survey_for_id User.current.id
+    elsif params[:surveyForID].present?
+      api.survey_for_type params[:surveyForType]
+      api.survey_for_id params[:surveyForID]
     end
   end
 

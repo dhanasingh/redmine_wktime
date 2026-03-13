@@ -20,7 +20,7 @@ class WksurveyController < WkbaseController
 
   before_action :require_login, :survey_url_validation, :check_perm_and_redirect
   before_action :check_permission , only: "survey_response"
-  accept_api_auth :index, :save_survey, :find_survey_for, :survey, :update_survey, :survey_result, :survey_response
+  accept_api_auth :index, :save_survey, :find_survey_for, :survey, :update_survey, :survey_result, :survey_response, :export
   menu_item :wksurvey
   menu_item :wkattendance, :only => :user_survey
   include WksurveyHelper
@@ -243,6 +243,9 @@ class WksurveyController < WkbaseController
             end
             surveyAnswers << {survey_question_id: questionID, survey_choice_id: survey_choice_id, points: survey_points, choice_text: choice_text} if to_boolean(params["isReviewerOnly_"+ questionID]) || params[:isReview] == "false"
           end
+
+          # Assign total points
+          survey_response.total_points = total_points
         end
         survey_response.wk_survey_answers_attributes = surveyAnswers
         survey_response.wk_survey_reviews_attributes = surveyReviews
@@ -256,9 +259,6 @@ class WksurveyController < WkbaseController
       end
       responseStatus << {status: status, status_date: Time.now, status_for_type: 'WkSurveyResponse'} if @response.try(:status) != status
       survey_response.wk_statuses_attributes = responseStatus
-
-      # Assign total points
-      survey_response.total_points = total_points
 
       if survey_response.valid? && (!surveyAnswers.blank? || !surveyReviews.blank? || api_request?)
         del_answers.destroy_all if !del_answers.blank?
@@ -565,5 +565,177 @@ class WksurveyController < WkbaseController
 
 	def editItemLabel
 		l(:label_edit_survey)
+	end
+
+	def export
+		getSurveyForType(params)
+    get_response_status(params[:survey_id], params[:response_id])
+		respond_to do |format|
+			format.pdf {
+				send_data(survey_response_pdf(@survey, @response),
+					type: 'application/pdf',
+					filename: "survey_response_#{@survey.name.parameterize}.pdf")
+			}
+		end
+	end
+
+	def survey_response_pdf(survey, response)
+		title = survey.name
+		pdf = ITCPDF.new(current_language)
+		pdf.SetTitle(title)
+		pdf.add_page
+		page_width = pdf.get_page_width
+		left_margin = pdf.get_original_margins['left']
+		right_margin = pdf.get_original_margins['right']
+		table_width = page_width - right_margin - left_margin
+
+		# ── Title ──
+		pdf.set_fill_color(236, 240, 241)
+		pdf.SetTextColor(0, 0, 0)
+		pdf.SetFontStyle('B', 16)
+		pdf.RDMMultiCell(table_width, 12, title, 0, 'C')
+		pdf.SetTextColor(0, 0, 0)
+		pdf.ln(6)
+
+		label_width = 45
+		value_width = table_width - label_width
+		meta_row_height = 8
+
+		# Resident Name
+		resident_name = ""
+		if response.present? && response.survey_for_id.present? && response.survey_for_type.present?
+			begin
+				survey_for_entity = response.survey_for_type.constantize.find_by(id: response.survey_for_id)
+				resident_name = survey_for_entity.name if survey_for_entity.present?
+			rescue StandardError
+				resident_name = ""
+			end
+		end
+
+		# Response By (respondent user name)
+		response_by = ""
+		if response.present? && response.user.present?
+			response_by = response.user.name
+		end
+
+		# Response Date
+		response_date = ""
+		if response.present? && response.current_status.present?
+			response_date = response.current_status.status_date.strftime("%Y-%m-%d")
+		end
+
+		# Draw metadata table
+		pdf.set_fill_color(236, 240, 241)
+		pdf.set_draw_color(189, 195, 199)
+
+		[[l(:label_resident), resident_name],
+		 [l(:label_response_by), response_by],
+		 [l(:label_response_date), response_date]].each do |label, value|
+			pdf.SetFontStyle('B', 10)
+			pdf.RDMCell(label_width, meta_row_height, "  " + label, 1, 0, 'L', 1)
+			pdf.SetFontStyle('', 10)
+			pdf.set_fill_color(255, 255, 255)
+			pdf.RDMCell(value_width, meta_row_height, "  " + value.to_s, 1, 1, 'L', 1)
+			pdf.set_fill_color(236, 240, 241)
+		end
+
+		pdf.set_draw_color(0, 0, 0)
+		pdf.ln(8)
+
+		# ── Group questions by their survey group ──
+		questions_by_group = survey.wk_survey_questions
+			.includes(:wk_survey_que_group, :wk_survey_choices, :wk_survey_answers)
+			.order("wk_survey_questions.id")
+			.group_by { |q| q.wk_survey_que_group }
+
+		row_height = 7
+		pts_width = 25
+		q_label_width = 85
+		q_answer_width = table_width - q_label_width - pts_width
+		question_index = 0
+		grand_total_points = 0.0
+
+		questions_by_group.each do |group, questions|
+			# ── Group heading ──
+			if group.present? && group.name.present?
+			  pdf.set_fill_color(230, 230, 230)
+				pdf.SetFontStyle('B', 11)
+				pdf.set_line_width(0.3)
+				pdf.RDMCell(table_width, row_height + 3, "  " + group.name, 1, 1, 'L', 1)
+				pdf.set_line_width(0.2)
+				pdf.SetTextColor(0, 0, 0)
+			end
+
+			questions.each do |question|
+				question_index += 1
+
+				# Get the answer for this question and response
+				answers = response.present? ? response.wk_survey_answers.where(survey_question_id: question.id) : []
+
+				answer_text = ""
+				question_points = nil
+				if ["RB", "CB"].include?(question.question_type)
+					selected_choices = answers.map do |ans|
+						choice = question.wk_survey_choices.find { |c| c.id == ans.survey_choice_id }
+						question_points = (question_points || 0) + ans.points.to_f if ans.points.present?
+						choice&.name
+					end.compact
+					answer_text = selected_choices.join(", ")
+				elsif ["TB", "MTB"].include?(question.question_type)
+					answer_text = answers.first&.choice_text || ""
+					question_points = answers.first&.points.to_f if answers.first&.points.present?
+				end
+
+				grand_total_points += question_points if question_points.present?
+
+				# Alternating row colors
+				if question_index.even?
+					pdf.set_fill_color(245, 248, 250)
+				else
+					pdf.set_fill_color(255, 255, 255)
+				end
+
+				q_text = question.name.to_s
+				a_text = answer_text.to_s
+				pts_text = question_points.present? ? ('%.2f' % question_points) : ""
+
+				pdf.SetFontStyle('', 9)
+				q_height = pdf.get_string_height(q_label_width, q_text)
+				a_height = pdf.get_string_height(q_answer_width, a_text)
+				cell_height = [q_height, a_height, row_height].max
+
+				# Save current position
+				start_x = pdf.get_x
+				start_y = pdf.get_y
+
+				# Draw question cell
+				pdf.RDMMultiCell(q_label_width, cell_height, "  " + q_text, 'LTB', 'L', true)
+
+				# Move to answer column
+				pdf.set_xy(start_x + q_label_width, start_y)
+				pdf.RDMMultiCell(q_answer_width, cell_height, "  " + a_text, 'TB', 'L', true)
+
+				# Move to points column
+				pdf.set_xy(start_x + q_label_width + q_answer_width, start_y)
+				pdf.SetFontStyle('B', 10)
+				pdf.SetTextColor(41, 128, 185)
+				pdf.RDMCell(pts_width, cell_height, pts_text, 'RTB', 1, 'R', true)
+				pdf.SetTextColor(0, 0, 0)
+			end
+
+			pdf.ln(3)
+		end
+
+		# ── Total Points row (only if survey uses points) ──
+		if response.present? && survey.use_points?
+			pdf.ln(2)
+			pdf.set_fill_color(230, 230, 230)
+			pdf.SetFontStyle('B', 10)
+			pdf.RDMCell(table_width - pts_width, row_height + 2, "  " + l(:label_total) + " " + l(:label_points), 0, 0, 'R', 1)
+			pdf.RDMCell(pts_width, row_height + 2, ('%.2f' % grand_total_points) + "  ", 0, 1, 'R', 1)
+			pdf.SetTextColor(0, 0, 0)
+		end
+
+		pdf.Output
 	end
 end

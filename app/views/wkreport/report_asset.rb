@@ -1,13 +1,16 @@
 module ReportAsset
   include WkreportHelper
 
-  def calcReportData(user_id, group_id, projId, from, to)
+  def calcReportData(user_id, group_id, projId, from, to, location_id = nil)
     sqlStr = " select ii.id, ii.currency, dp.depreciation_date, ap.name as asset_name, p.name as product_name, s.shipment_date, dp.id depreciation_id, ap.id asset_id, ap.current_value, dp.actual_amount, dp.depreciation_amount, dp.depreciation_date, ii.cost_price, ii.over_head_price, projects.name as project_name from wk_inventory_items ii INNER JOIN wk_product_items pt ON (pt.id = ii.product_item_id AND ii.product_type = 'A' " + get_comp_cond('pt') + ") LEFT OUTER JOIN (select max(depreciation_date) as depreciation_date, inventory_item_id from wk_asset_depreciations d where d.depreciation_date <= '#{to}' " + get_comp_cond('d') + " group by inventory_item_id) md on (md.inventory_item_id = ii.id) LEFT OUTER JOIN wk_asset_depreciations dp on (md.inventory_item_id = dp.inventory_item_id and  md.depreciation_date = dp.depreciation_date " + get_comp_cond('dp') + ") LEFT OUTER JOIN wk_shipments s ON (s.id = ii.shipment_id " + get_comp_cond('s') + ") LEFT OUTER JOIN wk_asset_properties ap ON (ap.inventory_item_id = ii.id " + get_comp_cond('ap') + ") LEFT OUTER JOIN wk_products p ON (p.id = pt.product_id " + get_comp_cond('p') + ") LEFT OUTER JOIN projects ON (projects.id = ii.project_id " + get_comp_cond('projects') + ") WHERE ap.id is not null and (ap.is_disposed != #{booleanFormat(true)} OR ap.is_disposed is NUll " + get_comp_cond('ii') + ")"
     unless to.blank?
       sqlStr = sqlStr + " and s.shipment_date <= '#{to}' "
     end
     if projId.to_i > 0
       sqlStr = sqlStr + "and ii.project_id = #{projId} "
+    end
+    if location_id.present? && location_id.to_i > 0
+      sqlStr = sqlStr + "and ii.location_id = #{location_id.to_i} "
     end
     sqlStr = sqlStr + " order by dp.depreciation_date, s.shipment_date, p.name"
     entries = WkInventoryItem.find_by_sql(sqlStr)
@@ -53,9 +56,9 @@ module ReportAsset
     data = {asset: asset, purchase_total: currency+' '+purchase_total.round(2).to_s, depreciation_total: currency+' '+depreciation_total.round(2).to_s, current_total: currency+' '+current_total.round(2).to_s, currency: currency, to: to.to_formatted_s(:long)}
   end
 
-  def getExportData(user_id, group_id, projId, from, to)
+  def getExportData(user_id, group_id, projId, from, to, location_id = nil)
     data = {headers: {}, data: []}
-    reportData = calcReportData(user_id, group_id, projId, from, to)
+    reportData = calcReportData(user_id, group_id, projId, from, to, location_id)
     data[:headers] = {s_no: '#', project_name: l(:label_project), asset_name: l(:label_asset) + " " + l(:field_name), product_name: l(:label_product), shipment_date: l(:label_purchase_date), purchase_value: l(:label_purchase_value), depreciation: l(:label_depreciation), current_value: l(:label_current_value), last_depreciation: l(:label_last_depreciation_on)}
     reportData[:asset].each do |key, val|
       data[:data] << val

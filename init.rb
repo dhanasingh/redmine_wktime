@@ -165,7 +165,7 @@ Redmine::Plugin.register :redmine_wktime do
   name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
   description 'ERPmine is an ERP for Service Industries. It has the following modules: Time & Expense, Attendance, Payroll, CRM, Billing, Accounting, Purchasing, Inventory, Asset , Reports, Dashboards and Survey'
-  version '4.9.2'
+  version '4.9.3'
   url 'https://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
 
@@ -253,7 +253,9 @@ Redmine::Plugin.register :redmine_wktime do
 			 'ftte_supervisor_based_approved' => '0',
 			 'ftte_view_only_own_spent_time' => '0',
 			 'wktime_enable_dashboards_module' => '0',
-			 'wktime_enable_survey_module' => '0'
+			 'wktime_enable_survey_module' => '0',
+			 'wktime_pg_timeout' => '15',
+			 'wktime_pg_config' => []
   })
 
 	menu :top_menu, :wkdashboard, { :controller => 'wkdashboard', :action => 'index' }, :caption => :label_erpmine,

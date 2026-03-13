@@ -7,29 +7,16 @@
 	user_id = session[controller_name].try(:[], :user_id)
 	group_id = session[controller_name].try(:[], :group_id)
 	helperObj = Object.new.extend(ReportAsset)
-	data = helperObj.calcReportData(user_id, group_id, projId, from, to)
+	location_id = session[controller_name].try(:[], :location_id)
+	data = helperObj.calcReportData(user_id, group_id, projId, from, to, location_id)
 %>
 
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
-	<div style="float:left; width:90%;">
-		<p style="text-align: center;">
-			<caption style="text-align:center"><b>
-				<%= getMainLocation %></br><%= l(:report_asset) %></b></br>
-				<%= l(:label_as_at) + " " + data[:to] %>
-			</caption>
+	<div style="float:right"><%= renderReportLogo %></div>
+	<div style="text-align:center;">
+		<p><b><%= getMainLocation %><br><%= l(:report_asset) %></b><br>
+			<%= l(:label_as_at) + " " + data[:to] %>
 		</p>
-	</div>
-	<div style="float:right">
-		<table>
-			<tr>
-				<td>
-					<% attachment = WkLocation.getMainLogo() %>
-					<% if attachment.present? %>
-						<%= image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image') %>
-					<% end %>
-				</td>
-			</tr>
-		</table>
 	</div>
 	<div style="clear:both;"></div>
 	<div id="attn-rpt-dlg", style="overflow-x:auto;">

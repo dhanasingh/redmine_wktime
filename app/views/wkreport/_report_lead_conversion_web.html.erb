@@ -5,23 +5,13 @@
 	group_id = session[controller_name].try(:[], :group_id)
 	user_id = session[controller_name].try(:[], :user_id)
 	projId = session[controller_name].try(:[], :project_id)
+	location_id = session[controller_name].try(:[], :location_id)
 	helperObj = Object.new.extend(ReportLeadConversion)
-	data = helperObj.calcReportData(user_id, group_id, projId, @from, @to)
+	data = helperObj.calcReportData(user_id, group_id, projId, @from, @to, location_id)
 %>
 <%= stylesheet_link_tag 'application' , :media => "all" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-<div style="float:right">
-	<table>
-		<tr>
-			<td>
-				<% attachment = WkLocation.getMainLogo() %>
-				<% if attachment.present? %>
-					<%= image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image') %>
-				<% end %>
-			</td>
-		</tr>
-	</table>
-</div>
+<div style="float:right"><%= renderReportLogo %></div>
 <div style="clear:both;"></div>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
 	<table style="width:100%; border-collapse: collapse;">

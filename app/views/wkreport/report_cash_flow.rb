@@ -80,7 +80,7 @@ module ReportCashFlow
 		cashTotals
 	end
 
-	def getExportData(user_id, group_id, projID, from, to)
+	def getExportData(user_id, group_id, projID, from, to, location_id = nil)
     reportData = calcReportData(user_id, group_id, projID, from, to)
     headers = {}
     data = []

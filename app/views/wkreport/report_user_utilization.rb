@@ -1,7 +1,7 @@
 module ReportUserUtilization
     include WkreportHelper
 
-    def calcReportData(user_id, group_id, projectId, fromDate, toDate)
+    def calcReportData(user_id, group_id, projectId, fromDate, toDate, location_id = nil)
         betwn_mnth_count = getInBtwMonthsArr(fromDate, toDate)
         if betwn_mnth_count.length > 12
             from = Date.civil(toDate.year,toDate.month, 1) - 11.month
@@ -85,7 +85,7 @@ module ReportUserUtilization
         average = {total_percentage: total_percentage,  total_avg: total_avg}
     end
 
-    def getExportData(user_id, group_id, projectId, fromDate, toDate)
+    def getExportData(user_id, group_id, projectId, fromDate, toDate, location_id = nil)
         data = {headers: {}, data: []}
         details = calcReportData(user_id, group_id, projectId, fromDate, toDate)
         data[:headers].store('name',  l(:field_user))

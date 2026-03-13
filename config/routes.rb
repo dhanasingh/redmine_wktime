@@ -118,6 +118,8 @@ get 'wkexpense/get_currency', :to => 'wkexpense#get_currency'
 
 get 'wkexpense/lockte', :to => 'wkexpense#lockte'
 
+get 'wkexpense/get_projects', :to => 'wkexpense#get_projects'
+
 resources :projects do
 	resources :wk_expense_entries, :controller => 'wkexpense' do
 		collection do
@@ -824,6 +826,8 @@ get 'wksurvey/print_survey_result', :to => 'wksurvey#print_survey_result'
 
 get 'wksurvey/print_survey', :to => 'wksurvey#print_survey'
 
+get 'wksurvey/export', :to => 'wksurvey#export'
+
 #For Report
 
 get 'wkreport', :to => 'wkreport#index'
@@ -966,3 +970,23 @@ get 'wkcrmdashboard/get_graphs', to: 'wkcrmdashboard#get_graphs'
 get 'wkcrmdashboard/get_detail_report', to: 'wkcrmdashboard#get_detail_report'
 
 match  'wkreferrals/:id/hired_employee', to: 'wkreferrals#hired_employee', via: [:get, :post]
+
+# Public Payment Page (Unauthenticated)
+get 'pay', to: 'wkpaymentauthenticate#index', as: 'payment'
+post 'pay/send_code', to: 'wkpaymentauthenticate#send_code', as: 'payment_send_code'
+get 'pay/verify', to: 'wkpaymentauthenticate#verify_page', as: 'payment_verify'
+post 'pay/verify', to: 'wkpaymentauthenticate#verify'
+get 'pay/invoices', to: 'wkpaymentauthenticate#invoices', as: 'payment_invoices'
+post 'pay/process', to: 'wkpaymentauthenticate#process_payment', as: 'payment_process'
+
+# CCAvenue Payment Gateway Routes
+get 'wkpg_ccavenue/process_payment', to: 'wkpg_ccavenue#process_payment', as: 'wkpg_ccavenue_process_payment'
+post 'wkpg_ccavenue/response_handler', to: 'wkpg_ccavenue#response_handler', as: 'wkpg_ccavenue_response_handler'
+get 'wkpg_ccavenue/redirect_handler/:id', to: 'wkpg_ccavenue#redirect_handler', as: 'wkpg_ccavenue_redirect_handler'
+post 'wkpg_ccavenue/redirect_handler', to: 'wkpg_ccavenue#redirect_handler'
+
+# PayPal Payment Gateway Routes
+get 'wkpg_paypal/process_payment', to: 'wkpg_paypal#process_payment', as: 'wkpg_paypal_process_payment'
+get 'wkpg_paypal/response_handler', to: 'wkpg_paypal#response_handler', as: 'wkpg_paypal_response_handler'
+get 'wkpg_paypal/cancel_handler', to: 'wkpg_paypal#cancel_handler', as: 'wkpg_paypal_cancel_handler'
+

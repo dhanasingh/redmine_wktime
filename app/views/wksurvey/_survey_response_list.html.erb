@@ -29,6 +29,9 @@
         <% if @survey.use_points %>
           <th class="lbl-txt-align"><%= l(:label_points) %></th>
         <% end %>
+        <% if !survey_helper.showSurveyResult(params) %>
+          <th></th>
+        <% end %>
     </tr>
     <% @response_entries.each_with_index do |entry, index| %>
       <% if User.current.id == entry.user_id || (reviewers.include? entry.user_id) || validateERPPermission("E_SUR") %>
@@ -48,6 +51,12 @@
             <td class="lbl-txt-align"><%= entry.group_name if entry.group_name.present? %></td>
             <% if @survey.use_points %>
               <td class="lbl-txt-align"><%= entry.total_points.to_f%></td>
+            <% end %>
+            <% if !survey_helper.showSurveyResult(params) %>
+              <th>
+                <%= link_to l(:button_pdf), url_for(controller: controller_name, action: "export", survey_id: entry.survey_id, surveyForType: entry.survey_for_type, surveyForID: entry.survey_for_id, response_id: entry.id, format: 'pdf'),
+                        class: 'icon-only icon-download', title: l(:button_pdf) %>
+              </th>
             <% end %>
         </tr>
       <% end %>
