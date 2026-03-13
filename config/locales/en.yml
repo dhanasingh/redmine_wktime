@@ -765,73 +765,6 @@ en:
   label_txn_payment_with_credit_with_ledger: Payment Credit Ledger
   label_txn_payment_with_debit_with_ledger: Payment Debit Ledger
 
-  # Payment Gateway Configuration
-  label_pay_gateway: Payment Gateway
-  label_pg_timeout: Payment Timeout
-  label_pg_config: Gateway Configuration
-  label_merchant_id: Merchant ID
-  label_work_key: Working Key
-  label_access_code: Access Code
-  label_redirect_url: Redirect URL
-  label_cancel_url: Cancel URL
-  label_pg_url: Gateway URL
-  label_mins: Mins
-  label_pg_config_missing: Payment gateway configuration is missing
-  error_create_order_failed: "Failed to create payment order: "
-  error_payment_response_not_found: "Payment response not found for order: %{order_id}"
-  error_invalid_auth_token: Invalid authentication token
-  error_data_missing: Response data missing
-  notice_payment_res_failed: Payment response processing failed
-  notice_payment_processed: Payment already processed
-
-  # Public Payment OTP Verification
-  error_invalid_email: Invalid email address format
-  error_email_not_found: Email address not found in our records
-  error_no_account_project_found: No billable account found for this email
-  error_too_many_verification_requests: Too many verification attempts. Please try again in 1 hour.
-  error_too_many_requests_from_ip: Too many requests from your location. Please try again later.
-  error_sending_email: Failed to send verification email. Please try again.
-  error_verification_session_invalid: Verification session is invalid. Please request a new code.
-  error_verification_expired: Verification code has expired. Please request a new code.
-  error_verification_max_attempts: Too many failed attempts. Please request a new code.
-  error_invalid_verification_code_attempts: "Invalid verification code. %{count} attempt(s) remaining."
-  error_no_pending_invoices: No pending invoices found for your account.
-  error_session_expired: "Your session has expired."
-  text_verification_code_sent: Verification code sent to your email.
-
-  # Payment Gateway Integration
-  error_no_invoices_selected: Please select at least one invoice to pay.
-  error_invalid_invoices: Selected invoices are invalid or already paid.
-  error_currency_not_found: Could not determine invoice currency.
-  error_payment_already_processing: A payment is already being processed for these invoices. Please wait or try again later.
-  error_paypal_auth_failed: Failed to authenticate with PayPal. Please try again.
-  error_paypal_approval_url_missing: Could not get PayPal checkout URL. Please try again.
-  error_payment_id_not_found: Payment reference not found in response.
-  error_pg_payment_not_found: Payment gateway transaction not found.
-  error_payment_not_successful: Payment was not successful.
-  error_payment_failed: Payment failed. Please try again.
-  error_payment_process_cancelled: Payment was cancelled by user.
-  error_response_handler: Error processing payment response.
-  error_cancel_handler: Error processing payment cancellation.
-  
-  notice_payment_successful: Payment completed successfully! Your invoices have been marked as paid.
-  notice_payment_process_failed: Payment processing failed. Please try again.
-  
-  label_redirecting_to_payment: Redirecting to Payment Gateway
-  label_pending_invoices: Pending Invoices
-  label_pay_selected: Pay Selected Invoices
-  label_initiated: Initiated
-  label_success: Success
-  label_failure: Failure
-  label_timeout: Timeout
-  label_aborted: Aborted
-  
-  text_please_wait_redirecting: Please wait while we redirect you to the payment gateway...
-  text_javascript_disabled: JavaScript is disabled. Please click the button below to continue.
-  
-  button_continue_to_payment: Continue to Payment
-
-
   gender_hash_male: Male
   gender_hash_female: Female
   gender_hash_others: Others
@@ -1361,19 +1294,73 @@ en:
   button_add_choice: Add Choice
   button_delete_choice: Delete Choice
   text_wk_warning_group_ques_delete: Unable to delete. A group must contain at least one question.
-  report_move_in_move_out_by_date: Move in - Move out by date
-  report_occupancy_by_day: Occupancy By Day
-  label_move_ins: Move-Ins
-  label_move_outs: Move-Outs
-  label_si_no: SI. No.
-  label_facility: Facility
-  label_reason: Reason
-  label_total_move_in: Total Move-In
-  label_total_move_out: Total Move-Out
-  label_no_move_in_records: No Move-In records found.
-  label_no_move_out_records: No Move-Out records found.
-  label_date_to: to
+
+  # Payment Gateway Configuration
+  label_pay_gateway: Payment Gateway
+  label_pg_timeout: Payment Timeout
+  label_pg_config: Gateway Configuration
+  label_merchant_id: Merchant ID
+  label_work_key: Working Key
+  label_access_code: Access Code
+  label_redirect_url: Redirect URL
+  label_cancel_url: Cancel URL
+  label_pg_url: Gateway URL
+  label_mins: Mins
+  label_pg_config_missing: Payment gateway configuration is missing
+  error_create_order_failed: "Failed to create payment order: "
+  error_payment_response_not_found: "Payment response not found for order: %{order_id}"
+  error_invalid_auth_token: Invalid authentication token
+  error_data_missing: Response data missing
+  notice_payment_res_failed: Payment response processing failed
+  notice_payment_processed: Payment already processed
+
+  # Public Payment OTP Verification
+  error_invalid_email: Invalid email address format
+  error_email_not_found: Email address not found in our records
+  error_no_account_project_found: No billable account found for this email
+  error_too_many_verification_requests: Too many verification attempts. Please try again in 1 hour.
+  error_too_many_requests_from_ip: Too many requests from your location. Please try again later.
+  error_sending_email: Failed to send verification email. Please try again.
+  error_verification_session_invalid: Verification session is invalid. Please request a new code.
+  error_verification_expired: Verification code has expired. Please request a new code.
+  error_verification_max_attempts: Too many failed attempts. Please request a new code.
+  error_invalid_verification_code_attempts: "Invalid verification code. %{count} attempt(s) remaining."
+  error_no_pending_invoices: No pending invoices found for your account.
+  error_session_expired: "Your session has expired."
+  text_verification_code_sent: Verification code sent to your email.
+
+  # Payment Gateway Integration
+  error_no_invoices_selected: Please select at least one invoice to pay.
+  error_invalid_invoices: Selected invoices are invalid or already paid.
+  error_currency_not_found: Could not determine invoice currency.
+  error_payment_already_processing: A payment is already being processed for these invoices. Please wait or try again later.
+  error_paypal_auth_failed: Failed to authenticate with PayPal. Please try again.
+  error_paypal_approval_url_missing: Could not get PayPal checkout URL. Please try again.
+  error_payment_id_not_found: Payment reference not found in response.
+  error_pg_payment_not_found: Payment gateway transaction not found.
+  error_payment_not_successful: Payment was not successful.
+  error_payment_failed: Payment failed. Please try again.
+  error_payment_process_cancelled: Payment was cancelled by user.
+  error_response_handler: Error processing payment response.
+  error_cancel_handler: Error processing payment cancellation.
   
+  notice_payment_successful: Payment completed successfully! Your invoices have been marked as paid.
+  notice_payment_process_failed: Payment processing failed. Please try again.
+  
+  label_redirecting_to_payment: Redirecting to Payment Gateway
+  label_pending_invoices: Pending Invoices
+  label_pay_selected: Pay Selected Invoices
+  label_initiated: Initiated
+  label_success: Success
+  label_failure: Failure
+  label_timeout: Timeout
+  label_aborted: Aborted
+  
+  text_please_wait_redirecting: Please wait while we redirect you to the payment gateway...
+  text_javascript_disabled: JavaScript is disabled. Please click the button below to continue.
+  
+  button_continue_to_payment: Continue to Payment
+
   # Public Payment Page
   label_public_payment: "Payment Portal"
   label_enter_invoice_details: "Enter Invoice Details"

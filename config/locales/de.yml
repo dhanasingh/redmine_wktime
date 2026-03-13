@@ -1300,3 +1300,113 @@ de:
   button_add_choice: Add Choice
   button_delete_choice: Delete Choice
   text_wk_warning_group_ques_delete: Unable to delete. A group must contain at least one question.
+  
+  # Payment Gateway Configuration
+  label_pay_gateway: Payment Gateway
+  label_pg_timeout: Payment Timeout
+  label_pg_config: Gateway Configuration
+  label_merchant_id: Merchant ID
+  label_work_key: Working Key
+  label_access_code: Access Code
+  label_redirect_url: Redirect URL
+  label_cancel_url: Cancel URL
+  label_pg_url: Gateway URL
+  label_mins: Mins
+  label_pg_config_missing: Payment gateway configuration is missing
+  error_create_order_failed: "Failed to create payment order: "
+  error_payment_response_not_found: "Payment response not found for order: %{order_id}"
+  error_invalid_auth_token: Invalid authentication token
+  error_data_missing: Response data missing
+  notice_payment_res_failed: Payment response processing failed
+  notice_payment_processed: Payment already processed
+
+  # Public Payment OTP Verification
+  error_invalid_email: Invalid email address format
+  error_email_not_found: Email address not found in our records
+  error_no_account_project_found: No billable account found for this email
+  error_too_many_verification_requests: Too many verification attempts. Please try again in 1 hour.
+  error_too_many_requests_from_ip: Too many requests from your location. Please try again later.
+  error_sending_email: Failed to send verification email. Please try again.
+  error_verification_session_invalid: Verification session is invalid. Please request a new code.
+  error_verification_expired: Verification code has expired. Please request a new code.
+  error_verification_max_attempts: Too many failed attempts. Please request a new code.
+  error_invalid_verification_code_attempts: "Invalid verification code. %{count} attempt(s) remaining."
+  error_no_pending_invoices: No pending invoices found for your account.
+  error_session_expired: "Your session has expired."
+  text_verification_code_sent: Verification code sent to your email.
+
+  # Payment Gateway Integration
+  error_no_invoices_selected: Please select at least one invoice to pay.
+  error_invalid_invoices: Selected invoices are invalid or already paid.
+  error_currency_not_found: Could not determine invoice currency.
+  error_payment_already_processing: A payment is already being processed for these invoices. Please wait or try again later.
+  error_paypal_auth_failed: Failed to authenticate with PayPal. Please try again.
+  error_paypal_approval_url_missing: Could not get PayPal checkout URL. Please try again.
+  error_payment_id_not_found: Payment reference not found in response.
+  error_pg_payment_not_found: Payment gateway transaction not found.
+  error_payment_not_successful: Payment was not successful.
+  error_payment_failed: Payment failed. Please try again.
+  error_payment_process_cancelled: Payment was cancelled by user.
+  error_response_handler: Error processing payment response.
+  error_cancel_handler: Error processing payment cancellation.
+  
+  notice_payment_successful: Payment completed successfully! Your invoices have been marked as paid.
+  notice_payment_process_failed: Payment processing failed. Please try again.
+  
+  label_redirecting_to_payment: Redirecting to Payment Gateway
+  label_pending_invoices: Pending Invoices
+  label_pay_selected: Pay Selected Invoices
+  label_initiated: Initiated
+  label_success: Success
+  label_failure: Failure
+  label_timeout: Timeout
+  label_aborted: Aborted
+  
+  text_please_wait_redirecting: Please wait while we redirect you to the payment gateway...
+  text_javascript_disabled: JavaScript is disabled. Please click the button below to continue.
+  
+  button_continue_to_payment: Continue to Payment
+
+  # Public Payment Page
+  label_public_payment: "Payment Portal"
+  label_enter_invoice_details: "Enter Invoice Details"
+  label_enter_email: "Enter your email address"
+  label_send_verification_code: "Send Verification Code"
+  label_pending_invoices: "Pending Invoices"
+  label_no_pending_invoices: "No pending invoices found for this email"
+  label_pay_selected: "Pay Selected Invoices"
+  label_verification_code: "Verification Code"
+  label_enter_verification_code: "Enter the 6-digit code"
+  label_verify: "Verify"
+  label_resend_code: "Resend Code"
+  label_payment_verification_code: "Payment Portal - Verification Code"
+  text_verification_code_body: "We received a request to access the payment portal for your invoices.\n\nYour secure verification code is: %{code}\n\nPlease enter this code to securely view and pay your pending invoices."
+  text_verification_code_expiry: "For your security, this code will expire in 10 minutes and can only be used once."
+  text_verification_code_sent: "A verification code has been sent to your email"
+  error_email_not_found: "No account found with this email address"
+  error_no_account_project_found: "No associated account/project found for this email"
+  error_no_pending_invoices: "No pending invoices found for this email"
+  error_invalid_verification_code: "Invalid or expired verification code"
+  error_verification_expired: "Verification code has expired. Please request a new one."
+  error_verification_max_attempts: "Too many failed attempts. Please request a new code."
+  error_invalid_verification_code_attempts: "Invalid code. %{count} attempts remaining."
+  error_verification_session_invalid: "Session invalid or expired. Please start over."
+  error_invalid_email: "Please enter a valid email address"
+  error_sending_email: "Error sending verification email. Please try again later."
+  error_too_many_verification_requests: "Too many attempts. Please try again in an hour."
+
+  # Math CAPTCHA
+  error_invalid_captcha: "Incorrect CAPTCHA answer. Please try again."
+
+  # Payment Steps
+  label_step_details: "Details"
+  label_step_verify: "Verify"
+  label_step_pay: "Pay"
+  label_otp_sent: "OTP has been sent"
+  label_security_verification: "Security Verification"
+
+  # Flash Messages
+  error_enter_invoice_details: "Please enter both Invoice Number and Date"
+  error_invalid_information: "Invalid information"
+
+  error_invoice_already_paid: "Invoice is already paid"
