@@ -1,17 +1,14 @@
-# Webinar on ERPmine – Inventory, Mar 31st, 2026,(11:30 AM GMT)
+# Webinar on ERPmine – Accounting, Apr 28th, 2026,(11:30 AM GMT)
 
 Please click here to register if interested,
-[[[https://us02web.zoom.us/meeting/register/aM-1Nt__TBafjqbeJQjdVw]](https://us02web.zoom.us/meeting/register/M-XiYRmFReyBoqleXFnTZw)]
+[[https://us02web.zoom.us/meeting/register/aM-1Nt__TBafjqbeJQjdVw]](https://us02web.zoom.us/meeting/register/BtWKgut-TYaA9c-BLWLHGQ)]
 
 **Topics**:
- -  Receive Goods (Shipments)
- -   Product and items
- -   Material Log
- -   Invoice
- -   Asset and depreciation
- -   Disposed Asset
- -   Asset and stock Report
-
+ -  Accounting transactions
+ -  General Ledger
+ -   Financial Reports
+ -   Mobile app
+ 
 -----
 
 # ERPmine
