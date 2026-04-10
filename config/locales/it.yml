@@ -130,7 +130,7 @@ it:
   label_wk_expensesheet: Expensesheet
   text_wk_no_reminder: No reminders to send
 
-  report_attendance: Attendance
+  label_attendance: Attendance
   report_spent_time: Tempo impiegato
   label_wk_enable_clock_in_out: Enable Clock In / Clock Out
   label_wk_sick_leave_accrual: Sick Leave Accrual
@@ -787,8 +787,8 @@ it:
   label_number_shortcut: "No"
   label_account_category: Account Category
 
-  VIEW INVENTORY: View inventory
-  DELETE INVENTORY: Delete inventory
+  BASIC INVENTORY PRIVILEGE: Basic Inventory Privilege
+  ADMIN INVENTORY PRIVILEGE: Admin Inventory Privilege
   SCHEDULES SHIFT: Schedules shift
   EDIT SHIFT SCHEDULES: Edit shift schedules
   EDIT SURVEY: Edit survey

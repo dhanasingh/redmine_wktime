@@ -132,7 +132,7 @@ fr:
   label_wk_expensesheet: Feuille de dépenses
   text_wk_no_reminder: Aucun rappel à envoyer
 
-  report_attendance: Présence
+  label_attendance: Présence
   report_spent_time: Temps passé
   label_wk_break_time: Pause
   label_wk_enable_clock_in_out: Activer le pointage
@@ -790,8 +790,8 @@ fr:
   label_number_shortcut: "No"
   label_account_category: Account Category
 
-  VIEW INVENTORY: View inventory
-  DELETE INVENTORY: Delete inventory
+  BASIC INVENTORY PRIVILEGE: Basic Inventory Privilege
+  ADMIN INVENTORY PRIVILEGE: Admin Inventory Privilege
   SCHEDULES SHIFT: Schedules shift
   EDIT SHIFT SCHEDULES: Edit shift schedules
   EDIT SURVEY: Edit survey

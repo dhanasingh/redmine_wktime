@@ -18,7 +18,7 @@
 class WkproductController < WkinventoryController
 
   before_action :require_login
-  before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :category, :update_category]
+  before_action :check_basic_perm, :only => [:index, :edit, :update, :destroy, :category, :update_category]
 
 
 	def index

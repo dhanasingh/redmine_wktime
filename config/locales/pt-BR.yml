@@ -121,7 +121,7 @@ pt-BR:
   text_wk_no_reminder: Nenhum lembrete para enviar
 
 
-  report_attendance: Presença
+  label_attendance: Presença
   report_spent_time: Tempo gasto
   label_wk_break_time: Hora do intervalo
   label_wk_enable_clock_in_out: Habilitar Clock In / Clock Out
@@ -777,8 +777,8 @@ pt-BR:
   label_number_shortcut: "Não"
   label_account_category: Categoria da conta
 
-  VIEW INVENTORY: Visualizar inventário
-  DELETE INVENTORY: Excluir inventário
+  BASIC INVENTORY PRIVILEGE: Basic Inventory Privilege
+  ADMIN INVENTORY PRIVILEGE: Admin Inventory Privilege
   SCHEDULES SHIFT: Mudança de horários
   EDIT SHIFT SCHEDULES: Editar horários de turno
   EDIT SURVEY: Editar pesquisa

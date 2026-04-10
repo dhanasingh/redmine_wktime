@@ -106,7 +106,7 @@ ta-IN:
   text_wk_no_reminder: எந்த நினைவூட்டலும் இல்லை
 
 
-  report_attendance: வருகை
+  label_attendance: வருகை
   report_spent_time: செலவிடும் நேரம்
   label_wk_break_time: இடைவேளை
   label_wk_enable_clock_in_out: கடிகாரத்தை இயக்க / நிறுத்த செயல்படுத்தவும்
@@ -697,8 +697,8 @@ ta-IN:
   label_number_shortcut: "இல்லை"
   label_account_category: கணக்கு வகை
 
-  VIEW INVENTORY: சரக்குகளைக் காண்க
-  DELETE INVENTORY: சரக்குகளை நீக்கு
+  BASIC INVENTORY PRIVILEGE: Basic Inventory Privilege
+  ADMIN INVENTORY PRIVILEGE: Admin Inventory Privilege
   SCHEDULES SHIFT: அட்டவணை மாற்றம்
   EDIT SHIFT SCHEDULES: மாற்றம் அட்டவணைகளைத் திருத்து
   EDIT SURVEY: கணக்கெடுப்பைத் திருத்து

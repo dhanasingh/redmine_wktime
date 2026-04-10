@@ -19,7 +19,7 @@ class WkproductitemController < WkinventoryController
 
   menu_item :wkproduct
   before_action :require_login
-  before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :transfer, :update_transfer]
+  before_action :check_basic_perm, :only => [:index, :edit, :update, :destroy, :transfer, :update_transfer]
 
   include WktimeHelper
   include WkgltransactionHelper

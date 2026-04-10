@@ -2,7 +2,7 @@
   <table>
     <tr>
       <th style="text-align: left"><%= l(:label_clos_responses) %></th>
-      <td><%= params[:groupName].present? ? params[:groupName] : (params[:groupName].blank? && validateERPPermission("E_SUR")) ? "" : getResponseGroup.last %></td>
+      <td><%= params[:groupName].present? ? params[:groupName] : (params[:groupName].blank? && @survey_perm) ? "" : getResponseGroup.last %></td>
     </tr>
     <% if  params[:groupName].present? && @groupClosedDate.present? %>
       <tr>

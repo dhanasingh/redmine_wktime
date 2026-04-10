@@ -18,8 +18,12 @@
 class WksurveyController < WkbaseController
 
 
-  before_action :require_login, :survey_url_validation, :check_perm_and_redirect
-  before_action :check_permission , only: "survey_response"
+  before_action :require_login
+  before_action :init_survey_data
+  before_action :validate_object_existence
+  before_action :validate_permissions
+  before_action :validate_survey_status
+
   accept_api_auth :index, :save_survey, :find_survey_for, :survey, :update_survey, :survey_result, :survey_response, :export
   menu_item :wksurvey
   menu_item :wkattendance, :only => :user_survey
@@ -154,7 +158,7 @@ class WksurveyController < WkbaseController
                 "Response_date" => "status_date"
 
     getSurveyForType(params)
-    response_entries = WkSurveyResponse.response_list(@survey, params[:groupName], validateERPPermission("E_SUR"), convertUsersIntoString(), @surveyForType)
+    response_entries = WkSurveyResponse.response_list(@survey, params[:groupName], @survey_perm, convertUsersIntoString(), @surveyForType)
     response_entries = response_entries.reorder(sort_clause)
 
 		respond_to do |format|
@@ -329,7 +333,7 @@ class WksurveyController < WkbaseController
 
     @survey_txt_questions = WkSurvey.surveyTextQuestion(params[:survey_id])
     txt_answers= WkSurvey.getTextAnswer(params[:survey_id], params[:surveyForType])
-    isAdmin = (validateERPPermission("E_SUR"))
+    isAdmin = (@survey_perm)
     if @survey.recur?
       txt_answers = txt_answers.currentRespTxtAnswer if params[:groupName].blank? && isAdmin
       txt_answers = txt_answers.responsedTextAnswer(params[:groupName]) if params[:groupName].present? && isAdmin
@@ -461,19 +465,19 @@ class WksurveyController < WkbaseController
 
   def check_perm_and_redirect
     get_survey(params[:survey_id], (["edit","survey_response","survey_result", "print_survey_result, update_survey"].include?(action_name)) &&
-      validateERPPermission("E_SUR") || action_name == "graph") unless params[:survey_id].blank?
+      @survey_perm || action_name == "graph") unless params[:survey_id].blank?
     survey = get_survey_with_userGroup(params[:survey_id]) unless params[:survey_id].blank? && action_name == "survey_response"
     closed_response = getResponseGroup(params[:survey_id]) unless params[:survey_id].blank?
     if "survey" == action_name
       allowSupervisor = "survey" == action_name && params[:response_id].present?
       survey = get_survey_with_userGroup(params[:survey_id], allowSupervisor).first
     end
-    if !showSurvey || (!checkEditSurveyPermission && (["edit", "save_survey"].include? action_name))
+    if !showSurvey || (!check_manage_perm && (["edit", "save_survey"].include? action_name))
       render_403
       return false
     elsif (["email_user", "update_survey"].include? action_name && @survey.try(:status) != "O") ||
-      (action_name == "survey_response" && survey.blank? && !(validateERPPermission("E_SUR"))) ||
-      (action_name == "survey_result" && @survey.try(:status) != "C" && !(validateERPPermission("E_SUR") || closed_response.present?)) ||
+      (action_name == "survey_response" && survey.blank? && !(@survey_perm)) ||
+      (action_name == "survey_result" && @survey.try(:status) != "C" && !(@survey_perm || closed_response.present?)) ||
       ("survey" == action_name && !(["O", "C"].include? @survey.try(:status)))
         render_404
         return false
@@ -738,4 +742,144 @@ class WksurveyController < WkbaseController
 
 		pdf.Output
 	end
+
+  private
+
+  def init_survey
+    @survey_ctrl = "wksurvey"
+  end
+
+    # ========== OVERRIDABLE PERMISSION METHODS ==========
+  def check_view_perm
+    validateERPPermission("E_SUR")
+  end
+
+  def check_manage_perm
+    validateERPPermission("E_SUR")
+  end
+
+  # ========== CONTEXT LOADING ==========
+  def init_survey_data
+    init_survey
+    @survey_perm = check_manage_perm
+    # Project
+    if params[:project_id].present?
+      project_id = get_project_id(params[:project_id])
+      if project_id.present?
+        @project = Project.find_by(id: project_id)
+        find_project_by_project_id if @project
+      else
+        @invalid_project = true
+      end
+    end
+
+    # Survey
+    survey_id = params[:survey_id] || params[:id]
+    if survey_id.present?
+      @survey = WkSurvey.find_by(id: survey_id)
+      @invalid_survey = true if @survey.nil?
+    end
+
+    # Contact/Account
+    if params[:contact_id].present? && params[:project_id].blank?
+      @contact = WkCrmContact.find_by(id: params[:contact_id])
+      @invalid_contact = true if @contact.nil?
+    end
+    
+    if params[:account_id].present? && params[:project_id].blank?
+      @account = WkAccount.find_by(id: params[:account_id])
+      @invalid_account = true if @account.nil?
+    end
+
+    # Supervisor flag (from original)
+    @allow_supervisor = (action_name == "survey" && params[:response_id].present?)
+
+    # Additional data
+    if @survey.present?
+      @survey_with_user_group = get_survey_with_userGroup(@survey.id, @allow_supervisor)
+      @closed_response = getResponseGroup(@survey.id) if @survey.recur?
+    end
+
+    # Legacy variables
+    @surveyForType = params[:surveyForType] || @survey&.survey_for_type
+    @surveyForID = params[:surveyForID] || @survey&.survey_for_id
+    getSurveyForType(params) if respond_to?(:getSurveyForType, true)
+  end
+
+  # ========== OBJECT EXISTENCE ==========
+  def validate_object_existence
+    if @invalid_project || @invalid_survey || @invalid_contact || @invalid_account
+      render_404 and return false
+    end
+
+    if params[:project_id].present? && @project.present?
+      unless User.current.allowed_to?(:view_survey, @project)
+        render_403 and return false
+      end
+    end
+    
+    true
+  end
+
+  # ========== PERMISSION VALIDATION ==========
+  def validate_permissions
+    return true if action_name == "graph"
+
+    unless showSurvey && check_view_perm
+      render_403
+      return  
+    end
+
+    if ["edit", "save_survey"].include?(action_name)
+      unless check_manage_perm
+        render_403
+        return  
+      end
+    end
+
+    true
+  end
+
+  # ========== STATUS VALIDATION ==========
+  def validate_survey_status
+    return true if @survey.blank?
+
+    # Original status checks (using exact original array)
+    edit_actions_for_status = ["edit","survey_response","survey_result", "print_survey_result, update_survey"]
+    
+    # Condition 1: email_user and update_survey
+    if ["email_user", "update_survey"].include?(action_name)
+      unless @survey.status == "O"
+        render_404 and return false
+      end
+    end
+
+    # Condition 2: survey_response
+    if action_name == "survey_response"
+      if @survey_with_user_group.blank? && !check_manage_perm
+        render_404 and return false
+      end
+    end
+
+    # Condition 3: survey_result
+    if action_name == "survey_result"
+      unless @survey.status == "C" || check_manage_perm || @closed_response.present?
+        render_404 and return false
+      end
+    end
+
+    # Condition 4: survey
+    if action_name == "survey"
+      unless ["O", "C"].include?(@survey.status)
+        render_404 and return false
+      end
+    end
+
+    true
+  end
+
+  # ========== REDIRECT HELPER ==========
+  def get_survey_redirect_url(urlHash, params = nil)
+    url_for(urlHash.merge(controller: controller_name))
+  end
 end

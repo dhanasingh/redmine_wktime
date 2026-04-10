@@ -48,7 +48,7 @@ class WkAssetProperty < ApplicationRecord
   def self.dispose_asset_notification(assetProperty)
     emailNotes = l(:label_asset)+": " + (assetProperty.name) +" "+l(:label_has_disposed) + "\n\n" + l(:label_redmine_administrator)
     subject = l(:label_asset) + " " + l(:label_notification)
-    userId = (WkPermission.permissionUser('V_INV') + WkPermission.permissionUser('D_INV')).uniq
+    userId = (WkPermission.permissionUser('B_INV_PRVLG') + WkPermission.permissionUser('A_INV_PRVLG')).uniq
     WkNotification.notification(userId, emailNotes, subject, assetProperty, "disposeAsset")
   end
 

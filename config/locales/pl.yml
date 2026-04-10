@@ -133,7 +133,7 @@ pl:
   text_wk_no_reminder: Brak przypomnień do wysłania
 
 
-  report_attendance: Frekwencja
+  label_attendance: Frekwencja
   report_spent_time: Spędzony czas
   label_wk_break_time: Czas przerwy
   label_wk_enable_clock_in_out: Zegar początku/końca pracy
@@ -790,8 +790,8 @@ pl:
   label_account_category: Kategoria Konta
 
 
-  VIEW INVENTORY: Przeglądnie magazynu
-  DELETE INVENTORY: Usuwanie magazynu
+  BASIC INVENTORY PRIVILEGE: Basic Inventory Privilege
+  ADMIN INVENTORY PRIVILEGE: Admin Inventory Privilege
   SCHEDULES SHIFT: Harmonogramy zmian
   EDIT SHIFT SCHEDULES: Edytowanie harmonogramów zmian
   EDIT SURVEY: Edit survey

@@ -59,9 +59,6 @@ module WksurveyHelper
     survey_types
   end
 
-  def checkEditSurveyPermission
-    validateERPPermission("E_SUR")
-  end
 
   def surveyList(params)
 
@@ -90,7 +87,7 @@ module WksurveyHelper
   end
 
   def get_survey_with_userGroup(survey_id, checkSurveyPerm = true)
-    if checkEditSurveyPermission && survey_id.blank?
+    if @survey_perm && survey_id.blank?
         survey = WkSurvey.all
     else
 		  groups_users_comp = call_hook(:add_comp_filter, table: 'groups_users', comp_id: @comp_id ) || ""
@@ -143,7 +140,7 @@ module WksurveyHelper
   end
 
   def get_survey_url(urlHash, params, method)
-    urlHash[:controller] = "wksurvey"
+    urlHash[:controller] =  @survey_ctrl
     urlHash[:action] = method
     call_hook(:get_survey_url, urlHash: urlHash, params: params)
 
@@ -271,7 +268,7 @@ module WksurveyHelper
       if @survey.recur?
         if params[:groupName].present?
           groupNameCond = " AND group_name = '#{params[:groupName]}' "
-        elsif params[:groupName].blank? && (validateERPPermission("E_SUR"))
+        elsif params[:groupName].blank? && (@survey_perm)
           groupNameCond = " AND group_name IS NULL "
         else
           groupNameCond = " AND group_name = '#{getResponseGroup.last}' "
@@ -345,7 +342,7 @@ module WksurveyHelper
   def get_response_group_items
     response_grp = getResponseGroup.reverse
     if response_grp.length > 0
-      response_grp.unshift(["",""]) if validateERPPermission("E_SUR")
+      response_grp.unshift(["",""]) if @survey_perm
       response_grp << [l(:label_trend_chart), "trendChart"]
     end
     response_grp

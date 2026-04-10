@@ -27,7 +27,7 @@
 		</div>
 		<div style="display: flex; align-items: center; gap: 10px;">
 		<table>
-			<% if validateERPPermission("V_INV") || validateERPPermission("D_INV") %>
+			<% if validateERPPermission("B_INV_PRVLG") || validateERPPermission("A_INV_PRVLG") %>
 				<tr>
 					<th align="right" ><%= l(:label_product) %></th>
 					<td align="left">
@@ -46,7 +46,7 @@
 		<div>
 			<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
 			<%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
-			<% if validateERPPermission("V_INV") || validateERPPermission("D_INV") %>
+			<% if validateERPPermission("B_INV_PRVLG") || validateERPPermission("A_INV_PRVLG") %>
 				<%= link_to sprite_icon('document', l(:label_apply_depreciation)), 'javascript:depreciatonFormSubmission();', :name => 'generate', :class => 'icon' %>
 			<% end %>
 		</div>

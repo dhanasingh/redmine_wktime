@@ -1,30 +1,22 @@
 module WkgrouppermissionHelper
   include WktimeHelper
-
+ 
   def getPermissionModules
-    modules = {
-      "Inventory" => l(:label_inventory),
-      "Shift Scheduling" => l(:label_scheduling),
-      "Survey" => l(:label_survey),
-      "CRM" => l(:label_crm),
-      "Billing" => l(:label_wk_billing),
-      "Accounting" => l(:label_accounting),
-      "Purchase" => l(:label_purchasing),
-      "Report" => l(:label_report),
-      "ATTENDANCE" => l(:report_attendance),
-      "PAYROLL" => l(:label_payroll),
-      "HR" => l(:label_hr),
-      "" => l(:label_general)
-    }
+    modules = {}
+    
+    WkPermission.distinct.pluck(:modules).each do |mod|
+      key = mod.to_s
+      if key.blank?
+        modules[""] = l(:label_general)
+      else
+        # Convert module name to i18n key convention
+        convention_key = "label_#{key.downcase.gsub(' ', '_')}".to_sym
+        modules[key] = I18n.t(convention_key, default: key)
+      end
+    end
+ 
+    modules[""] ||= l(:label_general)
     call_hook(:helper_permission_modules, {modules: modules})
-    # addMod = call_hook(:helper_permission_modules, {modules: modules})
-		# if addMod.present?
-		# 	# addMod = eval(addMod)
-    #   puts "-------------------addMod---Start-------------------------------------"
-    #   puts addMod.inspect
-    #   puts "-------------------addMod----End------------------------------------"
-    #   modules =  modules.merge(addMod)
-    # end
     modules
   end
 end

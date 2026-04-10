@@ -129,7 +129,7 @@ de:
   label_wk_expensesheet: Spesenabrechnung
   text_wk_no_reminder: Keine Erinnerungen zu senden
 
-  report_attendance: Anwesenheit
+  label_attendance: Anwesenheit
   report_spent_time: Benötigte Zeit
   label_wk_break_time: Pausenzeiten
   label_wk_enable_clock_in_out: Zeiterfassung aktivieren
@@ -786,8 +786,8 @@ de:
   label_number_shortcut: "Nr."
   label_account_category: Kontokategorie
 
-  VIEW INVENTORY: Inventar anzeigen
-  DELETE INVENTORY: Inventar löschen
+  BASIC INVENTORY PRIVILEGE: Basic Inventory Privilege
+  ADMIN INVENTORY PRIVILEGE: Admin Inventory Privilege
   SCHEDULES SHIFT: Schicht Zeitpläne
   EDIT SHIFT SCHEDULES: Schicht Zeitpläne ändern
   EDIT SURVEY: Umfrage bearbeiten

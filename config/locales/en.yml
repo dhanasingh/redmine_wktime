@@ -121,7 +121,7 @@ en:
   text_wk_no_reminder: No reminders to send
 
 
-  report_attendance: Attendance
+  label_attendance: Attendance
   report_spent_time: Spent time
   label_wk_break_time: Break Time
   label_wk_enable_clock_in_out: Enable Clock In / Clock Out
@@ -777,8 +777,8 @@ en:
   label_number_shortcut: "No"
   label_account_category: Account Category
 
-  VIEW INVENTORY: View inventory
-  DELETE INVENTORY: Delete inventory
+  BASIC INVENTORY PRIVILEGE: Basic Inventory Privilege
+  ADMIN INVENTORY PRIVILEGE: Admin Inventory Privilege
   SCHEDULES SHIFT: Schedules shift
   EDIT SHIFT SCHEDULES: Edit shift schedules
   EDIT SURVEY: Edit survey

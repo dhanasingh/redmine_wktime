@@ -1,7 +1,7 @@
 <%= form_tag({:controller => "wksurvey", :action => 'index'}, :method => :get, :id => 'filter_form') do %>
 	<%=h hidden_field_tag('tab', "wksurvey") %>
 	<fieldset>
-		<% if checkEditSurveyPermission %>
+		<% if @survey_perm %>
 			<div style="float:right">
 					<%= link_to sprite_icon('add', controller.newItemLabel), url_for(:project_id => params[:project_id], :controller => "wksurvey", :action => "edit"), :class => 'icon icon-add' %>
 			</div>
@@ -16,7 +16,7 @@
 					<%= l(:field_status) %>
 					<%=h select_tag('status', options_for_select(getSurveyStatus, :selected => params[:status])) %>
 				</th>
-				<% if params[:project_id].blank? && checkEditSurveyPermission %>
+				<% if params[:project_id].blank? && @survey_perm %>
 					<th style="padding-left: 10px;">
 						<%= l(:label_survey_for) %>
 						<%=h select_tag("survey_for", options_for_select(getSurveyFor, :selected => params[:survey_for].blank? ? params[:surveyForType] : params[:survey_for]), :onchange => '$("#filter_form").submit()') %>

@@ -26,6 +26,7 @@ class WkbaseController < ApplicationController
 	helper :sort
   helper :custom_fields
   helper :users
+	helper :wksurvey
 	include SortHelper
 	include WkattendanceHelper
 	include WktimeHelper
