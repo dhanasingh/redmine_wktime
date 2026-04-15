@@ -525,7 +525,7 @@ pl:
   label_perception: Odbiór
   label_proposal_quote: Oferta/Cena oferty
   label_negotiation: Negocjacje/Przejrzeć
-  label_lost: Przegrać
+  label_lost: Lost Lead
   label_won: Wygrać
   label_cold: Zimny
   label_self: Ja

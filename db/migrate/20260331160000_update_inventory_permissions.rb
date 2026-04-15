@@ -5,6 +5,7 @@ class UpdateInventoryPermissions < ActiveRecord::Migration[7.2]
     execute <<-SQL
       UPDATE wk_permissions SET name = 'BASIC INVENTORY PRIVILEGE', short_name = 'B_INV_PRVLG', modules = 'Inventory' WHERE short_name = 'V_INV';
       UPDATE wk_permissions SET name = 'ADMIN INVENTORY PRIVILEGE', short_name = 'A_INV_PRVLG', modules = 'Inventory' WHERE short_name = 'D_INV';
+      UPDATE wk_leads SET status = 'L' WHERE status = 'D';
     SQL
   end
 
@@ -14,6 +15,7 @@ class UpdateInventoryPermissions < ActiveRecord::Migration[7.2]
     execute <<-SQL
       UPDATE wk_permissions SET name = 'VIEW INVENTORY', short_name = 'V_INV', modules = 'Inventory' WHERE short_name = 'B_INV_PRVLG';
       UPDATE wk_permissions SET name = 'DELETE INVENTORY', short_name = 'D_INV', modules = 'Inventory' WHERE short_name = 'A_INV_PRVLG';
+      UPDATE wk_leads SET status = 'D' WHERE status = 'L';
     SQL
   end
 end

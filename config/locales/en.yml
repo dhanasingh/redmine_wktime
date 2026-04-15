@@ -513,7 +513,7 @@ en:
   label_perception: Perception
   label_proposal_quote: Proposal/Price Quote
   label_negotiation: Negotiation/Review
-  label_lost: Lost
+  label_lost: Lost Lead
   label_won: Won
   label_cold: Cold
   label_self: Self

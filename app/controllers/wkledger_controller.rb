@@ -24,7 +24,7 @@ class WkledgerController < WkaccountingController
 
 
   def index
-		sort_init 'id', 'asc'
+		sort_init 'name', 'asc'
 		sort_update 'name' => "name",
 								'type' => "CASE WHEN wk_ledgers.ledger_type = 'SY' THEN '' ELSE ledger_type END"
 		set_filter_session
@@ -107,7 +107,7 @@ class WkledgerController < WkaccountingController
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
-		@ledgers = entries.order(:id).limit(@limit).offset(@offset)
+		@ledgers = entries.order(:name).limit(@limit).offset(@offset)
 	end
 
 	def setLimitAndOffset
