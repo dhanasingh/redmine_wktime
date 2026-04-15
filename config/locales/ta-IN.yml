@@ -467,7 +467,7 @@ ta-IN:
   label_perception: புலனுணர்வு
   label_proposal_quote: முன்மொழிவு / விலை மேற்கோள்
   label_negotiation: பேச்சுவார்த்தை / விமர்சனம்
-  label_lost: Lost Lead
+  label_lost: இழந்தது
   label_won: வென்றது
   label_cold: குளிர்
   label_self: சுயம்
@@ -1326,3 +1326,4 @@ ta-IN:
   error_invalid_information: "Invalid information"
 
   error_invoice_already_paid: "Invoice is already paid"
+  label_lost_lead: "Lost Lead"

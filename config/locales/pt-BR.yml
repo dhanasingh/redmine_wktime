@@ -513,7 +513,7 @@ pt-BR:
   label_perception: Percepção
   label_proposal_quote: Proposta/cotação de preço
   label_negotiation: Negociação/Revisão
-  label_lost: Lost Lead
+  label_lost: Perdido
   label_won: Ganhou
   label_cold: Frio
   label_self: Próprio
@@ -1403,3 +1403,4 @@ pt-BR:
   error_invalid_information: "Invalid information"
 
   error_invoice_already_paid: "Invoice is already paid"
+  label_lost_lead: "Lost Lead"

@@ -525,7 +525,7 @@ fr:
   label_perception: Perception
   label_proposal_quote: Proposal/Price Quote
   label_negotiation: Negotiation/Review
-  label_lost: Lost Lead
+  label_lost: Lost
   label_won: Won
   label_cold: Cold
   label_self: Self
@@ -1416,3 +1416,4 @@ fr:
   error_invalid_information: "Invalid information"
 
   error_invoice_already_paid: "Invoice is already paid"
+  label_lost_lead: "Lost Lead"

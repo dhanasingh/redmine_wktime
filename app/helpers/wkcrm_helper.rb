@@ -61,7 +61,7 @@ include WkdocumentHelper
 			"IP" => l(:label_in_process),
 			"C" => l(:label_converted),
 			"RC" => l(:label_recycled),
-			"L" =>l(:label_lost)
+			"L" =>l(:label_lost_lead)
 		}
 	end
 
