@@ -76,6 +76,10 @@ class WksurveyController < WkbaseController
         question.survey = @survey
       end
     end
+    # Ensure Truly ungrouped questions also have survey_id set
+    @survey.wk_survey_questions.each do |question|
+      question.survey = @survey
+    end
     errMsg = ""
 
     #Validate Survey For before Save
@@ -86,6 +90,7 @@ class WksurveyController < WkbaseController
     end
 
     if @survey.valid? && errMsg.blank?
+      @survey.survey_attributes_from_params = params[:wksurvey]
       @survey.save
       resMsg = l(:notice_successful_update)
     else
@@ -121,13 +126,22 @@ class WksurveyController < WkbaseController
     params.permit(
       :id, :name, :survey_for_type, :survey_for_id, :status, :group_id,
       :recur, :recur_every, :is_review, :save_allowed, :hide_response, :use_points,
+      wk_survey_questions_attributes: [
+        :id, :name, :is_reviewer_only, :is_mandatory, :not_in_report, :sort_order,
+        :header, :footer, :question_type, :_destroy, :temp_id,
+        :lft, :rgt,
+        wk_survey_choices_attributes: [
+          :id, :name, :points, :_destroy, :follow_up_temp_id, :follow_up_question_id
+        ]
+      ],
       wk_survey_que_groups_attributes: [
-        :id, :name, :sort_order, :_destroy,
+        :id, :name, :sort_order, :_destroy, :parent_id, :lft, :rgt,
         wk_survey_questions_attributes: [
-          :id, :name, :is_reviewer_only, :is_mandatory, :not_in_report,
-          :header, :footer, :question_type, :_destroy,
+          :id, :name, :is_reviewer_only, :is_mandatory, :not_in_report, :sort_order,
+          :header, :footer, :question_type, :_destroy, :temp_id,
+          :lft, :rgt,
           wk_survey_choices_attributes: [
-            :id, :name, :points, :_destroy
+            :id, :name, :points, :_destroy, :follow_up_temp_id, :follow_up_question_id
           ]
         ]
       ]
@@ -228,9 +242,22 @@ class WksurveyController < WkbaseController
             questionType = params[questionTypeName]
             survey_choice_id = (["RB","CB"].include? questionType) && choice_nameVal.last.to_i > 0 ? choice_nameVal.last : nil
             choice_text = (["TB","MTB"].include? questionType) ? choice_nameVal.last : nil
+
+            parent_choice_idx = sel_ids.index { |s| s.start_with?('p') } if sel_ids.length > 4
+            if parent_choice_idx
+              parent_choice_val = sel_ids[parent_choice_idx][1..-1]
+              if parent_choice_val.present? && parent_choice_val.to_i > 0
+                if ["TB", "MTB"].include?(questionType)
+                  survey_choice_id = parent_choice_val
+                elsif ["RB", "CB"].include?(questionType)
+                  choice_text = parent_choice_val
+                end
+              end
+            end
+
             if survey.use_points?
               sel_survey_choice_id =  
-                  if survey_choice_id
+                  if ["RB", "CB"].include?(questionType) && survey_choice_id
                     survey_choice_id
                   elsif ["TB", "MTB"].include?(questionType)
                     params["hdn_survey_select_choice_#{questionID}"]

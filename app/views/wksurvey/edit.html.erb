@@ -28,7 +28,7 @@
 	<%= f.hidden_field :id %>
 
   <fieldset class="box tabular">
-		<table width="100%">
+		<table width="100%" style="font-size: 14px;">
 			<tr>
 				<td width="50%" valign="top">
 					<table>
@@ -98,27 +98,27 @@
 		</table>
 	</fieldset>
 
-	<div id="accordion">
-		<h2><%= l(:label_survey_question_grp) %></h2>
-			<div id="groups_container">
-				<%= f.fields_for :wk_survey_que_groups  do |g| %>
-					<%= render partial: 'question_accordion_section', locals: { f: g, :survey => @survey, isDisable: isDisable } %>
-				<% end %>
-			</div>
-	</div>
+	<h2 style="font-size: 17px;"><%= l(:label_survey_question_grp) %></h2>
 
+	<div style="border: 1px solid #ddd;padding: 10px;margin-bottom: 5px;">
+		<% shared_rendered_ids = Set.new %>
+		<%= f.fields_for :wk_survey_que_groups  do |g| %>
+			<%= render partial: 'question_accordion_section', locals: { f: g, :survey => @survey, isDisable: isDisable, rendered_ids: shared_rendered_ids } %>
+		<% end %>
 
-	<!-- GROUP TEMPLATE -->
-  <template id="group_template">
-		<%= f.fields_for :wk_survey_que_groups, WkSurveyQueGroup.new, child_index: '__GROUP_INDEX__' do |g| %>
-			<%= render partial: 'group_section_template', locals: { f: g ,isDisable:isDisable} %>
-		<% end %>
-  </template>
-	<div class="wk-contextual">
-		<% unless isDisable %>
-			<%= link_to sprite_icon('add', l(:button_add_group)), 'javascript:void(0)', onclick: 'addSurveyGroup()', class: 'icon icon-add' %>
-			<%= link_to sprite_icon('add', l(:button_add_question)), 'javascript:void(0)', onclick: 'addUngroupedQues(this)', class: 'icon icon-add' %>
-		<% end %>
+		<!-- GROUP TEMPLATE -->
+		<template id="group_template">
+			<%= f.fields_for :wk_survey_que_groups, WkSurveyQueGroup.new, child_index: '__GROUP_INDEX__' do |g| %>
+				<%= render partial: 'group_section_template', locals: { f: g ,isDisable:isDisable} %>
+			<% end %>
+		</template>
+
+		<div style="font-size: 15px;margin: 8px;">
+			<% unless isDisable %>
+				<%= link_to sprite_icon('add', l(:button_add_group)), 'javascript:void(0)', onclick: 'addSurveyGroup()', class: 'icon icon-add' %>
+				<%= link_to sprite_icon('add', l(:button_add_question)), 'javascript:void(0)', onclick: 'addUngroupedQues(this)', class: 'icon icon-add' %>
+			<% end %>
+		</div>
 	</div>
 
 	<div>

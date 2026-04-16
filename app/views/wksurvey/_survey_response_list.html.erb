@@ -40,7 +40,7 @@
             <td class="lbl-txt-align"><%= index+1 %></td>
             <td class="lbl-txt-align">
               <% if (@survey.is_review && (reviewers.include? entry.user_id) && entry.status != 'O') || User.current.id == entry.user_id %>
-                <%= link_to entry.name, url_for(survey_helper.get_survey_url(urlhash, params, "survey")) %>
+                <%= link_to entry.name, url_for(get_survey_url(urlhash, params, "survey")) %>
               <% else %>
                 <%= entry.name %>
               <% end %>
