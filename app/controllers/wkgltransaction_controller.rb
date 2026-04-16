@@ -445,13 +445,29 @@ class WkgltransactionController < WkaccountingController
 	end
 
 	def export
+		template_name = params[:export_format]
 		respond_to do |format|
 			transactionEntries = index
 			format.csv {
-				send_data(csv_format_conversion(transactionEntries), :type => 'text/csv; header=present', :filename => 'gltransaction.csv')
+				if template_name.present?
+					begin
+						csv_data = generate_template_csv(template_name, transactionEntries)
+						file_name = export_template_file_name(template_name)
+						send_data(csv_data, :type => 'text/csv; header=present', :filename => file_name)
+					rescue => e
+						flash[:error] = l(:error_export_template_failed, :message => e.message)
+						redirect_to :action => 'index', :tab => 'wkgltransaction'
+					end
+				else
+					send_data(csv_format_conversion(transactionEntries), :type => 'text/csv; header=present', :filename => 'gltransaction.csv')
+				end
 			}
 		end
 	end
+
+  def export_templates
+    render :json => AccountingExports::Base.available_formats
+  end
 
   def graph
     data = get_Ledger_Graph_data

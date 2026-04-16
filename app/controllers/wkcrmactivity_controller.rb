@@ -141,6 +141,7 @@ class WkcrmactivityController < WkcrmController
       crmActivity.latitude = params[:latitude]
       crmActivity.longitude = params[:longitude]
     end
+    crmActivity.device_id = params[:device_id] if params[:device_id].present?
     unless crmActivity.valid?
     @tempCrmActivity << crmActivity
       $tempActivity = @tempCrmActivity

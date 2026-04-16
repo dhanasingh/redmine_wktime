@@ -147,6 +147,7 @@ de:
   label_wk_attendance_start_date: Startdatum der Anwesenheit
   label_clock_in: Einstempeln
   label_clock_out: Ausstempeln
+  label_device_id: Geräte-ID
   label_wk_leave_exists: Dieser Abwesenheit besteht bereits
   wk_field_balance: Balance
   wk_field_used: Benutzt
@@ -1411,3 +1412,12 @@ de:
 
   error_invoice_already_paid: "Invoice is already paid"
   label_lost_lead: "Lost Lead"
+
+  # Accounting export formats
+  label_select_export_format: "Select export format"
+  label_export_format_quickbooks_online: "QuickBooks Online"
+  label_export_desc_quickbooks_online: "QuickBooks Online compatible CSV for journal entry import"
+  label_export_format_sage_business_cloud: "Sage Business Cloud Accounting"
+  label_export_desc_sage_business_cloud: "Sage Business Cloud Accounting compatible CSV for journal import"
+  label_export_format_tally_prime: "Tally Prime"
+  label_export_desc_tally_prime: "Tally-compatible CSV for import into Tally Prime"

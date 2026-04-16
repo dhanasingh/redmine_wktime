@@ -1924,6 +1924,7 @@ end
 				spentObj['e_longitude'] = longitude
 			end
 		end
+		spentObj['device_id'] = params[:device_id] if params[:device_id].present?
 	end
 
 	def showIssueLogger(project)

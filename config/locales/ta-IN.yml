@@ -119,6 +119,7 @@ ta-IN:
   label_wk_leave_accrual: சேர்த்தல்
   label_clock_in: மணி உள்ளே
   label_clock_out: மணி வெளியே
+  label_device_id: சாதன அடையாளம்
   label_wk_leave_exists: இந்த விடுப்பு ஏற்கனவே உள்ளது
   wk_field_balance: இருப்பு
   wk_field_used: பயன்படுத்தப்பட்டது
@@ -1327,3 +1328,12 @@ ta-IN:
 
   error_invoice_already_paid: "Invoice is already paid"
   label_lost_lead: "Lost Lead"
+
+  # Accounting export formats
+  label_select_export_format: "Select export format"
+  label_export_format_quickbooks_online: "QuickBooks Online"
+  label_export_desc_quickbooks_online: "QuickBooks Online compatible CSV for journal entry import"
+  label_export_format_sage_business_cloud: "Sage Business Cloud Accounting"
+  label_export_desc_sage_business_cloud: "Sage Business Cloud Accounting compatible CSV for journal import"
+  label_export_format_tally_prime: "Tally Prime"
+  label_export_desc_tally_prime: "Tally-compatible CSV for import into Tally Prime"

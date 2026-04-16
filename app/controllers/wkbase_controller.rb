@@ -199,6 +199,7 @@ class WkbaseController < ApplicationController
 				timeEntryAttr[:spent_for_attributes][:s_longitude] =  params[:longitude]
 				timeEntryAttr[:spent_for_attributes][:s_latitude] = params[:latitude]
 			end
+			timeEntryAttr[:spent_for_attributes][:device_id] = params[:device_id] if params[:device_id].present?
 			timeEntry = TimeEntry.new(timeEntryAttr)
 			errorMsg += statusValidation(timeEntry)
 			unless errorMsg.blank? && timeEntry.save
@@ -218,6 +219,7 @@ class WkbaseController < ApplicationController
 					timeEntry.spent_for.e_longitude = params[:longitude]
 					timeEntry.spent_for.e_latitude = params[:latitude]
 				end
+				timeEntry.spent_for.device_id = params[:device_id] if params[:device_id].present?
 				errorMsg = statusValidation(timeEntry)
 				unless errorMsg.blank? && timeEntry.save
 					errorMsg = timeEntry.errors.full_messages.join("<br>")

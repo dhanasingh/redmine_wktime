@@ -130,7 +130,7 @@ class WkattendanceController < WkbaseController
 		end
 		noOfDays = 't4.i*1*10000 + t3.i*1*1000 + t2.i*1*100 + t1.i*1*10 + t0.i*1'
 		selectStr = "select evw.id, vw.id as user_id, vw.firstname, vw.lastname, vw.created_on, vw.selected_date as entry_date, evw.start_time, evw.end_time, evw.hours,
-				s_longitude, s_latitude, e_longitude, e_latitude "
+				s_longitude, s_latitude, e_longitude, e_latitude, evw.device_id "
 		sqlQuery = " from (
 			select u.id, u.firstname, u.lastname, u.created_on, v.selected_date from" +
 			"(select " + getAddDateStr(@from, noOfDays) + " selected_date from " +
@@ -142,10 +142,11 @@ class WkattendanceController < WkbaseController
 			(select u.id, u.firstname, u.lastname, u.created_on from users u where u.type = 'User' #{get_comp_condition('u')}) u
 			WHERE  v.selected_date between '#{@from}' and '#{@to}' AND u.id in (#{ids})) vw
 			left join(
-				 select id, start_time, end_time, " + getConvertDateStr('start_time') + " entry_date, hours, user_id, s_longitude, s_latitude, e_longitude, e_latitude
+				 select id, start_time, end_time, " + getConvertDateStr('start_time') + " entry_date, hours, user_id, s_longitude, s_latitude, e_longitude, e_latitude, device_id
 				 from wk_attendances
 				 WHERE " + getConvertDateStr('start_time') +" between '#{@from}' and '#{@to}' AND user_id in (#{ids}) #{get_comp_condition('wk_attendances')}
-			) evw on (vw.selected_date = evw.entry_date and vw.id = evw.user_id) where vw.id in (#{ids}) AND vw.selected_date <= '#{Time.now.to_date}'"
+			) evw on (vw.selected_date = evw.entry_date and vw.id = evw.user_id)
+			where vw.id in (#{ids}) AND vw.selected_date <= '#{Time.now.to_date}'"
 		orderStr = " ORDER BY " + (sort_clause.present? ? sort_clause.first : "vw.selected_date desc, vw.firstname")
 
 		respond_to do |format|
@@ -158,10 +159,10 @@ class WkattendanceController < WkbaseController
 			end
 			format.csv do
 				entries = WkAttendance.find_by_sql(selectStr + sqlQuery + orderStr)
-				headers = {user: l(:field_user), date: l(:field_start_date), clockin: l(:label_clock_in), clockout: l(:label_clock_in), hours: l(:field_hours) }
+				headers = {user: l(:field_user), date: l(:field_start_date), clockin: l(:label_clock_in), clockout: l(:label_clock_in), hours: l(:field_hours), device_id: l(:label_device_id) }
 				data = entries.map{|e|
 					{user: e&.user&.name, date: e&.entry_date&.to_date, startDate: e&.start_time&.localtime&.strftime('%R'),
-					endDate: e&.end_time&.localtime&.strftime('%R'), hours: e&.hours ? (e&.hours).round(2) : ""}
+					endDate: e&.end_time&.localtime&.strftime('%R'), hours: e&.hours ? (e&.hours).round(2) : "", device_id: e.try(:device_id)}
 				}
 				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "clock.csv")
 			end
@@ -614,6 +615,7 @@ class WkattendanceController < WkbaseController
 		wkattendance.start_time =  startTime
 		wkattendance.end_time = endTime
 		wkattendance.hours = computeWorkedHours(wkattendance.start_time, wkattendance.end_time, true) if wkattendance.end_time.present?
+		wkattendance.device_id = params[:device_id] if params[:device_id].present?
 		wkattendance.save()
 		wkattendance
 	end

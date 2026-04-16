@@ -491,6 +491,8 @@ post 'wkgltransaction/update', to: 'wkgltransaction#update'
 
 get 'wkgltransaction/export', :to => 'wkgltransaction#export'
 
+get 'wkgltransaction/export_templates', :to => 'wkgltransaction#export_templates'
+
 # For Accounting Ledger
 
 get 'wkledger', :to => 'wkledger#index'
@@ -927,7 +929,7 @@ post 'wkbase/update_clockinout', :to => 'wkbase#update_clockinout'
 
 get 'wkbase/get_user_permissions', :to => 'wkbase#get_user_permissions'
 
-get 'wkbase/save_issue_log', :to => 'wkbase#save_issue_log'
+post 'wkbase/save_issue_log', :to => 'wkbase#save_issue_log'
 
 # For Documents
 
