@@ -19,18 +19,20 @@ class WkSurvey < ApplicationRecord
 
 	belongs_to :group , :class_name => 'Group'
   belongs_to :survey_for, :polymorphic => true
-  has_many :wk_survey_questions, foreign_key: "survey_id", class_name: "WkSurveyQuestion", :dependent => :destroy, inverse_of: :survey
+  has_many :wk_survey_questions, -> { order(:lft) }, foreign_key: "survey_id", class_name: "WkSurveyQuestion", :dependent => :destroy, inverse_of: :survey
   has_many :wk_survey_choices, through: :wk_survey_questions
   has_many :wk_survey_responses, foreign_key: "survey_id", :dependent => :destroy
   has_many :wk_survey_answers, through: :wk_survey_responses
   has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
-  has_many :wk_survey_que_groups, foreign_key: "survey_id", dependent: :destroy, inverse_of: :wk_survey
+  has_many :wk_survey_que_groups, -> { order(:lft) }, foreign_key: "survey_id", dependent: :destroy, inverse_of: :wk_survey
+
 
   accepts_nested_attributes_for :wk_survey_questions, allow_destroy: true
   accepts_nested_attributes_for :wk_survey_que_groups, allow_destroy: true
 
   validates_presence_of :name
-  after_save :survey_notification
+  attr_accessor :survey_attributes_from_params
+  after_save :survey_notification, :process_follow_up_linkage_and_nested_set
 
   scope :surveyTextQuestion, ->(survey_id){
       joins(:wk_survey_questions)
@@ -112,5 +114,94 @@ class WkSurvey < ApplicationRecord
 
   def result_questions
     self.wk_survey_questions.where(not_in_report: false)
+  end
+
+  private
+
+  def process_follow_up_linkage_and_nested_set
+    return unless survey_attributes_from_params.present?
+
+    temp_map = build_temp_id_map
+
+    link_follow_up_questions(temp_map)
+
+    wk_survey_questions.reload
+    clean_up_orphaned_parents
+    WkSurveyQuestion.rebuild_tree!(id)
+    WkSurveyQueGroup.rebuild_tree!(id)
+  end
+
+  # Flat list of all non-destroyed question attr hashes (groups + ungrouped).
+  def all_question_attrs
+    @all_question_attrs ||= begin
+      dead = ->(h) { ['1', 'true', true].include?(h[:_destroy]) }
+      p    = survey_attributes_from_params
+
+      grouped = (p[:wk_survey_que_groups_attributes]&.values || [])
+                  .reject(&dead)
+                  .flat_map { |g| (g[:wk_survey_questions_attributes]&.values || []).reject(&dead) }
+
+      ungrouped = (p[:wk_survey_questions_attributes]&.values || []).reject(&dead)
+
+      grouped + ungrouped
+    end
+  end
+  
+  def build_temp_id_map
+    map = {}
+    
+    all_objs = wk_survey_questions.to_a + wk_survey_que_groups.flat_map { |g| g.wk_survey_questions.to_a }
+    all_objs.each do |q|
+      map[q.temp_id] = q.id if q.temp_id.present? && q.id.present?
+    end
+
+    unresolved_attrs = all_question_attrs.select { |qa| qa[:temp_id].present? && !map.key?(qa[:temp_id]) }
+    if unresolved_attrs.any?
+      unresolved_attrs.each do |qa|
+        obj = all_objs.find { |o| o.name == qa[:name] && o.sort_order.to_i == qa[:sort_order].to_i && o.id.present? }
+        
+        if obj.nil?
+          obj = WkSurveyQuestion.find_by(survey_id: id, name: qa[:name], sort_order: qa[:sort_order])
+        end
+        
+        map[qa[:temp_id]] = obj.id if obj
+      end
+    end
+
+    map
+  end
+
+  def link_follow_up_questions(temp_map)
+    questions = wk_survey_questions.to_a + wk_survey_que_groups.flat_map { |g| g.wk_survey_questions.to_a }
+
+    questions.each do |question|
+      question.wk_survey_choices.each do |choice|
+        tid = choice.follow_up_temp_id
+        target_id = tid.present? ? temp_map[tid] : nil
+        target_id ||= choice.follow_up_question_id
+
+        if target_id.present?
+          child_q = WkSurveyQuestion.find_by(id: target_id)
+          if child_q
+            child_q.update_columns(parent_id: question.id)
+            choice.update_columns(
+              follow_up_question_id:   child_q.id,
+              follow_up_question_type: 'WkSurveyQuestion'
+            )
+          end
+        elsif choice.id.present?
+          choice.update_columns(follow_up_question_type: nil, follow_up_question_id: nil)
+        end
+      end
+    end
+  end
+
+  def clean_up_orphaned_parents
+    wk_survey_questions.where.not(parent_id: nil).each do |q|
+      next if q.triggering_choices.any?
+      q.update_column(:parent_id, nil)
+      WkSurveyChoice.where(follow_up_question_id: q.id)
+                    .update_all(follow_up_question_type: nil, follow_up_question_id: nil)
+    end
   end
 end

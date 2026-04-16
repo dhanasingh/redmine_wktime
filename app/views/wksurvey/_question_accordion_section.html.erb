@@ -1,11 +1,43 @@
-
 <% group = f.object %>
-<div class="group-ungrouped-questions">
+<%
+  # Build a set of all question IDs that are follow-ups (linked from a choice)
+  all_questions = group.wk_survey_questions.sort_by { |qq| [qq.lft || 99999, qq.id || 99999] }
+  follow_up_ids = Set.new
+  _group_choice_ids = all_questions.flat_map { |qq| qq.wk_survey_choices.map(&:id) }.compact
+  if _group_choice_ids.any?
+    WkSurveyChoice.where(
+      id: _group_choice_ids,
+      follow_up_question_type: 'WkSurveyQuestion'
+    ).where.not(follow_up_question_id: nil)
+     .pluck(:follow_up_question_id).each { |fid| follow_up_ids.add(fid) }
+  end
+  question_builders_map = {}
+  top_level_builders = []
+%>
+
   <% if group.name.present? || !survey.persisted? %>
-    <div id="accordion">
-      <div class="group-accordion-item" id="group-<%= group.id || 'new' %>">
-        <%= f.hidden_field :id %>
-        <%= f.hidden_field :sort_order %>
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 5px;" class="group-container-wrap">
+      <tr>
+        <% unless isDisable %>
+          <td valign="top" width="25" style="padding-top: 5px;">
+            <div class="group-move-icons">
+              <a href="javascript:void(0)" onclick="moveGroupUp(this)" title="Move Up" style="display:block;text-decoration:none; color:#016bff; margin-bottom: 4px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
+                <path d="M12 19V5"></path><path d="M5 12l7-7 7 7"></path>
+              </svg>
+              </a>
+              <a href="javascript:void(0)" onclick="moveGroupDown(this)" title="Move Down" style="display:block;text-decoration:none; color:#016bff;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
+                  <path d="M12 5v14"></path><path d="M19 12l-7 7-7-7"></path>
+                </svg>
+              </a>
+            </div>
+          </td>
+        <% end %>
+        <td valign="top">
+          <div class="group-accordion-item" style="font-size: 16px;" id="group-<%= group.id || 'new' %>">
+            <%= f.hidden_field :id %>
+            <%= f.hidden_field :sort_order, class: 'group-sort-order' %>
 
         <h3 class="group-accordion-header">
           <span id="group-name">
@@ -16,17 +48,17 @@
             <span class="group-actions">
               <table width="100%" style="padding-bottom: 1px;">
                 <tr>
-                  <td align="left">
+                  <td align="left" style="font-size: 16px;">
                     <%= f.label :name, l(:label_grp_name) %><span style="color:red;">*</span>
                     <%= f.text_field :name, size: 20, maxlength: 100, disabled: isDisable, class: 'group-name-input', onchange: 'updateGroupHeader(this)' %>
                   </td>
                   <% unless isDisable %>
                     <td width="25%" align="right">
                       <%= f.check_box :_destroy, class: 'hide', style: 'display:none' %>
-                      <%= link_to sprite_icon('del', l(:button_delete_group)),
+                      <%= link_to sprite_icon('del') + " " + l(:button_delete_group),
                                 'javascript:void(0)',
                                 title: l(:button_delete_group),
-                                class: 'icon-del',
+                                class: 'icon icon-del',
                                 onclick: 'DeleteGroup(this)' %>
                     </td>
                   <% end %>
@@ -35,31 +67,99 @@
             </span>
 
           <div class="group-questions">
-            <%= f.fields_for :wk_survey_questions do |q| %>
-              <%= render partial: 'question_fields', locals: { f: q, isDisable: isDisable } %>
+            <%# Collect all form builders; store persisted ones in map, all top-level in list %>
+            <% f.fields_for :wk_survey_questions, all_questions do |qb| %>
+              <% question_builders_map[qb.object.id] = qb if qb.object.id.present? %>
+              <% top_level_builders << qb unless follow_up_ids.include?(qb.object.id) %>
             <% end %>
+
+            <%# Shared Set of rendered question IDs %>
+            <% r_ids = local_assigns[:rendered_ids] || Set.new %>
+
+            <% top_level_builders.each do |qb| %>
+              <%= render partial: 'question_fields', locals: { f: qb, isDisable: isDisable, question_builders_map: question_builders_map, rendered_ids: r_ids } %>
+            <% end %>
+
             <template id="question-template">
-              <%= f.fields_for :wk_survey_questions, WkSurveyQuestion.new.tap { |q| q.wk_survey_choices.build } ,child_index: "NEW_RECORD" do  |q| %>
-                <%= render partial: 'question_fields', locals: { f: q, isDisable: isDisable } %>
+              <%= f.fields_for :wk_survey_questions, WkSurveyQuestion.new.tap { |nq| nq.wk_survey_choices.build }, child_index: "NEW_RECORD" do |qb| %>
+                <%= render partial: 'question_fields', locals: { f: qb, isDisable: isDisable } %>
               <% end %>
             </template>
 
             <% unless isDisable %>
               <div class="add-question-link">
-                <%= link_to sprite_icon('add', l(:button_add_question)),
-                                  'javascript:void(0)',
-                                  onclick: 'addQuestions(this)', class: 'icon icon-add' %>
+                <%= link_to sprite_icon('add', l(:button_add_question)), 'javascript:void(0)', onclick: 'addQuestions(this)', class: 'icon icon-add' %>
               </div>
             <% end %>
           </div>
         </div>
       </div>
-    </div>
+    </td>
+  </tr>
+</table>
   <% else %>
-    <div class="ungrouped-questions">
-      <%= f.fields_for :wk_survey_questions do |q| %>
-        <%= render partial: 'question_fields', locals: { f: q, isDisable: isDisable } %>
+    <%
+      all_questions_ug = group.wk_survey_questions.sort_by { |qq| [qq.lft || 99999, qq.id || 99999] }
+      follow_up_ids_ug = Set.new
+      _ug_choice_ids = all_questions_ug.flat_map { |qq| qq.wk_survey_choices.map(&:id) }.compact
+      if _ug_choice_ids.any?
+        WkSurveyChoice.where(
+          id: _ug_choice_ids,
+          follow_up_question_type: 'WkSurveyQuestion'
+        ).where.not(follow_up_question_id: nil)
+         .pluck(:follow_up_question_id).each { |fid| follow_up_ids_ug.add(fid) }
+      end
+      question_builders_map_ug = {}
+      top_level_builders_ug = []
+    %>
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 5px;" class="group-container-wrap">
+      <tr>
+        <% unless isDisable %>
+          <td valign="top" width="25" style="padding-top: 5px;">
+            <div class="group-move-icons">
+              <a href="javascript:void(0)" onclick="moveGroupUp(this)" title="Move Up" style="display:block;text-decoration:none; color:#016bff; margin-bottom: 4px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
+                  <path d="M12 19V5"></path><path d="M5 12l7-7 7 7"></path>
+                </svg>
+              </a>
+              <a href="javascript:void(0)" onclick="moveGroupDown(this)" title="Move Down" style="display:block;text-decoration:none; color:#016bff;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
+                  <path d="M12 5v14"></path><path d="M19 12l-7 7-7-7"></path>
+                </svg>
+              </a>
+            </div>
+          </td>
+        <% end %>
+        <td valign="top">
+          <div class="group-ungrouped-questions" style="margin-bottom: 10px;">
+            <%= f.hidden_field :id %>
+            <%= f.hidden_field :sort_order, class: 'group-sort-order' %>
+            <%= f.hidden_field :_destroy, class: 'group-destroy-field', value: 0 %>
+    <div class="group-questions ungrouped-section">
+      <% f.fields_for :wk_survey_questions, all_questions_ug do |qb| %>
+        <% question_builders_map_ug[qb.object.id] = qb if qb.object.id.present? %>
+        <% top_level_builders_ug << qb unless follow_up_ids_ug.include?(qb.object.id) %>
       <% end %>
+
+      <% r_ids_ug = local_assigns[:rendered_ids] || Set.new %>
+      <% top_level_builders_ug.each do |qb| %>
+        <%= render partial: 'question_fields', locals: { f: qb, isDisable: isDisable, question_builders_map: question_builders_map_ug, rendered_ids: r_ids_ug } %>
+      <% end %>
+
+      <template id="question-template">
+        <%= f.fields_for :wk_survey_questions, WkSurveyQuestion.new.tap { |q| q.wk_survey_choices.build } ,child_index: "NEW_RECORD" do  |q| %>
+          <%= render partial: 'question_fields', locals: { f: q, isDisable: isDisable } %>
+        <% end %>
+      </template>
+
+      <% unless isDisable %>
+        <div class="add-question-link" style="display:none;">
+          <%= link_to sprite_icon('add', l(:button_add_question)), 'javascript:void(0)', onclick: 'addQuestions(this)', class: 'icon icon-add' %>
+        </div>
+      <% end %>
+      </div>
     </div>
+    </td>
+  </tr>
+</table>
   <% end %>
-</div>

@@ -1,8 +1,25 @@
-<%= stylesheet_link_tag 'wk-time', plugin: 'redmine_wktime' %>
-<div class="group-ungrouped-questions">
-<div class="group-accordion-item" id="group-__GROUP_INDEX__">
-  <%= f.hidden_field :id %>
-  <%= f.hidden_field :sort_order %>
+<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 5px;" class="group-container-wrap">
+  <tr>
+    <% unless isDisable %>
+      <td valign="top" width="25" style="padding-top: 5px;">
+        <div class="group-move-icons">
+          <a href="javascript:void(0)" onclick="moveGroupUp(this)" title="Move Up" style="display:block;text-decoration:none; color:#016bff; margin-bottom: 4px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
+              <path d="M12 19V5"></path><path d="M5 12l7-7 7 7"></path>
+            </svg>
+          </a>
+          <a href="javascript:void(0)" onclick="moveGroupDown(this)" title="Move Down" style="display:block;text-decoration:none; color:#016bff;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
+              <path d="M12 5v14"></path><path d="M19 12l-7 7-7-7"></path>
+            </svg>
+          </a>
+        </div>
+      </td>
+    <% end %>
+    <td valign="top">
+      <div class="group-accordion-item" id="group-__GROUP_INDEX__">
+        <%= f.hidden_field :id %>
+        <%= f.hidden_field :sort_order, class: 'group-sort-order' %>
 
   <h3 class="group-accordion-header">
     <span id="group-name">
@@ -25,12 +42,11 @@
           </td>
           <td width="25%" align="right">
             <%= f.check_box :_destroy, class: 'hide', style: 'display:none' %>
-            <%= link_to sprite_icon('del', l(:button_delete_group)),
+            <%= link_to sprite_icon('del') + ' ' + l(:button_delete_group),
                           'javascript:void(0)',
                           title: l(:button_delete_group),
                           class: 'icon-del',
                           onclick: 'DeleteGroup(this)' %>
-            </a>
           </td>
         </tr>
       </table>
@@ -62,4 +78,6 @@
     </div>
   </div>
 </div>
-</div>
+    </td>
+  </tr>
+</table>
