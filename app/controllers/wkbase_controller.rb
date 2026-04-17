@@ -174,8 +174,8 @@ class WkbaseController < ApplicationController
 			logEditPermission: getEditLogPermission,
 			settings: settings, languageSet: languageSet
 		}
-		#Resident Management settings
-		call_hook(:get_resident_settings, configs: configs)
+		
+		call_hook(:get_other_settings, configs: configs)
 
 		respond_to do |format|
 			format.json {

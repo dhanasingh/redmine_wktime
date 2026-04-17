@@ -19,7 +19,7 @@
 				<% if params[:project_id].blank? && @survey_perm %>
 					<th style="padding-left: 10px;">
 						<%= l(:label_survey_for) %>
-						<%=h select_tag("survey_for", options_for_select(getSurveyFor, :selected => params[:survey_for].blank? ? params[:surveyForType] : params[:survey_for]), :onchange => '$("#filter_form").submit()') %>
+						<%=h select_tag("survey_for", options_for_select(@survey_options, :selected => params[:survey_for].blank? ? params[:surveyForType] : params[:survey_for]), :onchange => '$("#filter_form").submit()') %>
 					</th>
 				<% end %>
 			</tr>

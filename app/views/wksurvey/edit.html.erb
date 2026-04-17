@@ -39,7 +39,7 @@
 						<tr>
 							<th align="left"><%= l(:label_survey_for) %></th>
 							<td>
-								<%= f.select :survey_for_type, options_for_select(getSurveyFor, survey_for),{}, {disabled: isDisable, id: "survey_for"} %>
+								<%= f.select :survey_for_type, options_for_select(@survey_options, survey_for),{}, {disabled: isDisable, id: "survey_for"} %>
 								<%= f.text_field :survey_for_id, value: survey_for_id, id: "survey_for_id", disabled: isDisable, size: 3, maxlength: 30 %>
 								<span id="SurveyFor"></span>
 								<%= hidden_field_tag 'IsSurveyForValid', false %>

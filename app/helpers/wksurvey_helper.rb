@@ -47,19 +47,6 @@ module WksurveyHelper
     groupNames
   end
 
-  def getSurveyFor
-    survey_types = {
-        "" => '',
-        l(:label_project) => 'Project',
-        l(:label_accounts) => 'WkAccount',
-        l(:label_contact) => 'WkCrmContact',
-        l(:label_user) => 'User'
-    }
-    call_hook(:add_survey_for, :survey_types => survey_types)
-    survey_types
-  end
-
-
   def surveyList(params)
 
     surveys = get_survey_with_userGroup(nil)

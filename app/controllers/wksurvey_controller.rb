@@ -38,6 +38,7 @@ class WksurveyController < WkbaseController
 
     surveys = surveyList(params)
     surveys = surveys.reorder(sort_clause)
+    @survey_options = getSurveyFor
 		respond_to do |format|
 			format.html {
         @all_surveys = formPagination(surveys)
@@ -58,6 +59,7 @@ class WksurveyController < WkbaseController
 
   def edit
     getSurveyForType(params)
+    @survey_options = getSurveyFor
     @survey = WkSurvey.find_or_initialize_by(id: params[:survey_id])
     if @survey.new_record?
       group = @survey.wk_survey_que_groups.build
@@ -490,61 +492,6 @@ class WksurveyController < WkbaseController
     end
   end
 
-  def check_perm_and_redirect
-    get_survey(params[:survey_id], (["edit","survey_response","survey_result", "print_survey_result, update_survey"].include?(action_name)) &&
-      @survey_perm || action_name == "graph") unless params[:survey_id].blank?
-    survey = get_survey_with_userGroup(params[:survey_id]) unless params[:survey_id].blank? && action_name == "survey_response"
-    closed_response = getResponseGroup(params[:survey_id]) unless params[:survey_id].blank?
-    if "survey" == action_name
-      allowSupervisor = "survey" == action_name && params[:response_id].present?
-      survey = get_survey_with_userGroup(params[:survey_id], allowSupervisor).first
-    end
-    if !showSurvey || (!check_manage_perm && (["edit", "save_survey"].include? action_name))
-      render_403
-      return false
-    elsif (["email_user", "update_survey"].include? action_name && @survey.try(:status) != "O") ||
-      (action_name == "survey_response" && survey.blank? && !(@survey_perm)) ||
-      (action_name == "survey_result" && @survey.try(:status) != "C" && !(@survey_perm || closed_response.present?)) ||
-      ("survey" == action_name && !(["O", "C"].include? @survey.try(:status)))
-        render_404
-        return false
-    end
-  end
-
-  def survey_url_validation
-
-    is_survey_not_permitted = false
-    #project tab
-    if !params[:project_id].blank? && !get_project_id(params[:project_id]).blank?
-      find_project_by_project_id
-    elsif !params[:project_id].blank? && get_project_id(params[:project_id]).blank?
-      is_survey_not_permitted = true
-    end
-
-    if !params[:id].blank? && !@project.blank?
-      survey = WkSurvey.where(:id => params[:id])
-      is_survey_not_permitted = true if survey.blank?
-    #ERPmine tab
-    elsif !params[:contact_id].blank? && params[:project_id].blank?
-      contact = WkCrmContact.where(:id => params[:contact_id])
-      is_survey_not_permitted = true if contact.blank?
-    elsif !params[:account_id].blank? && params[:project_id].blank?
-      account = WkAccount.where(:id => params[:account_id])
-      is_survey_not_permitted = true if account.blank?
-    elsif !params[:survey_id].blank? && params[:project_id].blank?
-      survey = WkSurvey.where(:id => params[:survey_id])
-      is_survey_not_permitted = true if survey.blank?
-    end
-
-    if is_survey_not_permitted
-      render_404
-      return false
-    elsif !params[:project_id].blank? && !User.current.allowed_to?(:view_survey, @project)
-      render_403
-      return false
-    end
-  end
-
   def user_survey
     index
   end
@@ -852,7 +799,7 @@ class WksurveyController < WkbaseController
   def validate_permissions
     return true if action_name == "graph"
 
-    unless showSurvey && check_view_perm
+    unless showSurvey
       render_403
       return  
     end
@@ -908,5 +855,16 @@ class WksurveyController < WkbaseController
   # ========== REDIRECT HELPER ==========
   def get_survey_redirect_url(urlHash, params = nil)
     url_for(urlHash.merge(controller: controller_name))
+  end
+
+  def getSurveyFor
+    survey_types = {
+        "" => '',
+        l(:label_project) => 'Project',
+        l(:label_accounts) => 'WkAccount',
+        l(:label_contact) => 'WkCrmContact',
+        l(:label_user) => 'User'
+    }
+    survey_types
   end
 end
