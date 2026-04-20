@@ -60,7 +60,7 @@ module WkleaverequestHelper
 		leave_available = []
 		get_leave_type.each do |subject, issue_id|
 			userHours = WkUserLeave.leaveAvailableHours(issue_id, userId).first
-			available_hours = userHours.balance + userHours.accrual - userHours.used  if userHours.present?
+			available_hours = userHours.balance.to_f + userHours.accrual.to_f - userHours.used.to_f  if userHours.present?
 			leave_available << { issue_id => available_hours}
 		end
 		leave_available
