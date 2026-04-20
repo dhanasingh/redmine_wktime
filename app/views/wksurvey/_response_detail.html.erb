@@ -128,15 +128,25 @@
                   <td align="left" style="padding-left:30px;">
                     <% case entry.question_type %>
                     <% when 'CB' %>
-                       <%= check_box_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}" + (choice_entry.id).to_s, choice_entry.id || entry.id, isChecked,
-                         data: { points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }, onchange: "updateTotalPoints(); handleFollowUpVisibility();",
-                         disabled: disableAnswer, required: isMandatory,
-                         class: "survey_sel_choice_"+ (entry.id).to_s) %>
+                      <% if isPrint %>
+                        <span style="font-size: 16px;"><%= isChecked ? '&#9745;'.html_safe : '&#9744;'.html_safe %></span>
+                        <%= hidden_field_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}" + (choice_entry.id).to_s, choice_entry.id || entry.id, data: { points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }) if isChecked %>
+                      <% else %>
+                        <%= check_box_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}" + (choice_entry.id).to_s, choice_entry.id || entry.id, isChecked,
+                          data: { points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }, onchange: "updateTotalPoints(); handleFollowUpVisibility();",
+                          disabled: disableAnswer, required: isMandatory,
+                          class: "survey_sel_choice_"+ (entry.id).to_s) %>
+                      <% end %>
                       <span class="survey_sel_choice_<%= entry.id %>_<%= choice_entry.id %> choice-text"><%= choice_entry.name %>&nbsp;<% if points[:show_points].present? %><span style="font-size: 10px;">&nbsp;(<%= survey_points %>)</span><% end %></span>
                     <% when 'RB' %>
-                       <%= radio_button_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}", choice_entry.id || entry.id, isChecked,
-                         data: { points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }, onchange: "updateTotalPoints(); handleFollowUpVisibility();",
-                         disabled: disableAnswer, required: isMandatory) %>
+                      <% if isPrint %>
+                        <span style="font-size: 16px;"><%= isChecked ? '&#9673;'.html_safe : '&#9675;'.html_safe %></span>
+                        <%= hidden_field_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}", choice_entry.id || entry.id, data: { points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }) if isChecked %>
+                      <% else %>
+                        <%= radio_button_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}", choice_entry.id || entry.id, isChecked,
+                          data: { points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }, onchange: "updateTotalPoints(); handleFollowUpVisibility();",
+                          disabled: disableAnswer, required: isMandatory) %>
+                      <% end %>
                       <span class="survey_sel_choice_<%= entry.id %>__<%= choice_entry.id %> choice-text"><%= choice_entry.name %>&nbsp;<% if points[:show_points].present? %><span style="font-size: 10px;">&nbsp;(<%= survey_points %>)</span><% end %></span>
                     <% end %>
                   </td>
@@ -176,11 +186,23 @@
                 <td align="left" style="padding-left:30px;">
                   <% case entry.question_type %>
                   <% when 'TB' %>
-                       <%= isPrint ? choice_text : text_field_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}", choice_text, data: { points_field: true, points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }, oninput: "updateTotalPoints(); handleFollowUpVisibility();", size: 60,
-                        disabled: disableAnswer, required: isMandatory, style: "outline: none;") %><% if points[:show_points].present? %><span style="font-size: 10px;">&nbsp;(<%= survey_points %>)<% end %></span>
+                    <% if isPrint %>
+                       <span><%= choice_text %></span>
+                       <%= hidden_field_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}", choice_text, data: { points_field: true, points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }) %>
+                    <% else %>
+                       <%= text_field_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}", choice_text, data: { points_field: true, points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }, oninput: "updateTotalPoints(); handleFollowUpVisibility();", size: 60,
+                        disabled: disableAnswer, required: isMandatory, style: "outline: none;") %>
+                    <% end %>
+                    <% if points[:show_points].present? %><span style="font-size: 10px;">&nbsp;(<%= survey_points %>)<% end %></span>
                   <% when 'MTB' %>
-                      <%= isPrint ? choice_text : text_area_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}", choice_text, data: { points_field: true, points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }, oninput: "updateTotalPoints(); handleFollowUpVisibility();", rows: 5, cols: 60,
-                        disabled: disableAnswer, required: isMandatory) %><% if points[:show_points].present? %><span style="font-size: 10px;">&nbsp;(<%= survey_points %>)<% end %></span>
+                    <% if isPrint %>
+                       <span><%= choice_text %></span>
+                       <%= hidden_field_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}", choice_text, data: { points_field: true, points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }) %>
+                    <% else %>
+                      <%= text_area_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}", choice_text, data: { points_field: true, points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }, oninput: "updateTotalPoints(); handleFollowUpVisibility();", rows: 5, cols: 60,
+                        disabled: disableAnswer, required: isMandatory) %>
+                    <% end %>
+                    <% if points[:show_points].present? %><span style="font-size: 10px;">&nbsp;(<%= survey_points %>)<% end %></span>
                   <% end %>
                 </td>
               </tr>

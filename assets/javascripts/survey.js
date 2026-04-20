@@ -161,15 +161,15 @@ function reOrderIndex(onlyVisible = true) {
 		var choiceIndexCounter = 0;
 
 		$parentQ.children('table').find('> tbody > tr').each(function () {
-			if ($(this).hasClass('choice-row')) {
+			if ($(this).hasClass('choice-row') && $(this).css('display') !== 'none') {
 				choiceIndexCounter++;
 			} else if (!isChoiceBased && $(this).find("a[onclick*='addFollowUpQuestion']").length > 0) {
 				choiceIndexCounter = 1;
 			}
 
 			if ($(this).hasClass('followup-inline-row')) {
-				var $child = $(this).find('.surveyquestion.child-question' + visibleFilter).first();
-				if ($child.length) {
+				var $child = $(this).find('.surveyquestion.child-question').first();
+				if ($child.length && $child.css('display') !== 'none') {
 					var currentIndex = choiceIndexCounter > 0 ? choiceIndexCounter : 1;
 					globalSortOrder++;
 					$child.children('table').find('td.indexNo .index-num').html('<b>' + parentIndex + '.' + currentIndex + '</b>');
@@ -180,11 +180,10 @@ function reOrderIndex(onlyVisible = true) {
 			}
 		});
 
-
 		$parentQ.children('.follow-up-container').each(function (index) {
-			var currentIndex = index + 1;
-			var $child = $(this).find('.surveyquestion.child-question' + visibleFilter).first();
-			if ($child.length) {
+			var $child = $(this).find('.surveyquestion.child-question').first();
+			if ($child.length && $child.css('display') !== 'none') {
+				var currentIndex = index + 1;
 				globalSortOrder++;
 				$child.children('table').find('td.indexNo .index-num').html('<b>' + parentIndex + '.' + currentIndex + '</b>');
 				$child.children('table').find('.childIndexNo').html('<b>' + parentIndex + '.' + currentIndex + '</b>&nbsp;');
@@ -195,11 +194,12 @@ function reOrderIndex(onlyVisible = true) {
 	}
 
 
-	var containerSelector = (onlyVisible === true) ?
-		'.group-accordion-item:visible, .group-ungrouped-questions:visible' :
-		'.group-accordion-item, .group-ungrouped-questions';
+	var containerSelector = '.group-accordion-item, .group-ungrouped-questions';
 
 	$(containerSelector).each(function () {
+		var $wrap = $(this).closest('.group-container-wrap');
+		if ($wrap.length > 0 && !$wrap.is(':visible')) return;
+
 		globalGroupSortOrder++;
 		$(this).children('.group-sort-order').val(globalGroupSortOrder);
 
@@ -221,7 +221,10 @@ function reOrderIndex(onlyVisible = true) {
 			var questionCounter = 0;
 			var $groupContainer = $(this).find('.group-questions');
 			if ($groupContainer.length) {
-				$groupContainer.find('.surveyquestion:not(.child-question)' + visibleFilter).each(function () {
+				$groupContainer.find('.surveyquestion:not(.child-question)').each(function () {
+					if ($(this).css('display') === 'none') return;
+					if (onlyVisible && !$(this).is(':visible')) return;
+
 					questionCounter++;
 					globalSortOrder++;
 					var parentIndex = groupCounter + '.' + questionCounter;
@@ -231,7 +234,10 @@ function reOrderIndex(onlyVisible = true) {
 				});
 			}
 		} else if ($(this).hasClass('group-ungrouped-questions')) {
-			$(this).find('.surveyquestion:not(.child-question)' + visibleFilter).each(function () {
+			$(this).find('.surveyquestion:not(.child-question)').each(function () {
+				if ($(this).css('display') === 'none') return;
+				if (onlyVisible && !$(this).is(':visible')) return;
+
 				ungropquestionCounter++;
 				globalSortOrder++;
 				var parentIndex = ungropquestionCounter;
@@ -425,14 +431,23 @@ function addChoiceRow(link) {
 // Delete row
 function DeleteChoice(link) {
 	const row = link.closest("tr");
+	const table = row.closest("table"); // capture before possible DOM removal
 	const destroyField = row.querySelector("input[name*='[_destroy]']");
+
 	if (destroyField) {
+		// Existing DB record – mark for deletion and hide
 		destroyField.value = '1';
 		if (destroyField.type === 'checkbox') destroyField.checked = true;
+		row.style.display = 'none';
+		if (typeof unlinkQuestion === "function") unlinkQuestion($(row));
+	} else {
+		// New (unsaved) choice – remove from DOM entirely so it is never submitted
+		if (typeof unlinkQuestion === "function") unlinkQuestion($(row));
+		if (row.parentNode) row.parentNode.removeChild(row);
 	}
-	row.style.display = 'none';
-	if (typeof unlinkQuestion === "function") unlinkQuestion($(row));
-	if (typeof updateChoiceLabels === "function") updateChoiceLabels(row.closest("table"));
+
+	if (typeof updateChoiceLabels === "function") updateChoiceLabels($(table));
+	reOrderIndex(false);
 }
 
 function DeleteGroup(element) {
@@ -497,19 +512,32 @@ function DeleteQuestion(element) {
 	if ($destroyField.length) {
 		$destroyField.val('1');
 		$destroyField.filter('[type="checkbox"]').prop('checked', true);
-	}
 
-	// If nested inside a follow-up-container, hide the container and its wrapping tr
-	var $container = $question.closest('.follow-up-container');
-	if ($container.length) {
-		var $inlineRow = $container.closest('tr.followup-inline-row');
-		if ($inlineRow.length) {
-			$inlineRow.hide();
+		// If nested inside a follow-up-container, hide the container and its wrapping tr
+		var $container = $question.closest('.follow-up-container');
+		if ($container.length) {
+			var $inlineRow = $container.closest('tr.followup-inline-row');
+			if ($inlineRow.length) {
+				$inlineRow.hide();
+			} else {
+				$container.hide();
+			}
 		} else {
-			$container.hide();
+			$question.hide();
 		}
 	} else {
-		$question.hide();
+		// New (unsaved) question – remove from DOM entirely
+		var $container = $question.closest('.follow-up-container');
+		if ($container.length) {
+			var $inlineRow = $container.closest('tr.followup-inline-row');
+			if ($inlineRow.length) {
+				$inlineRow.remove();
+			} else {
+				$container.remove();
+			}
+		} else {
+			$question.remove();
+		}
 	}
 
 	$question.find('.choice-row, .text-points').each(function () {
@@ -529,7 +557,7 @@ function DeleteQuestion(element) {
 		}
 	}
 
-	reOrderIndex();
+	reOrderIndex(false);
 }
 
 function addUngroupedQues() {
