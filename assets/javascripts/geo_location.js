@@ -3,10 +3,12 @@ $(function(){
 });
 
 function getGeoLocation(){
-  if(!navigator.geolocation) {
-    alert('Geolocation is not supported by your browser');
+  if(navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(success, error, {
+      enableHighAccuracy: false, timeout: 10000, maximumAge: 15000
+    });
   } else {
-    navigator.geolocation.getCurrentPosition(success, error, { enableHighAccuracy: true });
+    error();
   }
 }
 
@@ -20,6 +22,9 @@ function success(position) {
   }
 }
 
-function error(error) {
-  console.log(error)
+function error(err) {
+  if(err) console.log(err);
+  if($('#mapContainer').length > 0 && typeof showMap === 'function'){
+    showMap(0, 0);
+  }
 }

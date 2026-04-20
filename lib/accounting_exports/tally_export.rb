@@ -45,7 +45,8 @@ module AccountingExports
     DETAIL_TYPE_MAP = { 'd' => 'Dr', 'c' => 'Cr' }.freeze
 
     TRANSACTION_HEADERS = ['Voucher Date', 'Voucher Type Name', 'Voucher Number',
-                           'Ledger Name', 'Ledger Amount', 'Ledger Amount Dr/Cr'].freeze
+                           'Narration', 'Ledger Name', 'Ledger Amount',
+                           'Ledger Amount Dr/Cr'].freeze
 
     LEDGER_HEADERS = ['Name', 'Group Name', 'Ledger - Opening Balance',
                       'Ledger Opening Balance - Dr/Cr'].freeze
@@ -101,8 +102,9 @@ module AccountingExports
         row << format_date(transaction.trans_date)
         row << (trans_type_hash[transaction.trans_type] || transaction.trans_type)
         row << transaction.id.to_s
+        row << transaction.comment.to_s
       else
-        row << '' << '' << ''
+        row << '' << '' << '' << ''
       end
 
       row << detail.ledger.name
