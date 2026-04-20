@@ -909,10 +909,6 @@ class WksurveyController < WkbaseController
     true
   end
 
-  # ========== REDIRECT HELPER ==========
-  def get_survey_redirect_url(urlHash, params = nil)
-    url_for(urlHash.merge(controller: controller_name))
-  end
 
   def getSurveyFor
     survey_types = {
