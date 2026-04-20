@@ -360,6 +360,15 @@ class WksurveyController < WkbaseController
     @survey_result_Entries = WkSurveyQuestion.where("wk_survey_questions.survey_id = #{params[:survey_id]} AND wk_survey_questions.question_type NOT IN ('TB', 'MTB') AND wk_survey_questions.not_in_report = #{booleanFormat(false)}").select("wk_survey_questions.survey_id, wk_survey_questions.id, wk_survey_questions.name AS question_name")
     .order("wk_survey_questions.survey_id, wk_survey_questions.id")
 
+    # Load all reportable questions grouped by their survey group, in survey order
+    questions = @survey.wk_survey_questions
+      .includes(:wk_survey_que_group, :wk_survey_choices)
+      .where(not_in_report: false)
+      .order("wk_survey_questions.lft, wk_survey_questions.id")
+    
+    @all_questions_map = questions.index_by(&:id)
+    @survey_grouped_questions = questions.group_by(&:wk_survey_que_group)
+
     @survey_txt_questions = WkSurvey.surveyTextQuestion(params[:survey_id])
     txt_answers= WkSurvey.getTextAnswer(params[:survey_id], params[:surveyForType])
     isAdmin = (@survey_perm)
@@ -372,6 +381,54 @@ class WksurveyController < WkbaseController
       txt_answers = txt_answers.responsedTextAnswer(groupName) if !isAdmin
     end
     @survey_txt_answers = txt_answers
+
+    question_type_map = @survey.wk_survey_questions.pluck(:id, :question_type).to_h
+    question_choices_map = Hash.new { |h, k| h[k] = [] }
+    WkSurveyChoice.joins(:survey_question).where(wk_survey_questions: { survey_id: params[:survey_id] })
+      .pluck(:survey_question_id, :id).each { |qid, cid| question_choices_map[qid.to_i] << cid.to_i }
+
+    answer_scope = WkSurveyAnswer.joins(:survey_response)
+      .where('wk_survey_responses.survey_id = ?', params[:survey_id])
+    if params[:surveyForType].present?
+      answer_scope = answer_scope.where('wk_survey_responses.survey_for_type = ?', params[:surveyForType])
+    else
+      answer_scope = answer_scope.where('wk_survey_responses.survey_for_type IS NULL')
+    end
+    if @survey.recur?
+      if params[:groupName].present?
+        answer_scope = answer_scope.where('wk_survey_responses.group_name = ?', params[:groupName])
+      elsif isAdmin
+        answer_scope = answer_scope.where('wk_survey_responses.group_name IS NULL')
+      else
+        answer_scope = answer_scope.where('wk_survey_responses.group_name = ?', getResponseGroup.last)
+      end
+    end
+
+    @responses_by_selection = {}
+    answer_scope.pluck(:survey_question_id, :survey_choice_id, :survey_response_id, :choice_text).each do |qid, cid, rid, ct|
+      qtype = question_type_map[qid.to_i]
+      
+      parent_choice_id = if ['TB', 'MTB'].include?(qtype)
+        cid.present? ? cid.to_i : nil
+      else
+        (ct.present? && ct.to_s =~ /\A\d+\z/) ? ct.to_s.to_i : nil
+      end
+      
+      if ['TB', 'MTB'].include?(qtype)
+        # For Text questions, every hidden choice row representing a follow-up link is considered selected if answered.
+        (question_choices_map[qid.to_i] || []).each do |choice_id|
+          key = [qid.to_i, parent_choice_id, choice_id.to_i]
+          @responses_by_selection[key] ||= Set.new
+          @responses_by_selection[key] << rid.to_i
+        end
+      else
+        # For Choice questions, the selected choice is in survey_choice_id
+        key = [qid.to_i, parent_choice_id, cid.present? ? cid.to_i : nil]
+        @responses_by_selection[key] ||= Set.new
+        @responses_by_selection[key] << rid.to_i
+      end
+    end
+
   end
 
   def graph

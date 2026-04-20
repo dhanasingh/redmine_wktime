@@ -61,7 +61,6 @@
     <% end %>
 
     <%
-      # Define recursive rendering helper
       render_survey_question = lambda do |entry, depth, parent_choice_id = nil, parent_index = "", is_last = true|
         isReviewerOnly = ActiveModel::Type::Boolean.new.cast(entry.is_reviewer_only)
         isMandatory = ActiveModel::Type::Boolean.new.cast(entry.is_mandatory)
@@ -85,13 +84,11 @@
              triggering_selected = @response.wk_survey_answers.where(survey_choice_id: parent_choice_id).exists?
           end
 
-          # For root questions (not followups), they are always initially visible unless their own logic says otherwise
-          # But in this new model, everything we render here is either a root or we've already decided to render it.
           initial_display = isFollowup && !triggering_selected ? 'display:none;' : ''
           initial_display += " padding-left: #{depth * 20}px;" if depth > 0
 
-          # Unique ID for this instance of the question
-          unique_q_id = parent_choice_id ? "#{entry.id}_#{parent_choice_id}" : entry.id.to_s
+          path_id = parent_index.to_s.gsub('.', '_').chomp('_')
+          unique_q_id = isFollowup ? "#{entry.id}_#{parent_choice_id}_#{path_id}" : entry.id.to_s
     %>
           <%= hidden_field_tag("question_type_"+ (entry.id).to_s, entry.question_type) %>
           <%= hidden_field_tag("isReviewerOnly_"+ (entry.id).to_s, isReviewerOnly) %>
@@ -119,10 +116,13 @@
                   isChecked = @response.present? && survey_ans.present?
                   survey_points = choice_entry.points || 0.0
                   followup_id = choice_link_map[choice_entry.id]
-                  followup_block_id = followup_id ? "wkq_#{followup_id}_#{choice_entry.id}" : nil
+                  
+                  # Generate unique block ID for the followup, including current path
+                  followup_idx_path = "#{parent_index.chomp('.').presence || ''}.#{c_idx + 1}".gsub('.', '_')
+                  followup_block_id = followup_id ? "wkq_#{followup_id}_#{choice_entry.id}_#{followup_idx_path}" : nil
                 %>
                 <%
-                  p_suffix = parent_choice_id.present? ? "p#{parent_choice_id}_" : ""
+                  p_suffix = isFollowup ? "p#{parent_choice_id}_#{path_id}_" : ""
                 %>
                 <tr class="tr_choice_<%= unique_q_id %>">
                   <td align="left" style="padding-left:30px;">
@@ -134,7 +134,7 @@
                          class: "survey_sel_choice_"+ (entry.id).to_s) %>
                       <span class="survey_sel_choice_<%= entry.id %>_<%= choice_entry.id %> choice-text"><%= choice_entry.name %>&nbsp;<% if points[:show_points].present? %><span style="font-size: 10px;">&nbsp;(<%= survey_points %>)</span><% end %></span>
                     <% when 'RB' %>
-                      <%= radio_button_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}", choice_entry.id || entry.id, isChecked,
+                       <%= radio_button_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}", choice_entry.id || entry.id, isChecked,
                          data: { points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }, onchange: "updateTotalPoints(); handleFollowUpVisibility();",
                          disabled: disableAnswer, required: isMandatory) %>
                       <span class="survey_sel_choice_<%= entry.id %>__<%= choice_entry.id %> choice-text"><%= choice_entry.name %>&nbsp;<% if points[:show_points].present? %><span style="font-size: 10px;">&nbsp;(<%= survey_points %>)</span><% end %></span>
@@ -167,8 +167,10 @@
               <% survey_points = entry.wk_survey_choices.first&.points || 0 %>
               <%
                 followup_id = choice_link_map[entry.wk_survey_choices.first&.id]
-                followup_block_id = followup_id ? "wkq_#{followup_id}_#{entry.wk_survey_choices.first&.id}" : nil
-                p_suffix = parent_choice_id.present? ? "p#{parent_choice_id}_" : ""
+                
+                followup_idx_path = "#{parent_index.chomp('.').presence || ''}.1".gsub('.', '_')
+                followup_block_id = followup_id ? "wkq_#{followup_id}_#{entry.wk_survey_choices.first&.id}_#{followup_idx_path}" : nil
+                p_suffix = isFollowup ? "p#{parent_choice_id}_#{path_id}_" : ""
               %>
               <tr>
                 <td align="left" style="padding-left:30px;">

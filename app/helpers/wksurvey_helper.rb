@@ -269,23 +269,25 @@ module WksurveyHelper
         WHERE SQ.id = #{question_id} " + get_comp_cond('S') + get_comp_cond('SQ') + get_comp_cond('SC') + " ORDER BY SC.id")
 
       if question_choices.length > 0
-        surveyed_employees_per_choice = WkSurvey.find_by_sql("SELECT COUNT(SR.user_id) AS emp_count, SC.id
+        surveyed_employees_per_choice = WkSurvey.find_by_sql("SELECT COUNT(DISTINCT SR.user_id) AS emp_count, SC.id
           FROM wk_surveys AS S
           INNER JOIN wk_survey_questions AS SQ ON S.id = SQ.survey_id
           INNER JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id
           INNER JOIN wk_survey_answers AS SCC ON SC.id = SCC.survey_choice_id
-          INNER JOIN wk_survey_responses AS SR ON SR.survey_id = S.id	AND SR.id = SCC.survey_response_id " +
+          INNER JOIN wk_survey_responses AS SR ON SR.survey_id = S.id AND SR.id = SCC.survey_response_id " +
           " WHERE SQ.id = #{question_id} "+ surveyForQry + groupNameCond + get_comp_cond('S') + get_comp_cond('SQ') + get_comp_cond('SC') + get_comp_cond('SCC') + get_comp_cond('SR') +
-          "GROUP BY S.id, SQ.id, SC.id
+          (params[:parent_choice_id].present? ? " AND SCC.choice_text = '#{params[:parent_choice_id].to_i}' " : "") +
+          " GROUP BY S.id, SQ.id, SC.id
           ORDER BY SC.id")
       else
-        surveyed_employees_per_choice = WkSurvey.find_by_sql("SELECT COUNT(SR.user_id) AS emp_count, SQ.id
+        surveyed_employees_per_choice = WkSurvey.find_by_sql("SELECT COUNT(DISTINCT SR.user_id) AS emp_count, SQ.id
         FROM wk_surveys AS S
         INNER JOIN wk_survey_questions AS SQ ON S.id = SQ.survey_id
         INNER JOIN wk_survey_answers AS SCC ON SQ.id = SCC.survey_question_id
-        INNER JOIN wk_survey_responses AS SR ON SR.survey_id = S.id	AND SR.id = SCC.survey_response_id " +
+        INNER JOIN wk_survey_responses AS SR ON SR.survey_id = S.id AND SR.id = SCC.survey_response_id " +
         " WHERE SQ.id = #{question_id} "+ surveyForQry + groupNameCond + get_comp_cond('S') + get_comp_cond('SQ') + get_comp_cond('SCC') + get_comp_cond('SR') +
-        "GROUP BY S.id, SQ.id")
+        (params[:parent_choice_id].present? ? " AND SCC.choice_text = '#{params[:parent_choice_id].to_i}' " : "") +
+        " GROUP BY S.id, SQ.id")
       end
 
       fields = Array.new

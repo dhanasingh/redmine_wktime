@@ -1,3 +1,79 @@
+<% 
+  # Pre-calculate survey structure for hierarchical rendering
+  all_questions = @survey.wk_survey_questions.includes(:wk_survey_choices)
+  choice_link_map = {}
+  all_questions.collect(&:wk_survey_choices).flatten.each do |c|
+    choice_link_map[c.id] = c.follow_up_question_id if c.follow_up_question_id.present?
+  end
+
+  followup_question_ids = Set.new
+  all_questions.each do |q|
+    q.wk_survey_choices.each do |c|
+      followup_question_ids.add(c.follow_up_question_id) if c.follow_up_question_id.present?
+    end
+  end
+
+  render_survey_result_item = lambda do |entry, depth, parent_index = "", qualifying_response_ids = nil, triggering_choice_id = nil|
+%>
+    <div style="padding-left: <%= depth * 20 %>px; margin-bottom: 20px;">
+      <%
+        path_id = parent_index.to_s.gsub('.', '_').chomp('_')
+      %>
+      <% if ['TB', 'MTB'].include?(entry.question_type) %>
+        <table width="100%">
+          <tr>
+            <th align="left" style="white-space: nowrap">
+              <b><%= parent_index %></b>&nbsp;<%= entry.name %>
+            </th>
+          </tr>
+          <% @survey_txt_answers.each do |ans_entry| %>
+            <% ans_qid = ans_entry.respond_to?(:question_id) ? ans_entry.question_id : ans_entry[:question_id]
+               ans_rid = ans_entry.respond_to?(:response_id) ? ans_entry.response_id : ans_entry[:response_id]
+               ans_tid = ans_entry.respond_to?(:trigger_choice_id) ? ans_entry.trigger_choice_id : ans_entry[:trigger_choice_id]
+            %>
+            <% next unless entry.id == ans_qid.to_i %>
+            <% if qualifying_response_ids
+                 next unless qualifying_response_ids.include?(ans_rid.to_i)
+               end %>
+            <% if triggering_choice_id.present?
+                 next unless ans_tid.to_i == triggering_choice_id.to_i
+               else
+                 next if ans_tid.present?
+               end %>
+              <tr><td style="padding-left: 50px;"><%= ans_entry.respond_to?(:choice_text) ? ans_entry.choice_text : ans_entry[:choice_text] %></td></tr>
+          <% end %>
+        </table>
+      <% else %>
+        <table class="odd-even" width="100%">
+          <tr>
+            <th align="left">
+              <b><%= parent_index %></b>&nbsp;<%= entry.name %>
+            </th>
+          </tr>
+          <tr>
+            <td><%= render :partial => 'graph', :locals => { :entry => entry, :graph_id_suffix => path_id, :parent_choice_id => triggering_choice_id } if (validateTrendingChart(entry.survey_id, entry.id) || params[:groupName] != 'trendChart') %></td>
+            <th style="width: 50%; font-size: 96px; text-align: center" id="avgScore_<%= entry.id %>_<%= path_id %>"></th>
+          </tr>
+        </table>
+      <% end %>
+
+      <%# Recursively render follow-ups linked to choices of this question %>
+      <% entry.wk_survey_choices.each_with_index do |choice_entry, c_idx| %>
+        <% followup_id = choice_link_map[choice_entry.id] %>
+        <% if followup_id.present? && @all_questions_map[followup_id] %>
+          <%
+            cur_trigger = triggering_choice_id.presence ? triggering_choice_id.to_i : nil
+            via_selection_ids = @responses_by_selection[[entry.id, cur_trigger, choice_entry.id]] || Set.new
+            child_qualifying_ids = qualifying_response_ids ? (qualifying_response_ids & via_selection_ids) : via_selection_ids
+          %>
+          <% render_survey_result_item.call(@all_questions_map[followup_id], depth + 1, "#{parent_index.chomp('.').presence || ''}.#{c_idx + 1}", child_qualifying_ids, choice_entry.id) %>
+        <% end %>
+      <% end %>
+    </div>
+<%
+  end
+%>
+
 <% if action_name == 'print_survey_result' && @survey.recur %>
   <table>
     <tr>
@@ -13,30 +89,38 @@
   </table>
 <% end %>
 
-<div>
-  <% @survey_result_Entries.each do |entry| %>
-    <fieldset class="box tabular">
-      <table class="odd-even">
-        <tr><th align="left"><%= entry.question_name %></th></tr>
-        <tr>
-          <td><%= render :partial => 'graph', :locals => { :entry => entry } if (validateTrendingChart(entry.survey_id, entry.id) || params[:groupName] != 'trendChart') %></td>
-          <th style="width: 50%; font-size: 96px; text-align: center" id="avgScore_<%= entry.id %>"></th>
-        <tr>
-      </table>
-    </fieldset>
-  <% end %>
-</div>
-<div>
-  <% @survey_txt_questions.each do |qn_entry| %>
-    <fieldset class="box tabular">
-      <table>
-        <tr><th align="left" style="white-space: nowrap"><%= qn_entry.question_name %></th></tr>
-        <% @survey_txt_answers.each do |ans_entry| %>
-          <% if qn_entry.question_id == ans_entry.question_id %>
-            <tr><td style="padding-left: 50px;"><%= ans_entry.choice_text %></td><tr>
-          <% end %>
-        <% end %>
-      </table>
-    </fieldset>
-  <% end %>
-</div>
+<% 
+  group_counter = 0
+  @survey_grouped_questions.each do |group, group_questions| 
+%>
+  <fieldset class="box tabular">
+    <% if group.present? && group.name.present? %>
+      <h3 style="padding-bottom: 1px;"><%= group.name %></h3>
+      <% group_counter += 1 %>
+    <% end %>
+
+    <% 
+        top_level_questions = group_questions.select { |q| !followup_question_ids.include?(q.id) }
+    %>
+
+    <% if group.present? && group.name.present? %>
+      <%
+        q_counter = 0
+      %>
+      <% top_level_questions.each do |entry| %>
+         <% q_counter += 1 %>
+         <% parent_index = "#{group_counter}.#{q_counter}." %>
+         <% render_survey_result_item.call(entry, 0, parent_index) %>
+      <% end %>
+    <% else %>
+      <%
+        ungrouped_q_counter = 0
+      %>
+      <% top_level_questions.each do |entry| %>
+        <% ungrouped_q_counter += 1 %>
+        <% parent_index = "#{ungrouped_q_counter}." %>
+        <% render_survey_result_item.call(entry, 0, parent_index) %>
+      <% end %>
+    <% end %>
+  </fieldset>
+<% end %>

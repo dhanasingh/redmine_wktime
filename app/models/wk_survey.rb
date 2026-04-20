@@ -43,10 +43,12 @@ class WkSurvey < ApplicationRecord
   }
 
   scope :getTextAnswer, ->(survey_id, surveyForType){
-    surveyTextQuestion(survey_id).joins(:wk_survey_answers)
-    .where(" wk_survey_questions.id = wk_survey_answers.survey_question_id AND
-      wk_survey_responses.survey_for_type " + (surveyForType.blank? ? " IS NULL " : " = '#{surveyForType}'"))
-    .select("wk_survey_answers.choice_text")
+    joins(:wk_survey_questions, wk_survey_responses: :wk_survey_answers)
+    .where("wk_surveys.id = ? AND wk_survey_questions.id = wk_survey_answers.survey_question_id", survey_id)
+    .where("wk_survey_questions.question_type IN ('TB', 'MTB')")
+    .where(wk_survey_responses: { survey_for_type: surveyForType.presence }) 
+    .select("wk_survey_answers.choice_text, wk_survey_questions.id AS question_id, wk_survey_answers.survey_response_id AS response_id, wk_survey_answers.survey_choice_id AS trigger_choice_id")
+    .distinct
   }
 
   scope :responsedTextAnswer, ->(groupName){
