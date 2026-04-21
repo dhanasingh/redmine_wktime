@@ -1,31 +1,112 @@
-api.array :wk_survey do
-  @survey.result_questions.where(question_type: ['CB','RB']).each do |question|
-    graph_data = get_Graph_data(question.id) if validateTrendingChart(params[:survey_id], question.id) || params[:groupName] != "trendChart"
-    if params[:groupName] != "trendChart" || (graph_data || []).length > 0
-      api.question do
-        api.id question.id
-        api.name question.name
-        api.question_type question.question_type
-        api.graph_data graph_data
-      end
+# Build choice → follow_up_question_id map and set of all follow-up question ids
+all_questions_for_result = @survey.wk_survey_questions.includes(:wk_survey_choices)
+choice_link_map = {}
+followup_question_ids = Set.new
+all_questions_for_result.each do |q|
+  q.wk_survey_choices.each do |c|
+    if c.follow_up_question_id.present?
+      choice_link_map[c.id] = c.follow_up_question_id
+      followup_question_ids.add(c.follow_up_question_id)
     end
   end
+end
 
-  if params[:groupName] != "trendChart"
-    @survey.result_questions.where(question_type: ['TB','MTB']).each do |question|
-      api.question do
-        api.id question.id
-        api.name question.name
-        api.question_type question.question_type
+api.array :wk_survey do
+  emit_result_question = nil
+  emit_result_question = lambda do |entry, depth, parent_index, qualifying_response_ids, triggering_choice_id|
+    is_cb_rb  = ['CB', 'RB'].include?(entry.question_type)
+    is_tb_mtb = ['TB', 'MTB'].include?(entry.question_type)
+
+    graph_data = nil
+    if is_cb_rb
+      if validateTrendingChart(params[:survey_id], entry.id) || params[:groupName] != "trendChart"
+        graph_data = get_Graph_data(entry.id)
+      end
+    end
+
+    # Skip CB/RB questions when in trend-chart mode but graph has no data
+    return if is_cb_rb && params[:groupName] == "trendChart" && (graph_data || []).length == 0
+
+    # Skip TB/MTB questions entirely in trend-chart mode
+    return if is_tb_mtb && params[:groupName] == "trendChart"
+
+    api.question do
+      api.id entry.id
+      api.name entry.name
+      api.question_type entry.question_type
+      api.depth depth
+      api.index parent_index
+      api.parent_choice_id triggering_choice_id
+
+      if is_cb_rb
+        api.graph_data graph_data
+        api.array :choices do
+          entry.wk_survey_choices.each do |c|
+            api.choices do
+              api.id c.id
+              api.name c.name
+              api.follow_up_question_id c.follow_up_question_id
+            end
+          end
+        end
+      elsif is_tb_mtb
         api.array :answers do
-          question.response_texts(params[:groupName]).each do |ans|
+          @survey_txt_answers.each do |ans_entry|
+            ans_qid = ans_entry.respond_to?(:question_id) ? ans_entry.question_id : ans_entry[:question_id]
+            ans_rid = ans_entry.respond_to?(:response_id) ? ans_entry.response_id : ans_entry[:response_id]
+            ans_tid = ans_entry.respond_to?(:trigger_choice_id) ? ans_entry.trigger_choice_id : ans_entry[:trigger_choice_id]
+
+            next unless entry.id == ans_qid.to_i
+            next if qualifying_response_ids && !qualifying_response_ids.include?(ans_rid.to_i)
+            if triggering_choice_id.present?
+              next unless ans_tid.to_i == triggering_choice_id.to_i
+            else
+              next if ans_tid.present?
+            end
+
             api.answers do
-              api.id ans.id
-              api.choice_text ans.choice_text
+              api.id ans_entry.respond_to?(:id) ? ans_entry.id : ans_entry[:id]
+              api.choice_text ans_entry.respond_to?(:choice_text) ? ans_entry.choice_text : ans_entry[:choice_text]
             end
           end
         end
       end
+    end
+
+    # Recursively emit follow-up questions for each triggering choice
+    entry.wk_survey_choices.each_with_index do |choice_entry, c_idx|
+      followup_id = choice_link_map[choice_entry.id]
+      next unless followup_id.present? && @all_questions_map && @all_questions_map[followup_id]
+
+      cur_trigger          = triggering_choice_id.present? ? triggering_choice_id.to_i : nil
+      via_selection_ids    = @responses_by_selection[[entry.id, cur_trigger, choice_entry.id]] || Set.new
+      child_qualifying_ids = qualifying_response_ids ? (qualifying_response_ids & via_selection_ids) : via_selection_ids
+      child_index          = "#{parent_index.chomp('.').presence || ''}.#{c_idx + 1}"
+      
+      emit_result_question.call(@all_questions_map[followup_id], depth + 1, child_index, child_qualifying_ids, choice_entry.id)
+    end
+  end
+
+  group_counter      = 0
+  ungrouped_q_counter = 0
+
+  (@survey_grouped_questions || {}).each do |group, group_questions|
+    if group.present? && group.name.present?
+      group_counter += 1
+      q_counter = 0
+    end
+
+    top_level_questions = group_questions.select { |q| !followup_question_ids.include?(q.id) }
+
+    top_level_questions.each do |entry|
+      if group.present? && group.name.present?
+        q_counter += 1
+        parent_index = "#{group_counter}.#{q_counter}."
+      else
+        ungrouped_q_counter += 1
+        parent_index = "#{ungrouped_q_counter}."
+      end
+      emit_result_question.call(entry, 0, parent_index, nil, nil)
     end
   end
 end

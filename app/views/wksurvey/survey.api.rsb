@@ -1,3 +1,17 @@
+# Build choice → follow_up_question_id map and set of all follow-up question ids
+all_questions = @survey.wk_survey_questions.includes(:wk_survey_choices)
+choice_link_map = {}
+followup_question_ids = Set.new
+all_questions.each do |q|
+  q.wk_survey_choices.each do |c|
+    if c.follow_up_question_id.present?
+      choice_link_map[c.id] = c.follow_up_question_id
+      followup_question_ids.add(c.follow_up_question_id)
+    end
+  end
+end
+questions_map = all_questions.index_by(&:id)
+
 api.wk_survey do
   api.id @survey.id
   api.name @survey.name
@@ -5,13 +19,33 @@ api.wk_survey do
   api.is_review @survey.is_review
   api.use_points @survey.use_points
 
+  # Build questions grouped by their survey group
+  questions = @survey.wk_survey_questions
+                  .includes(:wk_survey_que_group, :wk_survey_choices)
+                  .order("wk_survey_questions.lft, wk_survey_questions.id")
+  questions_by_group = questions.group_by { |q| q.wk_survey_que_group }
+
   api.array :groups do
-    @survey.wk_survey_que_groups.each do |g|
+    group_counter = 0
+    ungrouped_q_counter = 0
+    
+    questions_by_group.each do |group, group_questions|
       api.groups do
-        api.id g.id
-        api.name g.name
+        if group.present? && group.name.present?
+          group_counter += 1
+          api.id group.id
+          api.name group.name
+        else
+          api.id 0
+          api.name ""
+        end
+        
         api.array :questions do
-          g.wk_survey_questions.each do |q|
+          question_counter = 0
+          
+          # Recursive lambda to emit questions and their follow-ups
+          emit_survey_question = nil
+          emit_survey_question = lambda do |q, depth, parent_index|
             api.questions do
               api.id q.id
               api.name q.name
@@ -20,16 +54,42 @@ api.wk_survey do
               api.question_type q.question_type
               api.is_mandatory q.is_mandatory
               api.is_reviewer_only q.is_reviewer_only
+              api.depth depth
+              api.index parent_index
+              
               api.array :choices do
                 q.wk_survey_choices.each do |c|
                   api.choices do
                     api.id c.id
                     api.name c.name
                     api.points c.points
+                    api.follow_up_question_id c.follow_up_question_id
                   end
                 end
               end
             end
+            
+            # Recurse through choice follow-ups
+            q.wk_survey_choices.each_with_index do |c, c_idx|
+              fup_id = choice_link_map[c.id]
+              if fup_id.present? && questions_map[fup_id]
+                child_index = "#{parent_index.chomp('.').presence || ''}.#{c_idx + 1}"
+                emit_survey_question.call(questions_map[fup_id], depth + 1, child_index)
+              end
+            end
+          end
+
+          # Emit top-level questions for this group
+          top_level_questions = group_questions.select { |q| !followup_question_ids.include?(q.id) }
+          top_level_questions.each do |q|
+            if group.present? && group.name.present?
+              question_counter += 1
+              parent_index = "#{group_counter}.#{question_counter}."
+            else
+              ungrouped_q_counter += 1
+              parent_index = "#{ungrouped_q_counter}."
+            end
+            emit_survey_question.call(q, 0, parent_index)
           end
         end
       end
