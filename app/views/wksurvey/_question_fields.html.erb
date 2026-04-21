@@ -111,15 +111,20 @@
       <tr class="tb-mtb-followup-adder-row" style="<%= %w[TB MTB].include?(q.question_type) ? '' : 'display:none' %>">
         <% unless isInlineFollowup %><td></td><% end %>
         <td></td>
-        <td colspan="2" align="left" class="tb-mtb-followup-cell">
+        <td align="left" class="tb-mtb-followup-cell">
           <% if q.question_type == 'TB' || q.question_type == 'MTB' %>
+            <div style="text-align: right; margin-right: 12px;">
             <%= f.fields_for :wk_survey_choices, f.object.wk_survey_choices.presence || [f.object.wk_survey_choices.build] do |c| %>
               <% if c.object.follow_up_question_id.present? %>
                 <%= c.hidden_field :follow_up_question_id, class: 'followup-val' %>
                 <% unless isDisable %>
                   <%= link_to sprite_icon('add', l(:label_add_followup)), 'javascript:void(0)', onclick: 'addFollowUpQuestion(this)', class: 'icon icon-add', style: "display:none;font-weight: normal;" %>
                 <% end %>
-                <% if current_rendered_ids.include?(c.object.follow_up_question_id) %>
+                <% 
+                  fu_id = c.object.follow_up_question_id
+                  render_inline = local_assigns[:question_builders_map] && question_builders_map.has_key?(fu_id) && !current_rendered_ids.include?(fu_id)
+                %>
+                <% if current_rendered_ids.include?(fu_id) || !render_inline %>
                   <span class="followup-linked-label" style="color:#016bff;margin-left:4px;font-weight: normal;">
                     <%= l(:label_followup_question) %>
                   </span>
@@ -129,6 +134,7 @@
                 <%= link_to sprite_icon('add', l(:label_add_followup)), 'javascript:void(0)', onclick: 'addFollowUpQuestion(this)', class: 'icon icon-add' %>
               <% end %>
             <% end %>
+            </div>
           <% end %>
         </td>
       </tr>
@@ -169,7 +175,11 @@
                 <%= link_to sprite_icon('add', l(:label_add_followup)), 'javascript:void(0)', onclick: 'addFollowUpQuestion(this)', class: 'icon icon-add', style: c.object.follow_up_question_id.present? ? "display:none;font-weight: normal;" : "font-weight: normal;" %>
               <% end %>
               <% if c.object.follow_up_question_id.present? %>
-                <% if current_rendered_ids.include?(c.object.follow_up_question_id) %>
+                <% 
+                  fu_id = c.object.follow_up_question_id
+                  render_inline = local_assigns[:question_builders_map] && question_builders_map.has_key?(fu_id) && !current_rendered_ids.include?(fu_id)
+                %>
+                <% if current_rendered_ids.include?(fu_id) || !render_inline %>
                   <span class="followup-linked-label" style="color:#016bff;margin-left:4px;font-weight: normal;">
                     <%= l(:label_followup_question) %>
                   </span>

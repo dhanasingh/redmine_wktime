@@ -319,7 +319,7 @@ function questionTypeChanged(dropdown) {
             <input type="hidden" name="wksurvey[wk_survey_que_groups_attributes][${groupIndex}][wk_survey_questions_attributes][${questionIndex}][wk_survey_choices_attributes][1][id]">
             <input size="40" maxlength="255" type="text"
                    name="wksurvey[wk_survey_que_groups_attributes][${groupIndex}][wk_survey_questions_attributes][${questionIndex}][wk_survey_choices_attributes][1][name]">
-            <div style="text-align: right; width: 335px;">${addFollowupHtml}</div>
+            <div style="text-align: right; margin-right: 12px;">${addFollowupHtml}</div>
           </td>
           <td align="left">
             ${pointsText}&nbsp;<input size="5" maxlength="10" type="text"
@@ -371,7 +371,7 @@ function questionTypeChanged(dropdown) {
 			$pointsCell.html(inputHtml);
 			let $followUpCell = $tbMtbAdderRow.find('.tb-mtb-followup-cell');
 			if ($followUpCell.length > 0 && $followUpCell.find('a.icon-add').length === 0) {
-				$followUpCell.html(addFollowupHtml);
+				$followUpCell.html('<div style="text-align: right; margin-right: 12px;">' + addFollowupHtml + '</div>');
 			}
 		}
 	}

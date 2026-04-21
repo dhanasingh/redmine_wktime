@@ -219,8 +219,13 @@ module WksurveyHelper
   end
 
   def validateTrendingChart(survey_id=params[:survey_id], question_id=params[:question_id])
-    showTrendingChart = true
+    question = WkSurveyQuestion.find_by(id: question_id)
+    return false if question.nil? || ['TB', 'MTB'].include?(question.question_type)
+    
     choices = WkSurvey.getSurveyChoices(survey_id, question_id)
+    return false if choices.empty?
+
+    showTrendingChart = true
     choices.each {|choice| showTrendingChart = false if !is_numeric? choice.name}
     showTrendingChart
   end

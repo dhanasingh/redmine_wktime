@@ -13,7 +13,19 @@
     end
   end
 
+  # Helper to check if a question or any descendant supports trending charts
+  has_trend_chart_recursive = lambda do |q|
+    return true if validateTrendingChart(q.survey_id, q.id)
+    q.wk_survey_choices.any? do |c|
+      fu_id = choice_link_map[c.id]
+      fu_id.present? && @all_questions_map[fu_id] && has_trend_chart_recursive.call(@all_questions_map[fu_id])
+    end
+  end
+
   render_survey_result_item = lambda do |entry, depth, parent_index = "", qualifying_response_ids = nil, triggering_choice_id = nil|
+    if params[:groupName] == 'trendChart'
+      return unless has_trend_chart_recursive.call(entry)
+    end
 %>
     <div style="padding-left: <%= depth * 20 %>px; margin-bottom: 20px;">
       <%
@@ -57,16 +69,38 @@
         </table>
       <% end %>
 
-      <%# Recursively render follow-ups linked to choices of this question %>
-      <% entry.wk_survey_choices.each_with_index do |choice_entry, c_idx| %>
-        <% followup_id = choice_link_map[choice_entry.id] %>
-        <% if followup_id.present? && @all_questions_map[followup_id] %>
+      <%# Recursively render follow-ups linked to choices of this question — deduplicate shared follow-ups %>
+      <%
+        followup_groups_html = {}
+        entry.wk_survey_choices.each_with_index do |choice_entry, c_idx|
+          followup_id = choice_link_map[choice_entry.id]
+          next unless followup_id.present? && @all_questions_map[followup_id]
+          followup_groups_html[followup_id] ||= { first_c_idx: c_idx, choices: [] }
+          followup_groups_html[followup_id][:choices] << { choice: choice_entry, c_idx: c_idx }
+        end
+      %>
+      <% followup_groups_html.each do |followup_id, group_info| %>
+        <%
+          cur_trigger = triggering_choice_id.presence ? triggering_choice_id.to_i : nil
+        %>
+        <% if group_info[:choices].size == 1 %>
           <%
-            cur_trigger = triggering_choice_id.presence ? triggering_choice_id.to_i : nil
-            via_selection_ids = @responses_by_selection[[entry.id, cur_trigger, choice_entry.id]] || Set.new
+            choice_entry = group_info[:choices].first[:choice]
+            c_idx        = group_info[:choices].first[:c_idx]
+            via_selection_ids    = @responses_by_selection[[entry.id, cur_trigger, choice_entry.id]] || Set.new
             child_qualifying_ids = qualifying_response_ids ? (qualifying_response_ids & via_selection_ids) : via_selection_ids
           %>
           <% render_survey_result_item.call(@all_questions_map[followup_id], depth + 1, "#{parent_index.chomp('.').presence || ''}.#{c_idx + 1}", child_qualifying_ids, choice_entry.id) %>
+        <% else %>
+          <%
+            combined_ids = group_info[:choices].inject(Set.new) do |acc, ch_info|
+              via_ids = @responses_by_selection[[entry.id, cur_trigger, ch_info[:choice].id]] || Set.new
+              acc | via_ids
+            end
+            child_qualifying_ids = qualifying_response_ids ? (qualifying_response_ids & combined_ids) : combined_ids
+            first_c_idx = group_info[:first_c_idx]
+          %>
+          <% render_survey_result_item.call(@all_questions_map[followup_id], depth + 1, "#{parent_index.chomp('.').presence || ''}.#{first_c_idx + 1}", child_qualifying_ids, nil) %>
         <% end %>
       <% end %>
     </div>
@@ -91,7 +125,12 @@
 
 <% 
   group_counter = 0
+  ungrouped_q_counter = 0
   @survey_grouped_questions.each do |group, group_questions| 
+    if params[:groupName] == 'trendChart'
+      any_trend_chart = group_questions.any? { |q| has_trend_chart_recursive.call(q) }
+      next unless any_trend_chart
+    end
 %>
   <fieldset class="box tabular">
     <% if group.present? && group.name.present? %>
@@ -113,9 +152,6 @@
          <% render_survey_result_item.call(entry, 0, parent_index) %>
       <% end %>
     <% else %>
-      <%
-        ungrouped_q_counter = 0
-      %>
       <% top_level_questions.each do |entry| %>
         <% ungrouped_q_counter += 1 %>
         <% parent_index = "#{ungrouped_q_counter}." %>
