@@ -11,8 +11,9 @@ module Wkdashboard
       }
 
       profit = getProfits(param[:to])
-      month_count = @endDate >= Date.today ? Date.today.strftime("%m").to_i - (@endDate.month).to_i : 12
-      month_count = month_count == 0 ? 1 : 12+month_count if month_count < 1
+      month_count = @endDate >= Date.today ? Date.today.month - @endDate.month : 12
+      month_count = @endDate >= Date.today ? 12 - ((@endDate.year - Date.today.year) * 12 + @endDate.month - Date.today.month) : 12
+      month_count = 1 if month_count < 1
       profits = [0]*12
       profit.each do |yearMon, sum|
         month = yearMon.split("-").last

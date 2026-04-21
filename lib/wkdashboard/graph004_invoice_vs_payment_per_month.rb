@@ -14,8 +14,8 @@ module Wkdashboard
       invoices = getInvoiceEntries.joins(:invoice_items)
         .select(getDatePart("wk_invoices.invoice_date","month", "month_val"), +"sum(wk_invoice_items.amount) invoice_total")
         .group(getDatePart("wk_invoices.invoice_date", "month"))
-      month_count = @endDate >= Date.today ? Date.today.strftime("%m").to_i - (@endDate.month).to_i : 12
-      month_count = month_count == 0 ? 1 : 12+month_count if month_count < 1
+      month_count = @endDate >= Date.today ? 12 - ((@endDate.year - Date.today.year) * 12 + @endDate.month - Date.today.month) : 12
+      month_count = 1 if month_count < 1
       invoiceData = [0]*12
       invoices.map{|l| invoiceData[@endDate.month - l.month_val] = l.invoice_total.round(2)}
       invoiceData.reverse!
