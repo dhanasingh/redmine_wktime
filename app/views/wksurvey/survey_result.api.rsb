@@ -1,5 +1,5 @@
 # Build choice → follow_up_question_id map and set of all follow-up question ids
-all_questions_for_result = @survey.wk_survey_questions.includes(:wk_survey_choices)
+all_questions_for_result = @survey.wk_survey_questions.includes(:wk_survey_choices).order("wk_survey_questions.lft, wk_survey_questions.id")
 choice_link_map = {}
 followup_question_ids = Set.new
 all_questions_for_result.each do |q|
@@ -20,7 +20,7 @@ api.array :wk_survey do
     end
   end
 
-  emit_result_question = lambda do |entry, depth, parent_index, qualifying_response_ids, triggering_choice_id|
+  emit_result_question = lambda do |entry, depth, parent_index, qualifying_response_ids, triggering_choice_id, is_first_in_group|
     if params[:groupName] == 'trendChart'
       return unless has_trend_chart_recursive.call(entry)
     end
@@ -31,14 +31,10 @@ api.array :wk_survey do
     if is_cb_rb
       if validateTrendingChart(params[:survey_id], entry.id) || params[:groupName] != "trendChart"
         if params[:groupName] == 'trendChart'
-          # Trend chart mode: always use get_Graph_data which returns line chart format
-          # (group-based averages over time) — same for both top-level and follow-up questions
           graph_data = get_Graph_data(entry.id)
         elsif qualifying_response_ids.nil? && triggering_choice_id.nil?
-          # Top-level question in normal mode: use SQL-based helper
           graph_data = get_Graph_data(entry.id)
         else
-          # Follow-up question in normal mode: compute counts filtered by qualifying_response_ids
           cur_trig_for_lookup = triggering_choice_id.present? ? triggering_choice_id.to_i : nil
 
           emp_counts = entry.wk_survey_choices.map do |c|
@@ -79,6 +75,11 @@ api.array :wk_survey do
       api.depth depth
       api.index parent_index
       api.parent_choice_id triggering_choice_id
+      api.is_grouped (entry.wk_survey_que_group.present? && entry.wk_survey_que_group.name.present?)
+      
+      if is_first_in_group && entry.wk_survey_que_group.present? && entry.wk_survey_que_group.name.present?
+        api.group_name entry.wk_survey_que_group.name
+      end
 
       if is_cb_rb
         api.graph_data graph_data
@@ -115,9 +116,6 @@ api.array :wk_survey do
       end
     end
 
-    # Recursively emit follow-up questions for each triggering choice
-    # Group choices by their follow-up question ID to deduplicate shared follow-ups
-    # (same question linked from multiple choices, e.g. both "yes" and "no" point to the same follow-up)
     followup_groups = {}
     entry.wk_survey_choices.each_with_index do |choice_entry, c_idx|
       followup_id = choice_link_map[choice_entry.id]
@@ -130,55 +128,56 @@ api.array :wk_survey do
       cur_trigger = triggering_choice_id.present? ? triggering_choice_id.to_i : nil
 
       if group_info[:choices].size == 1
-        # Single choice linking to this follow-up — normal path-aware behavior
         choice_entry = group_info[:choices].first[:choice]
         c_idx        = group_info[:choices].first[:c_idx]
         via_selection_ids    = @responses_by_selection[[entry.id, cur_trigger, choice_entry.id]] || Set.new
         child_qualifying_ids = qualifying_response_ids ? (qualifying_response_ids & via_selection_ids) : via_selection_ids
         child_index          = "#{parent_index.chomp('.').presence || ''}.#{c_idx + 1}"
-        emit_result_question.call(@all_questions_map[followup_id], depth + 1, child_index, child_qualifying_ids, choice_entry.id)
+        emit_result_question.call(@all_questions_map[followup_id], depth + 1, child_index, child_qualifying_ids, choice_entry.id, false)
       else
-        # Multiple choices share the same follow-up question — union qualifying IDs and emit once
         combined_ids = group_info[:choices].inject(Set.new) do |acc, ch_info|
           via_ids = @responses_by_selection[[entry.id, cur_trigger, ch_info[:choice].id]] || Set.new
           acc | via_ids
         end
         child_qualifying_ids = qualifying_response_ids ? (qualifying_response_ids & combined_ids) : combined_ids
-        # Use the first triggering choice's index position for the shared follow-up
         first_c_idx = group_info[:first_c_idx]
         child_index = "#{parent_index.chomp('.').presence || ''}.#{first_c_idx + 1}"
-        # Emit with nil triggering_choice_id since it applies across multiple choices
-        emit_result_question.call(@all_questions_map[followup_id], depth + 1, child_index, child_qualifying_ids, nil)
+        emit_result_question.call(@all_questions_map[followup_id], depth + 1, child_index, child_qualifying_ids, nil, false)
       end
     end
   end
 
   group_counter      = 0
   ungrouped_q_counter = 0
+  q_counter           = 0
+  current_group_id    = :init
 
-  (@survey_grouped_questions || {}).each do |group, group_questions|
+  all_questions_for_result.each do |entry|
+    next if followup_question_ids.include?(entry.id)
+    
     if params[:groupName] == 'trendChart'
-      any_trend_chart = group_questions.any? { |q| has_trend_chart_recursive.call(q) }
-      next unless any_trend_chart
+      next unless has_trend_chart_recursive.call(entry)
     end
 
-    if group.present? && group.name.present?
-      group_counter += 1
-      q_counter = 0
-    end
+    is_first_in_group = false
 
-    top_level_questions = group_questions.select { |q| !followup_question_ids.include?(q.id) }
-
-    top_level_questions.each do |entry|
-      if group.present? && group.name.present?
-        q_counter += 1
-        parent_index = "#{group_counter}.#{q_counter}."
-      else
-        ungrouped_q_counter += 1
-        parent_index = "#{ungrouped_q_counter}."
+    if entry.group_id != current_group_id
+      current_group_id = entry.group_id
+      if entry.wk_survey_que_group.present? && entry.wk_survey_que_group.name.present?
+        group_counter += 1
+        q_counter = 0
+        is_first_in_group = true
       end
-      emit_result_question.call(entry, 0, parent_index, nil, nil)
     end
+
+    if entry.wk_survey_que_group.present? && entry.wk_survey_que_group.name.present?
+      q_counter += 1
+      parent_index = "#{group_counter}.#{q_counter}."
+    else
+      ungrouped_q_counter += 1
+      parent_index = "#{ungrouped_q_counter}."
+    end
+    emit_result_question.call(entry, 0, parent_index, nil, nil, is_first_in_group)
   end
 end
 
