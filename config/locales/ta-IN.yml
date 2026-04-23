@@ -107,6 +107,7 @@ ta-IN:
 
 
   label_attendance: வருகை
+  report_attendance: வருகை
   report_spent_time: செலவிடும் நேரம்
   label_wk_break_time: இடைவேளை
   label_wk_enable_clock_in_out: கடிகாரத்தை இயக்க / நிறுத்த செயல்படுத்தவும்
@@ -767,10 +768,10 @@ ta-IN:
   label_survey: கணக்கெடுப்பு
   label_new_survey: புதிய கணக்கெடுப்பு
   label_edit_survey: கணக்கெடுப்பைத் திருத்து
-  label_question_choices: கேள்வி தேர்வுகள்
+  label_question_choices: தேர்வு
   label_open: திறந்த
   label_archived: காப்பகப்படுத்தப்பட்டது
-  label_survey_name: கணக்கெடுப்பு பெயர்
+  label_survey_name: பெயர்
   label_question_name: கேள்வி
   label_question_type: கேள்வி வகை
   label_survey_result: கணக்கெடுப்பு முடிவு
@@ -805,6 +806,11 @@ ta-IN:
   label_response_status: பதில் நிலை
   notice_unsuccessful_save: சேமிக்க முடியவில்லை
   label_reviewed_by: மதிப்பாய்வு செய்தது
+  label_add_followup: Add Follow-up
+  label_add_link_followup: Add/Link Follow-up Question
+  label_link_followup_question: Link Existing Follow-up Question
+  label_add_followup_question: Add New Follow-up Question
+  label_followup_question: Follow-up Question
 
   label_no_additional_details_for_issue: வெளியீட்டுக்கு கூடுதல் விவரங்கள் இல்லை
   label_create_supplier_invoice_without_purchase_order: கொள்முதல் ஆணை இல்லாமல் சப்ளையர் விலைப்பட்டியல் உருவாக்கவும்
@@ -1212,7 +1218,7 @@ ta-IN:
   label_pre_text: முன் உரை
   label_post_text: பின் உரை
   button_add_group: குழுவைச் சேர்க்கவும்
-  label_survey_question_grp: கருத்துக்கணிப்பு கேள்வி குழுக்கள்
+  label_survey_question_grp: கேள்வி குழுக்கள்
   button_delete_group: குழுவை நீக்கவும்
   button_add_choice: விருப்பத்தைச் சேர்க்கவும்
   button_delete_choice: விருப்பத்தை நீக்கவும்

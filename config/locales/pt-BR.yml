@@ -122,6 +122,7 @@ pt-BR:
 
 
   label_attendance: Presença
+  report_attendance: Presença
   report_spent_time: Tempo gasto
   label_wk_break_time: Hora do intervalo
   label_wk_enable_clock_in_out: Habilitar Clock In / Clock Out
@@ -854,11 +855,11 @@ pt-BR:
   label_survey: Pesquisa
   label_new_survey: Nova pesquisa
   label_edit_survey: Editar pesquisa
-  label_question_choices: Opções de perguntas
+  label_question_choices: Opção
   label_open: Aberto
   label_archived: arquivado
-  label_survey_name: Nome da pesquisa
-  label_question_name: Nome da pergunta
+  label_survey_name: Nome
+  label_question_name: Pergunta
   label_question_type: Tipo de pergunta
   label_survey_result: Resultado da pesquisa
   label_survey_questions: perguntas da pesquisa
@@ -893,6 +894,11 @@ pt-BR:
   label_response_status: Status da resposta
   Notice_unsuccessful_save: Não foi possível salvar
   label_reviewed_by: Revisado por
+  label_add_followup: Add Follow-up
+  label_add_link_followup: Add/Link Follow-up Question
+  label_link_followup_question: Link Existing Follow-up Question
+  label_add_followup_question: Add New Follow-up Question
+  label_followup_question: Follow-up Question
 
   label_no_additional_details_for_issue: Nenhum detalhe adicional para o problema
   label_create_supplier_invoice_without_purchase_order: Criar fatura de fornecedor sem ordem de compra
@@ -1289,7 +1295,7 @@ pt-BR:
   label_pre_text: Pre Text
   label_post_text: Post Text
   button_add_group: Add Group
-  label_survey_question_grp: Survey Question Groups
+  label_survey_question_grp: Question Groups
   button_delete_group: Delete Group
   button_add_choice: Add Choice
   button_delete_choice: Delete Choice

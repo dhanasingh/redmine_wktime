@@ -131,6 +131,7 @@ it:
   text_wk_no_reminder: No reminders to send
 
   label_attendance: Attendance
+  report_attendance: Attendance
   report_spent_time: Tempo impiegato
   label_wk_enable_clock_in_out: Enable Clock In / Clock Out
   label_wk_sick_leave_accrual: Sick Leave Accrual
@@ -864,11 +865,11 @@ it:
   label_survey: Survey
   label_new_survey: New Survey
   label_edit_survey: Edit Survey
-  label_question_choices: Question Choices
+  label_question_choices: Choice
   label_open: Open
   label_archived: Archived
-  label_survey_name: Survey Name
-  label_question_name: Question Name
+  label_survey_name: Name
+  label_question_name: Question
   label_question_type: Question Type
   label_survey_result: Survey Result
   label_survey_questions: Survey Questions
@@ -904,6 +905,11 @@ it:
   label_response_status: Response Status
   notice_unsuccessful_save: Unable to save
   label_reviewed_by: Reviewed By
+  label_add_followup: Add Follow-up
+  label_add_link_followup: Add/Link Follow-up Question
+  label_link_followup_question: Link Existing Follow-up Question
+  label_add_followup_question: Add New Follow-up Question
+  label_followup_question: Follow-up Question
 
   label_no_additional_details_for_issue: No Additional Details for Issue
   label_create_supplier_invoice_without_purchase_order: Create Supplier invoice without Purchase order
@@ -1300,7 +1306,7 @@ it:
   label_pre_text: Pre Text
   label_post_text: Post Text
   button_add_group: Add Group
-  label_survey_question_grp: Survey Question Groups
+  label_survey_question_grp: Question Groups
   button_delete_group: Delete Group
   button_add_choice: Add Choice
   button_delete_choice: Delete Choice

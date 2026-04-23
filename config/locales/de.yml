@@ -130,6 +130,7 @@ de:
   text_wk_no_reminder: Keine Erinnerungen zu senden
 
   label_attendance: Anwesenheit
+  report_attendance: Anwesenheit
   report_spent_time: Benötigte Zeit
   label_wk_break_time: Pausenzeiten
   label_wk_enable_clock_in_out: Zeiterfassung aktivieren
@@ -862,11 +863,11 @@ de:
   label_survey: Umfrage
   label_new_survey: Neue Umfrage
   label_edit_survey: Umfrage bearbeiten
-  label_question_choices: Fragenauswahl
+  label_question_choices: Auswahl
   label_open: Aktiv
   label_archived: Archiviert
-  label_survey_name: Umfragentitel
-  label_question_name: Fragetitel
+  label_survey_name: Name
+  label_question_name: Frage
   label_question_type: Fragetyp
   label_survey_result: Umfrageergebnis
   label_survey_questions: Fragepunkte
@@ -901,6 +902,11 @@ de:
   label_response_status: Antwortstatus
   notice_unsuccessful_save: Speichern nicht möglich
   label_reviewed_by: Bewertet von
+  label_add_followup: Add Follow-up
+  label_add_link_followup: Add/Link Follow-up Question
+  label_link_followup_question: Link Existing Follow-up Question
+  label_add_followup_question: Add New Follow-up Question
+  label_followup_question: Follow-up Question
 
   label_no_additional_details_for_issue: Keine zusätzlichen Details zum Ticket
   label_create_supplier_invoice_without_purchase_order: Lieferantenrechnung ohne Bestellung anlegen
@@ -1296,7 +1302,7 @@ de:
   label_pre_text: Pre Text
   label_post_text: Post Text
   button_add_group: Add Group
-  label_survey_question_grp: Survey Question Groups
+  label_survey_question_grp: Question Groups
   button_delete_group: Delete Group
   button_add_choice: Add Choice
   button_delete_choice: Delete Choice

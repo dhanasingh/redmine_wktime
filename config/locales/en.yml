@@ -122,6 +122,7 @@ en:
 
 
   label_attendance: Attendance
+  report_attendance: Attendance
   report_spent_time: Spent time
   label_wk_break_time: Break Time
   label_wk_enable_clock_in_out: Enable Clock In / Clock Out
