@@ -797,17 +797,20 @@ class WksurveyController < WkbaseController
     if params[:project_id].present?
       project_id = get_project_id(params[:project_id])
       if project_id.present?
-        @project = Project.find_by(id: project_id)
-        find_project_by_project_id if @project
+        find_project_by_project_id
       else
         @invalid_project = true
       end
     end
 
+    if !params[:id].blank? && !@project.blank?
+      @survey = WkSurvey.where(:id => params[:id])
+      @invalid_survey = true if @survey.blank?
+    end
     # Survey
-    survey_id = params[:survey_id] || params[:id]
-    if survey_id.present?
-      @survey = WkSurvey.find_by(id: survey_id)
+   
+    if params[:survey_id].present? && params[:project_id].blank?
+      @survey = WkSurvey.find_by(id: params[:survey_id])
       @invalid_survey = true if @survey.nil?
     end
 
