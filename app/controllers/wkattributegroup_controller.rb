@@ -19,8 +19,8 @@ class WkattributegroupController < WkinventoryController
 
    menu_item :wkproduct
    before_action :require_login
-   before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :edit_product_attribute, :update_product_attribute]
-   before_action :check_admin_redirect, :only => [:destroy, :destroy_product_attribute]
+   before_action :check_basic_perm, :only => [:index, :edit, :update, :destroy, :edit_product_attribute, :update_product_attribute]
+   before_action :check_admin_perm, :only => [:destroy, :destroy_product_attribute]
 
 
     def index

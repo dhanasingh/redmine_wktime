@@ -1,16 +1,3 @@
-# Webinar on ERPmine – Accounting, Apr 28th, 2026,(11:30 AM GMT)
-
-Please click here to register if interested,
-[[https://us02web.zoom.us/meeting/register/aM-1Nt__TBafjqbeJQjdVw]](https://us02web.zoom.us/meeting/register/BtWKgut-TYaA9c-BLWLHGQ)]
-
-**Topics**:
- -  Accounting transactions
- -  General Ledger
- -   Financial Reports
- -   Mobile app
- 
------
-
 # ERPmine
 
 This Plugin has the following modules:
@@ -121,7 +108,7 @@ For more information on features, please refer to the user guide
 
 | **Redmine** | **ERPmine** |
 |-------------|-------------|
-| 6.1.x | 4.9.1, 4.9.2, 4.9.3 |
+| 6.1.x | 4.9.1, 4.9.2, 4.9.3, 4.9.4 |
 | 6.0.x | 4.8, 4.8.1, 4.8.2, 4.8.3, 4.8.4, 4.8.5, 4.9 |
 | 5.1.x | 4.7.1, 4.7.2, 4.7.3, 4.7.4, 4.7.5, 4.7.6 |
 | 5.0.x | 4.5.2, 4.6, 4.7 |
@@ -131,18 +118,19 @@ For more information on features, please refer to the user guide
 | 4.0.x | 3.4, 3.5, 3.6, 3.7, 3.8, 3.9 |
 | 3.4.x | 2.9, 3.0, 3.1, 3.2, 3.3 |
 
-## Release Notes for v4.9.3
+## Release Notes for v4.9.4
 
 - **Features**
   ```text
-   - Implemented payment integration (PayPal, CCAvenue)
-   - Implemented survey question qroups in survey API.
-   - Added location filter in report module
+  - Updated inventory module permissions
+  - Added device information capture
+  - Export accounting transactions data to Tally, QuickBooks and Sage
   ```
 - **Bug fixes**
   ```text
-   - Fixed Leave Request and Public Holiday auto-population issue on timesheet save
-   - Fixed geo-location marker rendering issue
+   - Renamed "Dead" lead status to "Lost Lead"
+   - Fixed ledger list alphabetical order
+   - Fixed "Invoice and Payment" and "Profit & Loss" dashboard issues
   ```
 
 ## Customization

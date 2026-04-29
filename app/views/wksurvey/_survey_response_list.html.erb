@@ -4,7 +4,7 @@
 <% if @survey.recur %>
     <% response_grp = survey_helper.getResponseGroup(params[:survey_id]).insert(0, [""], ["ALL"]) %>
     <div>
-    <%= form_tag({:controller => "wksurvey", :action => 'survey_response'}, :method => :get, :id => 'response_form') do %>
+    <%= form_tag({:controller => @survey_ctrl, :action => 'survey_response'}, :method => :get, :id => 'response_form') do %>
         <%= hidden_field_tag('survey_id', params[:survey_id]) %>
         <%= hidden_field_tag('surveyForID', params[:surveyForID]) %>
         <%= hidden_field_tag('surveyForType', params[:surveyForType]) %>
@@ -34,13 +34,13 @@
         <% end %>
     </tr>
     <% @response_entries.each_with_index do |entry, index| %>
-      <% if User.current.id == entry.user_id || (reviewers.include? entry.user_id) || validateERPPermission("E_SUR") %>
+      <% if User.current.id == entry.user_id || (reviewers.include? entry.user_id) || @survey_perm %>
         <% urlhash = { :survey_id => entry.survey_id, :surveyForType => entry.survey_for_type, :surveyForID => entry.survey_for_id, response_id: entry.id } %>
         <tr>
             <td class="lbl-txt-align"><%= index+1 %></td>
             <td class="lbl-txt-align">
               <% if (@survey.is_review && (reviewers.include? entry.user_id) && entry.status != 'O') || User.current.id == entry.user_id %>
-                <%= link_to entry.name, url_for(survey_helper.get_survey_url(urlhash, params, "survey")) %>
+                <%= link_to entry.name, url_for(get_survey_url(urlhash, params, "survey")) %>
               <% else %>
                 <%= entry.name %>
               <% end %>

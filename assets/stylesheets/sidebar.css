@@ -90,6 +90,10 @@ form#query_form .autoscroll {
   overflow-x: unset;
 }
 
+.autoscroll:has(> form#query_form) {
+  overflow: visible;
+}
+
 #comment-dlg .attachments_fields input.description {
   width: auto;
 }

@@ -3,9 +3,9 @@
 <%= render partial: "wkattendance/render_hr_tabs" %>
 
 <div class="autoscroll">
-    <% if checkEditSurveyPermission %>
+    <% if @survey_perm %>
         <div class="contextual">
-            <%= link_to sprite_icon('add', controller.newItemLabel), url_for(:controller => "wksurvey", :action => "edit", :surveyForType => 'User', :surveyForID => User.current.id), :class => 'icon icon-add' %>
+            <%= link_to sprite_icon('add', controller.newItemLabel), url_for(:controller => @survey_ctrl, :action => "edit", :surveyForType => 'User', :surveyForID => User.current.id), :class => 'icon icon-add' %>
         </div>
     <% end %>
 

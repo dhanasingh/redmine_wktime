@@ -47,22 +47,6 @@ module WksurveyHelper
     groupNames
   end
 
-  def getSurveyFor
-    survey_types = {
-        "" => '',
-        l(:label_project) => 'Project',
-        l(:label_accounts) => 'WkAccount',
-        l(:label_contact) => 'WkCrmContact',
-        l(:label_user) => 'User'
-    }
-    call_hook(:add_survey_for, :survey_types => survey_types)
-    survey_types
-  end
-
-  def checkEditSurveyPermission
-    validateERPPermission("E_SUR")
-  end
-
   def surveyList(params)
 
     surveys = get_survey_with_userGroup(nil)
@@ -90,7 +74,7 @@ module WksurveyHelper
   end
 
   def get_survey_with_userGroup(survey_id, checkSurveyPerm = true)
-    if checkEditSurveyPermission && survey_id.blank?
+    if @survey_perm && survey_id.blank?
         survey = WkSurvey.all
     else
 		  groups_users_comp = call_hook(:add_comp_filter, table: 'groups_users', comp_id: @comp_id ) || ""
@@ -143,7 +127,7 @@ module WksurveyHelper
   end
 
   def get_survey_url(urlHash, params, method)
-    urlHash[:controller] = "wksurvey"
+    urlHash[:controller] =  @survey_ctrl
     urlHash[:action] = method
     call_hook(:get_survey_url, urlHash: urlHash, params: params)
 
@@ -235,8 +219,13 @@ module WksurveyHelper
   end
 
   def validateTrendingChart(survey_id=params[:survey_id], question_id=params[:question_id])
-    showTrendingChart = true
+    question = WkSurveyQuestion.find_by(id: question_id)
+    return false if question.nil? || ['TB', 'MTB'].include?(question.question_type)
+    
     choices = WkSurvey.getSurveyChoices(survey_id, question_id)
+    return false if choices.empty?
+
+    showTrendingChart = true
     choices.each {|choice| showTrendingChart = false if !is_numeric? choice.name}
     showTrendingChart
   end
@@ -271,7 +260,7 @@ module WksurveyHelper
       if @survey.recur?
         if params[:groupName].present?
           groupNameCond = " AND group_name = '#{params[:groupName]}' "
-        elsif params[:groupName].blank? && (validateERPPermission("E_SUR"))
+        elsif params[:groupName].blank? && (@survey_perm)
           groupNameCond = " AND group_name IS NULL "
         else
           groupNameCond = " AND group_name = '#{getResponseGroup.last}' "
@@ -285,23 +274,25 @@ module WksurveyHelper
         WHERE SQ.id = #{question_id} " + get_comp_cond('S') + get_comp_cond('SQ') + get_comp_cond('SC') + " ORDER BY SC.id")
 
       if question_choices.length > 0
-        surveyed_employees_per_choice = WkSurvey.find_by_sql("SELECT COUNT(SR.user_id) AS emp_count, SC.id
+        surveyed_employees_per_choice = WkSurvey.find_by_sql("SELECT COUNT(DISTINCT SR.user_id) AS emp_count, SC.id
           FROM wk_surveys AS S
           INNER JOIN wk_survey_questions AS SQ ON S.id = SQ.survey_id
           INNER JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id
           INNER JOIN wk_survey_answers AS SCC ON SC.id = SCC.survey_choice_id
-          INNER JOIN wk_survey_responses AS SR ON SR.survey_id = S.id	AND SR.id = SCC.survey_response_id " +
+          INNER JOIN wk_survey_responses AS SR ON SR.survey_id = S.id AND SR.id = SCC.survey_response_id " +
           " WHERE SQ.id = #{question_id} "+ surveyForQry + groupNameCond + get_comp_cond('S') + get_comp_cond('SQ') + get_comp_cond('SC') + get_comp_cond('SCC') + get_comp_cond('SR') +
-          "GROUP BY S.id, SQ.id, SC.id
+          (params[:parent_choice_id].present? ? " AND SCC.choice_text = '#{params[:parent_choice_id].to_i}' " : "") +
+          " GROUP BY S.id, SQ.id, SC.id
           ORDER BY SC.id")
       else
-        surveyed_employees_per_choice = WkSurvey.find_by_sql("SELECT COUNT(SR.user_id) AS emp_count, SQ.id
+        surveyed_employees_per_choice = WkSurvey.find_by_sql("SELECT COUNT(DISTINCT SR.user_id) AS emp_count, SQ.id
         FROM wk_surveys AS S
         INNER JOIN wk_survey_questions AS SQ ON S.id = SQ.survey_id
         INNER JOIN wk_survey_answers AS SCC ON SQ.id = SCC.survey_question_id
-        INNER JOIN wk_survey_responses AS SR ON SR.survey_id = S.id	AND SR.id = SCC.survey_response_id " +
+        INNER JOIN wk_survey_responses AS SR ON SR.survey_id = S.id AND SR.id = SCC.survey_response_id " +
         " WHERE SQ.id = #{question_id} "+ surveyForQry + groupNameCond + get_comp_cond('S') + get_comp_cond('SQ') + get_comp_cond('SCC') + get_comp_cond('SR') +
-        "GROUP BY S.id, SQ.id")
+        (params[:parent_choice_id].present? ? " AND SCC.choice_text = '#{params[:parent_choice_id].to_i}' " : "") +
+        " GROUP BY S.id, SQ.id")
       end
 
       fields = Array.new
@@ -345,7 +336,7 @@ module WksurveyHelper
   def get_response_group_items
     response_grp = getResponseGroup.reverse
     if response_grp.length > 0
-      response_grp.unshift(["",""]) if validateERPPermission("E_SUR")
+      response_grp.unshift(["",""]) if @survey_perm
       response_grp << [l(:label_trend_chart), "trendChart"]
     end
     response_grp

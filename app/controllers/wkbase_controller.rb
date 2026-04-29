@@ -26,6 +26,7 @@ class WkbaseController < ApplicationController
 	helper :sort
   helper :custom_fields
   helper :users
+	helper :wksurvey
 	include SortHelper
 	include WkattendanceHelper
 	include WktimeHelper
@@ -173,8 +174,8 @@ class WkbaseController < ApplicationController
 			logEditPermission: getEditLogPermission,
 			settings: settings, languageSet: languageSet
 		}
-		#Resident Management settings
-		call_hook(:get_resident_settings, configs: configs)
+		
+		call_hook(:get_other_settings, configs: configs)
 
 		respond_to do |format|
 			format.json {
@@ -198,6 +199,7 @@ class WkbaseController < ApplicationController
 				timeEntryAttr[:spent_for_attributes][:s_longitude] =  params[:longitude]
 				timeEntryAttr[:spent_for_attributes][:s_latitude] = params[:latitude]
 			end
+			timeEntryAttr[:spent_for_attributes][:device_id] = params[:device_id] if params[:device_id].present?
 			timeEntry = TimeEntry.new(timeEntryAttr)
 			errorMsg += statusValidation(timeEntry)
 			unless errorMsg.blank? && timeEntry.save
@@ -217,6 +219,7 @@ class WkbaseController < ApplicationController
 					timeEntry.spent_for.e_longitude = params[:longitude]
 					timeEntry.spent_for.e_latitude = params[:latitude]
 				end
+				timeEntry.spent_for.device_id = params[:device_id] if params[:device_id].present?
 				errorMsg = statusValidation(timeEntry)
 				unless errorMsg.blank? && timeEntry.save
 					errorMsg = timeEntry.errors.full_messages.join("<br>")

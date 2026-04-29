@@ -23,7 +23,7 @@ class WkSpentFor < ApplicationRecord
   attr_accessor :spent_date_hr, :spent_date_min, :spent_for_key
 
   safe_attributes 'spent_id', 'spent_type', 'spent_for_id', 'spent_for_type', 'end_on', 's_longitude', 's_latitude',
-   'e_longitude', 'e_latitude', 'clock_action'
+   'e_longitude', 'e_latitude', 'clock_action', 'device_id'
 
   scope :time_entries,  -> { where(:spent_type => "TimeEntry") }
   scope :expense_entries,  -> { where(:spent_type => "WkExpenseEntry") }

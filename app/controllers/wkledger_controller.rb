@@ -21,10 +21,11 @@ class WkledgerController < WkaccountingController
   before_action :check_ac_admin_and_redirect, :only => [:update, :destroy]
   before_action :check_perm_and_redirect, :only => [:index, :edit]
   include WkaccountingHelper
+  include WkgltransactionHelper
 
 
   def index
-		sort_init 'id', 'asc'
+		sort_init 'name', 'asc'
 		sort_update 'name' => "name",
 								'type' => "CASE WHEN wk_ledgers.ledger_type = 'SY' THEN '' ELSE ledger_type END"
 		set_filter_session
@@ -51,9 +52,21 @@ class WkledgerController < WkaccountingController
 			  render :layout => !request.xhr?
       end
       format.csv do
-        headers = {name: l(:field_name), type: l(:field_type) }
-        data = ledger.collect{|e| {name: e.name, type: getLedgerTypeHash[e.ledger_type] }}
-        send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "ledger.csv")
+        export_format = params[:export_format]
+        if export_format.present?
+          begin
+            csv_data = generate_template_csv(export_format, ledger, :ledger)
+            file_name = export_template_file_name(export_format, :ledger)
+            send_data(csv_data, type: "text/csv; header=present", filename: file_name)
+          rescue => e
+            flash[:error] = l(:error_export_template_failed, message: e.message)
+            redirect_to action: 'index', tab: 'wkledger'
+          end
+        else
+          headers = {name: l(:field_name), type: l(:field_type), opening_balance: l(:label_opening_balance), currency: l(:label_currency) }
+          data = ledger.collect{|e| {name: e.name, type: getLedgerTypeHash[e.ledger_type], opening_balance: "%.2f" % (e.opening_balance || 0), currency: e.currency }}
+          send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "ledger.csv")
+        end
       end
 		end
   end
@@ -107,7 +120,7 @@ class WkledgerController < WkaccountingController
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
-		@ledgers = entries.order(:id).limit(@limit).offset(@offset)
+		@ledgers = entries.order(:name).limit(@limit).offset(@offset)
 	end
 
 	def setLimitAndOffset

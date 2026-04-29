@@ -168,8 +168,14 @@
 					locations = startLocations + endLocations
 					locations = [["", ""]] if locations.length == 0
 			%>
+				<% deviceIds = @entries.map{ |e| e.spent_for.try(:device_id) }.compact.reject(&:blank?).uniq %>
 				<div  id='mapContainer' style="float: right;width: 300px;height: 200px"></div>
 				<%= render partial: "wkgeolocation/location_map", locals: { locations: locations } %>
+				<% if deviceIds.any? %>
+					<div style="float: right;height: 200px;display: flex;align-items: flex-end;font-size: 11px;color: #666;padding: 0 8px 3px 0;">
+						<span><%= l(:label_device_id) %>: <%=h deviceIds.join(', ') %></span>
+					</div>
+				<% end %>
 			<% end %>
 		</td>
 		</tr>

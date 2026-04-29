@@ -309,4 +309,26 @@ include WktimeHelper
 		creditDebitTotHash['credit'] = @creditTot
 		creditDebitTotHash
 	end
+
+	def acc_export_formats
+		[[l(:label_default), '']] + AccountingExports::Base.available_formats.map { |f| [f['label'], f['name']] }
+	end
+
+	def generate_template_csv(format_name, data, export_type = :transaction)
+		formatter = AccountingExports::Base.find_format(format_name)
+		if export_type == :ledger
+			formatter.generate_ledger_csv(data, getLedgerTypeHash)
+		else
+			formatter.generate_csv(data, transTypeHash)
+		end
+	end
+
+	def export_template_file_name(format_name, export_type = :transaction)
+		formatter = AccountingExports::Base.find_format(format_name)
+		if export_type == :ledger
+			formatter.class.file_name + '_ledger.csv'
+		else
+			formatter.output_file_name
+		end
+	end
 end

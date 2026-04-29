@@ -18,8 +18,8 @@
 class WkcrmController < WkbaseController
 
   before_action :require_login
-  before_action :check_perm_and_redirect, :only => [:index, :edit, :update]
-  before_action :check_crm_admin_and_redirect, :only => [:destroy]
+  before_action :check_basic_perm, :only => [:index, :edit, :update]
+  before_action :check_admin_perm, :only => [:destroy]
   include WkcrmHelper
   include WktimeHelper
   accept_api_auth :get_act_related_ids, :get_crm_users
@@ -64,14 +64,14 @@ class WkcrmController < WkbaseController
 		end
 	end
 
-	def check_perm_and_redirect
+	def check_basic_perm
 		unless check_permission
 			render_403
 			return false
 		end
 	end
 
-	def check_crm_admin_and_redirect
+	def check_admin_perm
 	  unless validateERPPermission("A_CRM_PRVLG")
 	    render_403
 	    return false

@@ -189,6 +189,7 @@ module WkattendanceHelper
 				wkattendance.e_longitude = params[:longitude]
 			end
 		end
+		wkattendance.device_id = params[:device_id] if params[:device_id].present?
 		wkattendance.save()
 		wkattendance
 	end
@@ -216,6 +217,7 @@ module WkattendanceHelper
 				attnObj.e_latitude = params[:latitude]
 				attnObj.e_longitude = params[:longitude]
 			end
+			attnObj.device_id = params[:device_id] if params[:device_id].present?
 			attnObj.save()
 			wkattendance = attnObj if wkattendance.blank?
 		else

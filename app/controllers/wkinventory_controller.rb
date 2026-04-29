@@ -4,11 +4,11 @@ class WkinventoryController < WkbaseController
 before_action :require_login
 
 include WktimeHelper
-before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
-before_action :check_admin_redirect, :only => [:destroy]
+before_action :check_basic_perm, :only => [:index, :edit, :update, :destroy]
+before_action :check_admin_perm, :only => [:destroy]
 
 
-	def check_perm_and_redirect
+	def check_basic_perm
 		unless check_permission
 			render_403
 			return false
@@ -16,12 +16,12 @@ before_action :check_admin_redirect, :only => [:destroy]
 	end
 
 	def check_permission
-		return validateERPPermission("V_INV")
+		return validateERPPermission("B_INV_PRVLG")
 	end
 
-	def check_admin_redirect
+	def check_admin_perm
 		allow = false
-		allow = validateERPPermission("D_INV")
+		allow = validateERPPermission("A_INV_PRVLG")
 		unless allow
 			render_403
 			return false
@@ -29,6 +29,6 @@ before_action :check_admin_redirect, :only => [:destroy]
 	end
 
 	def hasDeletePermission
-		validateERPPermission("D_INV")
+		validateERPPermission("A_INV_PRVLG")
 	end
 end

@@ -8,112 +8,275 @@
   <%
     # Group questions by their survey group
     questions_by_group = @survey.wk_survey_questions
-                             .includes(:wk_survey_que_group)
-                             .order("wk_survey_questions.id")
+                             .includes(:wk_survey_que_group, :wk_survey_choices)
+                             .order("wk_survey_questions.lft, wk_survey_questions.id")
                              .group_by { |q| q.wk_survey_que_group }
+
+    # Build choice_id → follow_up_question_id map directly from wk_survey_choices
+    all_survey_choice_ids = @survey.wk_survey_choices.pluck(:id)
+    choice_link_map = WkSurveyChoice
+                        .where(id: all_survey_choice_ids)
+                        .where.not(follow_up_question_id: nil)
+                        .pluck(:id, :follow_up_question_id)
+                        .to_h
+
+    followup_question_ids = choice_link_map.values.uniq
+
+    parent_of_followup = {}
+    questions_by_group.values.flatten.each do |q|
+      q.wk_survey_choices.each do |c|
+        fup_id = choice_link_map[c.id]
+        parent_of_followup[fup_id] = q.id if fup_id.present?
+      end
+    end
+
+    question_depth = Hash.new(0)
+    depth_calc = lambda do |q_id, visited = []|
+      return 0 if visited.include?(q_id) # prevent infinite loops
+      return 0 unless parent_of_followup.key?(q_id)
+      return 1 + depth_calc.call(parent_of_followup[q_id], visited + [q_id])
+    end
+    parent_of_followup.keys.each do |q_id|
+      question_depth[q_id] = depth_calc.call(q_id)
+    end
+
+    all_questions_map = @survey.wk_survey_questions.index_by(&:id)
+    reviewer_only_qids = []
   %>
   <% points =  Object.new.extend(WksurveyHelper).showSurveyPoints(params,@survey.id) %>
+  <%
+    group_counter = 0
+    ungrouped_q_counter = 0
+  %>
   <% questions_by_group.each do |group, questions| %>
     <fieldset class="box tabular">
-    <% if group.present? %>
-      <h3 style="border-bottom: 1px solid #eee; padding-bottom: 1px;">
-        <%= group.name if group.name.present? %>
+    <% if group.present? && group.name.present? %>
+      <h3 style="padding-bottom: 1px;">
+        <%= group.name %>
       </h3>
+      <%
+        group_counter += 1
+        question_counter = 0
+      %>
     <% end %>
 
-    <% questions.each do |entry| %>
-      <%
+    <%
+      render_survey_question = lambda do |entry, depth, parent_choice_id = nil, parent_index = "", is_last = true|
         isReviewerOnly = ActiveModel::Type::Boolean.new.cast(entry.is_reviewer_only)
         isMandatory = ActiveModel::Type::Boolean.new.cast(entry.is_mandatory)
-        reviewerOnlyQIDs = nil
         survey_points = 0
-      %>
-      <% if !isReviewerOnly || @isReviewed || (isReviewerOnly && @isReview)
+
+        if !isReviewerOnly || @isReviewed || (isReviewerOnly && @isReview)
           disableAnswer = @survey.status != "O" || !isReviewerOnly && (["C", "R"].include?(@response.try(:status)) || isPrint) || isReviewerOnly && @isReviewed
-          reviewerOnlyQIDs = reviewerOnlyQIDs.blank? ? entry.id.to_s : (reviewerOnlyQIDs + "," + entry.id.to_s) if isReviewerOnly
+          reviewer_only_qids << entry.id if isReviewerOnly
           review = @response.present? ? @response.wk_survey_reviews.where("survey_question_id=#{entry.id}") : []
           comment_text = review.first.try(:comment_text)
           reviewerName = review.first.try(:user).try(:name)
-      %>
-        <%= hidden_field_tag("question_type_"+ (entry.id).to_s, entry.question_type) %>
-        <%= hidden_field_tag("isReviewerOnly_"+ (entry.id).to_s, isReviewerOnly) %>
 
+          # Determine if this question is a follow-up
+          isFollowup = parent_choice_id.present?
+          effective_depth = question_depth[entry.id]
+          effective_depth = 1 if isFollowup && effective_depth == 0
 
-        <table width="100%" style="border-bottom: 1px solid #eee; padding-bottom: 1px;">
-          <tr>
-            <td align="left" ><em><%= entry.header %></em></td>
-          </tr>
-          <tr id="tr_question_<%= entry.id %>">
-            <th align="left" style="padding-left:10px;"><%= entry.name %><%= isMandatory ? content_tag(:span, "*", class: "required") : nil %></th>
-          </tr>
-          <% if ["RB","CB"].include? entry.question_type %>
-            <% entry.wk_survey_choices.new if entry.wk_survey_choices.blank? %>
-            <% entry.wk_survey_choices.each do |choice_entry| %>
-              <%
-                survey_ans = entry.wk_survey_answers.where(survey_response_id: @response&.id)
-                survey_ans = survey_ans&.where("survey_choice_id = #{choice_entry.id}") if choice_entry.id.present?
-                survey_ans = survey_ans&.first
-                isChecked = @response.present? && survey_ans.present?
-                survey_points = choice_entry.points || 0.0
+          # Check if the triggering choice is currently selected (for page-load state)
+          triggering_selected = false
+          if isFollowup && @response.present?
+             triggering_selected = @response.wk_survey_answers.where(survey_choice_id: parent_choice_id).exists?
+          end
+
+          initial_display = isFollowup && !triggering_selected ? 'display:none;' : ''
+          initial_display += " padding-left: #{depth * 20}px;" if depth > 0
+
+          path_id = parent_index.to_s.gsub('.', '_').chomp('_')
+          unique_q_id = isFollowup ? "#{entry.id}_#{parent_choice_id}_#{path_id}" : entry.id.to_s
+    %>
+          <%= hidden_field_tag("question_type_"+ (entry.id).to_s, entry.question_type) %>
+          <%= hidden_field_tag("isReviewerOnly_"+ (entry.id).to_s, isReviewerOnly) %>
+
+          <div id="wkq_<%= unique_q_id %>" class="survey-question-block" data-question-id="<%= entry.id %>" style="<%= initial_display %>">
+          <table width="100%" style="padding-bottom: 1px;padding-left: 1px;">
+            <tr>
+              <td align="left" ><em><%= entry.header %></em></td>
+            </tr>
+            <tr id="tr_question_<%= unique_q_id %>">
+              <th align="left" style="padding-left:10px;">
+                <b><%= parent_index %></b>&nbsp;<%= entry.name %><%= isMandatory ? content_tag(:span, "*", class: "required") : nil %>
+              </th>
+            </tr>
+            <% if ["RB","CB"].include? entry.question_type %>
+              <% entry.wk_survey_choices.new if entry.wk_survey_choices.blank? %>
+              <% entry.wk_survey_choices.each_with_index do |choice_entry, c_idx| %>
+                <%
+                  survey_ans = entry.wk_survey_answers.where(survey_response_id: @response&.id)
+                  survey_ans = survey_ans&.where("survey_choice_id = #{choice_entry.id}") if choice_entry.id.present?
+                  if isFollowup && parent_choice_id.present?
+                    survey_ans = survey_ans&.where("choice_text = ?", parent_choice_id.to_s)
+                  end
+                  survey_ans = survey_ans&.first
+                  isChecked = @response.present? && survey_ans.present?
+                  survey_points = choice_entry.points || 0.0
+                  followup_id = choice_link_map[choice_entry.id]
+                  
+                  # Generate unique block ID for the followup, including current path
+                  followup_idx_path = "#{parent_index.chomp('.').presence || ''}.#{c_idx + 1}".gsub('.', '_')
+                  followup_block_id = followup_id ? "wkq_#{followup_id}_#{choice_entry.id}_#{followup_idx_path}" : nil
+                %>
+                <%
+                  p_suffix = isFollowup ? "p#{parent_choice_id}_#{path_id}_" : ""
+                %>
+                <tr class="tr_choice_<%= unique_q_id %>">
+                  <td align="left" style="padding-left:30px;">
+                    <% case entry.question_type %>
+                    <% when 'CB' %>
+                      <% if isPrint %>
+                        <span style="font-size: 16px;"><%= isChecked ? '&#9745;'.html_safe : '&#9744;'.html_safe %></span>
+                        <%= hidden_field_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}" + (choice_entry.id).to_s, choice_entry.id || entry.id, data: { points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }) if isChecked %>
+                      <% else %>
+                        <%= check_box_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}" + (choice_entry.id).to_s, choice_entry.id || entry.id, isChecked,
+                          data: { points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }, onchange: "updateTotalPoints(); handleFollowUpVisibility();",
+                          disabled: disableAnswer, required: isMandatory,
+                          class: "survey_sel_choice_"+ (entry.id).to_s) %>
+                      <% end %>
+                      <span class="survey_sel_choice_<%= entry.id %>_<%= choice_entry.id %> choice-text"><%= choice_entry.name %>&nbsp;<% if points[:show_points].present? %><span style="font-size: 10px;">&nbsp;(<%= survey_points %>)</span><% end %></span>
+                    <% when 'RB' %>
+                      <% if isPrint %>
+                        <span style="font-size: 16px;"><%= isChecked ? '&#9673;'.html_safe : '&#9675;'.html_safe %></span>
+                        <%= hidden_field_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}", choice_entry.id || entry.id, data: { points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }) if isChecked %>
+                      <% else %>
+                        <%= radio_button_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}", choice_entry.id || entry.id, isChecked,
+                          data: { points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }, onchange: "updateTotalPoints(); handleFollowUpVisibility();",
+                          disabled: disableAnswer, required: isMandatory) %>
+                      <% end %>
+                      <span class="survey_sel_choice_<%= entry.id %>__<%= choice_entry.id %> choice-text"><%= choice_entry.name %>&nbsp;<% if points[:show_points].present? %><span style="font-size: 10px;">&nbsp;(<%= survey_points %>)</span><% end %></span>
+                    <% end %>
+                  </td>
+                </tr>
+                <%# Recursively render followup if linked %>
+                <% if followup_id.present? && all_questions_map[followup_id] %>
+                  <tr>
+                    <td colspan="1">
+                      <%
+                        # A follow-up is NOT last if its triggering choice is not the last choice of the parent question
+                        is_fu_last = (c_idx + 1 == entry.wk_survey_choices.size)
+                      %>
+                      <% render_survey_question.call(all_questions_map[followup_id], depth + 1, choice_entry.id, "#{parent_index.chomp('.').presence || ''}.#{c_idx + 1}", is_fu_last) %>
+                    </td>
+                  </tr>
+                <% end %>
+              <% end %>
+
+            <% elsif ["TB","MTB"].include? entry.question_type %>
+              <% 
+                ans = @response.present? ? @response.wk_survey_answers.where("survey_question_id = #{entry.id}") : nil
+                if ans.present? && isFollowup && parent_choice_id.present?
+                  ans = ans.where(survey_choice_id: parent_choice_id)
+                end
+                choice_text = ans&.first&.try(:choice_text)
               %>
-              <tr class="tr_choice_<%= entry.id %>">
+              <%= hidden_field_tag("hdn_survey_select_choice_"+ (entry.id).to_s, entry.wk_survey_choices.first&.id || 'null') %>
+              <% survey_points = entry.wk_survey_choices.first&.points || 0 %>
+              <%
+                followup_id = choice_link_map[entry.wk_survey_choices.first&.id]
+                
+                followup_idx_path = "#{parent_index.chomp('.').presence || ''}.1".gsub('.', '_')
+                followup_block_id = followup_id ? "wkq_#{followup_id}_#{entry.wk_survey_choices.first&.id}_#{followup_idx_path}" : nil
+                p_suffix = isFollowup ? "p#{parent_choice_id}_#{path_id}_" : ""
+              %>
+              <tr>
                 <td align="left" style="padding-left:30px;">
                   <% case entry.question_type %>
-                  <% when 'CB' %>
-                     <%= check_box_tag("survey_sel_choice_"+ (entry.id).to_s + "_" + (choice_entry.id).to_s, choice_entry.id || entry.id, isChecked, data: { points: survey_points }, onchange: "updateTotalPoints()", disabled: disableAnswer, required: isMandatory,
-                      class: "survey_sel_choice_"+ (entry.id).to_s) %>
-                    <span class="survey_sel_choice_<%= entry.id %>_<%= choice_entry.id %> choice-text"><%= choice_entry.name %>&nbsp;<% if points[:show_points].present? %><span style="font-size: 10px;">&nbsp;(<%= survey_points %>)</span><% end %></span>
-                  <% when 'RB' %>
-                    <%= radio_button_tag("survey_sel_choice_"+ (entry.id).to_s + "_", choice_entry.id || entry.id, isChecked, data: { points: survey_points }, onchange: "updateTotalPoints()", disabled: disableAnswer, required: isMandatory) %>
-                    <span class="survey_sel_choice_<%= entry.id %>__<%= choice_entry.id %> choice-text"><%= choice_entry.name %>&nbsp;<% if points[:show_points].present? %><span style="font-size: 10px;">&nbsp;(<%= survey_points %>)</span><% end %></span>
+                  <% when 'TB' %>
+                    <% if isPrint %>
+                       <span><%= choice_text %></span>
+                       <%= hidden_field_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}", choice_text, data: { points_field: true, points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }) %>
+                    <% else %>
+                       <%= text_field_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}", choice_text, data: { points_field: true, points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }, oninput: "updateTotalPoints(); handleFollowUpVisibility();", size: 60,
+                        disabled: disableAnswer, required: isMandatory, style: "outline: none;") %>
+                    <% end %>
+                    <% if points[:show_points].present? %><span style="font-size: 10px;">&nbsp;(<%= survey_points %>)<% end %></span>
+                  <% when 'MTB' %>
+                    <% if isPrint %>
+                       <span><%= choice_text %></span>
+                       <%= hidden_field_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}", choice_text, data: { points_field: true, points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }) %>
+                    <% else %>
+                      <%= text_area_tag("survey_sel_choice_"+ (entry.id).to_s + "_#{p_suffix}", choice_text, data: { points_field: true, points: survey_points, followup_id: followup_id, followup_block_id: followup_block_id }, oninput: "updateTotalPoints(); handleFollowUpVisibility();", rows: 5, cols: 60,
+                        disabled: disableAnswer, required: isMandatory) %>
+                    <% end %>
+                    <% if points[:show_points].present? %><span style="font-size: 10px;">&nbsp;(<%= survey_points %>)<% end %></span>
                   <% end %>
                 </td>
               </tr>
+              <%# Recursively render followup if linked %>
+              <% if followup_id.present? && all_questions_map[followup_id] %>
+                <tr>
+                  <td colspan="1">
+                    <%# For TB/MTB, there is only one choice, so it's always the last choice of its parent question %>
+                    <% render_survey_question.call(all_questions_map[followup_id], depth + 1, entry.wk_survey_choices.first&.id, "#{parent_index.chomp('.').presence || ''}.1", true) %>
+                  </td>
+                </tr>
+              <% end %>
             <% end %>
 
-          <% elsif ["TB","MTB"].include? entry.question_type %>
-            <% choice_text = @response.present? ? @response.wk_survey_answers.where("survey_question_id = #{entry.id}").first.try(:choice_text) : nil %>
-            <%= hidden_field_tag("hdn_survey_select_choice_"+ (entry.id).to_s, entry.wk_survey_choices.first&.id || 'null') %>
-            <% survey_points = entry.wk_survey_choices.first&.points || 0 %>
-            <tr>
-              <td align="left" style="padding-left:30px;">
-                <% case entry.question_type %>
-                <% when 'TB' %>
-                     <%= isPrint ? choice_text : text_field_tag("survey_sel_choice_"+ (entry.id).to_s + "_", choice_text, data: { points_field: true, points: survey_points }, oninput: "updateTotalPoints()", size: 60,
-                      disabled: disableAnswer, required: isMandatory, style: "outline: none;") %><% if points[:show_points].present? %><span style="font-size: 10px;">&nbsp;(<%= survey_points %>)<% end %></span>
-                <% when 'MTB' %>
-                    <%= isPrint ? choice_text : text_area_tag("survey_sel_choice_"+ (entry.id).to_s + "_", choice_text, data: { points_field: true, points: survey_points }, oninput: "updateTotalPoints()", rows: 5, cols: 60,
-                      disabled: disableAnswer, required: isMandatory) %><% if points[:show_points].present? %><span style="font-size: 10px;">&nbsp;(<%= survey_points %>)<% end %></span>
-                <% end %>
-              </td>
-            </tr>
-          <% end %>
-
-          <% if (@isReview || @isReviewed) && !isReviewerOnly %>
-            <tr>
-              <th style="float:left;"><%= l(:label_review_comment) %></th>
-            </tr>
-            <tr>
-              <td style="padding-left:30px;">
-                  <%= isPrint ? comment_text :
-                    text_area_tag("survey_review_"+ (entry.id).to_s, comment_text, rows: 5, cols: 60, disabled: @isReviewed, required: false)
-                  %>
-              </td>
-            </tr>
-            <% if reviewerName.present? %>
+            <% if (@isReview || @isReviewed) && !isReviewerOnly %>
               <tr>
-                <th style="float:left;"><%= l(:label_reviewed_by) %></th>
-                <td style="float:left;padding-left: 10px;"><%= reviewerName %></td>
+                <th style="float:left;"><%= l(:label_review_comment) %></th>
               </tr>
+              <tr>
+                <td style="padding-left:30px;">
+                    <%= isPrint ? comment_text :
+                      text_area_tag("survey_review_"+ (entry.id).to_s, comment_text, rows: 5, cols: 60, disabled: @isReviewed, required: false)
+                    %>
+                </td>
+              </tr>
+              <% if reviewerName.present? %>
+                <tr>
+                  <th style="float:left;"><%= l(:label_reviewed_by) %></th>
+                  <td style="float:left;padding-left: 10px;"><%= reviewerName %></td>
+                </tr>
+              <% end %>
             <% end %>
+            <tr>
+              <td align="left" ><em><%= entry.footer %></em></td>
+            </tr>
+          </table>
+          <% if !is_last %>
+            <div style="border-bottom: 1px solid #696969; margin-left: 10px; margin-right: 1px; padding-top: 1px;"></div>
           <% end %>
-          <tr>
-            <td align="left" ><em><%= entry.footer %></em></td>
-          </tr>
-        </table>
+          </div>
+    <%
+        end
+      end
+    %>
+
+    <% if group.present? && group.name.present? %>
+        <%
+          top_level_questions = questions.select { |q| q.parent_id.nil? }
+          total_top_q = top_level_questions.size
+          question_counter = 0
+        %>
+        <% top_level_questions.each_with_index do |entry, q_idx| %>
+          <%
+            question_counter += 1
+            parent_index = "#{group_counter}.#{question_counter}."
+            is_q_last = (q_idx + 1 == total_top_q)
+          %>
+          <% render_survey_question.call(entry, 0, nil, parent_index, is_q_last) %>
+        <% end %>
+      <% else %>
+        <%
+          top_level_questions = questions.select { |q| q.parent_id.nil? }
+          total_top_q = top_level_questions.size
+        %>
+        <% top_level_questions.each_with_index do |entry, q_idx| %>
+          <%
+            ungrouped_q_counter += 1
+            parent_index = "#{ungrouped_q_counter}."
+            is_q_last = (q_idx + 1 == total_top_q)
+          %>
+          <% render_survey_question.call(entry, 0, nil, parent_index, is_q_last) %>
+        <% end %>
       <% end %>
-      <%= hidden_field_tag("reviewerOnlyQuestions", reviewerOnlyQIDs) %>
-    <% end %>
+    <%= hidden_field_tag("reviewerOnlyQuestions", reviewer_only_qids.uniq.join(',')) %>
      </fieldset>
   <% end %>
 

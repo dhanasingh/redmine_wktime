@@ -338,7 +338,7 @@ function save_issue_log(ele){
 	}
 	$.ajax({
 		url: '/wkbase/save_issue_log',
-		type: 'get',
+		type: 'post',
 		data: data,
 		success: function(resMsg){
 			if(resMsg == 'finish'){

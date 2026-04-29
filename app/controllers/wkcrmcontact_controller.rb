@@ -19,6 +19,7 @@ class WkcrmcontactController < WkcontactController
 
   menu_item :wklead
   accept_api_auth :index, :edit, :update
+	before_action :init_survey
 
 	def getContactType
 		'C'
@@ -26,5 +27,10 @@ class WkcrmcontactController < WkcontactController
 
 	def lblNewContact
 		l(:label_new_item, l(:label_contact))
+	end
+
+	def init_survey
+		@survey_ctrl = "wksurvey"
+		@survey_perm = validateERPPermission("E_SUR")
 	end
 end

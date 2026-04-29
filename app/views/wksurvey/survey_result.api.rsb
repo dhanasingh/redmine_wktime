@@ -1,32 +1,183 @@
+# Build choice → follow_up_question_id map and set of all follow-up question ids
+all_questions_for_result = @survey.wk_survey_questions.includes(:wk_survey_choices).order("wk_survey_questions.lft, wk_survey_questions.id")
+choice_link_map = {}
+followup_question_ids = Set.new
+all_questions_for_result.each do |q|
+  q.wk_survey_choices.each do |c|
+    if c.follow_up_question_id.present?
+      choice_link_map[c.id] = c.follow_up_question_id
+      followup_question_ids.add(c.follow_up_question_id)
+    end
+  end
+end
+
 api.array :wk_survey do
-  @survey.result_questions.where(question_type: ['CB','RB']).each do |question|
-    graph_data = get_Graph_data(question.id) if validateTrendingChart(params[:survey_id], question.id) || params[:groupName] != "trendChart"
-    if params[:groupName] != "trendChart" || (graph_data || []).length > 0
-      api.question do
-        api.id question.id
-        api.name question.name
-        api.question_type question.question_type
-        api.graph_data graph_data
-      end
+  has_trend_chart_recursive = lambda do |q|
+    return true if validateTrendingChart(q.survey_id, q.id)
+    q.wk_survey_choices.any? do |c|
+      fu_id = choice_link_map[c.id]
+      fu_id.present? && @all_questions_map[fu_id] && has_trend_chart_recursive.call(@all_questions_map[fu_id])
     end
   end
 
-  if params[:groupName] != "trendChart"
-    @survey.result_questions.where(question_type: ['TB','MTB']).each do |question|
-      api.question do
-        api.id question.id
-        api.name question.name
-        api.question_type question.question_type
+  emit_result_question = lambda do |entry, depth, parent_index, qualifying_response_ids, triggering_choice_id, is_first_in_group|
+    if params[:groupName] == 'trendChart'
+      return unless has_trend_chart_recursive.call(entry)
+    end
+    is_cb_rb  = ['CB', 'RB'].include?(entry.question_type)
+    is_tb_mtb = ['TB', 'MTB'].include?(entry.question_type)
+
+    graph_data = nil
+    if is_cb_rb
+      if validateTrendingChart(params[:survey_id], entry.id) || params[:groupName] != "trendChart"
+        if params[:groupName] == 'trendChart'
+          graph_data = get_Graph_data(entry.id)
+        elsif qualifying_response_ids.nil? && triggering_choice_id.nil?
+          graph_data = get_Graph_data(entry.id)
+        else
+          cur_trig_for_lookup = triggering_choice_id.present? ? triggering_choice_id.to_i : nil
+
+          emp_counts = entry.wk_survey_choices.map do |c|
+            if cur_trig_for_lookup.present?
+              sel_ids = @responses_by_selection[[entry.id, cur_trig_for_lookup, c.id]] || Set.new
+              filtered = qualifying_response_ids ? (qualifying_response_ids & sel_ids) : sel_ids
+            else
+              all_ids_for_choice = Set.new
+              @responses_by_selection.each do |key, rids|
+                all_ids_for_choice |= rids if key[0] == entry.id && key[2] == c.id
+              end
+              filtered = qualifying_response_ids ? (qualifying_response_ids & all_ids_for_choice) : all_ids_for_choice
+            end
+            filtered.size
+          end
+
+          labels = entry.wk_survey_choices.map(&:name)
+          total = emp_counts.sum.to_f
+          avg_score = 0
+          if validateTrendingChart(@survey.id, entry.id)
+            total_score = entry.wk_survey_choices.each_with_index.sum { |c, i| c.name.to_f * emp_counts[i] }
+            avg_score = total > 0 ? (total_score / total).round(2) : 0
+          end
+          graph_data = {
+            labels: labels,
+            emp_count_per_choices: emp_counts,
+            avg_score: avg_score,
+            showAvg: validateTrendingChart(@survey.id, entry.id)
+          }
+        end
+      end
+    end
+
+    api.question do
+      api.id entry.id
+      api.name entry.name
+      api.question_type entry.question_type
+      api.depth depth
+      api.index parent_index
+      api.parent_choice_id triggering_choice_id
+      api.is_grouped (entry.wk_survey_que_group.present? && entry.wk_survey_que_group.name.present?)
+      
+      if is_first_in_group && entry.wk_survey_que_group.present? && entry.wk_survey_que_group.name.present?
+        api.group_name entry.wk_survey_que_group.name
+      end
+
+      if is_cb_rb
+        api.graph_data graph_data
+        api.array :choices do
+          entry.wk_survey_choices.each do |c|
+            api.choices do
+              api.id c.id
+              api.name c.name
+              api.follow_up_question_id c.follow_up_question_id
+            end
+          end
+        end
+      elsif is_tb_mtb
         api.array :answers do
-          question.response_texts(params[:groupName]).each do |ans|
+          @survey_txt_answers.each do |ans_entry|
+            ans_qid = ans_entry.respond_to?(:question_id) ? ans_entry.question_id : ans_entry[:question_id]
+            ans_rid = ans_entry.respond_to?(:response_id) ? ans_entry.response_id : ans_entry[:response_id]
+            ans_tid = ans_entry.respond_to?(:trigger_choice_id) ? ans_entry.trigger_choice_id : ans_entry[:trigger_choice_id]
+
+            next unless entry.id == ans_qid.to_i
+            next if qualifying_response_ids && !qualifying_response_ids.include?(ans_rid.to_i)
+            if triggering_choice_id.present?
+              next unless ans_tid.to_i == triggering_choice_id.to_i
+            else
+              next if ans_tid.present?
+            end
+
             api.answers do
-              api.id ans.id
-              api.choice_text ans.choice_text
+              api.id ans_entry.respond_to?(:id) ? ans_entry.id : ans_entry[:id]
+              api.choice_text ans_entry.respond_to?(:choice_text) ? ans_entry.choice_text : ans_entry[:choice_text]
             end
           end
         end
       end
     end
+
+    followup_groups = {}
+    entry.wk_survey_choices.each_with_index do |choice_entry, c_idx|
+      followup_id = choice_link_map[choice_entry.id]
+      next unless followup_id.present? && @all_questions_map && @all_questions_map[followup_id]
+      followup_groups[followup_id] ||= { first_c_idx: c_idx, choices: [] }
+      followup_groups[followup_id][:choices] << { choice: choice_entry, c_idx: c_idx }
+    end
+
+    followup_groups.each do |followup_id, group_info|
+      cur_trigger = triggering_choice_id.present? ? triggering_choice_id.to_i : nil
+
+      if group_info[:choices].size == 1
+        choice_entry = group_info[:choices].first[:choice]
+        c_idx        = group_info[:choices].first[:c_idx]
+        via_selection_ids    = @responses_by_selection[[entry.id, cur_trigger, choice_entry.id]] || Set.new
+        child_qualifying_ids = qualifying_response_ids ? (qualifying_response_ids & via_selection_ids) : via_selection_ids
+        child_index          = "#{parent_index.chomp('.').presence || ''}.#{c_idx + 1}"
+        emit_result_question.call(@all_questions_map[followup_id], depth + 1, child_index, child_qualifying_ids, choice_entry.id, false)
+      else
+        combined_ids = group_info[:choices].inject(Set.new) do |acc, ch_info|
+          via_ids = @responses_by_selection[[entry.id, cur_trigger, ch_info[:choice].id]] || Set.new
+          acc | via_ids
+        end
+        child_qualifying_ids = qualifying_response_ids ? (qualifying_response_ids & combined_ids) : combined_ids
+        first_c_idx = group_info[:first_c_idx]
+        child_index = "#{parent_index.chomp('.').presence || ''}.#{first_c_idx + 1}"
+        emit_result_question.call(@all_questions_map[followup_id], depth + 1, child_index, child_qualifying_ids, nil, false)
+      end
+    end
+  end
+
+  group_counter      = 0
+  ungrouped_q_counter = 0
+  q_counter           = 0
+  current_group_id    = :init
+
+  all_questions_for_result.each do |entry|
+    next if followup_question_ids.include?(entry.id)
+    
+    if params[:groupName] == 'trendChart'
+      next unless has_trend_chart_recursive.call(entry)
+    end
+
+    is_first_in_group = false
+
+    if entry.group_id != current_group_id
+      current_group_id = entry.group_id
+      if entry.wk_survey_que_group.present? && entry.wk_survey_que_group.name.present?
+        group_counter += 1
+        q_counter = 0
+        is_first_in_group = true
+      end
+    end
+
+    if entry.wk_survey_que_group.present? && entry.wk_survey_que_group.name.present?
+      q_counter += 1
+      parent_index = "#{group_counter}.#{q_counter}."
+    else
+      ungrouped_q_counter += 1
+      parent_index = "#{ungrouped_q_counter}."
+    end
+    emit_result_question.call(entry, 0, parent_index, nil, nil, is_first_in_group)
   end
 end
 

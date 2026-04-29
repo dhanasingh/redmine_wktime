@@ -56,7 +56,7 @@ module WkreportHelper
 		elsif reportName == 'report_order_to_cash' || reportName == 'report_project_profitability' || reportName == 'report_account_payable'
 			ret = validateERPPermission("M_BILL")
 		elsif reportName == 'report_asset'
-			ret = validateERPPermission("V_INV")
+			ret = validateERPPermission("B_INV_PRVLG")
 		end
 		ret
 	end

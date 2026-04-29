@@ -24,39 +24,29 @@ width: auto !important;}
 <% end %>
 <%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
 <%=h hidden_field_tag("group_id", @groupPermission.blank? ? params[:group_id].to_i : @groupPermission[0].group_id) %>
+
+<% @permission.group_by(&:plugin).each do |plugin, permissions| %>
 <fieldset class="box tabular">
-	<legend><%= l(:label_permissions) %></legend>
-	<% @permission.each do |m| %>
-		<%	moduleName = m.modules
-			mName = m.modules
-		%>
-		<% if firstApperence == 0 || mName != lastmName %>
-			<div class="icon-gravatar">
-			 <fieldset>
-			 <legend><%= moduleHash[m.modules || ""]  %></legend>
-				<% @permission.each do | mn | %>
-					<%	name = mn.name.split('_')
-						modName = mn.modules #name[0]
-					%>
-					<% if modName == mName %>
-						<% isPermission = permissionArr.include? mn.id %>
-						<p><label style="text-align: left; float:left;">
+	
+	<% permissions.group_by(&:modules).each do |m_name, m_perms| %>
+		<div class="icon-gravatar">
+		 <fieldset>
+		 <legend><%= moduleHash[m_name || ""] %></legend>
+			<% m_perms.each do |mn| %>
+				<% isPermission = permissionArr.include? mn.id %>
+				<p><label style="text-align: left; float:left;">
 							<%= check_box_tag "is_permission#{count}", 1, isPermission     -%>
 							<%= l(("#{mn.name}"), :prefix => "erpmine_module_") %></label>
 						</p>
 						<%=h hidden_field_tag("permission_id#{count}", mn.id) %>
 						<%=h hidden_field_tag("count", count) %>
-						<% count += 1 %>
-					<% end %>
-
-				<% end %>
-			 </fieldset>
-			</div>
-			<% lastmName = m.modules
-				firstApperence += 1
-			%>
-		<% end %>
+				<% count += 1 %>
+			<% end %>
+		 </fieldset>
+		</div>
 	<% end %>
 </fieldset>
+<% end %>
+
  <%= submit_tag l(:button_save), :class => "small", :name => nil %>
 <% end %>

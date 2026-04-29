@@ -18,8 +18,12 @@
 class WksurveyController < WkbaseController
 
 
-  before_action :require_login, :survey_url_validation, :check_perm_and_redirect
-  before_action :check_permission , only: "survey_response"
+  before_action :require_login
+  before_action :init_survey_data
+  before_action :validate_object_existence
+  before_action :validate_permissions
+  before_action :validate_survey_status
+
   accept_api_auth :index, :save_survey, :find_survey_for, :survey, :update_survey, :survey_result, :survey_response, :export
   menu_item :wksurvey
   menu_item :wkattendance, :only => :user_survey
@@ -34,6 +38,7 @@ class WksurveyController < WkbaseController
 
     surveys = surveyList(params)
     surveys = surveys.reorder(sort_clause)
+    @survey_options = getSurveyFor
 		respond_to do |format|
 			format.html {
         @all_surveys = formPagination(surveys)
@@ -54,6 +59,7 @@ class WksurveyController < WkbaseController
 
   def edit
     getSurveyForType(params)
+    @survey_options = getSurveyFor
     @survey = WkSurvey.find_or_initialize_by(id: params[:survey_id])
     if @survey.new_record?
       group = @survey.wk_survey_que_groups.build
@@ -72,6 +78,10 @@ class WksurveyController < WkbaseController
         question.survey = @survey
       end
     end
+    # Ensure Truly ungrouped questions also have survey_id set
+    @survey.wk_survey_questions.each do |question|
+      question.survey = @survey
+    end
     errMsg = ""
 
     #Validate Survey For before Save
@@ -82,6 +92,7 @@ class WksurveyController < WkbaseController
     end
 
     if @survey.valid? && errMsg.blank?
+      @survey.survey_attributes_from_params = params[:wksurvey]
       @survey.save
       resMsg = l(:notice_successful_update)
     else
@@ -117,13 +128,22 @@ class WksurveyController < WkbaseController
     params.permit(
       :id, :name, :survey_for_type, :survey_for_id, :status, :group_id,
       :recur, :recur_every, :is_review, :save_allowed, :hide_response, :use_points,
+      wk_survey_questions_attributes: [
+        :id, :name, :is_reviewer_only, :is_mandatory, :not_in_report, :sort_order,
+        :header, :footer, :question_type, :_destroy, :temp_id,
+        :lft, :rgt,
+        wk_survey_choices_attributes: [
+          :id, :name, :points, :_destroy, :follow_up_temp_id, :follow_up_question_id
+        ]
+      ],
       wk_survey_que_groups_attributes: [
-        :id, :name, :sort_order, :_destroy,
+        :id, :name, :sort_order, :_destroy, :parent_id, :lft, :rgt,
         wk_survey_questions_attributes: [
-          :id, :name, :is_reviewer_only, :is_mandatory, :not_in_report,
-          :header, :footer, :question_type, :_destroy,
+          :id, :name, :is_reviewer_only, :is_mandatory, :not_in_report, :sort_order,
+          :header, :footer, :question_type, :_destroy, :temp_id,
+          :lft, :rgt,
           wk_survey_choices_attributes: [
-            :id, :name, :points, :_destroy
+            :id, :name, :points, :_destroy, :follow_up_temp_id, :follow_up_question_id
           ]
         ]
       ]
@@ -154,7 +174,7 @@ class WksurveyController < WkbaseController
                 "Response_date" => "status_date"
 
     getSurveyForType(params)
-    response_entries = WkSurveyResponse.response_list(@survey, params[:groupName], validateERPPermission("E_SUR"), convertUsersIntoString(), @surveyForType)
+    response_entries = WkSurveyResponse.response_list(@survey, params[:groupName], @survey_perm, convertUsersIntoString(), @surveyForType)
     response_entries = response_entries.reorder(sort_clause)
 
 		respond_to do |format|
@@ -224,9 +244,22 @@ class WksurveyController < WkbaseController
             questionType = params[questionTypeName]
             survey_choice_id = (["RB","CB"].include? questionType) && choice_nameVal.last.to_i > 0 ? choice_nameVal.last : nil
             choice_text = (["TB","MTB"].include? questionType) ? choice_nameVal.last : nil
+
+            parent_choice_idx = sel_ids.index { |s| s.start_with?('p') } if sel_ids.length > 4
+            if parent_choice_idx
+              parent_choice_val = sel_ids[parent_choice_idx][1..-1]
+              if parent_choice_val.present? && parent_choice_val.to_i > 0
+                if ["TB", "MTB"].include?(questionType)
+                  survey_choice_id = parent_choice_val
+                elsif ["RB", "CB"].include?(questionType)
+                  choice_text = parent_choice_val
+                end
+              end
+            end
+
             if survey.use_points?
               sel_survey_choice_id =  
-                  if survey_choice_id
+                  if ["RB", "CB"].include?(questionType) && survey_choice_id
                     survey_choice_id
                   elsif ["TB", "MTB"].include?(questionType)
                     params["hdn_survey_select_choice_#{questionID}"]
@@ -327,9 +360,18 @@ class WksurveyController < WkbaseController
     @survey_result_Entries = WkSurveyQuestion.where("wk_survey_questions.survey_id = #{params[:survey_id]} AND wk_survey_questions.question_type NOT IN ('TB', 'MTB') AND wk_survey_questions.not_in_report = #{booleanFormat(false)}").select("wk_survey_questions.survey_id, wk_survey_questions.id, wk_survey_questions.name AS question_name")
     .order("wk_survey_questions.survey_id, wk_survey_questions.id")
 
+    # Load all reportable questions grouped by their survey group, in survey order
+    questions = @survey.wk_survey_questions
+      .includes(:wk_survey_que_group, :wk_survey_choices)
+      .where(not_in_report: false)
+      .order("wk_survey_questions.lft, wk_survey_questions.id")
+    
+    @all_questions_map = questions.index_by(&:id)
+    @survey_grouped_questions = questions.group_by(&:wk_survey_que_group)
+
     @survey_txt_questions = WkSurvey.surveyTextQuestion(params[:survey_id])
     txt_answers= WkSurvey.getTextAnswer(params[:survey_id], params[:surveyForType])
-    isAdmin = (validateERPPermission("E_SUR"))
+    isAdmin = (@survey_perm)
     if @survey.recur?
       txt_answers = txt_answers.currentRespTxtAnswer if params[:groupName].blank? && isAdmin
       txt_answers = txt_answers.responsedTextAnswer(params[:groupName]) if params[:groupName].present? && isAdmin
@@ -339,6 +381,54 @@ class WksurveyController < WkbaseController
       txt_answers = txt_answers.responsedTextAnswer(groupName) if !isAdmin
     end
     @survey_txt_answers = txt_answers
+
+    question_type_map = @survey.wk_survey_questions.pluck(:id, :question_type).to_h
+    question_choices_map = Hash.new { |h, k| h[k] = [] }
+    WkSurveyChoice.joins(:survey_question).where(wk_survey_questions: { survey_id: params[:survey_id] })
+      .pluck(:survey_question_id, :id).each { |qid, cid| question_choices_map[qid.to_i] << cid.to_i }
+
+    answer_scope = WkSurveyAnswer.joins(:survey_response)
+      .where('wk_survey_responses.survey_id = ?', params[:survey_id])
+    if params[:surveyForType].present?
+      answer_scope = answer_scope.where('wk_survey_responses.survey_for_type = ?', params[:surveyForType])
+    else
+      answer_scope = answer_scope.where('wk_survey_responses.survey_for_type IS NULL')
+    end
+    if @survey.recur?
+      if params[:groupName].present?
+        answer_scope = answer_scope.where('wk_survey_responses.group_name = ?', params[:groupName])
+      elsif isAdmin
+        answer_scope = answer_scope.where('wk_survey_responses.group_name IS NULL')
+      else
+        answer_scope = answer_scope.where('wk_survey_responses.group_name = ?', getResponseGroup.last)
+      end
+    end
+
+    @responses_by_selection = {}
+    answer_scope.pluck(:survey_question_id, :survey_choice_id, :survey_response_id, :choice_text).each do |qid, cid, rid, ct|
+      qtype = question_type_map[qid.to_i]
+      
+      parent_choice_id = if ['TB', 'MTB'].include?(qtype)
+        cid.present? ? cid.to_i : nil
+      else
+        (ct.present? && ct.to_s =~ /\A\d+\z/) ? ct.to_s.to_i : nil
+      end
+      
+      if ['TB', 'MTB'].include?(qtype)
+        # For Text questions, every hidden choice row representing a follow-up link is considered selected if answered.
+        (question_choices_map[qid.to_i] || []).each do |choice_id|
+          key = [qid.to_i, parent_choice_id, choice_id.to_i]
+          @responses_by_selection[key] ||= Set.new
+          @responses_by_selection[key] << rid.to_i
+        end
+      else
+        # For Choice questions, the selected choice is in survey_choice_id
+        key = [qid.to_i, parent_choice_id, cid.present? ? cid.to_i : nil]
+        @responses_by_selection[key] ||= Set.new
+        @responses_by_selection[key] << rid.to_i
+      end
+    end
+
   end
 
   def graph
@@ -456,61 +546,6 @@ class WksurveyController < WkbaseController
       @limit = @entry_pages.per_page
       @offset = @entry_pages.offset
       @offset
-    end
-  end
-
-  def check_perm_and_redirect
-    get_survey(params[:survey_id], (["edit","survey_response","survey_result", "print_survey_result, update_survey"].include?(action_name)) &&
-      validateERPPermission("E_SUR") || action_name == "graph") unless params[:survey_id].blank?
-    survey = get_survey_with_userGroup(params[:survey_id]) unless params[:survey_id].blank? && action_name == "survey_response"
-    closed_response = getResponseGroup(params[:survey_id]) unless params[:survey_id].blank?
-    if "survey" == action_name
-      allowSupervisor = "survey" == action_name && params[:response_id].present?
-      survey = get_survey_with_userGroup(params[:survey_id], allowSupervisor).first
-    end
-    if !showSurvey || (!checkEditSurveyPermission && (["edit", "save_survey"].include? action_name))
-      render_403
-      return false
-    elsif (["email_user", "update_survey"].include? action_name && @survey.try(:status) != "O") ||
-      (action_name == "survey_response" && survey.blank? && !(validateERPPermission("E_SUR"))) ||
-      (action_name == "survey_result" && @survey.try(:status) != "C" && !(validateERPPermission("E_SUR") || closed_response.present?)) ||
-      ("survey" == action_name && !(["O", "C"].include? @survey.try(:status)))
-        render_404
-        return false
-    end
-  end
-
-  def survey_url_validation
-
-    is_survey_not_permitted = false
-    #project tab
-    if !params[:project_id].blank? && !get_project_id(params[:project_id]).blank?
-      find_project_by_project_id
-    elsif !params[:project_id].blank? && get_project_id(params[:project_id]).blank?
-      is_survey_not_permitted = true
-    end
-
-    if !params[:id].blank? && !@project.blank?
-      survey = WkSurvey.where(:id => params[:id])
-      is_survey_not_permitted = true if survey.blank?
-    #ERPmine tab
-    elsif !params[:contact_id].blank? && params[:project_id].blank?
-      contact = WkCrmContact.where(:id => params[:contact_id])
-      is_survey_not_permitted = true if contact.blank?
-    elsif !params[:account_id].blank? && params[:project_id].blank?
-      account = WkAccount.where(:id => params[:account_id])
-      is_survey_not_permitted = true if account.blank?
-    elsif !params[:survey_id].blank? && params[:project_id].blank?
-      survey = WkSurvey.where(:id => params[:survey_id])
-      is_survey_not_permitted = true if survey.blank?
-    end
-
-    if is_survey_not_permitted
-      render_404
-      return false
-    elsif !params[:project_id].blank? && !User.current.allowed_to?(:view_survey, @project)
-      render_403
-      return false
     end
   end
 
@@ -738,4 +773,154 @@ class WksurveyController < WkbaseController
 
 		pdf.Output
 	end
+
+  private
+
+  def init_survey
+    @survey_ctrl = "wksurvey"
+  end
+
+    # ========== OVERRIDABLE PERMISSION METHODS ==========
+  def check_view_perm
+    validateERPPermission("E_SUR")
+  end
+
+  def check_manage_perm
+    validateERPPermission("E_SUR")
+  end
+
+  # ========== CONTEXT LOADING ==========
+  def init_survey_data
+    init_survey
+    @survey_perm = check_manage_perm
+    # Project
+    if params[:project_id].present?
+      project_id = get_project_id(params[:project_id])
+      if project_id.present?
+        find_project_by_project_id
+      else
+        @invalid_project = true
+      end
+    end
+
+    if !params[:id].blank? && !@project.blank?
+      @survey = WkSurvey.where(:id => params[:id])
+      @invalid_survey = true if @survey.blank?
+    end
+    # Survey
+   
+    if params[:survey_id].present? && params[:project_id].blank?
+      @survey = WkSurvey.find_by(id: params[:survey_id])
+      @invalid_survey = true if @survey.nil?
+    end
+
+    # Contact/Account
+    if params[:contact_id].present? && params[:project_id].blank?
+      @contact = WkCrmContact.find_by(id: params[:contact_id])
+      @invalid_contact = true if @contact.nil?
+    end
+    
+    if params[:account_id].present? && params[:project_id].blank?
+      @account = WkAccount.find_by(id: params[:account_id])
+      @invalid_account = true if @account.nil?
+    end
+
+    # Supervisor flag (from original)
+    @allow_supervisor = (action_name == "survey" && params[:response_id].present?)
+
+    # Additional data
+    if @survey.present?
+      @survey_with_user_group = get_survey_with_userGroup(@survey.id, @allow_supervisor)
+      @closed_response = getResponseGroup(@survey.id) if @survey.recur?
+    end
+
+    # Legacy variables
+    @surveyForType = params[:surveyForType] || @survey&.survey_for_type
+    @surveyForID = params[:surveyForID] || @survey&.survey_for_id
+    getSurveyForType(params) if respond_to?(:getSurveyForType, true)
+  end
+
+  # ========== OBJECT EXISTENCE ==========
+  def validate_object_existence
+    if @invalid_project || @invalid_survey || @invalid_contact || @invalid_account
+      render_404 and return false
+    end
+
+    if params[:project_id].present? && @project.present?
+      unless User.current.allowed_to?(:view_survey, @project)
+        render_403 and return false
+      end
+    end
+    
+    true
+  end
+
+  # ========== PERMISSION VALIDATION ==========
+  def validate_permissions
+    return true if action_name == "graph"
+
+    unless showSurvey
+      render_403
+      return  
+    end
+
+    if ["edit", "save_survey"].include?(action_name)
+      unless check_manage_perm
+        render_403
+        return  
+      end
+    end
+
+    true
+  end
+
+  # ========== STATUS VALIDATION ==========
+  def validate_survey_status
+    return true if @survey.blank?
+
+    # Original status checks (using exact original array)
+    edit_actions_for_status = ["edit","survey_response","survey_result", "print_survey_result, update_survey"]
+    
+    # Condition 1: email_user and update_survey
+    if ["email_user", "update_survey"].include?(action_name)
+      unless @survey.status == "O"
+        render_404 and return false
+      end
+    end
+
+    # Condition 2: survey_response
+    if action_name == "survey_response"
+      if @survey_with_user_group.blank? && !check_manage_perm
+        render_404 and return false
+      end
+    end
+
+    # Condition 3: survey_result
+    if action_name == "survey_result"
+      unless @survey.status == "C" || check_manage_perm || @closed_response.present?
+        render_404 and return false
+      end
+    end
+
+    # Condition 4: survey
+    if action_name == "survey"
+      unless ["O", "C"].include?(@survey.status)
+        render_404 and return false
+      end
+    end
+
+    true
+  end
+
+
+  def getSurveyFor
+    survey_types = {
+        "" => '',
+        l(:label_project) => 'Project',
+        l(:label_accounts) => 'WkAccount',
+        l(:label_contact) => 'WkCrmContact',
+        l(:label_user) => 'User'
+    }
+    survey_types
+  end
 end

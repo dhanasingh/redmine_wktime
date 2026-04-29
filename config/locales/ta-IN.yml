@@ -106,6 +106,7 @@ ta-IN:
   text_wk_no_reminder: எந்த நினைவூட்டலும் இல்லை
 
 
+  label_attendance: வருகை
   report_attendance: வருகை
   report_spent_time: செலவிடும் நேரம்
   label_wk_break_time: இடைவேளை
@@ -119,6 +120,7 @@ ta-IN:
   label_wk_leave_accrual: சேர்த்தல்
   label_clock_in: மணி உள்ளே
   label_clock_out: மணி வெளியே
+  label_device_id: சாதன அடையாளம்
   label_wk_leave_exists: இந்த விடுப்பு ஏற்கனவே உள்ளது
   wk_field_balance: இருப்பு
   wk_field_used: பயன்படுத்தப்பட்டது
@@ -697,8 +699,8 @@ ta-IN:
   label_number_shortcut: "இல்லை"
   label_account_category: கணக்கு வகை
 
-  VIEW INVENTORY: சரக்குகளைக் காண்க
-  DELETE INVENTORY: சரக்குகளை நீக்கு
+  BASIC INVENTORY PRIVILEGE: Basic Inventory Privilege
+  ADMIN INVENTORY PRIVILEGE: Admin Inventory Privilege
   SCHEDULES SHIFT: அட்டவணை மாற்றம்
   EDIT SHIFT SCHEDULES: மாற்றம் அட்டவணைகளைத் திருத்து
   EDIT SURVEY: கணக்கெடுப்பைத் திருத்து
@@ -766,10 +768,10 @@ ta-IN:
   label_survey: கணக்கெடுப்பு
   label_new_survey: புதிய கணக்கெடுப்பு
   label_edit_survey: கணக்கெடுப்பைத் திருத்து
-  label_question_choices: கேள்வி தேர்வுகள்
+  label_question_choices: தேர்வு
   label_open: திறந்த
   label_archived: காப்பகப்படுத்தப்பட்டது
-  label_survey_name: கணக்கெடுப்பு பெயர்
+  label_survey_name: பெயர்
   label_question_name: கேள்வி
   label_question_type: கேள்வி வகை
   label_survey_result: கணக்கெடுப்பு முடிவு
@@ -804,6 +806,11 @@ ta-IN:
   label_response_status: பதில் நிலை
   notice_unsuccessful_save: சேமிக்க முடியவில்லை
   label_reviewed_by: மதிப்பாய்வு செய்தது
+  label_add_followup: Add Follow-up
+  label_add_link_followup: Add/Link Follow-up Question
+  label_link_followup_question: Link Existing Follow-up Question
+  label_add_followup_question: Add New Follow-up Question
+  label_followup_question: Follow-up Question
 
   label_no_additional_details_for_issue: வெளியீட்டுக்கு கூடுதல் விவரங்கள் இல்லை
   label_create_supplier_invoice_without_purchase_order: கொள்முதல் ஆணை இல்லாமல் சப்ளையர் விலைப்பட்டியல் உருவாக்கவும்
@@ -1211,7 +1218,7 @@ ta-IN:
   label_pre_text: முன் உரை
   label_post_text: பின் உரை
   button_add_group: குழுவைச் சேர்க்கவும்
-  label_survey_question_grp: கருத்துக்கணிப்பு கேள்வி குழுக்கள்
+  label_survey_question_grp: கேள்வி குழுக்கள்
   button_delete_group: குழுவை நீக்கவும்
   button_add_choice: விருப்பத்தைச் சேர்க்கவும்
   button_delete_choice: விருப்பத்தை நீக்கவும்
@@ -1326,3 +1333,13 @@ ta-IN:
   error_invalid_information: "Invalid information"
 
   error_invoice_already_paid: "Invoice is already paid"
+  label_lost_lead: "Lost Lead"
+
+  # Accounting export formats
+  label_select_export_format: "Select export format"
+  label_export_format_quickbooks_online: "QuickBooks Online"
+  label_export_desc_quickbooks_online: "QuickBooks Online compatible CSV for journal entry import"
+  label_export_format_sage_business_cloud: "Sage Business Cloud Accounting"
+  label_export_desc_sage_business_cloud: "Sage Business Cloud Accounting compatible CSV for journal import"
+  label_export_format_tally_prime: "Tally Prime"
+  label_export_desc_tally_prime: "Tally-compatible CSV for import into Tally Prime"

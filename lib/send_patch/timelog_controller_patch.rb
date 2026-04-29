@@ -638,7 +638,7 @@ module SendPatch::TimelogControllerPatch
 							end
 						end
 					else
-						if wktime_helper.validateERPPermission("D_INV")
+						if wktime_helper.validateERPPermission("A_INV_PRVLG")
 							destroyed = WkMaterialEntry.transaction do
 								begin
 								if @time_entries.spent_for.blank? || @time_entries.spent_for.invoice_item_id.blank?

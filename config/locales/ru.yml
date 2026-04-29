@@ -132,6 +132,7 @@ ru:
   text_wk_no_reminder: No reminders to send
 
 
+  label_attendance: Attendance
   report_attendance: Attendance
   report_spent_time: Spent time
   label_wk_break_time: Break Time
@@ -150,6 +151,7 @@ ru:
   label_wk_attendance_start_date: Attendance start date
   label_clock_in: Clock in
   label_clock_out: Clock out
+  label_device_id: ID устройства
   label_wk_leave_exists: This leave already exists
   wk_field_balance: Balance
   wk_field_used: Used
@@ -789,8 +791,8 @@ ru:
   label_number_shortcut: "No"
   label_account_category: Account Category
 
-  VIEW INVENTORY: View inventory
-  DELETE INVENTORY: Delete inventory
+  BASIC INVENTORY PRIVILEGE: Basic Inventory Privilege
+  ADMIN INVENTORY PRIVILEGE: Admin Inventory Privilege
   SCHEDULES SHIFT: Schedules shift
   EDIT SHIFT SCHEDULES: Edit shift schedules
   EDIT SURVEY: Edit survey
@@ -864,11 +866,11 @@ ru:
   label_survey: Survey
   label_new_survey: New Survey
   label_edit_survey: Edit Survey
-  label_question_choices: Question Choices
+  label_question_choices: Choice
   label_open: Open
   label_archived: Archived
-  label_survey_name: Survey Name
-  label_question_name: Question Name
+  label_survey_name: Name
+  label_question_name: Question
   label_question_type: Question Type
   label_survey_result: Survey Result
   label_survey_questions: Survey Questions
@@ -903,6 +905,11 @@ ru:
   label_response_status: Response Status
   notice_unsuccessful_save: Unable to save
   label_reviewed_by: Reviewed By
+  label_add_followup: Add Follow-up
+  label_add_link_followup: Add/Link Follow-up Question
+  label_link_followup_question: Link Existing Follow-up Question
+  label_add_followup_question: Add New Follow-up Question
+  label_followup_question: Follow-up Question
 
   label_no_additional_details_for_issue: No Additional Details for Issue
   label_create_supplier_invoice_without_purchase_order: Create Supplier invoice without Purchase order
@@ -1299,7 +1306,7 @@ ru:
   label_pre_text: Pre Text
   label_post_text: Post Text
   button_add_group: Add Group
-  label_survey_question_grp: Survey Question Groups
+  label_survey_question_grp: Question Groups
   button_delete_group: Delete Group
   button_add_choice: Add Choice
   button_delete_choice: Delete Choice
@@ -1414,3 +1421,13 @@ ru:
   error_invalid_information: "Invalid information"
 
   error_invoice_already_paid: "Invoice is already paid"
+  label_lost_lead: "Lost Lead"
+
+  # Accounting export formats
+  label_select_export_format: "Select export format"
+  label_export_format_quickbooks_online: "QuickBooks Online"
+  label_export_desc_quickbooks_online: "QuickBooks Online compatible CSV for journal entry import"
+  label_export_format_sage_business_cloud: "Sage Business Cloud Accounting"
+  label_export_desc_sage_business_cloud: "Sage Business Cloud Accounting compatible CSV for journal import"
+  label_export_format_tally_prime: "Tally Prime"
+  label_export_desc_tally_prime: "Tally-compatible CSV for import into Tally Prime"

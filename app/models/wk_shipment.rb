@@ -35,7 +35,7 @@ class WkShipment < ApplicationRecord
   def send_notification
     if WkNotification.notify('receiveGoods') && self.shipment_type == 'I'
       emailNotes = l(:label_shipment)+" "+l(:label_has_created)+ "\n\n" + l(:label_redmine_administrator)
-      userId = (WkPermission.permissionUser('V_INV') + WkPermission.permissionUser('D_INV')).uniq
+      userId = (WkPermission.permissionUser('B_INV_PRVLG') + WkPermission.permissionUser('A_INV_PRVLG')).uniq
       subject = l(:label_shipment) + " " + l(:label_notification)
       WkNotification.notification(userId, emailNotes, subject, self, "receiveGoods")
     end

@@ -13,7 +13,7 @@ api.array :wk_survey, api_meta(:total_count => @entry_count, :offset => @offset,
       api.recur_every entry.recur_every
       api.is_review entry.is_review
       api.hide_response entry.hide_response
-      api.show_result (entry.status == "O" && validateERPPermission("E_SUR")) || entry.status == "C" || getResponseGroup(entry.id).present?
+      api.show_result (entry.status == "O" && @survey_perm) || entry.status == "C" || getResponseGroup(entry.id).present?
       api.surveyLink surveyLink.present?
       api.save_allowed entry.save_allowed
       api.use_points entry.use_points
@@ -22,7 +22,7 @@ api.array :wk_survey, api_meta(:total_count => @entry_count, :offset => @offset,
 end
 
 api.headers do
-  api.surveyFor_items getSurveyFor
+  api.surveyFor_items @survey_options
   api.status_items getSurveyStatus.drop(1)
   api.userGroup_items getUserGroup
   api.questionType_items getQuestionType

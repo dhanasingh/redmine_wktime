@@ -19,7 +19,7 @@ class WkreferralsController < WkleadController
 
   before_action :require_login, :check_module_permission
   before_action :check_perm_and_redirect, only: [:update, :destroy]
-  before_action :check_permission, only: :get_emp_details
+  before_action :check_emp_details_permission, only: :get_emp_details
 	menu_item :wkattendance
   include WkreferralsHelper
 
@@ -171,7 +171,7 @@ class WkreferralsController < WkleadController
     render_404 unless isChecked("wktime_enable_referrals_module")
   end
 
-  def check_permission
+  def check_emp_details_permission
     render_404 if params[:id].blank?
   end
 

@@ -6,28 +6,28 @@
 	width = "35%" if showChart && ledgerid &&  @from && @to
 	transactionType = transTypeHash
 %>
-<%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
+<%= form_tag({controller: controller_name, action: 'index'}, method: :get, id: 'query_form') do %>
 	<%= hidden_field_tag "searchlist", "#{controller_name}" %>
 	<%	trans_type =session[controller_name].try(:[], :trans_type) %>
 	<% summary_trans =  params[:summary_by].blank? ? session[controller_name].try(:[], :summary_trans) : params[:summary_by] %>
 	<fieldset>
 		<div style="float:right">
-			<%= link_to sprite_icon('add', l(:label_new_item, l(:label_transaction))), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+			<%= link_to sprite_icon('add', l(:label_new_item, l(:label_transaction))), url_for(controller: controller_name, action: 'edit'), class: 'icon icon-add' %>
 		</div>
 		<div class="wk-contextual" style="display: flex; align-items: center; gap: 10px;flex-wrap:wrap;">
 			<b><label style="padding-top: 5px;"><%= l(:label_ledger) %>:</label></b>
-				<%=h select_tag("txn_ledger", options_for_select([['','']]+@ledgers, :selected => ledgerid.nil? ? @ledgers : ledgerid ), :style => "width:200px; ", onchange: '$("#query_form").submit()') %>
+				<%=h select_tag("txn_ledger", options_for_select([['','']]+@ledgers, selected: ledgerid.nil? ? @ledgers : ledgerid ), style: "width:200px; ", onchange: '$("#query_form").submit()') %>
 			<b><label style="padding-left: 10px;padding-top: 5px;"><%= l(:field_type) %>:</label></b>
-			<%=h select_tag("trans_type", options_for_select(transactionType.invert, :selected => trans_type ), :style => "width:150px;") %>
+			<%=h select_tag("trans_type", options_for_select(transactionType.invert, selected: trans_type ), style: "width:150px;") %>
 			<span id="trans_summary">
 			<b><label  style=" padding-left: 10px;padding-top: 5px;"><%= l(:label_summary_by) %>:</label></b>
-				<%=h select_tag("summary_trans", options_for_select(detailsTransaction, :selected => summary_trans)) %>
+				<%=h select_tag("summary_trans", options_for_select(detailsTransaction, selected: summary_trans)) %>
 			</span>&nbsp;
-			<%= render :partial => 'wktime/date_range' %>
+			<%= render partial: 'wktime/date_range' %>
 			<%=h hidden_field_tag('generate', false) %>
 		</div>
 		<p class="buttons">
-			<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
+			<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', class: 'icon icon-checked' %>
 			<%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
 			<% if ledgerid && @from && @to %>
 				<label style="padding-left:5px">
@@ -43,9 +43,9 @@
 		<div class="total-hours">
 			<p><%= l(:label_total) %>: &nbsp;<%= @transEntries[0].transaction_details[0].currency unless @transEntries[0].blank? || @transEntries[0].transaction_details[0].blank?%> <%= html_hours("%.2f" % @totalTransAmt.abs ) unless @totalTransAmt.blank? %> <%= @totalType %></p>
 		</div>
-	<%= render :partial => 'wkgltransaction/trans_list', locals: { width: width } %>
+	<%= render partial: 'wkgltransaction/trans_list', locals: { width: width } %>
 	<% else %>
-		<%= render :partial => 'wkgltransaction/summary_trans_list', locals: { width: width }%>
+		<%= render partial: 'wkgltransaction/summary_trans_list', locals: { width: width }%>
 	<% end %>
 
 	<%= render partial: 'graph', locals: { ledger_id: ledgerid, from: @from, to: @to} if showChart && ledgerid && @from && @to %>
@@ -53,12 +53,50 @@
 <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count if @summaryTransaction == 'days'%></span>
 
 <% other_formats_links do |f| %>
-	<% url = "?format=csv"
-		params.each do |name, val|
-			if !['controller', 'action', 'utf8'].include?(name)
-				url = url + "&" + (name + "=" + val)
-			end
-		end
-	%>
-	<%= link_to 'CSV', url_for(:controller => controller_name, :action => 'export') + url %>
+		<%= f.link_to_with_query_parameters 'CSV',{}, {id: 'acc_export'} %>
 <% end %>
+
+<div id="acc-export-dialog" style="display:none;">
+	<p style="margin-bottom:10px;"><%= l(:label_select_export_format) %></p>
+	<%= select_tag 'acc_export_format', options_for_select(acc_export_formats), id: 'acc_export_format', style: 'min-width: 50px;' %>
+
+</div>
+
+<script>
+$(document).ready(function() {
+	$("#acc-export-dialog").dialog({
+		autoOpen: false,
+		modal: true,
+		width: 400,
+		buttons: [
+			{
+				text: '<%= j l(:button_export) %>',
+				click: function() {
+					var selectedFormat = $("#acc_export_format").val();
+					var exportUrl = '<%= url_for(:controller => controller_name, :action => "export", :format => "csv") %>';
+					var queryParams = window.location.search;
+					var separator = queryParams ? '&' : '?';
+					exportUrl = exportUrl + queryParams;
+					if (selectedFormat !== '') {
+						exportUrl = exportUrl + separator + 'export_format=' + encodeURIComponent(selectedFormat);
+					}
+					window.location.href = exportUrl;
+					$(this).dialog("close");
+				}
+			},
+			{
+				text: '<%= j l(:button_cancel) %>',
+				click: function() {
+					$(this).dialog("close");
+				}
+			}
+		]
+	});
+
+	$(document).on("click", "#acc_export", function(e) {
+		e.preventDefault();
+		$("#acc_export_format").prop("size", 1);
+		$("#acc-export-dialog").dialog("open");
+	});
+});
+</script>

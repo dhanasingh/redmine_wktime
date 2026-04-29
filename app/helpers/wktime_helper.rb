@@ -781,7 +781,7 @@ end
 		tabs = [
 				{:name => 'general', :partial => 'settings/tab_general', :label => :label_general},
 				{:name => 'wktime_settings', :partial => 'settings/tab_time', :label => :label_te},
-				{:name => 'attendance', :partial => 'settings/tab_attendance', :label => :report_attendance},
+				{:name => 'attendance', :partial => 'settings/tab_attendance', :label => :label_attendance},
 				{:name => 'payroll_settings', :partial => 'settings/tab_payroll', :label => :label_payroll},
 				{ :name => 'crm', :partial => 'settings/tab_crm', :label => :label_crm },
 				{:name => 'billing', :partial => 'settings/tab_billing', :label => :label_wk_billing},
@@ -1306,7 +1306,7 @@ end
 
 	def showInventory
 		(!Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].to_i == 1 ) && validateERPPermission("V_INV")
+			Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].to_i == 1 ) && validateERPPermission("B_INV_PRVLG")
 	end
 
 	def generic_options_for_select(model, sqlCond, orderBySql, displayCol, valueCol, selectedVal, needBlank)
@@ -1342,7 +1342,7 @@ end
 
 	def hasSettingPerm
 		ret = false
-		ret = (User.current.admin) || validateERPPermission("ADM_ERP") || validateERPPermission('A_TE_PRVLG') || (validateERPPermission("V_INV") && validateERPPermission("D_INV")) || validateERPPermission("A_ACC_PRVLG") || validateERPPermission("A_CRM_PRVLG") || validateERPPermission("A_PUR_PRVLG") || validateERPPermission("M_BILL")
+		ret = (User.current.admin) || validateERPPermission("ADM_ERP") || validateERPPermission('A_TE_PRVLG') || (validateERPPermission("B_INV_PRVLG") && validateERPPermission("A_INV_PRVLG")) || validateERPPermission("A_ACC_PRVLG") || validateERPPermission("A_CRM_PRVLG") || validateERPPermission("A_PUR_PRVLG") || validateERPPermission("M_BILL")
 		ret
 	end
 
@@ -1358,7 +1358,7 @@ end
 			l(:label_inventory) => 'Inventory',
 			l(:label_survey) => 'Survey',
 			l(:label_report) => 'Report',
-			l(:report_attendance) => 'Attendance',
+			l(:label_attendance) => 'Attendance',
 			l(:label_payroll) => 'Payroll',
 			l(:label_shift_scheduling) => 'Shift Scheduling',
 			l(:label_skill_set) => 'Skills',
@@ -1781,7 +1781,7 @@ end
 						return redirect
 					end
 				when "Inventory"
-					if showInventory && (validateERPPermission("V_INV") || validateERPPermission("D_INV"))
+					if showInventory && (validateERPPermission("B_INV_PRVLG") || validateERPPermission("A_INV_PRVLG"))
 						redirect[:controller] = 'wkproduct'
 						return redirect
 					end
@@ -1924,6 +1924,7 @@ end
 				spentObj['e_longitude'] = longitude
 			end
 		end
+		spentObj['device_id'] = params[:device_id] if params[:device_id].present?
 	end
 
 	def showIssueLogger(project)
