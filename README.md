@@ -69,8 +69,7 @@ This Plugin has the following modules:
 
 For more information on features, please refer to the user guide
 
-[https://erpmine.org/attachments/download/115/ERPmine-User-Guide_v4.5.pdf](https://erpmine.org/attachments/download/115/ERPmine-User-Guide_v4.5.pdf)
-
+(https://erpmine.org/attachments/download/223/ERPmine-User-Guide_v4.7.pdf)
 ## Installation
 
 - Unpack the zip file to the plugins folder of Redmine.
@@ -164,7 +163,7 @@ Please provide your rating at [https://www.redmine.org/plugins/wk-time](https://
 
 **Overview presentation in open office format**:
 
-- [http://erpmine.org/attachments/download/23/erpmine-overview.odp](http://erpmine.org/attachments/download/23/erpmine-overview.odp)
+- [https://erpmine.org/documents/1](https://erpmine.org/documents/1)
 
 **Training Videos**:
 
