@@ -1,18 +1,3 @@
-# Webinar on ERPmine – Payroll , Nov 26th, 2024, 5 PM India (11:30 AM GMT)
-
-Please click here to register if interested,
-[https://us02web.zoom.us/meeting/register/tZIvce2vqTIoG9zjwfBx6qfiOijbp987go8C](https://us02web.zoom.us/meeting/register/tZIvce2vqTIoG9zjwfBx6qfiOijbp987go8C)
-
-**Topics**:
-- Generate payroll
-- Reimbursement
-- Apply tax
-- Payroll Report
-- Payslip report
-- Mobile App
-
------
-
 # ERPmine
 
 This Plugin has the following modules:
@@ -139,14 +124,14 @@ For more information on features, please refer to the user guide
 - **Features**
   ```text
   - Updated inventory module permissions
-  - Capture and Store Device Info on Clock In/Out
+  - Added device information capture
   - Export accounting transactions data to Tally, QuickBooks and Sage
   ```
 - **Bug fixes**
   ```text
    - Renamed "Dead" lead status to "Lost Lead"
    - Fixed ledger list alphabetical order
-   - Fixed Invoice vs Payment and Profit & Loss Dashboard Issues
+   - Fixed "Invoice and Payment" and "Profit & Loss" dashboard issues
   ```
 
 ## Customization
