@@ -1,3 +1,20 @@
+# Webinar on ERPmine – Survey, May 26th, 2026,(11:30 AM GMT)
+ 
+Please click here to register if interested,
+[[[https://us02web.zoom.us/meeting/register/aM-1Nt__TBafjqbeJQjdVw]](https://us02web.zoom.us/meeting/register/tDGqqIVxTS-4go4SdVm8LA)]
+ 
+**Topics**:
+-  Project Survey	
+-  General Survey
+-  User surveyFeedback survey
+-  Employee Performance Review
+-  Exit interview
+-  Survey Reviewer
+-  Recurring Survey
+-  Survey Response Trending Chart
+-  Notification
+- Mobile app
+-----
 # ERPmine
 
 This Plugin has the following modules:
