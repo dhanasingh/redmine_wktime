@@ -184,6 +184,8 @@ pt-BR:
 
   error_expense_entry_delete: "Não pode ser excluído. A folha de despesas com esta entrada está bloqueada"
   text_are_you_sure_want_to_run: "Tem certeza que deseja executar este processo ?"
+  text_location_destroy_cascade: "Are you sure? This will also delete all sub-locations."
+  error_location_destroy_blocked: "Cannot delete. The following location(s) have related inventory, contacts or accounts: %{names}"
   label_clock: entrada/saída do relógio
   label_import_attendance: Importar Presença
   label_path: Caminho do arquivo de importação

@@ -916,6 +916,8 @@ ta-IN:
   label_asset_receipt_ledger: சொத்து விற்பனை ரசீது லெட்ஜர்
   label_asset_value: சொத்து மதிப்பு
   text_are_you_sure_want_dispose_asset: "நீங்கள் நிச்சயமாக சொத்தை அப்புறப்படுத்த விரும்புகிறீர்களா?"
+  text_location_destroy_cascade: "நீங்கள் உறுதியாக இருக்கிறீர்களா? இது அனைத்து துணை இடங்களையும் நீக்கும்."
+  error_location_destroy_blocked: "நீக்க முடியாது. பின்வரும் இட(ங்க)ளில் தொடர்புடைய சரக்கு, தொடர்புகள் அல்லது கணக்குகள் உள்ளன: %{names}"
   label_auto_round_gl: ஆட்டோ சுற்று விலைப்பட்டியல்
   label_trend_chart: பிரபலமாகும் விளக்கப்படம்
 

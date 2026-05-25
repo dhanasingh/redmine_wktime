@@ -1,3 +1,5 @@
+require_relative 'lib/nested_set/location_nested_set'
+
 # Load Patch files
 begin
   Dir[File.join(File.dirname(__FILE__), 'lib', '**', '*.rb')].each do |file|

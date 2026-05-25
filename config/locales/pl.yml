@@ -196,6 +196,8 @@ pl:
 
   error_expense_entry_delete: "Nie można usunąć. Arkusz kalkulacyjny z tym wejściem jest zamknięty"
   text_are_you_sure_want_to_run: "Jesteś pewien że chcesz wykonać tę operację?"
+  text_location_destroy_cascade: "Are you sure? This will also delete all sub-locations."
+  error_location_destroy_blocked: "Cannot delete. The following location(s) have related inventory, contacts or accounts: %{names}"
   label_clock: Rozpoczęcie/Zakończenie Pracy
   label_import_attendance: Importuj frekwencję
   label_path: Import ścieżki pliku

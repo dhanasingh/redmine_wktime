@@ -17,6 +17,8 @@
 
 class WkLocation < ApplicationRecord
 
+  include NestedSet::LocationNestedSet
+
   belongs_to :address, :class_name => 'WkAddress', :dependent => :destroy
   has_many :inventory_items, foreign_key: "location_id", class_name: "WkInventoryItem", :dependent => :restrict_with_error
   belongs_to :location_type, :class_name => 'WkCrmEnumeration'

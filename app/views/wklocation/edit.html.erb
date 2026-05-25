@@ -20,6 +20,16 @@
 							<td align="left" style="padding-left:40px;"><%=h select_tag('location_type', options_for_select(options_for_enum_select('LT', selectedAcId, true))) %></td>
 						</tr>
 						<tr>
+							<th align="left"><%= l(:field_parent_location) %></th>
+							<td align="left" style="padding-left:40px;">
+								<% candidates = @locEntry ? @locEntry.allowed_parents : WkLocation.all %>
+								<%= select_tag('parent_id',
+										options_for_select(
+											[['', '']] + candidates.order(:name).pluck(:name, :id),
+											@locEntry&.parent_id)) %>
+							</td>
+						</tr>
+						<tr>
 							<th align="left"><%= l(:field_is_default) %></th>
 							<td align="left" style="padding-left:40px;"><%= check_box_tag('defaultValue', 1, @locEntry.blank? ? false : @locEntry.is_default) %></td>
 						</tr>

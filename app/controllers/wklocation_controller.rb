@@ -79,6 +79,7 @@ class WklocationController < WkbaseController
 		locationObj.is_default = params[:defaultValue]
 		locationObj.is_main = params[:defaultMain]
 		locationObj.attachment_id = params[:attachment_id].present? ? params[:attachment_id] : nil
+		locationObj.parent_id = params[:parent_id].presence
 		unless locationObj.valid?
 			errorMsg = errorMsg.blank? ? locationObj.errors.full_messages.join("<br>") : locationObj.errors.full_messages.join("<br>") + "<br/>" + errorMsg
 		end
@@ -100,7 +101,18 @@ class WklocationController < WkbaseController
 
   	def destroy
 		location = WkLocation.find(params[:location_id].to_i)
-		if location.destroy
+		subtree_ids = [location.id] + location.descendants.pluck(:id)
+
+		blocking_ids = (
+			WkInventoryItem.where(location_id: subtree_ids).distinct.pluck(:location_id) +
+			WkCrmContact.where(location_id: subtree_ids).distinct.pluck(:location_id) +
+			WkAccount.where(location_id: subtree_ids).distinct.pluck(:location_id)
+		).uniq
+
+		if blocking_ids.any?
+			names = WkLocation.where(id: blocking_ids).order(:name).pluck(:name).join(', ')
+			flash[:error] = l(:error_location_destroy_blocked, names: names)
+		elsif location.destroy
 			flash[:notice] = l(:notice_successful_delete)
 		else
 			flash[:error] = location.errors.full_messages.join("<br>")
