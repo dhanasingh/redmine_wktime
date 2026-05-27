@@ -8,22 +8,48 @@
 <%	locType = session[controller_name].try(:[], :location_type) %>
 <%	showOnMap = session[controller_name].try(:[], :show_on_map) %>
 <fieldset>
-	<div style="float:right">
+	<div style="float:right; display:flex; align-items:center; gap:8px;">
+		<a href="javascript:void(0)" class="wk-loc-toggle-all"
+			data-expanded="0"
+			data-label-expand="<%= l(:button_expand_all) %>"
+			data-label-collapse="<%= l(:button_collapse_all) %>"
+			style="text-decoration:none; color:#169;">
+			<span class="wk-loc-toggle-icon-expand" style="display:inline-block; width:18px; height:18px; line-height:16px; text-align:center; font-weight:bold; font-size:14px; border:1px solid #1976d2; border-radius:50%; background:#fff; color:#1976d2; margin-right:4px;">+</span>
+			<span class="wk-loc-toggle-icon-collapse" style="display:none; width:18px; height:18px; line-height:16px; text-align:center; font-weight:bold; font-size:14px; border:1px solid #1976d2; border-radius:50%; background:#fff; color:#1976d2; margin-right:4px;">−</span>
+			<span class="wk-loc-toggle-label"><%= l(:button_expand_all) %></span>
+		</a>
+		<span style="color:#aaa;">|</span>
 		<%= link_to sprite_icon('add', l(:label_new_location)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
 	</div>
-	<table>
-			<th><label for='name' style="float:left;"><%= l(:field_name)%></label></th>
-				<td><%= text_field_tag 'location_name', locName, :size => 30, :style=> "float: left;" %></td>
-			<th><label style="float:left;padding-left: 10px;"><%= l(:field_type) %></label></th>
-				<td><%=h select_tag('location_type', options_for_select(options_for_enum_select('LT', locType, true)), :style=> "float: left;") %></td>
-			<td><%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %></td>
-			<td><%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload', :style=>"float:left; " %></td>
-			<% if isChecked('te_save_geo_location') %>
-				<td>
-					<label style="padding-left:5px"><%= check_box_tag('show_on_map', true, showOnMap, onclick: '$("#query_form").submit(); return false;') %><%= l(:label_show_on_map) %></label>
-				</td>
-			<% end %>
-	</table>
+	<div class="wk-loc-filter" style="display:flex; flex-wrap:wrap; align-items:center; gap:6px 14px;">
+		<span style="display:inline-flex; align-items:center; gap:6px;">
+			<label for="location_name"><%= l(:field_name) %></label>
+			<%= text_field_tag 'location_name', locName, :size => 25 %>
+		</span>
+		<span style="display:inline-flex; align-items:center; gap:6px;">
+			<label for="location_type"><%= l(:field_type) %></label>
+			<%=h select_tag('location_type', options_for_select(options_for_enum_select('LT', locType, true))) %>
+		</span>
+		<% (@level_options || []).each_with_index do |opts, idx| %>
+			<% level_num = idx + 1 %>
+			<span style="display:inline-flex; align-items:center; gap:6px;">
+				<label for="location_level_<%= level_num %>"><%= l(:label_level) %> <%= level_num %></label>
+				<%= select_tag("location_level_#{level_num}",
+					options_for_select([['', '']] + opts, @level_selections[idx]),
+					onchange: '$("#query_form").submit();') %>
+			</span>
+		<% end %>
+		<span style="display:inline-flex; align-items:center; gap:6px;">
+			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
+			<%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
+		</span>
+		<% if isChecked('te_save_geo_location') %>
+			<span style="display:inline-flex; align-items:center; gap:4px;">
+				<%= check_box_tag('show_on_map', true, showOnMap, onclick: '$("#query_form").submit(); return false;') %>
+				<label for="show_on_map"><%= l(:label_show_on_map) %></label>
+			</span>
+		<% end %>
+	</div>
 </fieldset>
 <% end %>
 

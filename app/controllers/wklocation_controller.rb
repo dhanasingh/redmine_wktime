@@ -17,6 +17,8 @@
 
 class WklocationController < WkbaseController
 
+  MAX_FILTER_LEVELS = 2
+
   menu_item :wkcrmenumeration
   include WktimeHelper
   include WkdocumentHelper
@@ -27,12 +29,6 @@ class WklocationController < WkbaseController
 	accept_api_auth :getlocations
 
   	def index
-		sort_init 'name', 'asc'
-		sort_update 'name' => "name",
-					'type' => "#{WkCrmEnumeration.table_name}.name",
-					'city' => "#{WkAddress.table_name}.city",
-					'state' => "#{WkAddress.table_name}.state"
-
 		set_filter_session
 		locationName = session[controller_name].try(:[], :location_name)
 		locationType =  session[controller_name].try(:[], :location_type)
@@ -46,19 +42,94 @@ class WklocationController < WkbaseController
 			entries = entries.where("LOWER(wk_locations.name) like LOWER(?) ", "%#{locationName}%")
 		end
 
-		entries = entries.left_joins(:address, :location_type)
-		entries = entries.reorder(sort_clause)
+		# Cascading location filter. Each level picks a specific location whose
+		# children populate the next level's dropdown. Validate the chain: each
+		# selected location must be a child of the previous one.
+		validated_path = []
+		prev_id = nil
+		(1..MAX_FILTER_LEVELS).each do |n|
+			val = session[controller_name].try(:[], :"location_level_#{n}")
+			break if val.blank? || val.to_i == 0
+			loc = WkLocation.find_by(id: val.to_i)
+			break unless loc
+			if validated_path.empty?
+				break unless loc.parent_id.nil?
+			else
+				break unless loc.parent_id == prev_id
+			end
+			validated_path << loc
+			prev_id = loc.id
+		end
+
+		# When a path is chosen, restrict the list to that location's subtree.
+		if validated_path.any?
+			current = validated_path.last
+			subtree_ids = [current.id] + current.descendants.pluck(:id)
+			entries = entries.where(id: subtree_ids)
+		end
+
+		# Build the cascading dropdowns. Level 1 = root names. Level N+1 shows
+		# all children of the level-N selection, but the dropdown itself is
+		# skipped if none of its options has children of its own (no further
+		# drill-down possible).
+		@level_selections = validated_path.map(&:id)
+		@level_options = []
+		@level_options << WkLocation.where(parent_id: nil).order(:name).pluck(:name, :id)
+		validated_path.first(MAX_FILTER_LEVELS - 1).each do |loc|
+			candidate_ids = WkLocation.where(parent_id: loc.id).order(:name).pluck(:id)
+			break if candidate_ids.empty?
+			break unless WkLocation.where(parent_id: candidate_ids).exists?
+			@level_options << WkLocation.where(id: candidate_ids).order(:name).pluck(:name, :id)
+		end
+
+		entries = entries.includes(:address, :location_type)
+		ordered_entries, @depths, @ancestor_ids = tree_ordered_by_name(entries)
+
 		respond_to do |format|
 			format.html {
-				formPagination(entries)
+				formPaginationFromArray(ordered_entries)
 			}
 			format.csv{
 				headers = {name: l(:field_name), type: l(:field_type), address: l(:label_account_address1), city: l(:label_city), state: l(:label_state), default: l(:field_is_default), main: l(:label_main_location)}
-				data = entries.collect{|entry| {name: entry.name, type: entry&.location_type&.name, address: entry&.address&.address1, city: entry&.address&.city, state: entry&.address&.state, default: entry.is_default, main: entry.is_main} }
+				data = ordered_entries.collect{|entry| {name: entry.name, type: entry&.location_type&.name, address: entry&.address&.address1, city: entry&.address&.city, state: entry&.address&.state, default: entry.is_default, main: entry.is_main} }
 				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "location.csv")
 			}
 		end
   	end
+
+	# DFS over the visible set with siblings sorted alphabetically.
+	# Returns [ordered_array, depths_hash, ancestor_ids_hash].
+	def tree_ordered_by_name(entries)
+		all = entries.to_a
+		visible_ids = all.index_by(&:id)
+		children_of = all.group_by(&:parent_id)
+		children_of.each_value { |arr| arr.sort_by! { |l| l.name.to_s.downcase } }
+
+		ordered = []
+		depths = {}
+		ancestor_ids = {}
+
+		walk = lambda do |node, stack|
+			depths[node.id] = stack.size
+			ancestor_ids[node.id] = stack.dup
+			ordered << node
+			(children_of[node.id] || []).each { |c| walk.call(c, stack + [node.id]) }
+		end
+
+		# Roots in the visible set = rows whose parent is not visible (true root, or
+		# parent filtered out). Sort by name and walk each.
+		roots = all.reject { |l| l.parent_id && visible_ids.key?(l.parent_id) }
+		roots.sort_by! { |l| l.name.to_s.downcase }
+		roots.each { |r| walk.call(r, []) }
+
+		[ordered, depths, ancestor_ids]
+	end
+
+	def formPaginationFromArray(arr)
+		@entry_count = arr.size
+		setLimitAndOffset()
+		@locationObj = arr[@offset, @limit] || []
+	end
 
   	def edit
 		@locEntry = nil
@@ -122,6 +193,7 @@ class WklocationController < WkbaseController
 
 	def set_filter_session
 		filters = [:location_name, :location_type, :show_on_map]
+		filters += (1..MAX_FILTER_LEVELS).map { |n| :"location_level_#{n}" }
 		super(filters)
 	end
 
