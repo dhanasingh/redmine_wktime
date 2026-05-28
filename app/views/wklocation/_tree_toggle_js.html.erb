@@ -1,0 +1,99 @@
+<script>
+// Shared expand/collapse behaviour for WkLocation trees. Used by the location
+// list page and the group-permission settings page. Driven entirely by
+// data-attributes + selector options so each page keeps its own markup.
+window.WkLocTree = window.WkLocTree || {
+	init: function(o) {
+		var rows = Array.prototype.slice.call(document.querySelectorAll(o.rowSelector));
+		function toggles() { return document.querySelectorAll(o.toggleSelector); }
+
+		function recompute() {
+			var collapsed = {};
+			toggles().forEach(function(t) {
+				if (t.getAttribute('data-collapsed') === '1') collapsed[t.getAttribute('data-location-id')] = true;
+			});
+			rows.forEach(function(row) {
+				var anc = (row.getAttribute('data-ancestor-ids') || '').split(',');
+				var hidden = false;
+				for (var i = 0; i < anc.length; i++) { if (anc[i] && collapsed[anc[i]]) { hidden = true; break; } }
+				row.style.display = hidden ? 'none' : '';
+			});
+		}
+
+		toggles().forEach(function(btn) {
+			btn.addEventListener('click', function(e) {
+				e.stopPropagation(); e.preventDefault();
+				var c = this.getAttribute('data-collapsed') === '1';
+				this.setAttribute('data-collapsed', c ? '0' : '1');
+				this.textContent = c ? '−' : '+';
+				recompute();
+			});
+		});
+
+		if (o.rowClickToggle) {
+			rows.forEach(function(row) {
+				var tg = row.querySelector(o.toggleSelector);
+				if (!tg) return;
+				row.style.cursor = 'pointer';
+				row.addEventListener('click', function(e) {
+					var t = e.target;
+					while (t && t !== row) {
+						var tag = t.tagName;
+						if (tag === 'A' || tag === 'BUTTON' || tag === 'INPUT' || tag === 'SELECT' || tag === 'LABEL') return;
+						t = t.parentElement;
+					}
+					tg.click();
+				});
+			});
+		}
+
+		function setAll(collapsed) {
+			toggles().forEach(function(t) {
+				t.setAttribute('data-collapsed', collapsed ? '1' : '0');
+				t.textContent = collapsed ? '+' : '−';
+			});
+			recompute();
+		}
+		document.querySelectorAll(o.toggleAllSelector).forEach(function(b) {
+			b.addEventListener('click', function() {
+				var expanded = this.getAttribute('data-expanded') === '1';
+				setAll(expanded);
+				var will = !expanded;
+				this.setAttribute('data-expanded', will ? '1' : '0');
+				var label = o.labelSelector ? this.querySelector(o.labelSelector) : null;
+				if (label) label.textContent = will ? this.getAttribute('data-label-collapse') : this.getAttribute('data-label-expand');
+				var ic = o.iconCollapseSelector ? this.querySelector(o.iconCollapseSelector) : null;
+				var ie = o.iconExpandSelector ? this.querySelector(o.iconExpandSelector) : null;
+				if (ic) ic.style.display = will ? 'inline-block' : 'none';
+				if (ie) ie.style.display = will ? 'none' : 'inline-block';
+			});
+		});
+
+		if (o.cascadeCheck && o.checkSelector) {
+			// Selecting a parent alone covers its whole subtree (children are NOT
+			// auto-checked). Selecting a child detaches it from its parents, so
+			// checking a node unchecks all of its ancestors.
+			function checkboxFor(locId) {
+				var row = rows.find(function(r) { return r.getAttribute('data-location-id') === locId; });
+				return row ? row.querySelector(o.checkSelector) : null;
+			}
+			function uncheckAncestors(cb) {
+				var row = cb.closest(o.rowSelector);
+				if (!row) return;
+				(row.getAttribute('data-ancestor-ids') || '').split(',').forEach(function(aid) {
+					if (!aid) return;
+					var c = checkboxFor(aid);
+					if (c) c.checked = false;
+				});
+			}
+			document.querySelectorAll(o.checkSelector).forEach(function(cb) {
+				cb.addEventListener('change', function() {
+					if (this.checked) uncheckAncestors(this);
+				});
+			});
+		}
+
+		recompute();
+	}
+};
+</script>

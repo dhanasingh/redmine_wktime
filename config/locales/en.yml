@@ -188,6 +188,10 @@ en:
   label_level: "Level"
   button_expand_all: "Expand all"
   button_collapse_all: "Collapse all"
+  label_group_location_access: "Group location access"
+  label_location_permission: "Location permission"
+  label_selected: "selected"
+  notice_select_group_first: "Select a group first"
   error_location_destroy_blocked: "Cannot delete. The following location(s) have related inventory, contacts or accounts: %{names}"
   label_clock: Clock in/out
   label_import_attendance: Import Attendance

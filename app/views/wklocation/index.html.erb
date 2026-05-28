@@ -9,16 +9,6 @@
 <%	showOnMap = session[controller_name].try(:[], :show_on_map) %>
 <fieldset>
 	<div style="float:right; display:flex; align-items:center; gap:8px;">
-		<a href="javascript:void(0)" class="wk-loc-toggle-all"
-			data-expanded="0"
-			data-label-expand="<%= l(:button_expand_all) %>"
-			data-label-collapse="<%= l(:button_collapse_all) %>"
-			style="text-decoration:none; color:#169;">
-			<span class="wk-loc-toggle-icon-expand" style="display:inline-block; width:18px; height:18px; line-height:16px; text-align:center; font-weight:bold; font-size:14px; border:1px solid #1976d2; border-radius:50%; background:#fff; color:#1976d2; margin-right:4px;">+</span>
-			<span class="wk-loc-toggle-icon-collapse" style="display:none; width:18px; height:18px; line-height:16px; text-align:center; font-weight:bold; font-size:14px; border:1px solid #1976d2; border-radius:50%; background:#fff; color:#1976d2; margin-right:4px;">−</span>
-			<span class="wk-loc-toggle-label"><%= l(:button_expand_all) %></span>
-		</a>
-		<span style="color:#aaa;">|</span>
 		<%= link_to sprite_icon('add', l(:label_new_location)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
 	</div>
 	<div class="wk-loc-filter" style="display:flex; flex-wrap:wrap; align-items:center; gap:6px 14px;">

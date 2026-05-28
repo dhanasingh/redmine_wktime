@@ -48,5 +48,43 @@ width: auto !important;}
 </fieldset>
 <% end %>
 
+<% if @locations_tree.present? %>
+<fieldset class="box">
+	<legend><%= l(:label_location_permission) %></legend>
+	<div class="wk-locperm-tree">
+		<% @locations_tree.each do |loc| %>
+			<% depth = @location_depths[loc.id] || 0 %>
+			<% ancestors = (@location_ancestor_ids[loc.id] || []).join(',') %>
+			<div class="wk-locperm-row" data-location-id="<%= loc.id %>" data-ancestor-ids="<%= ancestors %>" style="padding:3px 0 3px <%= depth * 18 %>px; white-space:nowrap;">
+				<% if loc.leaf? %>
+					<span style="display:inline-block; width:18px; vertical-align:middle;"></span>
+				<% else %>
+					<a href="javascript:void(0)" class="wk-locperm-toggle" data-location-id="<%= loc.id %>" data-collapsed="0" style="display:inline-block; width:18px; height:18px; line-height:16px; text-align:center; text-decoration:none; font-weight:bold; font-size:14px; border:1px solid #1976d2; border-radius:50%; background:#fff; color:#1976d2; vertical-align:middle;">&minus;</a>
+				<% end %>
+				<%= check_box_tag 'location_ids[]',
+					loc.id,
+					@group_location_ids.include?(loc.id),
+					class: 'wk-locperm-check',
+					id: "loc_chk_#{loc.id}",
+					style: 'vertical-align:middle; margin:0 4px;' %>
+				<label for="loc_chk_<%= loc.id %>" style="float:none !important; display:inline; width:auto; vertical-align:middle;"><%=h loc.name %></label>
+			</div>
+		<% end %>
+	</div>
+</fieldset>
+<% end %>
+
  <%= submit_tag l(:button_save), :class => "small", :name => nil %>
+<% end %>
+
+<% if @locations_tree.present? %>
+	<%= render 'wklocation/tree_toggle_js' %>
+	<script>
+	WkLocTree.init({
+		rowSelector: '.wk-locperm-row',
+		toggleSelector: '.wk-locperm-toggle',
+		checkSelector: '.wk-locperm-check',
+		cascadeCheck: true
+	});
+	</script>
 <% end %>

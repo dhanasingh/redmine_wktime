@@ -33,7 +33,7 @@
 					<% if entry.leaf? %>
 						<span class="wk-loc-toggle-spacer" style="display:inline-block; width:18px;"></span>
 					<% else %>
-						<a href="javascript:void(0)" class="wk-loc-toggle" data-location-id="<%= entry.id %>" data-collapsed="1" style="display:inline-block; width:18px; height:18px; line-height:16px; text-align:center; text-decoration:none; font-weight:bold; font-size:14px; border:1px solid #1976d2; border-radius:50%; background:#fff; color:#1976d2;">+</a>
+						<a href="javascript:void(0)" class="wk-loc-toggle" data-location-id="<%= entry.id %>" data-collapsed="0" style="display:inline-block; width:18px; height:18px; line-height:16px; text-align:center; text-decoration:none; font-weight:bold; font-size:14px; border:1px solid #1976d2; border-radius:50%; background:#fff; color:#1976d2;">&minus;</a>
 					<% end %>
 					<%=h entry.name %>
 				</td>
@@ -62,79 +62,11 @@
 	<% end %>
 </div>
 
+<%= render 'wklocation/tree_toggle_js' %>
 <script>
-(function() {
-	function recomputeVisibility() {
-		var collapsedIds = {};
-		document.querySelectorAll('.wk-loc-toggle').forEach(function(btn) {
-			if (btn.getAttribute('data-collapsed') === '1') {
-				collapsedIds[btn.getAttribute('data-location-id')] = true;
-			}
-		});
-		document.querySelectorAll('tr.location-row').forEach(function(row) {
-			var ancestors = (row.getAttribute('data-ancestor-ids') || '').split(',');
-			var hidden = false;
-			for (var i = 0; i < ancestors.length; i++) {
-				if (ancestors[i] && collapsedIds[ancestors[i]]) { hidden = true; break; }
-			}
-			row.style.display = hidden ? 'none' : '';
-		});
-	}
-
-	document.querySelectorAll('.wk-loc-toggle').forEach(function(btn) {
-		btn.addEventListener('click', function(e) {
-			e.stopPropagation();
-			var collapsed = this.getAttribute('data-collapsed') === '1';
-			this.setAttribute('data-collapsed', collapsed ? '0' : '1');
-			this.textContent = collapsed ? '−' : '+';
-			recomputeVisibility();
-		});
-	});
-
-	// Click anywhere on a parent row toggles its expand/collapse, except
-	// when the click lands on a link, button, or form control.
-	document.querySelectorAll('tr.location-row').forEach(function(row) {
-		var toggle = row.querySelector('.wk-loc-toggle');
-		if (!toggle) return;
-		row.style.cursor = 'pointer';
-		row.addEventListener('click', function(e) {
-			var t = e.target;
-			while (t && t !== row) {
-				var tag = t.tagName;
-				if (tag === 'A' || tag === 'BUTTON' || tag === 'INPUT' || tag === 'SELECT' || tag === 'LABEL') return;
-				t = t.parentElement;
-			}
-			toggle.click();
-		});
-	});
-
-	function setAllToggles(collapsed) {
-		document.querySelectorAll('.wk-loc-toggle').forEach(function(t) {
-			t.setAttribute('data-collapsed', collapsed ? '1' : '0');
-			t.textContent = collapsed ? '+' : '−';
-		});
-		recomputeVisibility();
-	}
-	document.querySelectorAll('.wk-loc-toggle-all').forEach(function(b) {
-		b.addEventListener('click', function() {
-			var expanded = this.getAttribute('data-expanded') === '1';
-			setAllToggles(expanded);   // if currently expanded, collapse
-			var willBeExpanded = !expanded;
-			this.setAttribute('data-expanded', willBeExpanded ? '1' : '0');
-			var label = this.querySelector('.wk-loc-toggle-label');
-			if (label) {
-				label.textContent = willBeExpanded
-					? this.getAttribute('data-label-collapse')
-					: this.getAttribute('data-label-expand');
-			}
-			var ic = this.querySelector('.wk-loc-toggle-icon-collapse');
-			var ie = this.querySelector('.wk-loc-toggle-icon-expand');
-			if (ic) ic.style.display = willBeExpanded ? 'inline-block' : 'none';
-			if (ie) ie.style.display = willBeExpanded ? 'none' : 'inline-block';
-		});
-	});
-
-	// Initial state: all parents collapsed; only roots visible.
-	recomputeVisibility();
-})();
+WkLocTree.init({
+	rowSelector: 'tr.location-row',
+	toggleSelector: '.wk-loc-toggle',
+	rowClickToggle: true
+});
 </script>

@@ -38,6 +38,33 @@ class WkLocation < ApplicationRecord
     WkLocation.where(:is_default => 'true').first&.id
   end
 
+  # Returns [ordered_array, depths_hash, ancestor_ids_hash] for the given
+  # scope, walking the tree depth-first with siblings sorted alphabetically.
+  # Rows whose parent is missing from the scope are promoted to roots.
+  def self.tree_ordered_by_name(scope = all)
+    all_rows = scope.to_a
+    visible = all_rows.index_by(&:id)
+    children_of = all_rows.group_by(&:parent_id)
+    children_of.each_value { |arr| arr.sort_by! { |l| l.name.to_s.downcase } }
+
+    ordered = []
+    depths = {}
+    ancestor_ids = {}
+
+    walk = lambda do |node, stack|
+      depths[node.id] = stack.size
+      ancestor_ids[node.id] = stack.dup
+      ordered << node
+      (children_of[node.id] || []).each { |c| walk.call(c, stack + [node.id]) }
+    end
+
+    roots = all_rows.reject { |l| l.parent_id && visible.key?(l.parent_id) }
+    roots.sort_by! { |l| l.name.to_s.downcase }
+    roots.each { |r| walk.call(r, []) }
+
+    [ordered, depths, ancestor_ids]
+  end
+
   def check_default
     if is_default? && is_default_changed?
       WkLocation.update_all({:is_default => false})

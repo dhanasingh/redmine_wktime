@@ -83,7 +83,7 @@ class WklocationController < WkbaseController
 		end
 
 		entries = entries.includes(:address, :location_type)
-		ordered_entries, @depths, @ancestor_ids = tree_ordered_by_name(entries)
+		ordered_entries, @depths, @ancestor_ids = WkLocation.tree_ordered_by_name(entries)
 
 		respond_to do |format|
 			format.html {
@@ -96,34 +96,6 @@ class WklocationController < WkbaseController
 			}
 		end
   	end
-
-	# DFS over the visible set with siblings sorted alphabetically.
-	# Returns [ordered_array, depths_hash, ancestor_ids_hash].
-	def tree_ordered_by_name(entries)
-		all = entries.to_a
-		visible_ids = all.index_by(&:id)
-		children_of = all.group_by(&:parent_id)
-		children_of.each_value { |arr| arr.sort_by! { |l| l.name.to_s.downcase } }
-
-		ordered = []
-		depths = {}
-		ancestor_ids = {}
-
-		walk = lambda do |node, stack|
-			depths[node.id] = stack.size
-			ancestor_ids[node.id] = stack.dup
-			ordered << node
-			(children_of[node.id] || []).each { |c| walk.call(c, stack + [node.id]) }
-		end
-
-		# Roots in the visible set = rows whose parent is not visible (true root, or
-		# parent filtered out). Sort by name and walk each.
-		roots = all.reject { |l| l.parent_id && visible_ids.key?(l.parent_id) }
-		roots.sort_by! { |l| l.name.to_s.downcase }
-		roots.each { |r| walk.call(r, []) }
-
-		[ordered, depths, ancestor_ids]
-	end
 
 	def formPaginationFromArray(arr)
 		@entry_count = arr.size
