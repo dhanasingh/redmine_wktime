@@ -229,4 +229,57 @@ class WklocationController < WkbaseController
 	def getlocations
 		render json: getAllLocations
 	end
+
+	def location_tree
+
+		locations =
+			WkLocation.includes(:children)
+								.where(parent_id: nil)
+
+		render json:
+			build_location_tree(locations)
+
+	end
+
+	def build_location_tree(locations)
+
+		locations.map do |location|
+
+			{
+				id: location.id,
+				name: location.name,
+
+				children:
+					build_location_tree(
+						location.children
+					)
+			}
+
+		end
+
+	end
+
+	def hierarchy_children
+    if params[:parent_id].blank?
+      # Edge case: no parent_id → return root locations (L1)
+      locations = WkLocation
+                    .includes(:location_type)
+                    .where(parent_id: nil)
+                    .order(:name)
+    else
+      locations = WkLocation
+                    .includes(:location_type)
+                    .where(parent_id: params[:parent_id])
+                    .order(:name)
+    end
+ 
+    render json: locations.map { |loc|
+      {
+        id:           loc.id,
+        name:         loc.name,
+        type:         loc.location_type&.name,
+        has_children: loc.children.exists?
+      }
+    }
+  end
 end

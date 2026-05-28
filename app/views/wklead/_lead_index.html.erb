@@ -14,7 +14,14 @@
 				<th><label style="padding-left: 10px;"><%= l(:field_status) %></label></th>
 				<td><%=h select_tag('status', options_for_select(getLeadStatusArr.except!("C").invert, :selected => session[controller_name].try(:[], :status))) %></td>
 				<th><label for='location' style="padding-left: 10px;"><%= l(:field_location) %></label></th>
-				<td><%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', session[controller_name].try(:[], :location_id), true)) %></td>
+				<td><%= render :partial => "wklocation/multi_lvl_loc_dropdown",
+						:locals => {
+							:layout       => "horizontal",
+							:field_name   => "location_id",
+							:selected_value => session[controller_name].try(:[], :location_id),
+							:form_id      => "query_form",
+							:auto_submit  => true
+						} %></td>
 				<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
 				<td><%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %></td>
 			</tr>

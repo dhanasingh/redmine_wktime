@@ -1,0 +1,102 @@
+<%
+  layout         = local_assigns.fetch(:layout, "horizontal").to_s
+  field_name     = local_assigns.fetch(:field_name, "location_id").to_s
+  selected_value = local_assigns.fetch(:selected_value, nil).to_s
+  form_id        = local_assigns.fetch(:form_id, "query_form").to_s
+  auto_submit    = local_assigns.key?(:auto_submit) ? local_assigns[:auto_submit] : false
+  include_blank  = local_assigns.key?(:include_blank) ? local_assigns[:include_blank] : true
+  instance_id    = local_assigns.fetch(:instance_id, "wk_loc_selector_#{SecureRandom.hex(4)}")
+  level1_label   = local_assigns.fetch(:level1_label, "#{l(:label_level)} 1")
+  level2_label   = local_assigns.fetch(:level2_label, "#{l(:label_level)} 2")
+  location_label = local_assigns.fetch(:location_label, l(:field_location))
+  children_url   = url_for(:controller => "wklocation", :action => "hierarchy_children")
+  tree_url       = url_for(:controller => "wklocation", :action => "location_tree")
+%>
+
+<% if layout == 'vertical' %>
+
+  <%# ── VERTICAL ─────────────────────────────────────────────────────────────
+      Renders plain <tr> rows — drop directly inside an existing <table>.
+      Hidden anchor row holds all data-* attrs and the hidden field.
+      No CSS needed — <th> and <td> inherit the page table styles automatically.
+  -%>
+
+  <tr id="<%= instance_id %>"
+      style="display:none;"
+      data-children-url="<%= h children_url %>"
+      data-tree-url="<%= h tree_url %>"
+      data-selected-id="<%= h selected_value %>"
+      data-form-id="<%= h form_id %>"
+      data-auto-submit="<%= auto_submit ? 'true' : 'false' %>"
+      data-include-blank="<%= include_blank ? 'true' : 'false' %>">
+    <td><%= hidden_field_tag field_name, selected_value, :id => "#{instance_id}_value" %></td>
+  </tr>
+
+  <tr>
+    <th align="left" for="<%= instance_id %>_level_1"><%= level1_label %></label></th>
+    <td align="left" style="padding-left:40px;">
+      <select id="<%= instance_id %>_level_1" class="wk-location-level-select">
+        <option value=""></option>
+      </select>
+    </td>
+  </tr>
+
+  <tr>
+    <th align="left" for="<%= instance_id %>_level_2"><%= level2_label %></label></th>
+    <td align="left" style="padding-left:40px;">
+      <select id="<%= instance_id %>_level_2" class="wk-location-level-select">
+        <option value=""></option>
+      </select>
+    </td>
+  </tr>
+
+  <tr>
+    <th align="left" for="<%= instance_id %>_location_select"><%= location_label %></label></th>
+    <td align="left" style="padding-left:40px;">
+      <select id="<%= instance_id %>_location_select" class="wk-location-final-select">
+        <option value=""></option>
+      </select>
+    </td>
+  </tr>
+
+<% else %>
+
+  <%# ── HORIZONTAL ───────────────────────────────────────────────────────────
+      Renders a single <div> — drop inside any <td> in a filter bar.
+      Inline flex keeps all 3 label+select pairs in one row.
+  -%>
+
+  <div id="<%= instance_id %>"
+       style="display:inline-flex;align-items:center;gap:14px;vertical-align:middle;"
+       data-children-url="<%= h children_url %>"
+       data-tree-url="<%= h tree_url %>"
+       data-selected-id="<%= h selected_value %>"
+       data-form-id="<%= h form_id %>"
+       data-auto-submit="<%= auto_submit ? 'true' : 'false' %>"
+       data-include-blank="<%= include_blank ? 'true' : 'false' %>">
+    <%= hidden_field_tag field_name, selected_value, :id => "#{instance_id}_value" %>
+
+    <label for="<%= instance_id %>_level_1" style="white-space:nowrap;"><%= level1_label %></label>
+    <select id="<%= instance_id %>_level_1" class="wk-location-level-select" style="height:24px;width:130px;">
+      <option value=""></option>
+    </select>
+
+    <label for="<%= instance_id %>_level_2" style="white-space:nowrap;"><%= level2_label %></label>
+    <select id="<%= instance_id %>_level_2" class="wk-location-level-select" style="height:24px;width:130px;">
+      <option value=""></option>
+    </select>
+
+    <label for="<%= instance_id %>_location_select" style="white-space:nowrap;"><%= location_label %></label>
+    <select id="<%= instance_id %>_location_select" class="wk-location-final-select" style="height:24px;width:130px;">
+      <option value=""></option>
+    </select>
+  </div>
+
+<% end %>
+
+<%= javascript_include_tag 'multi_lvl_loc_dropdown', :plugin => "redmine_wktime" %>
+<script>
+  WkLocationSelector.ready(function() {
+    WkLocationSelector.init('<%= j instance_id %>');
+  });
+</script>
