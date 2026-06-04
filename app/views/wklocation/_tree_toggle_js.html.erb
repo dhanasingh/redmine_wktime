@@ -69,30 +69,6 @@ window.WkLocTree = window.WkLocTree || {
 			});
 		});
 
-		if (o.cascadeCheck && o.checkSelector) {
-			// Selecting a parent alone covers its whole subtree (children are NOT
-			// auto-checked). Selecting a child detaches it from its parents, so
-			// checking a node unchecks all of its ancestors.
-			function checkboxFor(locId) {
-				var row = rows.find(function(r) { return r.getAttribute('data-location-id') === locId; });
-				return row ? row.querySelector(o.checkSelector) : null;
-			}
-			function uncheckAncestors(cb) {
-				var row = cb.closest(o.rowSelector);
-				if (!row) return;
-				(row.getAttribute('data-ancestor-ids') || '').split(',').forEach(function(aid) {
-					if (!aid) return;
-					var c = checkboxFor(aid);
-					if (c) c.checked = false;
-				});
-			}
-			document.querySelectorAll(o.checkSelector).forEach(function(cb) {
-				cb.addEventListener('change', function() {
-					if (this.checked) uncheckAncestors(this);
-				});
-			});
-		}
-
 		recompute();
 	}
 };

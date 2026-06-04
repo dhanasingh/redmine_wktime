@@ -14,15 +14,6 @@ class WkgrouppermissionController < ApplicationController
 		@groups = Group.all.sort
 		#@group = Group.find(params[:filter_group_id].to_i)
 		@groupPermission = WkGroupPermission.where(:group_id => params[:group_id].to_i) unless params[:group_id].blank?
-
-		@locations_tree, @location_depths, @location_ancestor_ids =
-			WkLocation.tree_ordered_by_name
-		@group_location_ids =
-			if params[:group_id].present?
-				WkGrpLocPermission.where(group_id: params[:group_id].to_i).pluck(:location_id).to_set
-			else
-				Set.new
-			end
 	end
 
 	def formPagination(entries)
@@ -61,22 +52,6 @@ class WkgrouppermissionController < ApplicationController
 
 		unless arrId.blank?
 			WkGroupPermission.where(:id => arrId).delete_all()
-		end
-
-		# Location access selections (submitted by the same form via form="query_form" attr on the modal's checkboxes).
-		if group_id > 0
-			submitted_locations = (params[:location_ids] || []).map(&:to_i).uniq
-			# Store only the top-most checked node of each path: drop any location
-			# whose parent is also checked (it's covered by the parent's subtree).
-			submitted_set = submitted_locations.to_set
-			parent_of = WkLocation.where(id: submitted_locations).pluck(:id, :parent_id).to_h
-			top_locations = submitted_locations.reject { |lid| submitted_set.include?(parent_of[lid]) }
-			WkGrpLocPermission.transaction do
-				WkGrpLocPermission.where(group_id: group_id).delete_all
-				top_locations.each do |lid|
-					WkGrpLocPermission.create!(group_id: group_id, location_id: lid)
-				end
-			end
 		end
 
 		redirect_to :controller => 'wkgrouppermission',:action => 'index' , :tab => 'wkgrouppermission', :group_id => group_id

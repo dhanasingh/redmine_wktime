@@ -22,13 +22,14 @@ class WkUser < ApplicationRecord
 
   safe_attributes 'role_id', 'id1','id2', 'id3', 'join_date', 'birth_date', 'termination_date',  'gender', 'bank_name','account_number',
   'bank_code', 'loan_acc_number', 'tax_id', 'ss_id', 'custom_number1', 'custom_number2','custom_date1', 'custom_date2', 'is_schedulable',
-  'billing_rate', 'billing_currency', 'location_id', 'department_id', 'address_id', 'shift_id', 'created_by_user_id', 'updated_by_user_id',
+  'billing_rate', 'billing_currency', 'location_id', 'perm_location', 'department_id', 'address_id', 'shift_id', 'created_by_user_id', 'updated_by_user_id',
   'source_id', 'source_type', 'retirement_account', 'marital_id', 'state_insurance','employee_id', 'emerg_type_id',
   'emergency_contact', 'dept_section_id', 'notes'
 
   belongs_to :user
   belongs_to :role
   belongs_to :location, :class_name => 'WkLocation'
+  belongs_to :permitted_location, class_name: 'WkLocation', foreign_key: :perm_location, optional: true
   belongs_to :department, :class_name => 'WkCrmEnumeration'
   belongs_to :address, :foreign_key => 'address_id', :dependent => :destroy, :class_name => 'WkAddress'
   belongs_to :source, polymorphic: true

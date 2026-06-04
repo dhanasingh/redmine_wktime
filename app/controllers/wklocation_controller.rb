@@ -44,13 +44,24 @@ class WklocationController < WkbaseController
 
 		# Cascading location filter. Each level picks a specific location whose
 		# children populate the next level's dropdown. Validate the chain: each
-		# selected location must be a child of the previous one.
+		# selected location must be a child of the previous one. If a deeper
+		# level is picked without the level above, derive the missing ancestor
+		# from the picked location's own parent chain.
+		raw_levels = (1..MAX_FILTER_LEVELS).map { |n|
+			session[controller_name].try(:[], :"location_level_#{n}").to_i
+		}
+		MAX_FILTER_LEVELS.downto(2) do |n|
+			if raw_levels[n - 1] > 0 && raw_levels[n - 2] == 0
+				loc = WkLocation.find_by(id: raw_levels[n - 1])
+				raw_levels[n - 2] = loc.parent_id if loc && loc.parent_id
+			end
+		end
+
 		validated_path = []
 		prev_id = nil
-		(1..MAX_FILTER_LEVELS).each do |n|
-			val = session[controller_name].try(:[], :"location_level_#{n}")
-			break if val.blank? || val.to_i == 0
-			loc = WkLocation.find_by(id: val.to_i)
+		raw_levels.each do |id|
+			break if id == 0
+			loc = WkLocation.find_by(id: id)
 			break unless loc
 			if validated_path.empty?
 				break unless loc.parent_id.nil?
@@ -68,19 +79,29 @@ class WklocationController < WkbaseController
 			entries = entries.where(id: subtree_ids)
 		end
 
-		# Build the cascading dropdowns. Level 1 = root names. Level N+1 shows
-		# all children of the level-N selection, but the dropdown itself is
-		# skipped if none of its options has children of its own (no further
-		# drill-down possible).
+		# Build the cascading dropdowns. Both levels are always rendered. Level 1 =
+		# root names; Level N+1 = children of the level-N selection, or — until
+		# that selection is made — children of every level-N option.
 		@level_selections = validated_path.map(&:id)
 		@level_options = []
-		@level_options << WkLocation.where(parent_id: nil).order(:name).pluck(:name, :id)
-		validated_path.first(MAX_FILTER_LEVELS - 1).each do |loc|
-			candidate_ids = WkLocation.where(parent_id: loc.id).order(:name).pluck(:id)
-			break if candidate_ids.empty?
-			break unless WkLocation.where(parent_id: candidate_ids).exists?
-			@level_options << WkLocation.where(id: candidate_ids).order(:name).pluck(:name, :id)
+		MAX_FILTER_LEVELS.times do |idx|
+			@level_options <<
+				if idx == 0
+					WkLocation.where(parent_id: nil).order(:name).pluck(:name, :id)
+				elsif (parent = validated_path[idx - 1])
+					WkLocation.where(parent_id: parent.id).order(:name).pluck(:name, :id)
+				else
+					prev_ids = @level_options[idx - 1].map(&:last)
+					WkLocation.where(parent_id: prev_ids).order(:name).pluck(:name, :id)
+				end
 		end
+
+		# Map each Level 1 (root) id => its Level 2 children options, so the view
+		# can re-populate the Level 2 dropdown client-side without re-submitting.
+		root_ids = @level_options[0].map(&:last)
+		@level2_options_by_root = WkLocation.where(parent_id: root_ids).order(:name)
+			.group_by(&:parent_id)
+			.transform_values { |arr| arr.map { |l| [l.name, l.id] } }
 
 		entries = entries.includes(:address, :location_type)
 		ordered_entries, @depths, @ancestor_ids = WkLocation.tree_ordered_by_name(entries)

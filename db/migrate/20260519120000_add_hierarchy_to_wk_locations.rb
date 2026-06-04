@@ -9,17 +9,13 @@ class AddHierarchyToWkLocations < ActiveRecord::Migration[7.2]
 
     WkLocation.unscoped.update_all("root_id = id, lft = 1, rgt = 2")
 
-    create_table :wk_grp_loc_permissions do |t|
-      t.integer :group_id,    null: false
-      t.integer :location_id, null: false
-      t.timestamps null: false
-    end
-    add_index :wk_grp_loc_permissions, [:group_id, :location_id], unique: true
-    add_index :wk_grp_loc_permissions, :group_id
+    add_column :wk_users, :perm_location, :integer, null: true
+    add_index  :wk_users, :perm_location
   end
 
   def down
-    drop_table :wk_grp_loc_permissions
+    remove_index  :wk_users, :perm_location
+    remove_column :wk_users, :perm_location
 
     remove_index  :wk_locations, [:root_id, :lft, :rgt]
     remove_index  :wk_locations, :parent_id

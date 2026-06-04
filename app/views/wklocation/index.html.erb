@@ -25,8 +25,7 @@
 			<span style="display:inline-flex; align-items:center; gap:6px;">
 				<label for="location_level_<%= level_num %>"><%= l(:label_level) %> <%= level_num %></label>
 				<%= select_tag("location_level_#{level_num}",
-					options_for_select([['', '']] + opts, @level_selections[idx]),
-					onchange: '$("#query_form").submit();') %>
+					options_for_select([['', '']] + opts, @level_selections[idx])) %>
 			</span>
 		<% end %>
 		<span style="display:inline-flex; align-items:center; gap:6px;">
@@ -52,3 +51,27 @@
 <% else %>
 	<p class="nodata"><%= l(:label_no_data) %></p>
 <% end %>
+
+<script>
+(function() {
+	var byRoot = <%= raw (@level2_options_by_root || {}).to_json %>;
+	var allOpts = <%= raw (@level_options[1] || []).to_json %>;
+	var l1 = document.getElementById('location_level_1');
+	var l2 = document.getElementById('location_level_2');
+	if (!l1 || !l2) return;
+	l1.addEventListener('change', function() {
+		var v = this.value;
+		var opts = v ? (byRoot[v] || []) : allOpts;
+		l2.innerHTML = '';
+		var blank = document.createElement('option');
+		blank.value = ''; blank.text = '';
+		l2.appendChild(blank);
+		opts.forEach(function(p) {
+			var o = document.createElement('option');
+			o.value = p[1]; o.text = p[0];
+			l2.appendChild(o);
+		});
+	});
+})();
+</script>
+
