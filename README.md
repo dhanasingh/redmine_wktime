@@ -1,19 +1,14 @@
-# Webinar on ERPmine – Survey, May 26th, 2026,(11:30 AM GMT)
+# Webinar on ERPmine – Referral and Skills, June 30th, 2026,(11:30 AM GMT)
  
 Please click here to register if interested,
-[[[https://us02web.zoom.us/meeting/register/aM-1Nt__TBafjqbeJQjdVw]](https://us02web.zoom.us/meeting/register/tDGqqIVxTS-4go4SdVm8LA)]
+[[(https://us02web.zoom.us/meeting/register/tDGqqIVxTS-4go4SdVm8LA)](https://us02web.zoom.us/meeting/register/pu9T_5s6RXewMEm0E_qSsw)]
  
 **Topics**:
--  Project Survey	
--  General Survey
--  User surveyFeedback survey
--  Employee Performance Review
--  Exit interview
--  Survey Reviewer
--  Recurring Survey
--  Survey Response Trending Chart
--  Notification
-- Mobile app
+-  Referral Information	
+-  Job Interviews
+-  Candidate Documents
+-  Employees Skill Sets
+-  Project Skill Set
 -----
 # ERPmine
 
