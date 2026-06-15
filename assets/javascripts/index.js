@@ -1360,6 +1360,25 @@ function deleteItemRow(index) {
 	}
 }
 
+// Resizes and re-centers the #ajax-modal dialog so it always fits within the
+// current viewport (width and height), without modifying core Redmine code.
+function resizeAjaxModal() {
+	var $modal = $('#ajax-modal');
+	if (!$modal.length || !$modal.hasClass('ui-dialog-content')) return;
+	// Reset any previous constraints so auto-sizing is accurate
+	$modal.css({ 'max-height': '', 'overflow-y': '' });
+	$modal.dialog('option', 'height', 'auto');
+	$modal.dialog('option', 'width', Math.min(950, $(window).width() - 40));
+	// After auto-sizing, cap the content if the dialog exceeds the viewport
+	var $dialog = $modal.closest('.ui-dialog');
+	var maxHeight = $(window).height() - 80;
+	if ($dialog.outerHeight() > maxHeight) {
+		var titlebarH = $dialog.find('.ui-dialog-titlebar').outerHeight(true) || 30;
+		$modal.css({ 'max-height': (maxHeight - titlebarH - 10) + 'px', 'overflow-y': 'auto' });
+	}
+	$modal.dialog('option', 'position', { my: 'center', at: 'center', of: window });
+}
+
 function itemChanged(id) {
 	$.ajax({
 		url: productItemUrl,

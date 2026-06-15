@@ -280,6 +280,36 @@ fieldset.surveyquestion tr.tb-mtb-followup-adder-row td {
     box-shadow: 0 2px 10px rgba(0, 0, 0, .2);
 }
 
+/* Restore the dialog close (X) icon, which the .ui-widget-content .ui-icon
+   override above replaces with the accordion arrow image */
+.ui-dialog .ui-dialog-titlebar-close,
+.ui-dialog .ui-dialog-titlebar-close .ui-icon {
+    background-image: none !important;
+}
+
+.ui-dialog .ui-dialog-titlebar-close .ui-icon {
+    text-indent: 0 !important;
+    font-size: 18px;
+    line-height: 16px;
+    font-weight: bold;
+    color: #646363;
+}
+
+.ui-dialog .ui-dialog-titlebar-close .ui-icon:before {
+    content: "\00d7";
+}
+
+/* Keep the #ajax-modal dialog content within the viewport height, scrolling
+   internally when the form is taller than the available space */
+#ajax-modal.ui-dialog-content {
+    max-height: 75vh;
+    overflow-y: auto;
+}
+
+.ui-dialog {
+    max-height: 90vh;
+}
+
 .icon-gravatar {
     float: left;
     margin-right: 4px;

@@ -226,6 +226,17 @@ class WkproductitemController < WkinventoryController
 					render :template => 'common/error_messages', :format => [:api], :status => :unprocessable_entity, :layout => nil
 				end
 			}
+			format.js {
+				if errorMsg.blank?
+					saveAssembledItem(params[:assemble], inventoryItem) if params[:assemble].present?
+					@parentEntry = (inventoryItem.present? && inventoryItem.parent_id.present?) ? WkInventoryItem.find(inventoryItem.parent_id) : nil
+				else
+					@productItem = productItem
+					@inventoryItem = inventoryItem
+					@parentEntry = params[:parent_id].present? ? WkInventoryItem.find(params[:parent_id]) : nil
+					@errorMsg = errorMsg
+				end
+			}
 		end
   end
 
