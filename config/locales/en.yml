@@ -1427,3 +1427,5 @@ en:
   label_export_desc_sage_business_cloud: "Sage Business Cloud Accounting compatible CSV for journal import"
   label_export_format_tally_prime: "Tally Prime"
   label_export_desc_tally_prime: "Tally-compatible CSV for import into Tally Prime"
+  label_table_of_contents: Table of Contents
+  label_drag_to_reorder: Drag to reorder

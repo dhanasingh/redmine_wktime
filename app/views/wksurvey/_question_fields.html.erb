@@ -1,234 +1,194 @@
-<style>
-  .ungrouped-section .question-move-icons {
-    display: none !important;
-  }
-  .icon-minus .icon-svg {
-    stroke: #FF0000 !important;
-  }
-</style>
 <script type="text/javascript">
-  const addFollowupHtml = '<%= link_to sprite_icon('add', l(:label_add_followup)), 'javascript:void(0)', onclick: 'addFollowUpQuestion(this)', class: 'icon icon-add', style: "font-weight: normal;" %>';
-  const unlinkFollowupHtml = '<%= link_to sprite_icon('circle-minus'), 'javascript:void(0)', onclick: 'removeFollowUpLink(this)', class: 'icon icon-minus icon-unlink', title: 'Unlink', style: "margin-left: 5px; vertical-align: middle;" %>';
-  const addChoice = '<%= link_to sprite_icon('add', l(:button_add_choice)), 'javascript:void(0)', onclick: 'addChoiceRow(this)', class: 'icon icon-add' %>';
-  const pointsText = '<%= l(:label_points) %>';
-  const FollowUpLinkText = '<%= l(:label_add_link_followup) %>';
-  const LinkFollowUpText = '<%= l(:label_link_followup_question) %>';
-  const AddFollowUpText = '<%= l(:label_add_followup_question) %>';
-  const FollowUpText = '<%= l(:label_followup_question) %>';
+  var addFollowupHtml = '<a href="javascript:void(0)" onclick="addFollowUpQuestion(this)" class="fu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg><%= l(:label_add_followup) %><\/a>';
+  var unlinkFollowupHtml = '<a href="javascript:void(0)" onclick="removeFollowUpLink(this)" class="fu-unlink icon-unlink" title="Unlink">unlink ×<\/a>';
+  var linkedLabelHtml = '';
+  var addChoice = '<a href="javascript:void(0)" onclick="addChoiceRow(this)" class="add-choice icon-add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg><%= l(:button_add_choice) %><\/a>';
+  var pointsText = '<%= l(:label_points) %>';
+  var FollowUpLinkText = '<%= l(:label_add_link_followup) %>';
+  var LinkFollowUpText = '<%= l(:label_link_followup_question) %>';
+  var AddFollowUpText = '<%= l(:label_add_followup_question) %>';
+  var FollowUpText = '<%= l(:label_followup_question) %>';
+  var delIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>';
 </script>
 <% q = f.object %>
 <% is_child_question = q.id.present? ? q.triggering_choices.any? : false %>
-<%# Shared tracking of rendered IDs %>
 <% current_rendered_ids = local_assigns[:rendered_ids] || Set.new %>
 <% current_rendered_ids.add(q.id) if q.id.present? %>
 <% isInlineFollowup = local_assigns[:is_inline_followup] == true %>
+<%
+  qtype     = q.question_type || 'RB'
+  is_choice = %w[RB CB].include?(qtype)
+  is_text   = %w[TB MTB].include?(qtype)
+  type_color_class = case qtype when 'RB' then 'rb' when 'CB' then 'cb' when 'TB' then 'tb' when 'MTB' then 'mtb' else 'rb' end
+  glyph_class = qtype == 'CB' ? 'check' : 'radio'
+  affix_open  = q.header.to_s.strip.length > 0 || q.footer.to_s.strip.length > 0
+%>
+
 <% if isInlineFollowup %>
-  <div class="surveyquestion child-question" style="margin-bottom: 5px;">
+  <div class="surveyquestion child-question qrow qrow-inline ed-qtype-<%= qtype %>" style="margin-bottom:5px;">
 <% else %>
-  <fieldset class="surveyquestion <%= is_child_question ? 'child-question' : '' %>" style="margin-bottom: 10px; position: relative;">
+  <div class="surveyquestion qrow ed-qtype-<%= qtype %> <%= is_child_question ? 'child-question' : '' %>" style="margin-bottom:10px;">
 <% end %>
-  <% unless isDisable %>
-    <div class="question-move-icons" style="position: absolute; left: -30px; top: 10px; <%= 'display:none;' if is_child_question || isInlineFollowup %>">
-      <a href="javascript:void(0)" onclick="moveQuestionUp(this)" title="Move Up" style="display:block;text-decoration:none; color:#016bff;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
-          <path d="M12 19V5"></path><path d="M5 12l7-7 7 7"></path>
-        </svg>
-      </a>
-      <a href="javascript:void(0)" onclick="moveQuestionDown(this)" title="Move Down" style="display:block;text-decoration:none; color:#016bff;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
-          <path d="M12 5v14"></path><path d="M19 12l-7 7-7-7"></path>
-        </svg>
-      </a>
-    </div>
-  <% end %>
+
   <%= f.hidden_field :id %>
   <%= f.hidden_field :sort_order, class: 'question-sort-order' %>
+  <% unless isDisable %>
+    <%= f.check_box :_destroy, class: 'hide', style: 'display:none' %>
+  <% end %>
 
-  <table style="font-size: 15px;">
-    <tr>
-      <% unless isInlineFollowup %>
-      <td class="indexNo">
-        <span class="index-num">
-          <b>
-            <%= "__GROUP_INDEX__.__QUESTION_INDEX__" %>
-          </b>
-        </span>
-      </td>
-      <% end %>
-      <th align="left">
-        <span class="childIndexNo" style="<%= 'display:none;' unless isInlineFollowup %>"></span><%= l(:label_question_name) %><span style="color:red;">*</span>
-      </th>
-      <td align="left" style="padding-right: 20px;"><%= f.text_field :name, size: 40, maxlength: 255, disabled: isDisable %></td>
-      <td align="left" style="padding-right: 20px;white-space: nowrap;">
-        <%= f.select :question_type,
-                     options_for_select(getQuestionType, selected: q.question_type || 'RB'),
-                     {}, {
-                       onchange: 'questionTypeChanged(this)',
-                       disabled: isDisable,
-                     } %>
-        <span class="text-points">
-          <% if q.question_type == 'TB' || q.question_type == 'MTB' %>
-          <%= l(:label_points) %>
-            <%= f.fields_for :wk_survey_choices, f.object.wk_survey_choices.presence || [f.object.wk_survey_choices.build] do |c| %>
-              <%= c.hidden_field :id %>
-              <%= c.hidden_field :name, maxlength: 100 %>
-              <%= c.text_field :points, size: 5, maxlength: 10, disabled: isDisable %>
-              <%= c.check_box :_destroy, class: 'hide', style: 'display:none' %>
-            <% end %>
-          <% end %>
-        </span>
-      </td>
-      <td width="100%"></td>
-      <% unless isDisable %>
-        <td align="right" style="white-space: nowrap;>
-          <%= f.check_box :_destroy, class: 'hide', style: 'display:none' %>
-          <%= link_to sprite_icon('del', l(:button_delete_question)), 'javascript:void(0)', title: l(:button_delete_question),
-                                class: 'icon icon-del', onclick: 'DeleteQuestion(this)' %>
-        </td>
-      <% end %>
-    </tr>
+  <% unless isInlineFollowup %>
+    <div class="q-gutter">
+      <div class="q-num index-num">
+        <b>__QUESTION_INDEX__</b>
+      </div>
+      <span class="q-grip" title="Drag to reorder">&#x2807;</span>
+    </div>
+  <% end %>
 
-    <tr>
-      <% unless isInlineFollowup %><td></td><% end %>
-      <th align="left" style="white-space: nowrap;"><%= l(:label_mandatory) %><%= f.check_box :is_mandatory, disabled: isDisable %></th>
-      <th align="left"><%= l(:label_not_rpt) %><%= f.check_box :not_in_report, disabled: isDisable %></th>
-      <th align="left" class="revieweronly"><%= l(:label_reviewer_only) %><%= f.check_box :is_reviewer_only, disabled: isDisable %></th>
-    </tr>
-
-    <tr>
-      <% unless isInlineFollowup %><td></td><% end %>
-      <th align="left"><%= l(:label_pre_text) %></th>
-      <td><%= f.text_field :header, size: 40, maxlength: 255, disabled: isDisable %></td>
-    </tr>
-
-    <tr>
-      <% unless isInlineFollowup %><td></td><% end %>
-      <th align="left"><%= l(:label_post_text) %></th>
-      <td><%= f.text_field :footer, size: 40, maxlength: 255, disabled: isDisable %></td>
-    </tr>
-
-    
-      <tr class="tb-mtb-followup-adder-row" style="<%= %w[TB MTB].include?(q.question_type) ? '' : 'display:none' %>">
-        <% unless isInlineFollowup %><td></td><% end %>
-        <td></td>
-        <td align="left" class="tb-mtb-followup-cell">
-          <% if q.question_type == 'TB' || q.question_type == 'MTB' %>
-            <div style="text-align: right; margin-right: 12px;">
-            <%= f.fields_for :wk_survey_choices, f.object.wk_survey_choices.presence || [f.object.wk_survey_choices.build] do |c| %>
-              <% if c.object.follow_up_question_id.present? %>
-                <%= c.hidden_field :follow_up_question_id, class: 'followup-val' %>
-                <% unless isDisable %>
-                  <%= link_to sprite_icon('add', l(:label_add_followup)), 'javascript:void(0)', onclick: 'addFollowUpQuestion(this)', class: 'icon icon-add', style: "display:none;font-weight: normal;" %>
-                <% end %>
-                <% 
-                  fu_id = c.object.follow_up_question_id
-                  render_inline = local_assigns[:question_builders_map] && question_builders_map.has_key?(fu_id) && !current_rendered_ids.include?(fu_id)
-                %>
-                <% if current_rendered_ids.include?(fu_id) || !render_inline %>
-                  <span class="followup-linked-label" style="color:#016bff;margin-left:4px;font-weight: normal;">
-                    <%= l(:label_followup_question) %>
-                  </span>
-                  <%= link_to sprite_icon('circle-minus'), 'javascript:void(0)', onclick: 'removeFollowUpLink(this)', class: 'icon icon-minus icon-unlink', title: 'Unlink', style: "margin-left: 5px; vertical-align: middle;" unless isDisable%>
-                <% end %>
-              <% else %>
-                <%= link_to sprite_icon('add', l(:label_add_followup)), 'javascript:void(0)', onclick: 'addFollowUpQuestion(this)', class: 'icon icon-add' %>
-              <% end %>
-            <% end %>
-            </div>
-          <% end %>
-        </td>
-      </tr>
-
-    <%# TB/MTB follow-up: render below the question type/points row, indented from the dropdown %>
-    <% if local_assigns[:question_builders_map] && q.id.present? && (q.question_type == 'TB' || q.question_type == 'MTB') %>
-      <% q.wk_survey_choices.each do |choice| %>
-        <% if choice.follow_up_question_id.present? && question_builders_map[choice.follow_up_question_id] && !current_rendered_ids.include?(choice.follow_up_question_id) %>
-          <tr class="followup-inline-row">
-            <% unless isInlineFollowup %><td></td><% end %>
-            <td></td>
-            <td colspan="4" style="padding: 0;">
-              <div class="follow-up-container" data-choice-name="<%= choice.name || 'followup' %>">
-                <%= render partial: 'question_fields', locals: { f: question_builders_map[choice.follow_up_question_id], isDisable: isDisable, question_builders_map: question_builders_map, rendered_ids: current_rendered_ids, is_inline_followup: true } %>
-              </div>
-            </td>
-          </tr>
-        <% end %>
-      <% end %>
+  <div class="q-body">
+    <% if isInlineFollowup %>
+      <% choice_label = local_assigns[:choice_name].to_s.strip %>
+      <div class="fu-tag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        <span class="fu-tag-base">FOLLOW-UP</span>
+      </div>
     <% end %>
 
-    <% if q.question_type == 'RB' || q.question_type == 'CB' %>
+    <div class="q-toprow">
+      <% if isInlineFollowup %>
+        <span class="childIndexNo q-num q-num-inline"></span>
+      <% end %>
+      <%= f.text_field :name, size: 40, maxlength: 255, disabled: isDisable, class: 'q-title question-name-input', placeholder: l(:label_question_name) %>
+      <%= f.select :question_type,
+                   options_for_select(getQuestionType, selected: qtype),
+                   {}, {
+                     onchange: 'questionTypeChanged(this)',
+                     disabled: isDisable,
+                     class: "q-type-select #{type_color_class}"
+                   } %>
+      <% unless isDisable %>
+        <span class="q-actions">
+          <a href="javascript:void(0)" title="<%= l(:button_delete_question) %>" onclick="DeleteQuestion(this)" class="iconbtn danger icon icon-del">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+          </a>
+        </span>
+      <% end %>
+    </div>
 
-      <%= f.fields_for :wk_survey_choices do |c| %>
-        <% is_first = c.index.zero? %>
-        <tr class="choice-row">
-          <% unless isInlineFollowup %><td></td><% end %>
-          <th align="left" style="padding-top: 10px;">
-            <%= "#{l(:label_question_choices)} #{c.index + 1}" %>
-          </th>
-          <td align="left">
-            <%= c.hidden_field :id %>
-            <%= c.text_field :name, size: 40, maxlength: 100, disabled: isDisable %>
-            <div style="text-align: right;margin-right: 12px;">
-              <%= c.check_box :_destroy, class: 'hide', style: 'display:none' %>
-              <%= c.hidden_field :follow_up_question_id, class: 'followup-val' if c.object.follow_up_question_id.present? %>
+    <%# ===================== RB/CB: choices block ===================== %>
+    <div class="choices" style="<%= 'display:none;' unless is_choice %>">
+      <%= f.fields_for :wk_survey_choices, f.object.wk_survey_choices.presence || [f.object.wk_survey_choices.build] do |c| %>
+        <% next if is_text && c.object.name.blank? && c.object.points.blank? %>
+        <% has_fu = c.object.follow_up_question_id.present? %>
+        <div class="choice choice-row">
+          <span class="glyph <%= glyph_class %>"></span>
+          <%= c.hidden_field :id %>
+          <%= c.text_field :name, size: 40, maxlength: 100, disabled: isDisable, class: 'choice-text' %>
+          <span class="pts choice-points-cell">
+            <%= l(:label_points) %>
+            <%= c.text_field :points, size: 5, maxlength: 10, disabled: isDisable %>
+          </span>
+          <span class="choice-followup-actions" style="display:inline-flex;align-items:center;gap:4px;">
+            <%= c.check_box :_destroy, class: 'hide', style: 'display:none' %>
+            <% if has_fu %>
+              <%= c.hidden_field :follow_up_question_id, class: 'followup-val' %>
               <% unless isDisable %>
-                <%= link_to sprite_icon('add', l(:label_add_followup)), 'javascript:void(0)', onclick: 'addFollowUpQuestion(this)', class: 'icon icon-add', style: c.object.follow_up_question_id.present? ? "display:none;font-weight: normal;" : "font-weight: normal;" %>
+                <%= link_to "unlink ×", 'javascript:void(0)', onclick: 'removeFollowUpLink(this)', class: 'fu-unlink icon-unlink', title: 'Unlink' %>
               <% end %>
-              <% if c.object.follow_up_question_id.present? %>
-                <% 
-                  fu_id = c.object.follow_up_question_id
-                  render_inline = local_assigns[:question_builders_map] && question_builders_map.has_key?(fu_id) && !current_rendered_ids.include?(fu_id)
-                %>
-                <% if current_rendered_ids.include?(fu_id) || !render_inline %>
-                  <span class="followup-linked-label" style="color:#016bff;margin-left:4px;font-weight: normal;">
-                    <%= l(:label_followup_question) %>
-                  </span>
-                  <%= link_to sprite_icon('circle-minus'), 'javascript:void(0)', onclick: 'removeFollowUpLink(this)', class: 'icon icon-minus icon-unlink', title: 'Unlink', style: "margin-left: 5px; vertical-align: middle;" unless isDisable %>
-                <% end %>
+            <% else %>
+              <% unless isDisable %>
+                <a href="javascript:void(0)" onclick="addFollowUpQuestion(this)" class="fu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg><%= l(:label_add_followup) %></a>
               <% end %>
-            </div>
-          </td>
-          <td align="left">
-            <%= l(:label_points) %>  &nbsp;<%= c.text_field :points, size: 5, maxlength: 10, disabled: isDisable %>
-            <% unless isDisable || is_first %>
-	    		    <%= link_to sprite_icon('del'), 'javascript:void(0)', onclick: 'DeleteChoice(this)', title: l(:button_delete), style: "margin-left:5px;" %>
             <% end %>
-          </td>
-        </tr>
-        <%# RB/CB follow-up: render right below this specific choice row, indented from choice textbox %>
+          </span>
+          <% unless isDisable %>
+            <a href="javascript:void(0)" onclick="DeleteChoice(this)" title="<%= l(:button_delete) %>" class="iconbtn danger icon icon-del">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+            </a>
+          <% end %>
+        </div>
+
+        <%# Render inline follow-up for this specific choice %>
         <% if local_assigns[:question_builders_map] && c.object.follow_up_question_id.present? %>
           <% fu_id = c.object.follow_up_question_id %>
           <% fu_builder = question_builders_map[fu_id] %>
           <% if fu_builder && !current_rendered_ids.include?(fu_id) %>
-            <tr class="followup-inline-row">
-              <% unless isInlineFollowup %><td></td><% end %>
-              <td></td>
-              <td colspan="4" style="padding: 0;">
-                <div class="follow-up-container" data-choice-name="<%= c.object.name || 'followup' %>">
-                  <%= render partial: 'question_fields', locals: { f: fu_builder, isDisable: isDisable, question_builders_map: question_builders_map, rendered_ids: current_rendered_ids, is_inline_followup: true } %>
-                </div>
-              </td>
-            </tr>
+            <div class="followup follow-up-container followup-inline followup-inline-row" data-choice-name="<%= c.object.name || 'followup' %>">
+              <%= render partial: 'question_fields', locals: { f: fu_builder, isDisable: isDisable, question_builders_map: question_builders_map, rendered_ids: current_rendered_ids, is_inline_followup: true, choice_name: c.object.name } %>
+            </div>
           <% end %>
         <% end %>
       <% end %>
 
       <% unless isDisable %>
-        <tr class="choice-adder-row" style="<%= %w[RB CB].include?(q.question_type) ? '' : 'display:none' %>">
-          <% unless isInlineFollowup %><td></td><% end %>
-          <td align="left" style="padding-top: 15px;white-space: nowrap;">
-            <%= link_to sprite_icon('add', l(:button_add_choice)), 'javascript:void(0)', onclick: 'addChoiceRow(this)', class: 'icon icon-add' %>
-          </td>
-          <td></td>
-          <td></td>
-          <td></td>
-        </tr>
+        <a href="javascript:void(0)" class="add-choice icon icon-add" onclick="addChoiceRow(this)" style="<%= 'display:none;' unless is_choice %>">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          <%= l(:button_add_choice) %>
+        </a>
       <% end %>
-    <% end %>
-  </table>
-<% if isInlineFollowup %>
-  <hr style="height: 1px; background-color: #696969; box-shadow: 0 1px 2px rgba(0,0,0,0.06); margin: 8px 0;">
+    </div>
+
+    <%# ===================== TB/MTB: hidden choice container ===================== %>
+    <div class="tb-mtb-choice tb-mtb-followup-adder-row" style="<%= 'display:none;' unless is_text %>">
+      <% if is_text %>
+        <%= f.fields_for :wk_survey_choices, f.object.wk_survey_choices.presence || [f.object.wk_survey_choices.build] do |c| %>
+          <%= c.hidden_field :id %>
+          <%= c.hidden_field :name, maxlength: 100 %>
+          <%= c.check_box :_destroy, class: 'hide', style: 'display:none' %>
+          <% if c.object.follow_up_question_id.present? %>
+            <%= c.hidden_field :follow_up_question_id, class: 'followup-val' %>
+          <% end %>
+        <% end %>
+      <% end %>
+
+      <%# TB/MTB inline follow-up render %>
+      <% if local_assigns[:question_builders_map] && q.id.present? && is_text %>
+        <% q.wk_survey_choices.each do |choice| %>
+          <% if choice.follow_up_question_id.present? && question_builders_map[choice.follow_up_question_id] && !current_rendered_ids.include?(choice.follow_up_question_id) %>
+            <div class="followup follow-up-container followup-inline followup-inline-row" data-choice-name="<%= choice.name || 'followup' %>">
+              <%= render partial: 'question_fields', locals: { f: question_builders_map[choice.follow_up_question_id], isDisable: isDisable, question_builders_map: question_builders_map, rendered_ids: current_rendered_ids, is_inline_followup: true, choice_name: choice.name } %>
+            </div>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <%# ===================== q-tools footer ===================== %>
+    <div class="q-tools question-footer">
+      <label class="chk"><%= f.check_box :is_mandatory, disabled: isDisable %><span><%= l(:label_mandatory) %></span></label>
+      <label class="chk"><%= f.check_box :not_in_report, disabled: isDisable %><span><%= l(:label_not_rpt) %></span></label>
+      <label class="chk revieweronly"><%= f.check_box :is_reviewer_only, disabled: isDisable %><span><%= l(:label_reviewer_only) %></span></label>
+
+      <%# TB/MTB: points + add-followup live in the tools footer — always rendered, shown only for TB/MTB %>
+      <span class="text-points tb-mtb-tools" style="<%= is_text ? 'display:inline-flex;' : 'display:none;' %>align-items:center;gap:10px;margin-left:auto;">
+        <%= f.fields_for :wk_survey_choices, f.object.wk_survey_choices.presence || [f.object.wk_survey_choices.build] do |c| %>
+          <span class="pts"><%= l(:label_points) %>
+            <%= c.text_field :points, size: 5, maxlength: 10, disabled: isDisable %>
+          </span>
+        <% end %>
+        <span class="tb-mtb-followup-cell" style="display:inline-flex;align-items:center;gap:4px;">
+          <%= f.fields_for :wk_survey_choices, f.object.wk_survey_choices.presence || [f.object.wk_survey_choices.build] do |c| %>
+            <% if c.object.follow_up_question_id.present? %>
+              <% unless isDisable %>
+                <%= link_to "unlink ×", 'javascript:void(0)', onclick: 'removeFollowUpLink(this)', class: 'fu-unlink icon-unlink', title: 'Unlink' %>
+              <% end %>
+            <% else %>
+              <% unless isDisable %>
+                <a href="javascript:void(0)" onclick="addFollowUpQuestion(this)" class="fu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg><%= l(:label_add_followup) %></a>
+              <% end %>
+            <% end %>
+          <% end %>
+        </span>
+      </span>
+
+      <span class="q-affix-toggle intro-toggle" onclick="toggleAffix(this)"><%= "#{affix_open ? '− ' : '+ '}#{l(:label_pre_text)} / #{l(:label_post_text)}" %></span>
+    </div>
+
+    <div class="q-affix intro-closing-panel" style="<%= affix_open ? 'display:grid;' : 'display:none;' %>">
+      <label><%= l(:label_pre_text) %></label>
+      <%= f.text_field :header, size: 40, maxlength: 255, disabled: isDisable, class: 'input' %>
+      <label><%= l(:label_post_text) %></label>
+      <%= f.text_field :footer, size: 40, maxlength: 255, disabled: isDisable, class: 'input' %>
+    </div>
+  </div>
 </div>
-<% else %>
-</fieldset>
-<% end %>

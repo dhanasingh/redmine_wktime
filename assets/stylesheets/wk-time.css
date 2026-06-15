@@ -114,6 +114,150 @@ fieldset label {
     background-color: #FFF;
 }
 
+/* ── Group accordion header: modern light style ── */
+.group-accordion-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px;
+    background: #f8fafc !important;
+    background-image: none !important;   /* kills jQuery UI's dark gradient */
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 6px !important;
+    color: #374151 !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    padding: 7px 10px !important;
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
+}
+.group-accordion-header:hover {
+    background: #f1f5f9 !important;
+}
+/* group number badge */
+.group-num {
+    text-align: center;
+}
+/* name span */
+.group-name-editable {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    padding: 2px 4px;
+    outline: none;
+    cursor: default;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+.group-name-editable:hover {
+    border-color: #d1d5db;
+    background: #f9fafb;
+}
+.group-name-editable.editing {
+    background: #fff;
+    box-shadow: 0 0 0 2px #3b82f6;
+    cursor: text;
+}
+/* action icons wrapper — pushed to the far right */
+.group-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+.group-header-edit,
+.group-header-del {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 5px;
+    color: #6b7280;
+    cursor: pointer;
+    line-height: 1;
+    transition: background 0.12s, color 0.12s;
+}
+.group-header-edit:hover {
+    background: #dbeafe;
+    color: #2563eb;
+}
+.group-header-del:hover {
+    background: #fee2e2;
+    color: #dc2626;
+}
+/* hide the Redmine icon SVG wrapper margins inside the action buttons */
+.group-header-edit .icon-svg,
+.group-header-del .icon-svg {
+    width: 14px;
+    height: 14px;
+    margin: 0 !important;
+}
+
+/* ── Survey question fieldset: standard UI spacing ───────────────────────── */
+fieldset.surveyquestion {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 12px 16px 10px;
+    margin-bottom: 12px;
+    background: #fff;
+}
+fieldset.surveyquestion > table {
+    border-collapse: collapse;
+    width: 100%;
+}
+fieldset.surveyquestion table th,
+fieldset.surveyquestion table td {
+    padding: 5px 10px;
+    vertical-align: middle;
+    line-height: 1.5;
+}
+fieldset.surveyquestion table th {
+    font-weight: 600;
+    color: #374151;
+    white-space: nowrap;
+}
+/* choice rows get a slightly tighter top gap */
+fieldset.surveyquestion tr.choice-row th,
+fieldset.surveyquestion tr.choice-row td {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+/* add-choice / add-followup link rows */
+fieldset.surveyquestion tr.choice-adder-row td,
+fieldset.surveyquestion tr.tb-mtb-followup-adder-row td {
+    padding-top: 6px;
+    padding-bottom: 2px;
+}
+/* inline follow-up container indentation */
+.ed-root .follow-up-container{
+    margin-left: 0;
+    border-left: 3px solid var(--ed-accent);
+    padding-left: 0;
+    margin-top: 0;
+}
+/* child (inline) question block */
+.ed-root div.surveyquestion.child-question{
+    border: none;
+    border-left: none;
+    border-radius: 0;
+    padding: 0;
+    margin-bottom: 0;
+    background: transparent;
+}
+/* accordion content area breathing room */
+.group-accordion-content {
+    padding: 10px 12px 6px;
+}
+/* add-question link row */
+.add-question-link {
+    padding: 6px 0 2px;
+}
+
 .accordion-icon-header,
 .ui-state-hover .ui-icon,
 .ui-state-focus .ui-icon,
@@ -140,3 +284,1868 @@ fieldset label {
     float: left;
     margin-right: 4px;
 }
+
+/* =========================================
+   MAIN LAYOUT
+========================================= */
+
+.survey-editor-layout {
+
+    display: grid;
+
+    grid-template-columns: 320px 1fr;
+
+    gap: 24px;
+
+    align-items: start;
+
+    width: 100%;
+}
+
+/* =========================================
+   SIDEBAR
+========================================= */
+
+#survey-structure-sidebar {
+
+    width: 300px;
+
+    min-width: 300px;
+
+    background: #ffffff;
+
+    border: 1px solid #d7d7d7;
+
+    border-radius: 4px;
+
+    position: sticky;
+
+    top: 15px;
+
+    align-self: start;
+
+    max-height: calc(100vh - 30px);
+
+    overflow: hidden;
+
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+/* =========================================
+   SIDEBAR HEADER
+========================================= */
+
+.survey-sidebar-header {
+
+    padding: 12px 14px;
+
+    font-size: 16px;
+
+    font-weight: 600;
+
+    color: #222;
+
+    border-bottom: 1px solid #e5e7eb;
+
+    background: #fafafa;
+
+    flex-shrink: 0;
+}
+
+/* =========================================
+   SIDEBAR ACCORDION WRAPPER
+========================================= */
+
+#survey-sidebar-accordion {
+
+    flex: 1;
+
+    overflow-y: auto;
+
+    overflow-x: hidden;
+
+    padding: 6px;
+}
+
+/* =========================================
+   GROUP HEADER
+========================================= */
+
+#survey-sidebar-accordion .ui-accordion-header {
+
+    padding: 10px 12px !important;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    line-height: 1.4;
+
+    border: none !important;
+
+    background: transparent !important;
+
+    color: #222;
+
+    border-radius: 4px;
+
+    margin: 2px 0;
+
+    transition: background 0.15s ease;
+}
+
+/* =========================================
+   GROUP HEADER HOVER
+========================================= */
+
+#survey-sidebar-accordion .ui-accordion-header:hover {
+
+    background: #eef4ff !important;
+}
+
+/* =========================================
+   ACTIVE GROUP
+========================================= */
+
+#survey-sidebar-accordion .ui-accordion-header-active {
+
+    background: #eef4ff !important;
+
+    color: #0b57d0 !important;
+}
+
+/* =========================================
+   ACCORDION CONTENT
+========================================= */
+
+#survey-sidebar-accordion .ui-accordion-content {
+
+    border: none !important;
+
+    background: #fafafa !important;
+
+    margin-left: 14px;
+
+    margin-bottom: 6px;
+
+    padding: 8px 0 8px 14px !important;
+
+    border-left: 1px solid #d1d5db !important;
+
+    border-radius: 0;
+}
+
+/* =========================================
+   QUESTION ITEM
+========================================= */
+
+.sidebar-question {
+
+    position: relative;
+
+    padding: 5px 8px;
+
+    margin: 3px 0;
+
+    cursor: pointer;
+
+    border-radius: 4px;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+
+    color: #333;
+
+    transition: all 0.15s ease;
+}
+
+/* =========================================
+   QUESTION HOVER
+========================================= */
+
+.sidebar-question:hover {
+
+    background: #e8f0ff;
+}
+
+/* =========================================
+   FOLLOWUP QUESTION
+========================================= */
+
+.sidebar-child-question {
+
+    margin-left: 18px;
+
+    font-size: 11px;
+
+    color: #666;
+}
+
+/* =========================================
+   ACTIVE TARGET HIGHLIGHT
+========================================= */
+
+.sidebar-highlight {
+
+    background: #ffffff !important;
+
+    border-left: 3px solid #ffffff;
+
+    padding-left: 5px;
+}
+
+/* =========================================
+   MAIN SURVEY BUILDER
+========================================= */
+
+#survey-builder-main {
+
+    min-width: 0;
+}
+
+/* =========================================
+   GROUP SORT PLACEHOLDER
+========================================= */
+
+.sidebar-group-placeholder {
+
+    height: 38px;
+
+    margin: 4px 0;
+
+    border: 2px dashed #93c5fd;
+
+    border-radius: 4px;
+
+    background: #eff6ff;
+}
+
+/* =========================================
+   OUTER SCROLLBAR
+========================================= */
+
+#survey-structure-sidebar::-webkit-scrollbar {
+
+    width: 6px;
+}
+
+#survey-structure-sidebar::-webkit-scrollbar-thumb {
+
+    background: #c7c7c7;
+
+    border-radius: 10px;
+}
+
+/* =========================================
+   INNER SCROLLBAR
+========================================= */
+
+#survey-sidebar-accordion::-webkit-scrollbar {
+
+    width: 6px;
+}
+
+#survey-sidebar-accordion::-webkit-scrollbar-thumb {
+
+    background: #c7c7c7;
+
+    border-radius: 10px;
+}
+
+#survey-sidebar-accordion::-webkit-scrollbar-thumb:hover {
+
+    background: #9ca3af;
+}
+.ui-sortable-placeholder {
+
+    visibility: visible !important;
+
+    background: #dbeafe !important;
+
+    border: 2px dashed #60a5fa !important;
+
+    height: 45px !important;
+
+    margin: 6px 0 !important;
+
+    border-radius: 4px;
+}
+
+/* Header hint */
+.survey-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sidebar-drag-hint {
+  font-size: 10px;
+  color: #9ca3af;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* Drag handles — visible on hover only */
+.sidebar-drag-handle {
+  color: #565b63;          /* darker base (was #d1d5db) */
+  cursor: grab;
+  font-size: 14px;
+  padding: 0 4px 0 0;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.15s;
+  letter-spacing: -2px;   /* tighten ⣿⣿ for both group and question */
+}
+.group-drag-handle {
+  letter-spacing: -2px; /* tighten the ⣿⣿ dots */
+}
+
+/* Show handle brighter on hover */
+.sidebar-sortable-group:hover .sidebar-drag-handle,
+.sidebar-question:hover .sidebar-drag-handle {
+  color: #393c42;
+}
+
+/* cursor: grab on draggable rows */
+.sidebar-sortable-group {
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.sidebar-question:not(.sidebar-child-question) {
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.sidebar-question.sidebar-child-question {
+  cursor: default; /* follow-ups are not draggable */
+}
+.sidebar-child-indent { width: 18px; flex-shrink: 0; }
+
+/* While dragging */
+.ui-sortable-helper {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  opacity: 0.9;
+  background: #fff !important;
+  border-radius: 4px;
+}
+
+/* =========================================
+   SURVEY EDITOR REDESIGN (Phase 1 + 2)
+========================================= */
+
+.ed-root {
+  --ed-bg:#ffffff;
+  --ed-rail:#fafafa;
+  --ed-rail-active:#eef3ff;
+  --ed-text:#1f2328;
+  --ed-text-2:#656d76;
+  --ed-text-3:#8c959f;
+  --ed-border:#e7e7e5;
+  --ed-border-2:#d8dbe0;
+  --ed-hover:#f4f5f6;
+  --ed-accent:#016bff;
+  --ed-accent-soft:#eaf1ff;
+  --ed-danger:#cf222e;
+  --ed-green:#1a7f37;
+  --ed-amber:#bc6c00;
+  --ed-violet:#8250df;
+  --ed-shadow-bar:0 1px 0 rgba(27,31,36,.04), 0 1px 3px rgba(27,31,36,.06);
+  background:var(--ed-bg);
+  color:var(--ed-text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:14px;
+  line-height:1.5;
+}
+.ed-root *{box-sizing:border-box}
+
+/* ---------- App bar ---------- */
+.ed-appbar{
+  position:sticky;top:0;z-index:30;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:saturate(1.4) blur(8px);
+  -webkit-backdrop-filter:saturate(1.4) blur(8px);
+  border-bottom:1px solid var(--ed-border);
+  box-shadow:var(--ed-shadow-bar);
+  display:flex;align-items:center;gap:14px;
+  padding:0 18px;height:54px;margin-bottom:0;
+}
+.ed-crumb{display:flex;align-items:center;gap:8px;color:var(--ed-text-2);font-size:13.5px;min-width:0}
+.ed-crumb .ed-home{
+  width:26px;height:26px;border-radius:7px;
+  background:var(--ed-accent-soft);color:var(--ed-accent);
+  display:flex;align-items:center;justify-content:center;flex:none;
+}
+.ed-crumb .ed-home svg{width:15px;height:15px}
+.ed-crumb .ed-sep{color:var(--ed-text-3)}
+.ed-crumb .ed-cur{color:var(--ed-text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:420px}
+.ed-bar-spacer{flex:1}
+
+.ed-status-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  border:1px solid var(--ed-border-2);background:#fff;
+  border-radius:8px;padding:5px 10px;font-size:13px;font-weight:600;
+}
+.ed-status-pill .ed-dot{width:8px;height:8px;border-radius:50%;flex:none}
+.ed-status-pill.ed-st-O{color:var(--ed-green)}
+.ed-status-pill.ed-st-O .ed-dot{background:var(--ed-green)}
+.ed-status-pill.ed-st-N{color:var(--ed-amber)}
+.ed-status-pill.ed-st-N .ed-dot{background:var(--ed-amber)}
+.ed-status-pill.ed-st-C{color:var(--ed-text-3)}
+.ed-status-pill.ed-st-C .ed-dot{background:var(--ed-text-3)}
+
+.ed-btn{
+  font:inherit;font-size:13.5px;font-weight:600;
+  border-radius:8px;padding:8px 16px;cursor:pointer;
+  border:1px solid transparent;display:inline-flex;align-items:center;gap:7px;
+}
+.ed-btn svg{width:15px;height:15px}
+.ed-btn-primary,
+input.ed-btn-primary,
+button.ed-btn-primary,
+.ed-root input[type="submit"].ed-btn-primary,
+.ed-root button.ed-btn-primary{
+  background:var(--ed-accent) !important;color:#fff !important;
+  border-color:var(--ed-accent) !important;
+}
+.ed-btn-primary:hover,
+input.ed-btn-primary:hover,
+button.ed-btn-primary:hover,
+.ed-root input[type="submit"].ed-btn-primary:hover,
+.ed-root button.ed-btn-primary:hover{
+  background:#015fe0 !important;border-color:#015fe0 !important;
+}
+.ed-btn-ghost{background:#fff;color:var(--ed-text);border-color:var(--ed-border-2)}
+.ed-btn-ghost:hover{background:var(--ed-hover)}
+
+/* ---------- Block heading ---------- */
+.ed-block-head{display:flex;align-items:center;gap:12px;margin:0 0 4px;cursor:pointer;user-select:none}
+.ed-block-head h2{font-size:13px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ed-text-3);margin:0}
+.ed-block-head .ed-ln{flex:1;height:1px;background:var(--ed-border)}
+.ed-twirl{width:18px;height:18px;color:var(--ed-text-3);transition:transform .15s;margin-top:-10px}
+.ed-collapsed .ed-twirl{transform:rotate(-90deg)}
+.ed-collapsed .ed-settings-body{display:none}
+
+/* ---------- Settings property rows ---------- */
+.ed-settings{margin:18px 24px 30px}
+.ed-prop{
+  display:grid;grid-template-columns:200px 1fr;align-items:center;
+  gap:16px;padding:11px 4px;border-bottom:1px solid var(--ed-border);
+}
+.ed-prop:last-child{border-bottom:none}
+.ed-prop-key{color:var(--ed-text-2);font-weight:500;display:flex;align-items:center;gap:9px}
+.ed-prop-key .ed-ic{width:16px;height:16px;color:var(--ed-text-3);flex:none}
+.ed-req{color:var(--ed-danger)}
+.ed-prop-val{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+.ed-input{
+  border:1px solid var(--ed-border-2);background:#fff;border-radius:8px;
+  padding:7px 11px;font:inherit;color:var(--ed-text);
+}
+.ed-input:focus{outline:none;border-color:var(--ed-accent);box-shadow:0 0 0 3px var(--ed-accent-soft)}
+.ed-input.ed-w-lg{width:340px}
+.ed-input.ed-w-sm{width:80px;text-align:center}
+.ed-select{
+  appearance:none;-webkit-appearance:none;
+  border:1px solid var(--ed-border-2);background:#fff;border-radius:8px;
+  padding:7px 30px 7px 11px;font:inherit;color:var(--ed-text);cursor:pointer;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23656d76' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat:no-repeat;background-position:right 10px center;
+}
+.ed-select:focus{outline:none;border-color:var(--ed-accent);box-shadow:0 0 0 3px var(--ed-accent-soft)}
+.ed-hint{color:var(--ed-text-3);font-size:12.5px}
+.ed-link{color:var(--ed-accent);font-size:13px;text-decoration:none;cursor:pointer}
+.ed-link:hover{text-decoration:underline}
+
+/* ---------- Toggle pills ---------- */
+.ed-toggles{display:flex;flex-wrap:wrap;gap:10px 14px}
+.ed-toggle{
+  display:flex;align-items:center;gap:9px;
+  border:1px solid var(--ed-border);border-radius:9px;
+  padding:8px 12px;background:#fff;min-width:210px;
+}
+.ed-toggle .ed-tlabel{flex:1;color:var(--ed-text);font-size:13.5px;font-weight:500}
+.ed-toggle .ed-tsub{display:block;color:var(--ed-text-3);font-size:11.5px;font-weight:400;margin-top:1px}
+.ed-tsub .ed-input{padding:2px 6px;width:54px;font-size:12px}
+.ed-switch{position:relative;display:inline-block;width:34px;height:20px;flex:none}
+.ed-switch input{display:none}
+.ed-slider{position:absolute;inset:0;background:#d3d6da;border-radius:20px;transition:.18s;cursor:pointer}
+.ed-slider:before{
+  content:"";position:absolute;height:16px;width:16px;left:2px;top:2px;
+  background:#fff;border-radius:50%;transition:.18s;box-shadow:0 1px 2px rgba(0,0,0,.2);
+}
+.ed-switch input:checked + .ed-slider{background:var(--ed-accent)}
+.ed-switch input:checked + .ed-slider:before{transform:translateX(14px)}
+
+/* ---------- Section head (group header redesign) ---------- */
+.ed-section-head{
+  display:flex !important;align-items:center;gap:10px;
+  padding:6px 2px 10px;border-bottom:2px solid var(--ed-border-2);
+  background:transparent !important;background-image:none !important;
+  border-radius:0 !important;border-left:none;border-right:none;border-top:none;
+  margin:0 0 12px;
+}
+.ed-sec-label{
+  font-size:11px;font-weight:700;letter-spacing:.7px;color:var(--ed-accent);
+  background:var(--ed-accent-soft);border-radius:5px;padding:3px 8px;flex:none;
+}
+.ed-sec-name{
+  font-size:19px;font-weight:700;color:var(--ed-text);
+  border:1px solid transparent;border-radius:7px;padding:3px 8px;
+  outline:none;cursor:text;
+}
+.ed-sec-name:hover{background:var(--ed-hover)}
+.ed-sec-name:focus{background:#fff;border-color:var(--ed-accent);box-shadow:0 0 0 3px var(--ed-accent-soft)}
+.ed-sec-count{color:var(--ed-text-3);font-size:13px;font-weight:400}
+.ed-spacer{flex:1}
+.ed-sec-actions{display:flex;gap:2px;opacity:1;transition:.12s}
+.ed-section-head:hover .ed-sec-actions{opacity:1}
+
+.ed-iconbtn{
+  width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;
+  border:none;background:transparent;border-radius:7px;color:var(--ed-text-2);cursor:pointer;
+}
+.ed-iconbtn:hover{background:var(--ed-hover);color:var(--ed-text)}
+.ed-iconbtn.ed-danger:hover{background:#ffeef0;color:var(--ed-danger)}
+.ed-iconbtn svg{width:16px;height:16px}
+
+/* ---------- Question row redesign ---------- */
+fieldset.surveyquestion.ed-qrow{
+  display:flex;gap:14px;padding:18px 10px 18px 6px;
+  border:none;border-bottom:1px solid var(--ed-border);
+  border-radius:8px;background:transparent;
+  position:relative;scroll-margin-top:70px;margin:0;
+}
+fieldset.surveyquestion.ed-qrow:hover{background:#fcfcfb}
+fieldset.surveyquestion.ed-qrow > legend{display:none}
+
+.ed-q-gutter{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  width:30px;flex:none;padding-top:2px;
+}
+.ed-q-num{
+  width:26px;height:26px;border-radius:8px;
+  background:var(--ed-rail);border:1px solid var(--ed-border);
+  color:var(--ed-text-2);font-weight:700;font-size:13px;
+  display:flex;align-items:center;justify-content:center;
+  font-variant-numeric:tabular-nums;
+}
+.ed-q-grip{color:var(--ed-text-3);font-size:14px;cursor:grab;opacity:0;transition:.12s;letter-spacing:-2px}
+.ed-qrow:hover .ed-q-grip{opacity:1}
+
+.ed-q-body{flex:1;min-width:0}
+.ed-q-toprow{display:flex;align-items:flex-start;gap:14px}
+.ed-q-title{
+  flex:1;font-size:16px;font-weight:600;color:var(--ed-text);
+  border:1px solid transparent;border-radius:8px;padding:5px 9px;margin-left:-4px;
+}
+.ed-q-title:hover{background:#fff;border-color:var(--ed-border-2)}
+.ed-q-title:focus{outline:none;background:#fff;border-color:var(--ed-accent);box-shadow:0 0 0 3px var(--ed-accent-soft)}
+
+.ed-q-type{
+  appearance:none;-webkit-appearance:none;
+  border:1px solid var(--ed-border-2);background:#fff;border-radius:8px;
+  padding:7px 30px 7px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;flex:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23656d76' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat:no-repeat;background-position:right 10px center;
+}
+.ed-q-type.ed-t-RB{color:var(--ed-accent)}
+.ed-q-type.ed-t-CB{color:var(--ed-green)}
+.ed-q-type.ed-t-TB{color:var(--ed-amber)}
+.ed-q-type.ed-t-MTB{color:var(--ed-violet)}
+
+.ed-q-actions{display:flex;gap:2px;opacity:1;transition:.12s;flex:none;align-items:center}
+.ed-qrow:hover .ed-q-actions{opacity:1}
+
+.ed-q-tools{
+  display:flex;align-items:center;gap:18px;
+  margin:12px 0 2px 5px;flex-wrap:wrap;
+}
+.ed-chk{
+  display:inline-flex;align-items:center;gap:7px;
+  color:var(--ed-text-2);font-size:13px;cursor:pointer;user-select:none;
+}
+.ed-chk input{width:16px;height:16px;accent-color:var(--ed-accent);margin:0}
+.ed-q-affix-toggle{color:var(--ed-text-3);font-size:12.5px;cursor:pointer}
+.ed-q-affix-toggle:hover{color:var(--ed-accent)}
+.ed-q-affix{
+  margin:10px 0 2px 5px;display:grid;grid-template-columns:90px 1fr;
+  gap:8px 12px;align-items:center;
+}
+.ed-q-affix label{color:var(--ed-text-3);font-size:12.5px}
+.ed-q-affix .ed-input{padding:6px 10px;width:100%;max-width:420px}
+
+/* ---------- Choices ---------- */
+.ed-choices{margin:12px 0 0 5px;max-width:620px}
+.ed-choice{display:flex;align-items:center;gap:11px;padding:5px 8px;border-radius:8px}
+.ed-choice:hover{background:var(--ed-hover)}
+.ed-glyph{width:17px;height:17px;border:1.7px solid var(--ed-text-3);flex:none}
+.ed-glyph.ed-radio{border-radius:50%}
+.ed-glyph.ed-check{border-radius:5px}
+.ed-choice-text{
+  flex:1;border:1px solid transparent;border-radius:7px;
+  padding:4px 9px;margin-left:-4px;font-size:14px;color:var(--ed-text);background:transparent;
+}
+.ed-choice-text:hover{background:#fff;border-color:var(--ed-border-2)}
+.ed-choice-text:focus{outline:none;background:#fff;border-color:var(--ed-accent);box-shadow:0 0 0 3px var(--ed-accent-soft)}
+.ed-pts{display:inline-flex;align-items:center;gap:7px;color:var(--ed-text-3);font-size:12.5px;flex:none}
+.ed-pts input{
+  width:54px;text-align:center;border:1px solid var(--ed-border-2);
+  border-radius:7px;padding:4px;font:inherit;font-size:13px;color:var(--ed-text);
+}
+.ed-pts input:focus{outline:none;border-color:var(--ed-accent);box-shadow:0 0 0 3px var(--ed-accent-soft)}
+.ed-fu-link{
+  display:inline-flex;align-items:center;gap:5px;
+  color:var(--ed-accent);font-size:12.5px;cursor:pointer;text-decoration:none;
+  padding:3px 8px;border-radius:7px;white-space:nowrap;
+}
+.ed-fu-link:hover{background:var(--ed-accent-soft);text-decoration:none}
+.ed-fu-link svg{width:13px;height:13px}
+.ed-choice .ed-iconbtn{opacity:0}
+.ed-choice:hover .ed-iconbtn{opacity:1}
+.ed-add-choice{
+  display:inline-flex;align-items:center;gap:7px;
+  color:var(--ed-text-2);font-size:13px;font-weight:500;cursor:pointer;
+  padding:7px 9px;border-radius:7px;text-decoration:none;
+}
+.ed-add-choice:hover{background:var(--ed-hover);color:var(--ed-accent);text-decoration:none}
+.ed-add-choice svg{width:14px;height:14px}
+
+/* ---------- Follow-up nested box ---------- */
+.ed-followup{
+  margin:12px 0 4px 36px;
+  border-left:3px solid var(--ed-accent);background:#f7faff;
+  border-radius:0 10px 10px 0;padding:12px 16px;
+}
+.ed-fu-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--ed-accent);margin-bottom:8px;
+}
+.ed-fu-tag svg{width:13px;height:13px}
+.ed-fu-unlink{
+  margin-left:8px;color:var(--ed-text-3);
+  text-transform:none;font-weight:500;letter-spacing:0;cursor:pointer;
+}
+.ed-fu-unlink:hover{color:var(--ed-danger)}
+
+/* ---------- Add Q / Add section ---------- */
+.ed-add-q{
+  display:inline-flex;align-items:center;gap:8px;
+  color:var(--ed-accent);font-size:14px;font-weight:600;cursor:pointer;
+  padding:12px 8px 4px;border-radius:8px;text-decoration:none;
+}
+.ed-add-q:hover{text-decoration:underline;background:transparent}
+.ed-add-q svg{width:16px;height:16px}
+
+.ed-add-section{
+  display:inline-flex;align-items:center;gap:9px;
+  color:var(--ed-text);font-size:14px;font-weight:600;cursor:pointer;
+  padding:11px 16px;border:1px dashed var(--ed-border-2);border-radius:10px;
+  background:#fff;margin-top:8px;text-decoration:none;
+}
+.ed-add-section:hover{border-color:var(--ed-accent);color:var(--ed-accent);background:var(--ed-accent-soft);text-decoration:none}
+.ed-add-section svg{width:16px;height:16px}
+
+/* ---------- Save action footer ---------- */
+.ed-actions-footer{
+  display:flex;align-items:center;gap:10px;
+  padding:20px 24px;border-top:1px solid var(--ed-border);
+  margin-top:30px;background:#fafbfc;
+}
+
+/* Hide legacy chrome when ed-root is present */
+.ed-root .box.tabular{border:none;padding:0;background:transparent}
+.ed-root #survey-groups-container{border:none !important;padding:0 !important}
+
+/* ---------- Adapt legacy question table to new look ---------- */
+.ed-root fieldset.surveyquestion{
+  display:block;border:1px solid transparent;border-bottom:1px solid var(--ed-border);
+  border-radius:8px;background:transparent;padding:16px 12px 12px 6px;margin:0;
+  position:relative;transition:background .12s;
+}
+.ed-root fieldset.surveyquestion:hover{background:#fcfcfb}
+.ed-root fieldset.surveyquestion.child-question{
+  background:#f7faff;border-left:3px solid var(--ed-accent);border-radius:0 10px 10px 0;
+  margin-left:36px;
+}
+.ed-root fieldset.surveyquestion > table{font-size:14px !important;width:100%;border-collapse:collapse}
+.ed-root fieldset.surveyquestion > table th,
+.ed-root fieldset.surveyquestion > table td{padding:6px 8px;vertical-align:middle}
+
+/* Question number gutter (.indexNo cell) */
+.ed-root fieldset.surveyquestion td.indexNo{
+  width:38px;padding:0 8px 0 0 !important;vertical-align:top;
+}
+.ed-root fieldset.surveyquestion td.indexNo .index-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:8px;
+  background:var(--ed-rail);border:1px solid var(--ed-border);
+  color:var(--ed-text-2);font-weight:700;font-size:13px;
+  font-variant-numeric:tabular-nums;
+}
+.ed-root fieldset.surveyquestion td.indexNo .index-num b{font-weight:700;line-height:1}
+
+/* Question name input → modern title look */
+.ed-root fieldset.surveyquestion .question-name-input{
+  font-size:16px !important;font-weight:600;color:var(--ed-text);
+  border:1px solid var(--ed-border-2);border-radius:8px;
+  padding:7px 12px;width:100%;max-width:520px;background:#fff;
+}
+.ed-root fieldset.surveyquestion .question-name-input:focus{
+  outline:none;border-color:var(--ed-accent);box-shadow:0 0 0 3px var(--ed-accent-soft);
+}
+
+/* Question-type dropdown → pill */
+.ed-root fieldset.surveyquestion select[name*='[question_type]']{
+  appearance:none;-webkit-appearance:none;
+  border:1px solid var(--ed-border-2);background:#fff;border-radius:8px;
+  padding:7px 30px 7px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;
+  color:var(--ed-accent);
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23656d76' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat:no-repeat;background-position:right 10px center;
+}
+
+/* Mandatory / not-in-report / reviewer checkboxes row → chips */
+.ed-root fieldset.surveyquestion table tr:nth-child(2) th{
+  background:#fff;border:1px solid var(--ed-border);border-radius:18px;
+  padding:5px 12px !important;color:var(--ed-text-2);font-weight:500;font-size:12.5px;
+  margin-right:6px;display:inline-flex;align-items:center;gap:6px;
+}
+.ed-root fieldset.surveyquestion table tr:nth-child(2) input[type=checkbox]{
+  width:14px;height:14px;accent-color:var(--ed-accent);margin:0;
+}
+
+/* Pre/post text label cleanup */
+.ed-root fieldset.surveyquestion table tr:nth-child(3) th,
+.ed-root fieldset.surveyquestion table tr:nth-child(4) th{
+  color:var(--ed-text-3);font-weight:500;font-size:12.5px;text-transform:uppercase;letter-spacing:.4px;
+}
+.ed-root fieldset.surveyquestion table tr:nth-child(3) input[type=text],
+.ed-root fieldset.surveyquestion table tr:nth-child(4) input[type=text]{
+  border:1px solid var(--ed-border-2);border-radius:7px;padding:5px 10px;font-size:13px;background:#fff;
+}
+
+/* Choice rows */
+.ed-root fieldset.surveyquestion tr.choice-row > th{
+  color:var(--ed-text-3);font-size:12px;font-weight:500;padding-top:8px !important;white-space:nowrap;
+}
+.ed-root fieldset.surveyquestion tr.choice-row input[type=text]{
+  border:1px solid transparent;border-radius:7px;padding:5px 10px;font-size:14px;color:var(--ed-text);
+  background:transparent;
+}
+.ed-root fieldset.surveyquestion tr.choice-row input[type=text]:hover{background:#fff;border-color:var(--ed-border-2)}
+.ed-root fieldset.surveyquestion tr.choice-row input[type=text]:focus{
+  outline:none;background:#fff;border-color:var(--ed-accent);box-shadow:0 0 0 3px var(--ed-accent-soft);
+}
+
+/* Add-followup / unlink in choice rows */
+.ed-root fieldset.surveyquestion .icon-add,
+.ed-root fieldset.surveyquestion .icon-unlink{
+  color:var(--ed-accent);font-size:12.5px;font-weight:500;text-decoration:none;
+  padding:3px 8px;border-radius:7px;
+}
+.ed-root fieldset.surveyquestion .icon-add:hover{background:var(--ed-accent-soft);text-decoration:none}
+
+/* Delete buttons row */
+.ed-root fieldset.surveyquestion .icon-del{
+  color:var(--ed-text-3);padding:4px 8px;border-radius:7px;text-decoration:none;
+}
+.ed-root fieldset.surveyquestion .icon-del:hover{background:#ffeef0;color:var(--ed-danger);text-decoration:none}
+
+/* Choice adder row */
+.ed-root fieldset.surveyquestion tr.choice-adder-row td{padding-top:10px !important}
+
+/* Add-question link inside group */
+.ed-root .add-question-link a{
+  color:var(--ed-accent);font-size:14px;font-weight:600;text-decoration:none;
+  padding:10px 6px 4px;display:inline-flex;align-items:center;gap:6px;
+}
+.ed-root .add-question-link a:hover{text-decoration:underline}
+
+/* Accordion content — remove the dark box-shadow look */
+.ed-root .group-accordion-content{
+  box-shadow:none !important;background:transparent;padding:8px 0 4px;
+}
+
+/* Group container wraps — clean spacing between sections */
+.ed-root .group-container-wrap{margin-bottom:30px !important}
+
+/* Group action icons stay visible enough */
+.ed-root .ed-section-head .ed-iconbtn .icon-svg{
+  width:14px;height:14px;margin:0 !important;
+}
+
+/* ============================================================
+   PHASE-2 FOLLOW-UP FIXES
+   ============================================================ */
+
+/* ─── 1. Constrain group/question width so accordion doesn't grow off the right ─── */
+.ed-root .group-container-wrap{
+  max-width:920px !important;
+  margin-left:0;margin-right:auto;
+}
+.ed-root #survey-groups-container{
+  max-width:920px;
+  margin-left:0;
+}
+.ed-root fieldset.surveyquestion > table{table-layout:auto;max-width:100%}
+.ed-root fieldset.surveyquestion > table td,
+.ed-root fieldset.surveyquestion > table th{word-break:break-word}
+
+/* ─── 2. Collapse mandatory / pre-text / post-text into a togglable details panel ─── */
+.ed-root fieldset.surveyquestion > table > tbody > tr:nth-child(2),
+.ed-root fieldset.surveyquestion > table > tr:nth-child(2),
+.ed-root fieldset.surveyquestion > table > tbody > tr:nth-child(3),
+.ed-root fieldset.surveyquestion > table > tr:nth-child(3),
+.ed-root fieldset.surveyquestion > table > tbody > tr:nth-child(4),
+.ed-root fieldset.surveyquestion > table > tr:nth-child(4){
+  display:none;
+}
+.ed-root fieldset.surveyquestion.ed-q-expanded > table > tbody > tr:nth-child(2),
+.ed-root fieldset.surveyquestion.ed-q-expanded > table > tr:nth-child(2),
+.ed-root fieldset.surveyquestion.ed-q-expanded > table > tbody > tr:nth-child(3),
+.ed-root fieldset.surveyquestion.ed-q-expanded > table > tr:nth-child(3),
+.ed-root fieldset.surveyquestion.ed-q-expanded > table > tbody > tr:nth-child(4),
+.ed-root fieldset.surveyquestion.ed-q-expanded > table > tr:nth-child(4){
+  display:table-row;
+}
+/* Child (inline follow-up) questions: always show all controls (name, type, choices, etc.) — same as normal questions */
+.ed-root div.surveyquestion.child-question > table > tbody > tr,
+.ed-root div.surveyquestion.child-question > table > tr{
+  display:table-row;
+}
+/* Toggle pill */
+.ed-q-more-toggle{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:12.5px;color:var(--ed-text-3);cursor:pointer;
+  padding:5px 10px;border-radius:6px;margin:6px 0 0 38px;
+  background:transparent;border:1px dashed transparent;
+}
+.ed-q-more-toggle:hover{color:var(--ed-accent);border-color:var(--ed-border-2)}
+.ed-q-more-toggle svg{width:12px;height:12px;transition:transform .15s}
+.ed-q-expanded > .ed-q-more-toggle svg,
+.ed-q-expanded .ed-q-more-toggle svg{transform:rotate(180deg)}
+
+/* ─── 3. Modern Table-of-Contents sidebar look (matches preview) ─── */
+.ed-root #survey-structure-sidebar{
+  background:#fafafa;border-right:1px solid var(--ed-border);
+  padding:14px 10px;
+}
+.ed-root .survey-sidebar-header{
+  font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;
+  color:var(--ed-text-3);padding:6px 8px 10px;border-bottom:1px solid var(--ed-border);
+  margin-bottom:8px;
+}
+.ed-root .sidebar-drag-hint{font-size:10px;color:var(--ed-text-3);font-weight:500;text-transform:none;letter-spacing:0}
+
+/* Section header in sidebar */
+.ed-root #survey-sidebar-accordion > h3.sidebar-sortable-group{
+  background:transparent !important;background-image:none !important;
+  border:none !important;border-radius:7px !important;
+  display:flex;align-items:center;gap:8px;
+  padding:8px 9px !important;margin:4px 0 !important;
+  color:var(--ed-text);font-weight:600;font-size:13px;
+  cursor:pointer;
+}
+.ed-root #survey-sidebar-accordion > h3.sidebar-sortable-group:hover{background:var(--ed-hover) !important}
+.ed-root #survey-sidebar-accordion > h3.sidebar-sortable-group.ui-accordion-header-active{
+  background:var(--ed-rail-active) !important;color:var(--ed-accent);
+}
+
+/* Question rows in sidebar */
+.ed-root .sidebar-question{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 9px 6px 24px;border-radius:7px;
+  color:var(--ed-text-2);font-size:13px;cursor:pointer;
+  border-left:none;
+}
+.ed-root .sidebar-question:hover{background:var(--ed-hover);color:var(--ed-text)}
+.ed-root .sidebar-question.sidebar-highlight{
+  background:var(--ed-accent-soft) !important;color:var(--ed-accent);font-weight:600;
+}
+.ed-root .sidebar-q-num{
+  width:18px;text-align:right;color:var(--ed-text-3);
+  font-variant-numeric:tabular-nums;font-size:12px;flex:none;margin-right:8px;
+}
+
+/* Type dot before sidebar question text (set via JS class) */
+.ed-root .sidebar-question::before{
+  content:"";width:7px;height:7px;border-radius:2px;
+  background:var(--ed-accent);flex:none;
+}
+.ed-root .sidebar-question.ed-type-RB::before{background:var(--ed-accent)}
+.ed-root .sidebar-question.ed-type-CB::before{background:var(--ed-green)}
+.ed-root .sidebar-question.ed-type-TB::before{background:var(--ed-amber)}
+.ed-root .sidebar-question.ed-type-MTB::before{background:var(--ed-violet)}
+
+/* Child follow-up indent */
+.ed-root .sidebar-question.sidebar-child-question{
+  padding-left:44px;font-size:12.5px;color:var(--ed-text-3);
+}
+.ed-root .sidebar-question.sidebar-child-question::before{opacity:.55}
+
+/* ─── 4. Replace ⣿⣿ text with modern SVG grip handles ─── */
+.ed-root .sidebar-drag-handle{
+  width:14px;height:14px;color:var(--ed-text-3);font-size:0;letter-spacing:0;
+  display:inline-flex;align-items:center;justify-content:center;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238c959f'><circle cx='9' cy='5' r='1.6'/><circle cx='15' cy='5' r='1.6'/><circle cx='9' cy='12' r='1.6'/><circle cx='15' cy='12' r='1.6'/><circle cx='9' cy='19' r='1.6'/><circle cx='15' cy='19' r='1.6'/></svg>");
+  background-repeat:no-repeat;background-position:center;background-size:14px;
+}
+.ed-root .sidebar-drag-handle svg,
+.ed-root .sidebar-drag-handle *{display:none}
+.ed-root .sidebar-sortable-group:hover .sidebar-drag-handle,
+.ed-root .sidebar-question:hover .sidebar-drag-handle{
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23393c42'><circle cx='9' cy='5' r='1.6'/><circle cx='15' cy='5' r='1.6'/><circle cx='9' cy='12' r='1.6'/><circle cx='15' cy='12' r='1.6'/><circle cx='9' cy='19' r='1.6'/><circle cx='15' cy='19' r='1.6'/></svg>");
+}
+
+/* Add-section button gets a grip on the question row for drag */
+.ed-root fieldset.surveyquestion .ed-qrow-grip{
+  position:absolute;left:-2px;top:18px;
+  width:14px;height:14px;cursor:grab;opacity:0;transition:.12s;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238c959f'><circle cx='9' cy='5' r='1.6'/><circle cx='15' cy='5' r='1.6'/><circle cx='9' cy='12' r='1.6'/><circle cx='15' cy='12' r='1.6'/><circle cx='9' cy='19' r='1.6'/><circle cx='15' cy='19' r='1.6'/></svg>");
+  background-repeat:no-repeat;background-position:center;background-size:14px;
+}
+.ed-root fieldset.surveyquestion:hover .ed-qrow-grip{opacity:1}
+
+/* ============================================================
+   ROUND-3 FIXES
+   ============================================================ */
+
+/* ─── Larger, more visible section action icons ─── */
+.ed-root .ed-section-head .ed-iconbtn{
+  width:34px;height:34px;border-radius:8px;
+}
+.ed-root .ed-section-head .ed-iconbtn svg{width:18px;height:18px}
+/* keep them visible (not hover-only) so they're always discoverable */
+.ed-root .ed-section-head .ed-sec-actions{opacity:1}
+
+/* ─── Settings collapse arrow right next to label ─── */
+.ed-root .ed-block-head{gap:8px}
+.ed-root .ed-block-head h2{flex:none}
+.ed-root .ed-block-head .ed-twirl{flex:none;}
+.ed-root .ed-block-head .ed-ln{margin-left:0}
+
+/* Section count needs a little separator dot */
+.ed-root .ed-q-count:empty::before{content:""}
+
+/* ============================================================
+   QUESTION CARD — match preview screenshot exactly
+   ============================================================ */
+
+/* Card frame — clean border-bottom only, matching preview */
+.ed-root fieldset.surveyquestion{
+  background:#fff !important;
+  border:none !important;
+  border-bottom:1px solid var(--ed-border) !important;
+  border-radius:0 !important;
+  padding:14px 10px 14px 6px !important;
+  margin:0 0 8px !important;
+  position:relative;
+}
+.ed-root fieldset.surveyquestion:hover{
+  background:#fcfcfb !important;
+  border-color:var(--ed-border) !important;
+}
+.ed-root fieldset.surveyquestion.child-question{
+  margin-left:0 !important;
+  background:transparent !important;
+  border:none !important;border-left:none !important;
+  box-shadow:none;padding:0 !important;border-radius:0 !important;
+}
+
+/* Turn the inner table into a flex column so we can reorder via CSS order */
+.ed-root fieldset.surveyquestion > table{
+  width:100%;border-collapse:collapse;gap:6px;
+}
+.ed-root fieldset.surveyquestion > table > tbody{
+  gap:6px;width:100%;
+}
+.ed-root fieldset.surveyquestion > table tr{
+  align-items:center;gap:10px;width:100%;
+}
+.ed-root fieldset.surveyquestion > table tr > td,
+.ed-root fieldset.surveyquestion > table tr > th{
+  display:inherit;align-items:center;padding:0;border:none;background:transparent;
+}
+
+/* ─── Row 1: title row (gutter • title • type select • actions) ─── */
+.ed-root fieldset.surveyquestion > table > tbody > tr:first-child,
+.ed-root fieldset.surveyquestion > table > tr:first-child{
+  order:0;
+}
+.ed-root fieldset.surveyquestion td.indexNo{
+  width:34px;display:table-cell;
+}
+.ed-root fieldset.surveyquestion td.indexNo .index-num{
+  width:30px;height:30px;font-size:13px;
+}
+/* hide the "Question name *" label — title is self-explanatory */
+.ed-root fieldset.surveyquestion > table > tbody > tr:first-child > th:first-of-type,
+.ed-root fieldset.surveyquestion > table > tr:first-child > th:first-of-type{
+  display:none;
+}
+.ed-root fieldset.surveyquestion .question-name-input{
+  flex:none;max-width:none;
+}
+/* type-select cell stays inline */
+.ed-root fieldset.surveyquestion > table > tbody > tr:first-child > td:nth-of-type(2),
+.ed-root fieldset.surveyquestion > table > tr:first-child > td:nth-of-type(2){
+  display:table-cell;
+}
+/* spacer td (width 100%) — collapse it */
+.ed-root fieldset.surveyquestion > table > tbody > tr:first-child > td[width="100%"],
+.ed-root fieldset.surveyquestion > table > tr:first-child > td[width="100%"]{
+  display:none;
+}
+/* delete cell */
+.ed-root fieldset.surveyquestion > table > tbody > tr:first-child > td:last-child,
+.ed-root fieldset.surveyquestion > table > tr:first-child > td:last-child{
+  display:table-cell;
+}
+.ed-root fieldset.surveyquestion .icon-del{
+  width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;
+  border-radius:8px;color:var(--ed-text-2);
+}
+.ed-root fieldset.surveyquestion .icon-del .icon-svg{width:16px;height:16px;margin:0 !important}
+
+/* ─── Row 2: mandatory / hide / reviewer chips → MOVE TO BOTTOM ─── */
+.ed-root fieldset.surveyquestion > table > tbody > tr:nth-child(2),
+.ed-root fieldset.surveyquestion > table > tr:nth-child(2){
+  display:table-row;
+  margin-top:10px;padding-top:10px;
+  border-top:1px solid var(--ed-border);gap:18px;
+}
+.ed-root fieldset.surveyquestion > table > tbody > tr:nth-child(2) > th,
+.ed-root fieldset.surveyquestion > table > tr:nth-child(2) > th{
+  background:transparent !important;border:none !important;border-radius:0 !important;
+  padding:0 !important;font-weight:500;font-size:13px;color:var(--ed-text-2);
+  gap:6px;
+}
+.ed-root fieldset.surveyquestion > table > tbody > tr:nth-child(2) input[type=checkbox],
+.ed-root fieldset.surveyquestion > table > tr:nth-child(2) input[type=checkbox]{
+  width:16px;height:16px;accent-color:var(--ed-accent);margin:0;
+}
+
+/* ─── Rows 3-4: pre-text and post-text — HIDDEN, shown via toggle ─── */
+.ed-root fieldset.surveyquestion > table > tbody > tr:nth-child(3),
+.ed-root fieldset.surveyquestion > table > tr:nth-child(3),
+.ed-root fieldset.surveyquestion > table > tbody > tr:nth-child(4),
+.ed-root fieldset.surveyquestion > table > tr:nth-child(4){
+  display:none;
+}
+.ed-root fieldset.surveyquestion.ed-q-expanded > table > tbody > tr:nth-child(3),
+.ed-root fieldset.surveyquestion.ed-q-expanded > table > tr:nth-child(3),
+.ed-root fieldset.surveyquestion.ed-q-expanded > table > tbody > tr:nth-child(4),
+.ed-root fieldset.surveyquestion.ed-q-expanded > table > tr:nth-child(4){
+  display:table-row;margin-top:8px;
+}
+.ed-root fieldset.surveyquestion.ed-q-expanded > table > tbody > tr:nth-child(3) > th,
+.ed-root fieldset.surveyquestion.ed-q-expanded > table > tr:nth-child(3) > th,
+.ed-root fieldset.surveyquestion.ed-q-expanded > table > tbody > tr:nth-child(4) > th,
+.ed-root fieldset.surveyquestion.ed-q-expanded > table > tr:nth-child(4) > th{
+  width:90px;color:var(--ed-text-3);
+  font-size:12.5px;font-weight:500;text-transform:none;letter-spacing:0;
+}
+.ed-root fieldset.surveyquestion.ed-q-expanded > table > tbody > tr:nth-child(3) input,
+.ed-root fieldset.surveyquestion.ed-q-expanded > table > tr:nth-child(3) input,
+.ed-root fieldset.surveyquestion.ed-q-expanded > table > tbody > tr:nth-child(4) input,
+.ed-root fieldset.surveyquestion.ed-q-expanded > table > tr:nth-child(4) input{
+  flex:none;max-width:420px;
+}
+
+/* "Intro / closing text" toggle pill — restyle existing element */
+.ed-root .ed-q-more-toggle{
+  background:transparent;border:none;
+  color:var(--ed-accent);font-size:13px;font-weight:500;
+  padding:6px 0 0 38px;margin:0;
+}
+.ed-root .ed-q-more-toggle:hover{background:transparent;color:#015fe0;text-decoration:underline}
+.ed-root .ed-q-more-toggle svg{display:none}
+.ed-root .ed-q-more-toggle::before{content:"+ "}
+.ed-root fieldset.surveyquestion.ed-q-expanded .ed-q-more-toggle::before{content:"− "}
+
+/* ─── Choice rows: glyph + flex layout ─── */
+.ed-root fieldset.surveyquestion > table > tbody > tr.choice-row,
+.ed-root fieldset.surveyquestion > table > tr.choice-row{
+  padding:4px 0 4px 38px;border-radius:8px;
+  transition:background .12s;
+}
+.ed-root fieldset.surveyquestion > table > tbody > tr.choice-row:hover,
+.ed-root fieldset.surveyquestion > table > tr.choice-row:hover{
+  background:var(--ed-hover);
+}
+/* indent cell (the empty <td>) */
+.ed-root tr.choice-row > td.choice-indent-cell{
+  display:none;
+}
+/* hide "Choice N" label cell */
+.ed-root tr.choice-row > th.choice-label-cell{
+  display:none !important;
+}
+/* Radio/check glyph before the choice text input */
+.ed-root .surveyquestion.ed-qtype-RB tr.choice-row > td.choice-input-cell::before,
+.ed-root .surveyquestion.ed-qtype-CB tr.choice-row > td.choice-input-cell::before{
+  content:"";display:inline-block;width:17px;height:17px;
+  border:1.7px solid var(--ed-text-3);background:#fff;
+  margin-right:8px;vertical-align:middle;
+}
+.ed-root .surveyquestion.ed-qtype-RB tr.choice-row > td.choice-input-cell::before{border-radius:50%}
+.ed-root .surveyquestion.ed-qtype-CB tr.choice-row > td.choice-input-cell::before{border-radius:3px}
+
+/* Keep choice text input + follow-up actions inline */
+.ed-root tr.choice-row > td.choice-input-cell{
+  white-space:nowrap;
+}
+.ed-root tr.choice-row > td.choice-input-cell > input[type=text]{
+  width:auto;
+  vertical-align:middle;
+}
+.ed-root tr.choice-row > td.choice-input-cell .choice-followup-actions{
+  display:inline-block;
+  vertical-align:middle;
+}
+/* points + delete cell */
+.ed-root tr.choice-row > td.choice-points-cell{
+  color:var(--ed-text-3);font-size:12.5px;
+}
+.ed-root tr.choice-row > td.choice-points-cell input[type=text]{
+  width:80px;text-align:center;border:1px solid var(--ed-border-2);
+  border-radius:7px;padding:4px;
+}
+/* Add-choice / adder row */
+.ed-root fieldset.surveyquestion > table > tbody > tr.choice-adder-row,
+.ed-root fieldset.surveyquestion > table > tr.choice-adder-row{
+  padding-left:38px;
+}
+.ed-root fieldset.surveyquestion > table > tbody > tr.choice-adder-row > td,
+.ed-root fieldset.surveyquestion > table > tr.choice-adder-row > td{
+}
+.ed-root fieldset.surveyquestion > table > tbody > tr.choice-adder-row > td:empty,
+.ed-root fieldset.surveyquestion > table > tr.choice-adder-row > td:empty{
+  display:none;
+}
+
+/* TB/MTB followup adder row keeps order between choices and bottom chips */
+.ed-root fieldset.surveyquestion > table > tbody > tr.tb-mtb-followup-adder-row,
+.ed-root fieldset.surveyquestion > table > tr.tb-mtb-followup-adder-row{
+  padding-left:38px;
+}
+.ed-root fieldset.surveyquestion > table > tbody > tr.tb-mtb-followup-adder-row > td:empty,
+.ed-root fieldset.surveyquestion > table > tr.tb-mtb-followup-adder-row > td:empty{
+  display:none;
+}
+
+/* Follow-up inline row */
+.ed-root fieldset.surveyquestion > table > tbody > tr.followup-inline-row > td:empty,
+.ed-root fieldset.surveyquestion > table > tr.followup-inline-row > td:empty{
+  display:none;
+}
+.ed-root .follow-up-container{
+  border-left:3px solid var(--ed-accent);background:#f7faff;
+  border-radius:0 10px 10px 0;padding:14px 16px 12px;
+}
+/* Legacy ::before label removed — the FOLLOW-UP heading is now rendered as
+   a real <div class="fu-tag"> element inside .q-body (see _question_fields
+   ERB inline branch and survey.js _doCreateFollowUp). Keeping this rule
+   would duplicate the label. */
+.ed-root .follow-up-container::before{ content:none; display:none; }
+/* follow-up tag inside cards */
+.ed-fu-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--ed-accent);margin-bottom:8px;
+}
+.ed-fu-tag svg{width:13px;height:13px}
+.ed-fu-unlink{
+  margin-left:8px;color:var(--ed-text-3);
+  text-transform:none;font-weight:500;letter-spacing:0;cursor:pointer;
+}
+.ed-fu-unlink:hover{color:var(--ed-danger)}
+
+/* Question footer (Mandatory / Hide-in-report / Reviewer-only / Intro toggle) */
+.question-footer{
+  display:flex; align-items:center; gap:16px;
+  padding:10px 14px; border-top:1px solid #eef2f7;
+  background:#fafbfc; font-size:13px;
+  border-radius:0 0 10px 10px;
+}
+.question-footer label{
+  display:inline-flex; align-items:center; gap:6px;
+  font-weight:normal; color:#374151; margin:0;
+}
+.question-footer label input[type=checkbox]{ margin:0; }
+.question-footer .intro-toggle{
+  color:#3b82f6; cursor:pointer; text-decoration:none; font-size:13px;
+}
+.question-footer .intro-toggle:hover{ text-decoration:underline; }
+.intro-closing-panel{
+  padding:10px 14px; background:#f9fafb;
+  border-top:1px solid #eef2f7;
+}
+.intro-closing-panel .row{
+  display:flex; align-items:center; gap:10px; margin-bottom:6px;
+}
+.intro-closing-panel .row:last-child{ margin-bottom:0; }
+.intro-closing-panel input[type=text]{
+  flex:1; padding:5px 8px; border:1px solid #d0d7de;
+  border-radius:6px;
+}
+.surveyquestion.child-question .question-footer{
+  background:transparent; border-top:1px dashed #d6dbe2;
+}
+.surveyquestion.child-question .intro-closing-panel{
+  background:transparent;
+}
+/* Keep Points inline with choice name (prevent wrap) */
+.ed-root tr.choice-row > td.choice-points-cell{
+  white-space:nowrap; text-align:right;
+}
+.ed-root tr.choice-row{ white-space:nowrap; }
+
+/* =====================================================================
+   SURVEY EDITOR - REDESIGN PREVIEW 2 PORT
+   Ported from survey_edit_redesign_preview_2.html
+   These rules drive the new flex/div layout: .qrow > .q-gutter + .q-body
+   The legacy tr.choice-row / table-based rules above are now inert
+   because the partial no longer emits a <table> for question rendering.
+   ===================================================================== */
+
+.ed-root .qrow,
+.ed-root .surveyquestion.qrow {
+  display: flex;
+  gap: 14px;
+  padding: 18px 10px 18px 6px;
+  border: none;
+  border-bottom: 1px solid #e7e7e5;
+  background: #fff;
+  border-radius: 8px;
+  position: relative;
+  scroll-margin-top: 70px;
+  margin-bottom: 0;
+}
+.ed-root .qrow:hover { background: #fcfcfb; }
+.ed-root .qrow.target { background: #eaf1ff; }
+
+.ed-root .qrow > .q-gutter {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 4px; width: 30px; flex: none; padding-top: 2px;
+}
+.ed-root .qrow > .q-gutter > .q-num {
+  width: 26px; height: 26px; border-radius: 8px;
+  background: #fafafa; border: 1px solid #e7e7e5;
+  color: #656d76; font-weight: 700; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+/* Inline badge for follow-up questions: lives inside .q-toprow,
+   in front of the title input, mirroring the gutter style but
+   sized for inline placement (auto width, tabular numerals). */
+.ed-root .q-toprow > .childIndexNo.q-num-inline {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 36px; height: 26px; padding: 0 8px;
+  color: #656d76; font-weight: 700; font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  margin-right: 8px; flex: none;
+}
+.ed-root .q-toprow > .childIndexNo.q-num-inline:empty { display: none; }
+.ed-root .q-toprow > .childIndexNo.q-num-inline b { font-weight: 700; }
+.ed-root .qrow > .q-gutter > .q-grip {
+  color: #8c959f; font-size: 14px; cursor: grab;
+  opacity: 0; transition: .12s;
+  /* Force the dotted-braille drag-grip glyph to render in a uniform font so
+     it never gets substituted with arrow-looking glyphs by the OS fallback. */
+  font-family: "Segoe UI Symbol", "Apple Symbols", "DejaVu Sans", system-ui, sans-serif;
+  line-height: 1;
+}
+.ed-root .qrow:hover > .q-gutter > .q-grip { opacity: 1; }
+
+/* Defensive: hide any legacy per-question move up/down icons that may still
+   be injected by older code paths into the gutter or question actions area.
+   Group-level move arrows (.group-move-icons) are intentionally left alone. */
+.ed-root .qrow > .q-gutter a[title="Move Up"],
+.ed-root .qrow > .q-gutter a[title="Move Down"],
+.ed-root .qrow .q-actions a[title="Move Up"],
+.ed-root .qrow .q-actions a[title="Move Down"],
+.ed-root .surveyquestion:not(.group-container-wrap) > a[onclick*="moveQuestionUp"],
+.ed-root .surveyquestion:not(.group-container-wrap) > a[onclick*="moveQuestionDown"] {
+  display: none !important;
+}
+
+.ed-root .qrow > .q-body { flex: 1; min-width: 0; }
+
+.ed-root .q-toprow {
+  display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap;
+}
+.ed-root .q-title {
+  flex: 1; min-width: 200px;
+  font-size: 16px; font-weight: 600; color: #1f2328;
+  border: 1px solid transparent; border-radius: 8px;
+  padding: 5px 9px; margin-left: -4px; background: transparent;
+}
+.ed-root .q-title:hover { background: #fff; border-color: #d8dbe0; }
+.ed-root .q-title:focus { outline: none; background: #fff; border-color: #016bff; box-shadow: 0 0 0 3px #eaf1ff; }
+
+.ed-root .q-type-select {
+  appearance: none; -webkit-appearance: none;
+  border: 1px solid #d8dbe0; background: #fff; border-radius: 8px;
+  padding: 7px 30px 7px 12px; font-size: 13px; font-weight: 600;
+  cursor: pointer; flex: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23656d76' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat: no-repeat; background-position: right 10px center;
+}
+.ed-root .q-type-select.rb  { color: #016bff; }
+.ed-root .q-type-select.cb  { color: #1a7f37; }
+.ed-root .q-type-select.tb  { color: #bc6c00; }
+.ed-root .q-type-select.mtb { color: #8250df; }
+
+.ed-root .q-actions {
+  display: flex; gap: 2px; flex: none;
+  opacity: 1; transition: .12s;
+}
+.ed-root .qrow:hover .q-actions { opacity: 1; }
+
+.ed-root .iconbtn {
+  width: 28px; height: 28px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: none; background: transparent; border-radius: 7px;
+  color: #656d76; cursor: pointer; text-decoration: none;
+}
+.ed-root .iconbtn:hover { background: #f4f5f6; color: #1f2328; }
+.ed-root .iconbtn.danger:hover { background: #ffeef0; color: #cf222e; }
+.ed-root .iconbtn svg { width: 16px; height: 16px; }
+
+/* ---- Choices ---- */
+.ed-root .choices { margin: 12px 0 0 5px; max-width: 620px; }
+.ed-root .choice {
+  display: flex; align-items: center; gap: 11px;
+  padding: 5px 8px; border-radius: 8px;
+}
+.ed-root .choice:hover { background: #f4f5f6; }
+.ed-root .choice > .glyph {
+  width: 17px; height: 17px;
+  border: 1.7px solid #8c959f; flex: none;
+  background: #fff;
+}
+.ed-root .choice > .glyph.radio { border-radius: 50%; }
+.ed-root .choice > .glyph.check { border-radius: 5px; }
+.ed-root .choice-text {
+  flex: 1; min-width: 140px;
+  border: 1px solid transparent; border-radius: 7px;
+  padding: 4px 9px; margin-left: -4px;
+  font-size: 14px; color: #1f2328; background: transparent;
+}
+.ed-root .choice-text:hover { background: #fff; border-color: #d8dbe0; }
+.ed-root .choice-text:focus { outline: none; background: #fff; border-color: #016bff; box-shadow: 0 0 0 3px #eaf1ff; }
+.ed-root .pts {
+  display: inline-flex; align-items: center; gap: 7px;
+  color: #8c959f; font-size: 12.5px; flex: none;
+}
+.ed-root .pts input {
+  width: 54px; text-align: center;
+  border: 1px solid #d8dbe0; border-radius: 7px;
+  padding: 4px; font-size: 13px; color: #1f2328;
+}
+.ed-root .pts input:focus { outline: none; border-color: #016bff; box-shadow: 0 0 0 3px #eaf1ff; }
+
+.ed-root .fu-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  color: #016bff; font-size: 12.5px;
+  cursor: pointer; text-decoration: none;
+  padding: 3px 8px; border-radius: 7px; white-space: nowrap;
+}
+.ed-root .fu-link:hover { background: #eaf1ff; text-decoration: none; }
+.ed-root .fu-link svg { width: 13px; height: 13px; }
+.ed-root .fu-unlink {
+  margin-left: 4px; color: #8c959f; font-size: 12px;
+  cursor: pointer; text-decoration: none; font-weight: 500;
+}
+.ed-root .fu-unlink:hover { color: #cf222e; text-decoration: none; }
+
+/* Choice row follow-up actions container — fixed width for alignment */
+.ed-root .choice-followup-actions {
+  display: inline-flex; align-items: center; gap: 4px;
+  width: 105px; flex-shrink: 0;
+  justify-content: flex-start;
+}
+
+.ed-root .choice .iconbtn { opacity: 1; }
+.ed-root .choice:hover .iconbtn { opacity: 1; }
+
+.ed-root .add-choice {
+  display: inline-flex; align-items: center; gap: 7px;
+  color: #656d76; font-size: 13px; font-weight: 500;
+  cursor: pointer; padding: 7px 9px; border-radius: 7px;
+  text-decoration: none; margin-top: 4px;
+}
+.ed-root .add-choice:hover { background: #f4f5f6; color: #016bff; text-decoration: none; }
+.ed-root .add-choice svg { width: 14px; height: 14px; }
+
+/* ---- Follow-up nested block ---- */
+.ed-root .followup,
+.ed-root .follow-up-container.followup-inline {
+  margin: 12px 0 4px 36px;
+  border-left: 1.5px solid #016bff;
+  background: #f7faff;
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+}
+.ed-root .followup .qrow,
+.ed-root .followup .qrow.qrow-inline {
+  border: none; padding: 0; background: transparent;
+  margin: 0;
+}
+.ed-root .followup .qrow:hover { background: transparent; }
+.ed-root .fu-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 700; letter-spacing: .5px;
+  text-transform: uppercase; color: #016bff; margin-bottom: 8px;
+}
+.ed-root .fu-tag svg { width: 13px; height: 13px; }
+
+/* Inline follow-up: no q-gutter, content flush to blue rail */
+.ed-root .qrow.qrow-inline { display: block; }
+
+/* Inline follow-up top row must stay on a single line: fu-tag is above
+   (block via margin-bottom on .fu-tag) and the [title] [type] [del] cluster
+   shares one horizontal flex row, matching a normal question's top row. */
+.ed-root .followup .qrow.qrow-inline .q-toprow,
+.ed-root .surveyquestion.child-question .q-toprow {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 10px;
+}
+.ed-root .followup .qrow.qrow-inline .q-toprow > .q-title,
+.ed-root .surveyquestion.child-question .q-toprow > .q-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+}
+.ed-root .followup .qrow.qrow-inline .q-toprow > .q-type-select,
+.ed-root .followup .qrow.qrow-inline .q-toprow > .q-actions,
+.ed-root .surveyquestion.child-question .q-toprow > .q-type-select,
+.ed-root .surveyquestion.child-question .q-toprow > .q-actions {
+  flex: 0 0 auto;
+}
+
+/* ---- Q-tools (settings footer) ---- */
+.ed-root .q-tools {
+  display: flex; align-items: center; gap: 18px;
+  margin: 12px 0 2px 5px; flex-wrap: wrap;
+  padding: 0; background: transparent; border-top: none;
+}
+.ed-root .q-tools .chk {
+  display: inline-flex; align-items: center; gap: 7px;
+  color: #656d76; font-size: 13px; cursor: pointer; user-select: none;
+  margin: 0; font-weight: normal;
+}
+.ed-root .q-tools .chk input {
+  width: 16px; height: 16px; accent-color: #016bff; margin: 0;
+}
+.ed-root .q-affix-toggle {
+  color: #8c959f; font-size: 12.5px; cursor: pointer;
+  text-decoration: none;
+}
+.ed-root .q-affix-toggle:hover { color: #016bff; }
+
+/* ---- Q-affix (intro / closing text) ---- */
+.ed-root .q-affix {
+  margin: 10px 0 2px 5px;
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 8px 12px; align-items: center;
+  padding: 0; background: transparent; border-top: none;
+}
+.ed-root .q-affix label { color: #8c959f; font-size: 12.5px; margin: 0; }
+.ed-root .q-affix input[type=text] {
+  padding: 6px 10px; width: 100%; max-width: 420px;
+  border: 1px solid #d8dbe0; border-radius: 8px;
+  background: #fff; flex: 0;
+}
+.ed-root .q-affix input[type=text]:focus {
+  outline: none; border-color: #016bff; box-shadow: 0 0 0 3px #eaf1ff;
+}
+
+/* ---- Suppress legacy table affordances if any leak through ---- */
+.ed-root .surveyquestion.qrow > table { display: none; }
+.ed-root .surveyquestion.qrow td.indexNo,
+.ed-root .surveyquestion.qrow tr.choice-row,
+.ed-root .surveyquestion.qrow tr.choice-adder-row,
+.ed-root .surveyquestion.qrow tr.tb-mtb-followup-adder-row { display: none; }
+
+/* Allow long question text to wrap without breaking layout */
+.ed-root .qrow .q-toprow > * { min-width: 0; }
+.ed-root .qrow { white-space: normal; }
+
+/* =====================================================================
+   REDESIGN PREVIEW 2 — SHELL LAYOUT
+   Outline sidebar starts from top, settings move into right main column.
+   Pure CSS + minimal HTML structure. No JS hooks touched.
+   ===================================================================== */
+
+/* ---- Shell: flex layout, sidebar fixed left, main flexes ---- */
+.ed-root .ed-shell{
+  display:flex;
+  align-items:flex-start;
+  width:100%;
+  min-height:calc(100vh - 60px);
+}
+
+/* ---- Outline sidebar (TOC) — sticky from the very top of the page ---- */
+.ed-root #survey-structure-sidebar{
+  width:268px;
+  min-width:268px;
+  flex:none;
+  position:sticky;
+  top:0;
+  align-self:flex-start;
+  height:100vh;
+  max-height:100vh;
+  overflow:auto;
+  background:#fafafa;
+  border:none !important;
+  border-right:1px solid var(--ed-border) !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  padding:16px 12px;
+  margin:0;
+  display:flex;
+  flex-direction:column;
+}
+.ed-root .survey-sidebar-header{
+  background:transparent !important;
+  border:none !important;
+  padding:6px 8px 10px !important;
+  margin-bottom:6px;
+}
+.ed-root #survey-sidebar-accordion{
+  background:transparent;
+  border:none;
+  padding:0 2px;
+}
+
+/* ---- Main pane: holds settings + groups, centered with max-width ---- */
+.ed-root .ed-main{
+  flex:1;
+  min-width:0;
+  max-width:920px;
+  margin:0 auto;
+  padding:24px 32px 120px;
+  width:100%;
+}
+
+/* Settings: now lives inside main pane, kill outer margin */
+.ed-root .ed-main .ed-settings{
+  margin:0 0 30px;
+}
+
+/* Builder area is just block flow inside main */
+.ed-root .ed-main #survey-builder-main{
+  min-width:0;
+}
+.ed-root .ed-main #survey-groups-container{
+  max-width:none;
+  margin:0;
+}
+.ed-root .ed-main .group-container-wrap{
+  max-width:none !important;
+  margin:0 0 28px !important;
+}
+
+/* Legacy grid wrapper neutralized (in case any old markup still emits it) */
+.ed-root .survey-editor-layout{
+  display:block;
+  grid-template-columns:none;
+  gap:0;
+}
+
+/* =====================================================================
+   REDESIGN PREVIEW 2 — PHASE 3: FLATTEN ACCORDION (no card / no box)
+   Keep .group-accordion-item / -header / -content classes so jQuery UI
+   accordion (initialized in survey.js) keeps working — purely visual.
+   ===================================================================== */
+
+/* The outer <table class="group-container-wrap"> — strip all card styling */
+.ed-root .group-container-wrap,
+.ed-root .group-container-wrap > tbody > tr > td,
+.ed-root .group-container-wrap > tr > td{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  padding:0 !important;
+}
+
+/* Accordion item — no border, no background, no rounded card */
+.ed-root .group-accordion-item{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+  padding:0 !important;
+  margin:0 0 28px !important;
+}
+
+/* Accordion header — flat divider style (overrides legacy boxed look) */
+.ed-root .group-accordion-header,
+.ed-root h3.group-accordion-header{
+  background:transparent !important;
+  background-image:none !important;
+  border:none !important;
+  border-bottom:2px solid var(--ed-border-2) !important;
+  border-radius:0 !important;
+  padding:6px 2px 10px !important;
+  margin:0 0 12px !important;
+  box-shadow:none !important;
+  font-size:14px !important;
+  font-weight:600 !important;
+  color:var(--ed-text) !important;
+}
+.ed-root .group-accordion-header:hover{
+  background:transparent !important;
+}
+
+/* Accordion content — no border-left rail, no inner box */
+.ed-root .group-accordion-content{
+  background:transparent !important;
+  border:none !important;
+  border-left:none !important;
+  border-radius:0 !important;
+  padding:0 !important;
+  margin:0 !important;
+  box-shadow:none !important;
+}
+
+/* Ungrouped questions block — same flat treatment */
+.ed-root .group-ungrouped-questions{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  padding:0 !important;
+  margin:0 0 28px !important;
+}
+
+/* Question number badge — flat (no border, no background) like preview wants */
+.ed-root .qrow > .q-gutter > .q-num,
+.ed-root .surveyquestion > .q-gutter > .q-num{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  color:var(--ed-text-2) !important;
+  font-weight:700;
+  font-size:14px;
+  width:auto;min-width:26px;
+  padding:0;
+}
+
+/* "GROUP 1" pill — make label match preview's .sec-label exactly */
+.ed-root .ed-section-head .ed-sec-label.group-num{
+  font-size:11px;font-weight:700;letter-spacing:.7px;
+  color:var(--ed-accent) !important;
+  background:var(--ed-accent-soft) !important;
+  border:none !important;
+  border-radius:5px !important;
+  padding:3px 8px !important;
+  flex:none;
+  text-transform:uppercase;
+}
+
+/* Add-choice link — always blue (not only on hover) */
+.ed-root .add-choice,
+.ed-root a.add-choice{
+  color:var(--ed-accent) !important;
+}
+.ed-root .add-choice:hover,
+.ed-root a.add-choice:hover{
+  color:var(--ed-accent) !important;
+  background:var(--ed-accent-soft);
+}
+
+/* Top-right action buttons — no bar, just float the 2 buttons */
+.ed-root .ed-top-actions{
+  position:absolute;top:10px;right:10px;
+  display:flex;align-items:center;gap:8px;
+  z-index:20;
+}
+
+/* =====================================================================
+   REDESIGN PREVIEW 2 — SIDEBAR INNER LAYOUT
+   Static "SURVEY > Settings" shortcut + section headings + outline.
+   Restyles existing JS-built .sidebar-sortable-group / .sidebar-question
+   to match preview's .nav-section / .nav-q (drag/drop + accordion intact).
+   ===================================================================== */
+
+/* Sidebar section heading ("SURVEY", "OUTLINE") */
+.ed-root #survey-structure-sidebar .ed-side-h{
+  margin:6px 8px 6px;
+  font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;
+  color:var(--ed-text-3);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.ed-root #survey-structure-sidebar .ed-side-h .sidebar-drag-hint{
+  color:var(--ed-text-3);font-weight:500;letter-spacing:0;
+  text-transform:none;font-size:10px;
+  display:inline-flex;align-items:center;
+}
+.ed-root #survey-structure-sidebar .ed-side-h .sidebar-drag-hint svg{
+  width:13px;height:13px;
+}
+
+/* Settings shortcut nav-item */
+.ed-root #survey-structure-sidebar .ed-nav-item{
+  display:flex;align-items:center;gap:9px;
+  padding:7px 9px;border-radius:7px;
+  color:var(--ed-text-2);text-decoration:none;cursor:pointer;
+  font-size:13.5px;
+  margin:0 2px;
+}
+.ed-root #survey-structure-sidebar .ed-nav-item:hover{
+  background:var(--ed-hover);color:var(--ed-text);
+}
+.ed-root #survey-structure-sidebar .ed-nav-item.active{
+  background:var(--ed-rail-active);color:var(--ed-accent);font-weight:600;
+}
+.ed-root #survey-structure-sidebar .ed-nav-item .ed-nic{
+  width:15px;height:15px;flex:none;color:var(--ed-text-3);
+}
+.ed-root #survey-structure-sidebar .ed-nav-item.active .ed-nic{color:var(--ed-accent)}
+
+/* Divider between SURVEY and OUTLINE */
+.ed-root #survey-structure-sidebar .ed-outline-sep{
+  height:1px;background:var(--ed-border);
+  margin:12px 6px;
+}
+
+
+/* Sidebar "Add group" / "Add question" buttons — matches preview .nav-add */
+.ed-root #survey-structure-sidebar .ed-nav-add{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 9px;margin:2px;
+  color:var(--ed-accent);
+  font-size:13px;font-weight:600;
+  cursor:pointer;border-radius:7px;
+  text-decoration:none;
+}
+.ed-root #survey-structure-sidebar .ed-nav-add:hover{
+  background:var(--ed-hover);
+}
+.ed-root #survey-structure-sidebar .ed-nav-add svg{
+  width:14px;height:14px;flex:none;
+}
+
+/* ─── Section headers (existing JS-built) → preview .nav-section style ─── */
+.ed-root #survey-sidebar-accordion > h3.sidebar-sortable-group{
+  background:transparent !important;background-image:none !important;
+  border:none !important;border-radius:7px !important;
+  display:flex !important;align-items:center;gap:8px;
+  padding:7px 9px !important;margin:2px 2px !important;
+  color:var(--ed-text) !important;font-weight:600 !important;font-size:13.5px !important;
+  cursor:pointer;
+}
+.ed-root #survey-sidebar-accordion > h3.sidebar-sortable-group:hover{
+  background:var(--ed-hover) !important;
+}
+.ed-root #survey-sidebar-accordion > h3.sidebar-sortable-group.ui-accordion-header-active{
+  background:var(--ed-rail-active) !important;color:var(--ed-accent) !important;
+}
+
+/* Drag handle inside group header — small + subtle, visible by default */
+.ed-root #survey-sidebar-accordion > h3.sidebar-sortable-group .sidebar-drag-handle{
+  width:14px;height:14px;flex:none;color:var(--ed-text-3);
+  opacity:1;transition:opacity .12s;
+}
+.ed-root #survey-sidebar-accordion > h3.sidebar-sortable-group:hover .sidebar-drag-handle{
+  opacity:1;
+}
+
+/* Section content panel — flat, no border-left rail, slightly indented */
+.ed-root #survey-sidebar-accordion .ui-accordion-content{
+  background:transparent !important;
+  border:none !important;border-left:none !important;
+  margin:0 !important;padding:0 0 4px 0 !important;
+  border-radius:0;
+}
+
+/* ─── Question rows → preview .nav-q style: indent + qno + dot + text ─── */
+.ed-root .sidebar-question{
+  display:flex !important;align-items:center;gap:8px;
+  padding:6px 9px 6px 30px;
+  margin:1px 2px;
+  border-radius:7px;
+  color:var(--ed-text-2);
+  font-size:13px;
+  cursor:pointer;
+  border-left:none;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.ed-root .sidebar-question:hover{
+  background:var(--ed-hover);color:var(--ed-text);
+}
+.ed-root .sidebar-question.sidebar-highlight{
+  background:var(--ed-accent-soft) !important;color:var(--ed-accent) !important;font-weight:600;
+}
+
+/* Question number cell — right-aligned, tabular figures, room after */
+.ed-root .sidebar-question .sidebar-q-num{
+  min-width:18px;text-align:right;
+  color:var(--ed-text-3);font-variant-numeric:tabular-nums;
+  font-size:12px;flex:none;
+  margin-right:6px;
+}
+.ed-root .sidebar-question .sidebar-q-text{
+  flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+
+/* Modern delete icon style — apply to all .iconbtn.danger that hold an SVG */
+.ed-root .iconbtn.danger svg{
+  width:16px;height:16px;
+  stroke:currentColor;fill:none;
+}
+.ed-root a.iconbtn.danger,
+.ed-root a.icon-del{
+  background:none !important;padding-left:6px !important;
+}
+.ed-root a.iconbtn.danger:hover,
+.ed-root a.icon-del:hover{
+  background:#ffeef0 !important;color:var(--ed-danger) !important;
+}
+.ed-root a.iconbtn.danger img,
+.ed-root a.icon-del img{display:none !important}
+
+/* Type dot — colored square before the text (replaces older ::before) */
+.ed-root .sidebar-question::before{
+  content:"";
+  width:7px;height:7px;border-radius:2px;
+  background:var(--ed-accent);flex:none;
+}
+.ed-root .sidebar-question.ed-type-RB::before{background:var(--ed-accent)}
+.ed-root .sidebar-question.ed-type-CB::before{background:var(--ed-green)}
+.ed-root .sidebar-question.ed-type-TB::before{background:var(--ed-amber)}
+.ed-root .sidebar-question.ed-type-MTB::before{background:var(--ed-violet)}
+
+/* Question text — flex/truncate */
+.ed-root .sidebar-question > :not(.sidebar-drag-handle):not(.sidebar-q-num){
+  flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+
+/* Drag handle inside question — subtle, visible by default */
+.ed-root .sidebar-question .sidebar-drag-handle{
+  width:12px;height:12px;flex:none;color:var(--ed-text-3);
+  opacity:1;transition:opacity .12s;
+}
+.ed-root .sidebar-question:hover .sidebar-drag-handle{opacity:1}
+
+/* Follow-up nesting */
+.ed-root .sidebar-question.sidebar-child-question{
+  padding-left:48px;font-size:12.5px;color:var(--ed-text-3);
+}
+.ed-root .sidebar-question.sidebar-child-question::before{opacity:.55}

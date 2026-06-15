@@ -15,57 +15,39 @@
   top_level_builders = []
 %>
 
-  <% if group.name.present? || !survey.persisted? %>
+  <%
+    _default_name_re = /\A(Group|Group-\d+)\z/i
+    _has_meaningful_name = group.name.present? && !group.name.match?(_default_name_re)
+  %>
+  <% if _has_meaningful_name || !survey.persisted? %>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 5px;" class="group-container-wrap">
       <tr>
-        <% unless isDisable %>
-          <td valign="top" width="25" style="padding-top: 5px;">
-            <div class="group-move-icons">
-              <a href="javascript:void(0)" onclick="moveGroupUp(this)" title="Move Up" style="display:block;text-decoration:none; color:#016bff; margin-bottom: 4px;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
-                <path d="M12 19V5"></path><path d="M5 12l7-7 7 7"></path>
-              </svg>
-              </a>
-              <a href="javascript:void(0)" onclick="moveGroupDown(this)" title="Move Down" style="display:block;text-decoration:none; color:#016bff;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
-                  <path d="M12 5v14"></path><path d="M19 12l-7 7-7-7"></path>
-                </svg>
-              </a>
-            </div>
-          </td>
-        <% end %>
+      
         <td valign="top">
           <div class="group-accordion-item" style="font-size: 16px;" id="group-<%= group.id || 'new' %>">
             <%= f.hidden_field :id %>
             <%= f.hidden_field :sort_order, class: 'group-sort-order' %>
 
-        <h3 class="group-accordion-header">
-          <span id="group-name">
-            <%= group.name.presence || l(:label_group) +"-1" %>
-          </span>
+        <h3 class="group-accordion-header ed-section-head">
+          <%= f.hidden_field :name, class: 'group-name-hidden' %>
+          <span class="ed-sec-label group-num"><%= l(:label_group).to_s.upcase %></span>
+          <span class="ed-sec-name group-name-editable"
+                contenteditable="false"
+                spellcheck="false"
+                onclick="event.stopPropagation(); activateGroupNameEdit(this)"><%= group.name.presence || l(:label_group) %></span>
+          <span class="ed-sec-count"><span class="ed-q-count"></span></span>
+          <span class="ed-spacer"></span>
+          <% unless isDisable %>
+            <span class="ed-sec-actions group-header-actions" onclick="event.stopPropagation()">
+              <button type="button" class="ed-iconbtn ed-danger group-header-del"
+                      onclick="DeleteGroup(this)"
+                      title="<%= l(:button_delete_group) %>">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+              </button>
+            </span>
+          <% end %>
         </h3>
         <div class="group-accordion-content">
-            <span class="group-actions">
-              <table width="100%" style="padding-bottom: 1px;">
-                <tr>
-                  <td align="left" style="font-size: 16px;">
-                    <%= f.label :name, l(:label_grp_name) %><span style="color:red;">*</span>
-                    <%= f.text_field :name, size: 20, maxlength: 100, disabled: isDisable, class: 'group-name-input', onchange: 'updateGroupHeader(this)' %>
-                  </td>
-                  <% unless isDisable %>
-                    <td width="25%" align="right">
-                      <%= f.check_box :_destroy, class: 'hide', style: 'display:none' %>
-                      <%= link_to sprite_icon('del') + " " + l(:button_delete_group),
-                                'javascript:void(0)',
-                                title: l(:button_delete_group),
-                                class: 'icon icon-del',
-                                onclick: 'DeleteGroup(this)' %>
-                    </td>
-                  <% end %>
-                </tr>
-              </table>
-            </span>
-
           <div class="group-questions">
             <%# Collect all form builders; store persisted ones in map, all top-level in list %>
             <% f.fields_for :wk_survey_questions, all_questions do |qb| %>
@@ -114,22 +96,6 @@
     %>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 5px;" class="group-container-wrap">
       <tr>
-        <% unless isDisable %>
-          <td valign="top" width="25" style="padding-top: 5px;">
-            <div class="group-move-icons">
-              <a href="javascript:void(0)" onclick="moveGroupUp(this)" title="Move Up" style="display:block;text-decoration:none; color:#016bff; margin-bottom: 4px;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
-                  <path d="M12 19V5"></path><path d="M5 12l7-7 7 7"></path>
-                </svg>
-              </a>
-              <a href="javascript:void(0)" onclick="moveGroupDown(this)" title="Move Down" style="display:block;text-decoration:none; color:#016bff;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
-                  <path d="M12 5v14"></path><path d="M19 12l-7 7-7-7"></path>
-                </svg>
-              </a>
-            </div>
-          </td>
-        <% end %>
         <td valign="top">
           <div class="group-ungrouped-questions" style="margin-bottom: 10px;">
             <%= f.hidden_field :id %>
