@@ -21,6 +21,7 @@
 <table class="list time-entries">
     <tr>
         <th>#</th>
+        <%= call_hook(:survey_response_list_header, survey: @survey, show_survey_result: survey_helper.showSurveyResult(params), position: :start) %>
         <th class="lbl-txt-align"><%= controller.ItemLabel %></th>
         <%= sort_header_tag('Response_status', :caption => l(:label_response_status)) %>
         <%= sort_header_tag('Response_By', :caption => l(:label_response_by)) %>
@@ -29,15 +30,14 @@
         <% if @survey.use_points %>
           <th class="lbl-txt-align"><%= l(:label_points) %></th>
         <% end %>
-        <% if !survey_helper.showSurveyResult(params) %>
-          <th></th>
-        <% end %>
+        <%= call_hook(:survey_response_list_header, survey: @survey, show_survey_result: survey_helper.showSurveyResult(params), position: :end) %>
     </tr>
     <% @response_entries.each_with_index do |entry, index| %>
       <% if User.current.id == entry.user_id || (reviewers.include? entry.user_id) || @survey_perm %>
         <% urlhash = { :survey_id => entry.survey_id, :surveyForType => entry.survey_for_type, :surveyForID => entry.survey_for_id, response_id: entry.id } %>
         <tr>
             <td class="lbl-txt-align"><%= index+1 %></td>
+            <%= call_hook(:survey_response_list_row, survey: @survey, entry: entry, show_survey_result: survey_helper.showSurveyResult(params), position: :start) %>
             <td class="lbl-txt-align">
               <% if (@survey.is_review && (reviewers.include? entry.user_id) && entry.status != 'O') || User.current.id == entry.user_id %>
                 <%= link_to entry.name, url_for(get_survey_url(urlhash, params, "survey")) %>
@@ -52,12 +52,7 @@
             <% if @survey.use_points %>
               <td class="lbl-txt-align"><%= entry.total_points.to_f%></td>
             <% end %>
-            <% if !survey_helper.showSurveyResult(params) %>
-              <th>
-                <%= link_to l(:button_pdf), url_for(controller: controller_name, action: "export", survey_id: entry.survey_id, surveyForType: entry.survey_for_type, surveyForID: entry.survey_for_id, response_id: entry.id, format: 'pdf'),
-                        class: 'icon-only icon-download', title: l(:button_pdf) %>
-              </th>
-            <% end %>
+            <%= call_hook(:survey_response_list_row, survey: @survey, entry: entry, show_survey_result: survey_helper.showSurveyResult(params), position: :end) %>
         </tr>
       <% end %>
     <% end %>

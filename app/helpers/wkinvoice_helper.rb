@@ -183,6 +183,9 @@ include WkpayrollHelper
 
 		# timeEntries = TimeEntry.includes(:spent_for).where(project_id: accountProject.project_id, spent_on: genInvFrom .. @invoice.end_date, wk_spent_fors: { spent_for_type: [accountProject.parent_type, nil], spent_for_id: [accountProject.parent_id, nil], invoice_item_id: nil })
 		timeEntries = WkInvoiceItem.getUnbilledTimeEntries(accountProject.project_id, genInvFrom, @invoice.end_date, accountProject.parent_id, accountProject.parent_type)
+		context = { time_entries: timeEntries, invoice: @invoice, account_project: accountProject }
+		Redmine::Hook.call_hook(:append_recurring_unbilled_entries, context)
+		timeEntries = context[:time_entries]
 		if params[:preview_billing] == 'false'
 			timeEntryIDs = params[:timeEntryIDs].split(",")
 			timeEntries = timeEntries.where(:id=>timeEntryIDs)
@@ -285,7 +288,8 @@ include WkpayrollHelper
 								intervalEnd = interval[1] > period["end"] ? period["end"] : interval[1]
 								teDateArr = issueEntryDateHash[entry.issue_id]
 								unless teDateArr.blank? || teDateArr.empty?
-									if teDateArr.any? {|teDt| teDt.between?(intervalStart, intervalEnd)}
+									is_carryforward = entry.spent_on < @invoice.start_date
+									if is_carryforward || teDateArr.any? {|teDt| teDt.between?(intervalStart, intervalEnd)}
 										subQuantity = subQuantity + getDuration(intervalStart, intervalEnd, rateHash['rate_per'], quantity, false)
 									end
 								end
@@ -355,6 +359,8 @@ include WkpayrollHelper
 				if accountProject.itemized_bill
 					pjtDescription =  entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject)
 					pjtQuantity = sumEntry[entry.issue_id]
+					qty_override = Redmine::Hook.call_hook(:get_entry_billing_quantity, { entry: entry, rate_hash: rateHash, invoice: @invoice, account_project: accountProject })
+					pjtQuantity = qty_override.compact.first if qty_override.present? && qty_override.compact.first.present?
 					amount = rateHash['rate'] * pjtQuantity
 					invItem = updateInvoiceItem(invItem, accountProject.project_id, pjtDescription, rateHash['rate'], pjtQuantity, rateHash['currency'], 'i', amount, nil, nil, nil, 'Issue', entry&.issue_id) unless isCreate
 				else

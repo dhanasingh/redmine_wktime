@@ -284,7 +284,7 @@
     <div>
       <div>
         <%= button_tag(l(:button_save), type: 'button', onclick: 'survey_submit();') if @survey.save_allowed %>
-        <%= button_tag(l(:button_submit), type: 'button', onclick: 'validation();') %>
+        <%= button_tag(l(:button_submit), type: 'button', onclick: 'validationWithEffectiveDate();') %>
         <%= hidden_field_tag("commit", "") %>
       </div>
       <% if points[:show_points].present? %>
@@ -295,4 +295,87 @@
 	    <% end %>
     </div>
 	  <% end %>
+<% end %>
+
+<% if @survey.affect_billing? && @survey.use_points? %>
+<div id="effective-date-dlg" style="display:none;">
+  <p id="survey-confirm-msg" style="margin:0 0 12px 0;"></p>
+  <table>
+    <tr>
+      <td><label for="effective_date_input"><%= l(:label_effective_date) %></label></td>
+      <td style="padding-left:10px;"><input type="date" id="effective_date_input" style="width:150px;" /></td>
+    </tr>
+  </table>
+</div>
+<script>
+  function validationWithEffectiveDate() {
+    var isUnAnswered = false;
+    var checkBoxClass = null;
+    $("[name^='survey_sel_choice_']:required").each(function () {
+      var $block = $(this).closest('.survey-question-block');
+      if ($block.length && !$block.is(':visible')) return true;
+      switch (this.type) {
+        case "radio":
+          if (!$.isNumeric($("input[name='" + this.name + "']:checked").val())) {
+            isUnAnswered = true; return false;
+          }
+          break;
+        case "checkbox":
+          var answered = false;
+          if (checkBoxClass != this.className) {
+            checkBoxClass = this.className;
+            $("." + this.className).each(function () { answered = answered || this.checked; });
+            if (!answered) { isUnAnswered = true; return false; }
+          }
+          break;
+        default:
+          if ($(this).val() == "") { isUnAnswered = true; return false; }
+      }
+    });
+
+    if (isUnAnswered) {
+      alert(warn_survey_mandatory);
+      return;
+    }
+
+    $("#survey-confirm-msg").text(warn_survey_submit);
+    $("#effective-date-dlg").dialog("open");
+  }
+
+  $(function () {
+    $("#effective-date-dlg").dialog({
+      autoOpen: false,
+      resizable: false,
+      modal: true,
+      title: "Submit Survey",
+      width: 420,
+      buttons: [
+        {
+          text: "Ok",
+          click: function () {
+            var effectiveDate = $("#effective_date_input").val();
+            if (!effectiveDate) {
+              alert("<%= l(:label_effective_date) %> cannot be blank");
+              return;
+            }
+            $("[name='effective_date']").remove();
+            $("<input>").attr({ type: "hidden", name: "effective_date", value: effectiveDate })
+              .appendTo("#survey_form");
+            $(this).dialog("close");
+            $("#commit").val("Submit");
+            $("#survey_form").submit();
+          }
+        },
+        {
+          text: "Cancel",
+          click: function () { $(this).dialog("close"); }
+        }
+      ]
+    });
+  });
+</script>
+<% else %>
+<script>
+  function validationWithEffectiveDate() { validation(); }
+</script>
 <% end %>

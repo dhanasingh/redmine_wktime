@@ -1294,6 +1294,7 @@ pt-BR:
   ADMIN EMPLOYEE PRIVILEGE: Admin Employee Privilege 
   label_employee_creation: Employee Created
   label_use_points: Use Points
+  label_affect_billing: Affect Billing
   label_pre_text: Pre Text
   label_post_text: Post Text
   button_add_group: Add Group

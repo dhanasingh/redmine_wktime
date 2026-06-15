@@ -127,7 +127,7 @@ class WksurveyController < WkbaseController
   def survey_params(params)
     params.permit(
       :id, :name, :survey_for_type, :survey_for_id, :status, :group_id,
-      :recur, :recur_every, :is_review, :save_allowed, :hide_response, :use_points,
+      :recur, :recur_every, :is_review, :save_allowed, :hide_response, :use_points, :affect_billing,
       wk_survey_questions_attributes: [
         :id, :name, :is_reviewer_only, :is_mandatory, :not_in_report, :sort_order,
         :header, :footer, :question_type, :_destroy, :temp_id,
@@ -297,6 +297,7 @@ class WksurveyController < WkbaseController
         del_answers.destroy_all if !del_answers.blank?
         del_reviews.destroy_all if !del_reviews.blank?
         survey_response.save
+        params[:saved_survey_response_id] = survey_response.id
       end
     end
 

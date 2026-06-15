@@ -1217,6 +1217,7 @@ ta-IN:
   ADMIN EMPLOYEE PRIVILEGE: நிர்வாக பணியாளர் சலுகை  
   label_employee_creation: பணியாளர் உருவாக்கப்பட்டது
   label_use_points: புள்ளிகளை பயன்படுத்தவும்
+  label_affect_billing: Affect Billing
   label_pre_text: முன் உரை
   label_post_text: பின் உரை
   button_add_group: குழுவைச் சேர்க்கவும்

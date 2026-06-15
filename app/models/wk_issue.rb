@@ -21,5 +21,5 @@ class WkIssue < ApplicationRecord
   belongs_to :issue
   # attr_protected :others, :issue_id, :project_id
 
-  safe_attributes 'project_id', 'issue_id', 'currency', 'rate', 'rate_per'
+  safe_attributes 'project_id', 'issue_id', 'currency', 'rate', 'rate_per', 'min_points', 'max_points'
 end
