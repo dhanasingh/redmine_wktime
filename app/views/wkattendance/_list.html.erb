@@ -25,7 +25,7 @@
 		<tbody>
 		<% @leave_entries.each do |entry| -%>
 			<tr class="time-entry <%= cycle("odd", "even") %> <%= entry.status == 3 ? "user locked" : "" %>" >
-				<td class="lbl-txt-align"><%=h entry.user&.name %></td>
+				<td class="lbl-txt-align"><%= link_to entry.user&.name, {:controller => controller.controller_name, :action => 'edit', :user_id => entry.user_id, :accrual_on => lastAccrualOn, :tab => controller.controller_name}, :title => l(:button_edit) %></td>
 				<% if isAvailable
 					wktime_leave.each_with_index do |element,index|
 						if index < 5

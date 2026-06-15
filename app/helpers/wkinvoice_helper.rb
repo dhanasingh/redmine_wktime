@@ -407,7 +407,7 @@ include WkpayrollHelper
 	def updateInvoiceItem(invItem, projectId, description, rate, quantity, org_currency, itemType, org_amount, creditInvoiceId, crPaymentItemId, productId, invoiceItemType=nil, invoiceItemID=nil)
 		toCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 		amount = getExchangedAmount(org_currency, org_amount)
-		invItem.project_id = projectId
+		invItem.project_id = projectId unless projectId.blank?
 		invItem.name = description
 		invItem.rate = rate
 		invItem.original_currency = org_currency

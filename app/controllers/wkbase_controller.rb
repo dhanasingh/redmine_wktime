@@ -31,18 +31,6 @@ class WkbaseController < ApplicationController
 	include WkattendanceHelper
 	include WktimeHelper
 
-	def index
-	end
-
-	def edit
-	end
-
-	def update
-	end
-
-	def destroy
-	end
-
 	def update_clockinout
 		lastAttnEntries = findLastAttnEntry(true)
 		@lastAttnEntry = lastAttnEntries[0] if !lastAttnEntries.blank?
@@ -90,6 +78,35 @@ class WkbaseController < ApplicationController
 		end
 		addressId
 	end
+
+	# Country to pre-fill on a new address form: the organisation's own country,
+	# taken from its main location's address. Returns nil when unset so the field
+	# simply stays blank.
+	def defaultCountry
+		mainLocation = WkLocation.where("is_main = #{booleanFormat(true)} #{get_comp_cond('wk_locations')}").first
+		(mainLocation&.address&.country).presence
+	end
+	helper_method :defaultCountry
+
+	# Country for a new location form, resolved server-side from the request IP via
+	# a local MaxMind/DB-IP country database (no external API call). Pre-filled
+	# before the page renders. Returns nil for local/private IPs (e.g. localhost)
+	# or when the .mmdb file is missing, so the field simply stays blank. Override
+	# the database location with the WKTIME_GEOIP_DB environment variable.
+	def defaultCountryByIp
+		require 'ipaddr'
+		require 'maxminddb'
+		addr = (IPAddr.new(request.remote_ip) rescue nil)
+		return nil if addr.nil? || addr.loopback? || addr.private? || addr.link_local?
+		path = ENV['WKTIME_GEOIP_DB'].presence ||
+		       Rails.root.join('plugins', 'redmine_wktime', 'db', 'geoip', 'dbip-country-lite.mmdb').to_s
+		return nil unless File.exist?(path)
+		result = MaxMindDB.new(path).lookup(addr.to_s)
+		(result.found? ? result.country.name : nil).presence
+	rescue StandardError
+		nil
+	end
+	helper_method :defaultCountryByIp
 
 	# Retrieves the date range based on predefined ranges or specific from/to param dates
 	def retrieve_date_range

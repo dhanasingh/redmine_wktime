@@ -13,7 +13,7 @@
      <% @brandEntries.each do |entry| %>
           <tr>
 			  <td class="lbl-txt-align"><%=h entry.id %></td>
-			  <td class="lbl-txt-align"><%=h entry.name  %></td>
+			  <td class="lbl-txt-align"><%= link_to entry.name, {:controller => controller.controller_name, :action => 'edit', :brand_id => entry.id, id: entry.id}, :title => l(:button_edit) %></td>
 			  <td class="lbl-txt-align"><%=h entry.description %></td>
 			  <td align="center">
                  <%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'edit', :brand_id => entry.id, id: entry.id}, :title => l(:button_edit) %>

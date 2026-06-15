@@ -370,7 +370,7 @@ class WkorderentityController < WkbillingController
 				elsif params["creditfrominvoice_#{i}"] == "false"
 					crPaymentId = params["entry_id_#{i}"].to_i
 				end
-				pjtId = params["project_id_#{i}"] if !params["project_id_#{i}"].blank?
+				pjtId = params["project_id_#{i}"].presence || params["hd_project_id_#{i}"].presence
 				itemType = params["item_type_#{i}"].blank? ? params["hd_item_type_#{i}"]  : params["item_type_#{i}"]
 
 				invoice_item_id = ((params["invoice_item_id_#{i}"]) || "").split(",").last

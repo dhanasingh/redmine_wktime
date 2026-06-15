@@ -35,7 +35,7 @@
 					<% else %>
 						<a href="javascript:void(0)" class="wk-loc-toggle" data-location-id="<%= entry.id %>" data-collapsed="0" style="display:inline-block; width:18px; height:18px; line-height:16px; text-align:center; text-decoration:none; font-weight:bold; font-size:14px; border:1px solid #1976d2; border-radius:50%; background:#fff; color:#1976d2;">&minus;</a>
 					<% end %>
-					<%=h entry.name %>
+					<%= link_to entry.name, {:controller => controller_name, :action => 'edit', :location_id => entry.id, id: entry.id, :tab => 'wklocation'}, :title => l(:button_edit) %>
 				</td>
 				<% if !show_on_map %>
 					<td class="lbl-txt-align"><%=h entry.parent&.name %></td>

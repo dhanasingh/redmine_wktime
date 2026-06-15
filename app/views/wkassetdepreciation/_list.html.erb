@@ -17,7 +17,7 @@
    <tbody>
    <% @depreciation_entries.each do |entry| %>
 		 <tr>
-				<td class="lbl-txt-align"><%=h entry.asset_name %></td>
+				<td class="lbl-txt-align"><%= link_to entry.asset_name, {:controller => controller.controller_name, :action => 'edit', :depreciation_id => entry.id, id: entry.id, :tab => controller.controller_name}, :title => l(:button_edit) %></td>
 				<td class="lbl-txt-align"><%=h entry.product_name %></td>
 				<td class="lbl-txt-align"><%=h entry.purchase_date %></td>
 				<td class="lbl-txt-align"><%=h html_hours("%.2f" % (entry.cost_price.to_f + entry.over_head_price.to_f)) %></td>

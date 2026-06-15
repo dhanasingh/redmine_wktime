@@ -15,7 +15,7 @@
 	<tbody>
 		<% @skillEntries.each do |entry| %>
 			<tr>
-				<% if !isProjSkill %><td class="lbl-txt-align"><%= entry.user&.name %></td><% end %>
+				<% if !isProjSkill %><td class="lbl-txt-align"><%= link_to entry.user&.name, {:action => 'edit', :id => entry.id, :tab => controller_name, project_id: params[:project_id]}, :title => l(:button_edit) %></td><% end %>
 				<td class="lbl-txt-align"><%= entry.skill_set.name %></td>
 				<td class="lbl-txt-align"><%= entry.rating %></td>
 				<% if !isProjSkill %><td class="lbl-txt-align"><%= entry.interest_level %></td><% end %>

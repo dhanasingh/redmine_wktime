@@ -40,7 +40,8 @@
 							<td class="lbl-txt-align"><%=h entry.id.blank? ? appartmentName : (entry.parent.blank? ? "" : entry.parent.assetName) %></td>
 						<% elsif colName == "asset_name" %>
 							<% bedName = entry["parent_name"].blank? ? '' : entry[colName] %>
-							<td class="lbl-txt-align"><%=h entry.id.blank? ? bedName : entry.assetName  %></td>
+							<% assetNameVal = entry.id.blank? ? bedName : entry.assetName %>
+							<td class="lbl-txt-align"><%= assetNameVal.blank? ? "" : link_to(assetNameVal, {:controller => controller.controller_name, :action => 'edit', :inventory_item_id => inventoryID, :product_item_id => productItemID, id: inventoryID}, :title => l(:button_edit))  %></td>
 						<% elsif (colName == "product_attribute_name" && !show_on_map) %>
 							<td class="lbl-txt-align"><%=h entry.id.blank? ? entry[colName] : (entry.product_attribute.blank? ? "" : entry.product_attribute.name)  %></td>
 						<% elsif (colName == "location_name" && !show_on_map) %>

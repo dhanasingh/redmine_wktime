@@ -128,6 +128,7 @@
 									<%=h select_tag("project_id_#{row_index.to_s}", options_for_select(@projectsDD, :selected => entry.project_id), :disabled => isDisable) %>
 									<%=h hidden_field_tag("product_id_#{row_index.to_s}",  entry.product_id )  %>
 									<%=h hidden_field_tag("material_id_#{row_index.to_s}",  "" )  %>
+									<%=h hidden_field_tag("hd_project_id_#{row_index.to_s}",  entry.project_id )  %>
 								</td>
 							<% else %>
 								<td style="width: 0%"></td>
@@ -223,6 +224,7 @@
 								<%=h select_tag("project_id_#{row_index.to_s}", options_for_select(@projectsDD, :selected=> value['project_id'] ), :disabled => @preBilling ) %>
 								<%=h hidden_field_tag("product_id_#{row_index.to_s}",  value['product_id'] )  %>
 								<%=h hidden_field_tag("material_id_#{row_index.to_s}",  value['material_id'].blank? ? "" : value['material_id'] )  %>
+								<%=h hidden_field_tag("hd_project_id_#{row_index.to_s}",  value['project_id'] )  %>
 								<%= hidden_field_tag("expense_id_#{row_index.to_s}", value['expense_id'] ) %>
 							</td>
 							<% if @productItemsDD.present? %>

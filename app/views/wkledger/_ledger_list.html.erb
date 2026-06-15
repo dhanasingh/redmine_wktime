@@ -15,7 +15,7 @@
    <tbody>
 	<% @ledgers.each do |entry| %>
 		<tr>
-		    <td class="lbl-txt-align"><%=h entry.name  %></td>
+		    <td class="lbl-txt-align"><%= link_to entry.name, {:controller => controller.controller_name, :action => 'edit', :ledger_id => entry.id, id: entry.id, :tab => controller.controller_name}, :title => l(:button_edit) %></td>
 			<td class="lbl-txt-align"><%=h ledgerType[entry.ledger_type] %></td>
 		<!--	<td class="lbl-txt-align"><%= entry.currency %>&nbsp;<%=h  html_hours("%.2f" % (entry.opening_balance.blank? ? 0 : entry.opening_balance) )  %></td> -->
 			<td class="lbl-txt-align"><%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'edit', :ledger_id => entry.id, id: entry.id, :tab => controller.controller_name},   :title => l(:button_edit) %>

@@ -19,7 +19,7 @@
 		<% @productModelEntries.each do |entry| %>
 			<tr>
 				<td class="lbl-txt-align"><%=h entry.id %></td>
-				<td class="lbl-txt-align"><%=h entry.name  %></td>
+				<td class="lbl-txt-align"><%= link_to entry.name, {:controller => controller.controller_name, :action => 'edit_product_model', :product_model_id => entry.id, :brand_id => entry.brand_id, id: entry.id}, :title => l(:button_edit) %></td>
 				<td class="lbl-txt-align"><%=h entry.product.name  %></td>
 				<td class="lbl-txt-align"><%=h entry.description %></td>
 				<td align="center">

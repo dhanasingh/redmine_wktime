@@ -12,7 +12,7 @@
   <tbody>
     <% @userEntries.each do |entry| %>
       <tr>
-        <td class="lbl-txt-align"><%= entry.name %></td>
+        <td class="lbl-txt-align"><%= link_to entry.name, {action: 'edit', id: entry&.id, tab: controller_name}, title: l(:button_edit) %></td>
         <td class="lbl-txt-align"><%= entry.mail %></td>
         <td class="lbl-txt-align"><%= entry&.supervisor&.name%></td>
         <td class="lbl-txt-align"><%= entry&.erpmineuser&.role%></td>

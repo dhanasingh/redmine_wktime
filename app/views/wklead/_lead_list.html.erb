@@ -32,7 +32,7 @@
 				<tr>
 					<% if controller.is_referral %>
 						<td class="lbl-txt-align"><%=h entry.contact.location_id.blank? ? "" : entry.contact&.location&.name %></td>
-						<td class="lbl-txt-align"><%=h entry.contact&.name %></td>
+						<td class="lbl-txt-align"><%= link_to entry.contact&.name, {:action => 'edit', :lead_id => entry.id, :address_id => entry&.address&.id, id: entry.id}, :title => l(:button_edit) %></td>
 						<td class="lbl-txt-align colorcode-bg-setup col-status-<%= entry.status %>"><%=h getLeadStatusHash[entry.status] %></td>
 						<td class="lbl-txt-align"><%= entry&.candidate&.degree %></td>
 						<td class="lbl-txt-align"><%= entry&.candidate&.pass_out %></td>
@@ -43,7 +43,7 @@
 							</td>
 						<% end %>
 					<% else %>
-						<td class="lbl-txt-align"><%=h entry.contact&.name %></td>
+						<td class="lbl-txt-align"><%= link_to entry.contact&.name, {:action => 'edit', :lead_id => entry.id, :address_id => entry&.address&.id, id: entry.id}, :title => l(:button_edit) %></td>
 						<td class="lbl-txt-align colorcode-bg-setup col-status-<%= entry.status %>"><%=h getLeadStatusHash[entry.status] %></td>
 						<td class="lbl-txt-align"><%=h entry.account.blank? ? "" : entry.account.name %></td>
 						<td class="lbl-txt-align"><%=h entry.contact.location_id.blank? ? "" : entry.contact&.location&.name %></td>
