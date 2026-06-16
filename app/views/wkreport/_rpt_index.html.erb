@@ -20,7 +20,12 @@
 	<table>
 	<tr>
 	<th align="left"><%= l(:label_report_type) %> </th>
-	<td style="padding-left:20px;"><%= select_tag 'report_type', options_for_select(getReportType, rpttype), :style=> "width:200px;" %></td>
+	<td style="padding-left:20px;">
+		<%= select_tag 'report_type',
+			options_for_select(getReportType, rpttype),
+			style: "width:200px;"
+		%>
+	</td>
 	</tr>
 	<% filterhook = call_hook :add_report_filters %>
 	<% if filterhook.blank?  %>
@@ -54,6 +59,9 @@
 		generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', session[controller_name].try(:[], :location_id), true),
 		style: "width:200px;" %>
 	</div>
+
+	<%= call_hook(:report_additional_filters, report_type: rpttype, controller_name: controller_name) %>
+
 	<%= hidden_field_tag "searchlist",  controller_name%>
 	<p class="buttons">
 		<%= link_to_function sprite_icon('checked', l(:button_apply)), "javascript: openReportPopup();", class: 'icon icon-checked' %>

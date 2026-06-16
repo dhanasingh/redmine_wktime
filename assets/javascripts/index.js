@@ -323,6 +323,12 @@ function openReportPopup() {
 		'&project_id=' + projectId +
 		'&location_id=' + locationId;
 
+	// Additional filters injected by other plugins via the
+	// :report_additional_filters hook (containers marked .report-extra-filter)
+	$('.report-extra-filter [name]').each(function () {
+		popupUrl += '&' + this.name + '=' + encodeURIComponent(this.value);
+	});
+
 	if (periodType == "2") {
 		popupUrl += '&from=' + fromVal + '&to=' + toVal;
 	} else {

@@ -62,8 +62,7 @@
 					<%=h select_tag("product_attribute_id", generic_options_for_select(WkProductAttribute, attributeSql, 'name', 'name', 'id', invntItem.blank? ? '' : invntItem.product_attribute_id, true), :disabled => isDisable || isTransfer) %>
 				</td>
 			</tr>
-			<% has_parent = @parentEntry.present? || invntItem&.parent_id.present? %>
-			<% if !has_parent && (invntItem.blank? || invntItem.parent_id.blank?) %>
+			<% if invntItem.blank? || invntItem.parent_id.blank? %>
 				<tr>
 					<th style="text-align: left"><%= l(:field_location) %></th>
 					<td style="text-align: left;padding-left:40px;">
@@ -74,10 +73,13 @@
 					</td>
 				</tr>
 				<tr>
+				
+					<% if controller.showProjectField %>
 					<th style="text-align: left"><%= l(:label_project) %></th>
 					<td style="text-align: left;padding-left:40px;">
 						<%=h select_tag("project_id", options_for_select(get_projects, :selected => invntItem.blank? ? "" : invntItem.project_id), :disabled => isDisable && !isTransfer) %>
 					</td>
+					<% end %>
 				</tr>
 			<% end %>
 			<tr>

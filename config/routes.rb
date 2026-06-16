@@ -669,12 +669,6 @@ post 'wkattributegroup/update', :to => 'wkattributegroup#update'
 
 delete 'wkattributegroup/:id', :to => 'wkattributegroup#destroy'
 
-get 'wkattributegroup/edit_product_attribute', :to => 'wkattributegroup#edit_product_attribute'
-
-get 'wkattributegroup/:id/edit_product_attribute', :to => 'wkattributegroup#edit_product_attribute'
-
-post 'wkattributegroup/update_product_attribute', :to => 'wkattributegroup#update_product_attribute'
-
 delete 'wkattributegroup/:id/destroy_product_attribute', :to => 'wkattributegroup#destroy_product_attribute'
 
 	# For Inventory Unit of Measurement

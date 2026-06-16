@@ -481,6 +481,13 @@ class WkproductitemController < WkinventoryController
 		true
 	end
 
+	# Whether the Project filter/field is shown for this item type.
+	# Subclasses (e.g. resident apartments, which are not project-scoped)
+	# can override this to hide it.
+	def showProjectField
+		true
+	end
+
 	def lblInventory
 		l(:label_inventory)
 	end

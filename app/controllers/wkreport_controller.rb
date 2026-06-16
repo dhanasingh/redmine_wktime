@@ -61,6 +61,9 @@ accept_api_auth :get_reports, :get_report_data, :export
 
 	def set_filter_session
 		filters = [:report_type, :period_type, :period, :from, :to, :group_id, :project_id, :user_id, :location_id]
+		extra_filters = []
+		call_hook(:add_report_filter_keys, filters: extra_filters, report_type: params[:report_type])
+		filters += extra_filters
 		super(filters, {:from => @from, :to => @to, user_id: User.current.id})
 	end
 
@@ -124,7 +127,11 @@ accept_api_auth :get_reports, :get_report_data, :export
 				call_hook(:load_report_module, report_type: params[:report_type], report_module: report_module)
 				report = report_module.first
 			end
-			reportData = report.calcReportData(user_id, group_id, projId, from, to, locId) if report.present?
+			if report.present?
+				extra_args = []
+				call_hook(:add_report_calc_args, args: extra_args, report_type: params[:report_type], controller: self)
+				reportData = report.calcReportData(user_id, group_id, projId, from, to, locId, *extra_args)
+			end
 		end
 		reportDetails = { reportData: reportData, location: getMainLocation, address: getAddress, logo: base64Image }
 		render json: reportDetails
@@ -145,7 +152,9 @@ accept_api_auth :get_reports, :get_report_data, :export
 				report = report_module.first
 			end
 			if report.present?
-				reportData = report.getExportData(getSession(:user_id) || User.current.id, getSession(:group_id).to_i, getSession(:project_id), @from, @to, getSession(:location_id))
+				extra_args = []
+				call_hook(:add_report_calc_args, args: extra_args, report_type: report_type, controller: self)
+				reportData = report.getExportData(getSession(:user_id) || User.current.id, getSession(:group_id).to_i, getSession(:project_id), @from, @to, getSession(:location_id), *extra_args)
 				pdf = report.pdf_export(**reportData, location: getMainLocation, from: @from, to: @to, logo: WkLocation.getMainLogo)
 				csv = reportData[:customize].blank? ? csv_export(reportData) : report.csv_export(reportData)
 			end
