@@ -51,6 +51,7 @@
       <div class="fu-tag">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
         <span class="fu-tag-base">FOLLOW-UP</span>
+        <% if choice_label.present? %><span class="fu-tag-choice">· <%= choice_label %></span><% end %>
       </div>
     <% end %>
 
@@ -58,7 +59,7 @@
       <% if isInlineFollowup %>
         <span class="childIndexNo q-num q-num-inline"></span>
       <% end %>
-      <%= f.text_field :name, size: 40, maxlength: 255, disabled: isDisable, class: 'q-title question-name-input', placeholder: l(:label_question_name) %>
+      <%= f.text_field :name, size: 40, maxlength: 255, disabled: isDisable, class: 'q-title question-name-input', placeholder: l(:label_question_name) %><span class="required-star">*</span>
       <%= f.select :question_type,
                    options_for_select(getQuestionType, selected: qtype),
                    {}, {
@@ -130,16 +131,6 @@
 
     <%# ===================== TB/MTB: hidden choice container ===================== %>
     <div class="tb-mtb-choice tb-mtb-followup-adder-row" style="<%= 'display:none;' unless is_text %>">
-      <% if is_text %>
-        <%= f.fields_for :wk_survey_choices, f.object.wk_survey_choices.presence || [f.object.wk_survey_choices.build] do |c| %>
-          <%= c.hidden_field :id %>
-          <%= c.hidden_field :name, maxlength: 100 %>
-          <%= c.check_box :_destroy, class: 'hide', style: 'display:none' %>
-          <% if c.object.follow_up_question_id.present? %>
-            <%= c.hidden_field :follow_up_question_id, class: 'followup-val' %>
-          <% end %>
-        <% end %>
-      <% end %>
 
       <%# TB/MTB inline follow-up render %>
       <% if local_assigns[:question_builders_map] && q.id.present? && is_text %>
@@ -162,6 +153,12 @@
       <%# TB/MTB: points + add-followup live in the tools footer — always rendered, shown only for TB/MTB %>
       <span class="text-points tb-mtb-tools" style="<%= is_text ? 'display:inline-flex;' : 'display:none;' %>align-items:center;gap:10px;margin-left:auto;">
         <%= f.fields_for :wk_survey_choices, f.object.wk_survey_choices.presence || [f.object.wk_survey_choices.build] do |c| %>
+          <%= c.hidden_field :id %>
+          <%= c.hidden_field :name, maxlength: 100 %>
+          <%= c.check_box :_destroy, class: 'hide', style: 'display:none' %>
+          <% if c.object.follow_up_question_id.present? %>
+            <%= c.hidden_field :follow_up_question_id, class: 'followup-val' %>
+          <% end %>
           <span class="pts"><%= l(:label_points) %>
             <%= c.text_field :points, size: 5, maxlength: 10, disabled: isDisable %>
           </span>

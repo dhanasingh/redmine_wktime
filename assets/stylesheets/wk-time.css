@@ -829,11 +829,12 @@ button.ed-btn-primary:hover,
 }
 .ed-sec-name{
   font-size:19px;font-weight:700;color:var(--ed-text);
-  border:1px solid transparent;border-radius:7px;padding:3px 8px;
+  border:1px solid #e5e7eb;border-radius:7px;padding:3px 8px;
   outline:none;cursor:text;
 }
-.ed-sec-name:hover{background:var(--ed-hover)}
+.ed-sec-name:hover{background:var(--ed-hover);border-color:#d1d5db}
 .ed-sec-name:focus{background:#fff;border-color:var(--ed-accent);box-shadow:0 0 0 3px var(--ed-accent-soft)}
+.required-star{color:#e53e3e;font-size:13px;font-weight:700;margin-left:3px;line-height:1;vertical-align:middle}
 .ed-sec-count{color:var(--ed-text-3);font-size:13px;font-weight:400}
 .ed-spacer{flex:1}
 .ed-sec-actions{display:flex;gap:2px;opacity:1;transition:.12s}
@@ -844,7 +845,8 @@ button.ed-btn-primary:hover,
   border:none;background:transparent;border-radius:7px;color:var(--ed-text-2);cursor:pointer;
 }
 .ed-iconbtn:hover{background:var(--ed-hover);color:var(--ed-text)}
-.ed-iconbtn.ed-danger:hover{background:#ffeef0;color:var(--ed-danger)}
+.ed-iconbtn.ed-danger{color:var(--ed-text-3);width:22px;height:22px;padding:0;background:transparent !important}
+.ed-iconbtn.ed-danger:hover{background:transparent !important;color:var(--ed-danger);opacity:1}
 .ed-iconbtn svg{width:16px;height:16px}
 
 /* ---------- Question row redesign ---------- */
@@ -1087,9 +1089,9 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
 
 /* Delete buttons row */
 .ed-root fieldset.surveyquestion .icon-del{
-  color:var(--ed-text-3);padding:4px 8px;border-radius:7px;text-decoration:none;
+  color:var(--ed-danger);padding:2px 4px;border-radius:5px;text-decoration:none;background:transparent !important;
 }
-.ed-root fieldset.surveyquestion .icon-del:hover{background:#ffeef0;color:var(--ed-danger);text-decoration:none}
+.ed-root fieldset.surveyquestion .icon-del:hover{background:transparent !important;color:var(--ed-danger);opacity:0.7;text-decoration:none}
 
 /* Choice adder row */
 .ed-root fieldset.surveyquestion tr.choice-adder-row td{padding-top:10px !important}
@@ -1618,10 +1620,11 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
 .ed-root .q-title {
   flex: 1; min-width: 200px;
   font-size: 16px; font-weight: 600; color: #1f2328;
-  border: 1px solid transparent; border-radius: 8px;
-  padding: 5px 9px; margin-left: -4px; background: transparent;
+  border: 1px solid #d8dbe0; border-radius: 8px;
+  padding: 5px 9px; margin-left: -4px; background: #fafbfc;
 }
-.ed-root .q-title:hover { background: #fff; border-color: #d8dbe0; }
+.ed-root .q-title::placeholder { color: #9ca3af; font-weight: 500; font-style: italic; opacity: 1; }
+.ed-root .q-title:hover { background: #fff; border-color: #a8b1bc; }
 .ed-root .q-title:focus { outline: none; background: #fff; border-color: #016bff; box-shadow: 0 0 0 3px #eaf1ff; }
 
 .ed-root .q-type-select {
@@ -1740,6 +1743,7 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
   text-transform: uppercase; color: #016bff; margin-bottom: 8px;
 }
 .ed-root .fu-tag svg { width: 13px; height: 13px; }
+.ed-root .fu-tag-choice { font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: #016bff; }
 
 /* Inline follow-up: no q-gutter, content flush to blue rail */
 .ed-root .qrow.qrow-inline { display: block; }
@@ -1889,7 +1893,7 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
 }
 .ed-root .ed-main .group-container-wrap{
   max-width:none !important;
-  margin:0 0 28px !important;
+  margin:0 0 10px !important;
 }
 
 /* Legacy grid wrapper neutralized (in case any old markup still emits it) */
@@ -2142,11 +2146,12 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
 }
 .ed-root a.iconbtn.danger,
 .ed-root a.icon-del{
-  background:none !important;padding-left:6px !important;
+  background:none !important;padding-left:0 !important;
+  flex:none !important;width:22px !important;height:22px !important;
 }
 .ed-root a.iconbtn.danger:hover,
 .ed-root a.icon-del:hover{
-  background:#ffeef0 !important;color:var(--ed-danger) !important;
+  background:transparent !important;color:var(--ed-danger) !important;opacity:0.7;
 }
 .ed-root a.iconbtn.danger img,
 .ed-root a.icon-del img{display:none !important}

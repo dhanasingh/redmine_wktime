@@ -15,11 +15,7 @@
   top_level_builders = []
 %>
 
-  <%
-    _default_name_re = /\A(Group|Group-\d+)\z/i
-    _has_meaningful_name = group.name.present? && !group.name.match?(_default_name_re)
-  %>
-  <% if _has_meaningful_name || !survey.persisted? %>
+  <% if group.name.present? || !survey.persisted? %>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 5px;" class="group-container-wrap">
       <tr>
       
@@ -34,7 +30,7 @@
           <span class="ed-sec-name group-name-editable"
                 contenteditable="false"
                 spellcheck="false"
-                onclick="event.stopPropagation(); activateGroupNameEdit(this)"><%= group.name.presence || l(:label_group) %></span>
+                onclick="event.stopPropagation(); activateGroupNameEdit(this)"><%= group.name.presence || l(:label_group) %></span><span class="required-star">*</span>
           <span class="ed-sec-count"><span class="ed-q-count"></span></span>
           <span class="ed-spacer"></span>
           <% unless isDisable %>

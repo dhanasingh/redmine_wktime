@@ -151,10 +151,7 @@ $(function () {
     refreshSurveySidebar();
 	}, 500);
 
-	// Disable "ghost" choice entries on submit. Rails' nested_child_index counter increments
-	// every time `fields_for :wk_survey_choices` is called, so the points/follow-up blocks in
-	// the ERB generate extra phantom indexes containing only [points]. Without [id]/[name]
-	// those rows hit NOT NULL on `name` when Rails tries to INSERT them.
+
 	$('#survey_form').on('submit', function() {
 		var $allChoiceInputs = $(this).find('input[name*="[wk_survey_choices_attributes]"], select[name*="[wk_survey_choices_attributes]"]');
 		var groups = {};
@@ -170,9 +167,15 @@ $(function () {
 		Object.keys(groups).forEach(function(base) {
 			var g = groups[base];
 			var hasId   = ('id' in g.fields)   && g.fields.id   !== '';
-			var hasName = ('name' in g.fields) && g.fields.name !== '';
+			var hasName = ('name' in g.fields)  && g.fields.name !== '';
 			if (!hasId && !hasName) {
-				g.inputs.forEach(function(inp) { inp.disabled = true; });
+				// TB/MTB choices intentionally have empty id and name — check the parent question type
+				// before disabling, so their points slot is preserved.
+				var $qrow = $(g.inputs[0]).closest('.surveyquestion, .qrow');
+				var isTbMtb = $qrow.hasClass('ed-qtype-TB') || $qrow.hasClass('ed-qtype-MTB');
+				if (!isTbMtb) {
+					g.inputs.forEach(function(inp) { inp.disabled = true; });
+				}
 			}
 		});
 	});
@@ -217,24 +220,26 @@ function refreshSurveySidebar(activeGroupId) {
 			if (value && value.trim() !== '') groupName = value.trim();
 		}
 
-		accordion.append(`
-			<h3 class="sidebar-sortable-group" data-sidebar-group-target="${sidebarGroupId}">
-				<span class="sidebar-drag-handle group-drag-handle">
-					<svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-						<circle cx="6" cy="6" r="1.5" fill="currentColor"/>
-						<circle cx="12" cy="6" r="1.5" fill="currentColor"/>
-						<circle cx="18" cy="6" r="1.5" fill="currentColor"/>
-						<circle cx="6" cy="12" r="1.5" fill="currentColor"/>
-						<circle cx="12" cy="12" r="1.5" fill="currentColor"/>
-						<circle cx="18" cy="12" r="1.5" fill="currentColor"/>
-						<circle cx="6" cy="18" r="1.5" fill="currentColor"/>
-						<circle cx="12" cy="18" r="1.5" fill="currentColor"/>
-						<circle cx="18" cy="18" r="1.5" fill="currentColor"/>
-					</svg>
-				</span>
-				${groupName}
-			</h3>
-		`);
+		if (isGrouped) {
+			accordion.append(`
+				<h3 class="sidebar-sortable-group" data-sidebar-group-target="${sidebarGroupId}">
+					<span class="sidebar-drag-handle group-drag-handle">
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+							<circle cx="6" cy="6" r="1.5" fill="currentColor"/>
+							<circle cx="12" cy="6" r="1.5" fill="currentColor"/>
+							<circle cx="18" cy="6" r="1.5" fill="currentColor"/>
+							<circle cx="6" cy="12" r="1.5" fill="currentColor"/>
+							<circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+							<circle cx="18" cy="12" r="1.5" fill="currentColor"/>
+							<circle cx="6" cy="18" r="1.5" fill="currentColor"/>
+							<circle cx="12" cy="18" r="1.5" fill="currentColor"/>
+							<circle cx="18" cy="18" r="1.5" fill="currentColor"/>
+						</svg>
+					</span>
+					${groupName}
+				</h3>
+			`);
+		}
 
 		const content = $('<div></div>');
 		let topLevelCount = 0;
@@ -332,7 +337,11 @@ function refreshSurveySidebar(activeGroupId) {
 			content.append(questionHtml);
 		});
 
-		accordion.append(content);
+		if (isGrouped) {
+			accordion.append(content);
+		} else {
+			content.children().each(function() { accordion.append(this); });
+		}
 	});
 
 	let activeIndex = 0;
@@ -345,7 +354,7 @@ function refreshSurveySidebar(activeGroupId) {
 		});
 	}
 
-	accordion.uiAccordion({ collapsible: true, heightStyle: 'content', active: activeIndex });
+	accordion.uiAccordion({ collapsible: true, heightStyle: 'content', active: activeIndex, header: '> h3' });
 	initializeSidebarGroupSortable();
 	initializeSidebarQuestionSortable();
 }
@@ -357,18 +366,53 @@ function initializeSidebarGroupSortable() {
 	if (accordion.hasClass('ui-sortable')) accordion.sortable('destroy');
 
 	accordion.sortable({
-		items: '> h3',
+		items: '> h3, > .sidebar-question:not(.sidebar-child-question)',
 		axis: 'y',
 		tolerance: 'pointer',
 		cursor: 'move',
 		placeholder: 'sidebar-group-placeholder',
-		handle: '.group-drag-handle',
+		handle: '.group-drag-handle, .question-drag-handle',
 		start: function() { accordion.data('sidebar-sort-changed', false); },
 		update: function() { accordion.data('sidebar-sort-changed', true); },
 		stop: function() {
-			if (accordion.data('sidebar-sort-changed')) syncSidebarGroupOrder();
+			if (accordion.data('sidebar-sort-changed')) syncSidebarTopLevelOrder();
 		}
 	});
+}
+
+function syncSidebarTopLevelOrder() {
+	const accordion = $('#survey-sidebar-accordion');
+	if (accordion.length === 0) return;
+
+	const orderedWraps = [];
+	accordion.children('h3, .sidebar-question').each(function() {
+		const $el = $(this);
+		if ($el.hasClass('sidebar-child-question')) return;
+		let $wrap = $();
+		if ($el.is('h3')) {
+			const gid = $el.attr('data-sidebar-group-target');
+			if (gid) $wrap = $('[data-sidebar-group-id="' + gid + '"]');
+		} else {
+			const qid = $el.attr('data-sidebar-target');
+			if (qid) {
+				const $realQ = $('[data-sidebar-question-id="' + qid + '"]');
+				$wrap = $realQ.closest('.group-container-wrap');
+			}
+		}
+		if ($wrap.length) orderedWraps.push($wrap[0]);
+	});
+
+	if (orderedWraps.length === 0) return;
+
+	const anchor = document.getElementById('group_template');
+	const parent = anchor ? anchor.parentNode : orderedWraps[0].parentNode;
+	orderedWraps.forEach(function(wrap) {
+		if (anchor) parent.insertBefore(wrap, anchor);
+		else        parent.appendChild(wrap);
+	});
+
+	reOrderIndex(false);
+	refreshSurveySidebar();
 }
 
 function initializeSidebarQuestionSortable() {
@@ -1905,11 +1949,17 @@ $(function () {
     // Inline follow-ups don't render .q-gutter — strip it and prepend the .fu-tag
     // header to .q-body so the layout matches the static ERB inline branch.
     newQuestion.find("> .q-gutter").remove();
-    var $fuBody = newQuestion.find("> .q-body").first();
-    if ($fuBody.find("> .fu-tag").length === 0) {
+    var $fuBody = newQuestion.find(".q-body").first();
+    if ($fuBody.find(".fu-tag").length === 0) {
       var base = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>' +
                  '<span class="fu-tag-base">FOLLOW-UP</span>';
       $fuBody.prepend('<div class="fu-tag">' + base + '</div>');
+    }
+    // Always inject choice label into fu-tag (after tag is guaranteed to exist)
+    var fuChoiceName = $choice.length ? ($choice.find(".choice-text").val() || "") : "";
+    var $fuTag = $fuBody.find(".fu-tag").first();
+    if ($fuTag.length && fuChoiceName && $fuTag.find(".fu-tag-choice").length === 0) {
+      $fuTag.append('<span class="fu-tag-choice">· ' + fuChoiceName + '</span>');
     }
 	// Inject the question-number badge IN FRONT of the title input
     // (matches the static ERB inline branch layout).
