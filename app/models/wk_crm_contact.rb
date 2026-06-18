@@ -16,6 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkCrmContact < ApplicationRecord
+  include LocationScoped
 
   belongs_to :account, class_name: 'WkAccount'
   has_many :billable_projects, as: :parent, class_name: "WkAccountProject", dependent: :destroy
@@ -34,6 +35,9 @@ class WkCrmContact < ApplicationRecord
   has_one :wkuser, as: :source, class_name: "WkUser", dependent: :restrict_with_error
 
   validates_presence_of :last_name
+  # CRM/lead contacts ('C') must have a location. Supplier contacts ('SC') and
+  # referral contacts ('IC') have no location field, so they're exempt.
+  validates :location_id, presence: true, if: -> { contact_type == 'C' }
    # Different ways of displaying/sorting users
   NAME_FORMATS = {
     firstname_lastname: {

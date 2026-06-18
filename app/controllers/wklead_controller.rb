@@ -37,7 +37,6 @@ class WkleadController < WkcrmController
 		leadName = session[controller_name].try(:[], :lead_name)
 		status = session[controller_name].try(:[], :status)
 		locationId = session[controller_name].try(:[], :location_id)
-		location = WkLocation.where(:is_default => 'true').first
 
 		entries = WkLead.left_joins(:created_by_user, :account, :contact, :contact => :location)
 		.where.not(wk_crm_contacts: { contact_type: 'IC' })
@@ -52,9 +51,13 @@ class WkleadController < WkcrmController
 			entries = entries.where.not(:status => 'C')
 		end
 
-		if (!locationId.blank? || !location.blank?) && locationId != "0"
-			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i
-			entries = entries.where("wk_crm_contacts.location_id = ? ", location_id)
+		# Leads reach location via the contact join, so WkCrmContact's location
+		# default_scope isn't applied automatically — merge it in (a no-op for
+		# unrestricted users). A picked location narrows further by its subtree;
+		# blank means "All" (no org default-location fallback).
+		entries = entries.merge(WkCrmContact.all)
+		if locationId.present? && locationId != "0"
+			entries = entries.where("wk_crm_contacts.location_id IN (?) ", WkLocation.subtree_ids(locationId.to_i))
 		end
 		entries = entries.reorder(sort_clause)
 		respond_to do |format|

@@ -22,7 +22,9 @@
 						<tr>
 							<th align="left"><%= l(:field_parent_location) %></th>
 							<td align="left" style="padding-left:40px;">
-								<% candidates = @locEntry ? @locEntry.allowed_parents : WkLocation.all %>
+								<% candidates = @locEntry ? @locEntry.allowed_parents : WkLocation.all
+								   loc_ids = WkLocation.accessible_location_ids
+								   candidates = candidates.where(id: (loc_ids + [@locEntry&.parent_id].compact).uniq) if loc_ids %>
 								<%= select_tag('parent_id',
 										options_for_select(
 											[['', '']] + candidates.order(:name).pluck(:name, :id),

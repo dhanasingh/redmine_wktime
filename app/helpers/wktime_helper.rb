@@ -1309,7 +1309,31 @@ end
 			Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].to_i == 1 ) && validateERPPermission("B_INV_PRVLG")
 	end
 
-	def generic_options_for_select(model, sqlCond, orderBySql, displayCol, valueCol, selectedVal, needBlank)
+	# [name, id] pairs of locations the current user may pick, tree-ordered with
+	# indentation, ALWAYS including `selected` so an existing (possibly out-of-scope)
+	# value is never dropped. nil accessible ids => admin => all locations.
+	# final_only: true => only assignable final-level (deepest-leaf) locations.
+	def permitted_location_options(selected = nil, indent: true, final_only: false)
+		ids = WkLocation.accessible_location_ids
+		scope = ids ? WkLocation.where(id: (ids + [selected].compact.map(&:to_i)).uniq) : WkLocation.all
+		ordered, depths, _ = WkLocation.tree_ordered_by_name(scope)
+		if final_only
+			final = WkLocation.permitted_final_location_ids
+			sel = selected.to_i if selected
+			ordered = ordered.select { |l| final.include?(l.id) || l.id == sel }
+		end
+		# Indent with non-breaking spaces (U+00A0) so the hierarchy survives the
+		# whitespace collapsing browsers/select2 apply to <option> text (plain
+		# spaces get trimmed and the list renders flat). Nested entries also get a
+		# "- " marker; roots stay un-prefixed.
+		ordered.map do |l|
+			depth = depths[l.id] || 0
+			label = indent && depth > 0 ? ("\u00A0" * 4 * depth) + "- " + l.name : l.name
+			[label, l.id]
+		end
+	end
+
+	def generic_options_for_select(model, sqlCond, orderBySql, displayCol, valueCol, selectedVal, needBlank, finalOnly = false)
 		ddArray = Array.new
 		if sqlCond.blank? || orderBySql.blank?
 			if sqlCond.blank? && orderBySql.blank?
@@ -1323,6 +1347,18 @@ end
 			end
 		else
 			ddValues = model.where("#{sqlCond}").order("#{orderBySql}")
+		end
+		# Restrict location dropdowns to the user's permitted locations (keep the
+		# currently-selected value so editing never drops an out-of-scope location).
+		# finalOnly => only assignable final-level (deepest-leaf) locations.
+		if model == WkLocation
+			ids = WkLocation.accessible_location_ids
+			if finalOnly
+				allow = (WkLocation.permitted_final_location_ids + [selectedVal].compact.map(&:to_i)).uniq
+				ddValues = ddValues.where(id: allow)
+			elsif ids
+				ddValues = ddValues.where(id: (ids + [selectedVal].compact.map(&:to_i)).uniq)
+			end
 		end
 		unless ddValues.blank?
 			#ddArray = ddValues.collect {|t| [t["#{displayCol}"], t["#{valueCol}"]]
@@ -1344,6 +1380,58 @@ end
 		ret = false
 		ret = (User.current.admin) || validateERPPermission("ADM_ERP") || validateERPPermission('A_TE_PRVLG') || (validateERPPermission("B_INV_PRVLG") && validateERPPermission("A_INV_PRVLG")) || validateERPPermission("A_ACC_PRVLG") || validateERPPermission("A_CRM_PRVLG") || validateERPPermission("A_PUR_PRVLG") || validateERPPermission("M_BILL")
 		ret
+	end
+
+	# Locations allowed as Level 1 entries in the cascading location selector
+	# (the top of what the current user may browse).
+	# - ADM_ERP permission -> all root locations (full tree)
+	# - else the user's perm_location, falling back to location_id -> that node
+	# - neither set -> none
+	# Top-level node(s) of the user's permitted tree (the roots the location
+	# dropdown widget starts from). Delegates to accessible_location_ids — the
+	# single source of truth — so ADM_ERP and perm_location = 0 ("All") both
+	# yield every root.
+	def permitted_location_roots
+		ids = WkLocation.accessible_location_ids
+		return WkLocation.where(parent_id: nil) if ids.nil?   # unrestricted
+		return WkLocation.none if ids.empty?
+		WkLocation.where(id: ids).where("parent_id IS NULL OR parent_id NOT IN (?)", ids)
+	end
+
+	# Every location the current user may traverse (permitted root + its
+	# descendants). Used to scope child lookups so a crafted parent_id cannot
+	# escape the permitted subtree.
+	def permitted_location_scope
+		ids = WkLocation.accessible_location_ids
+		return WkLocation.all if ids.nil?                     # unrestricted
+		WkLocation.where(id: ids.presence || [-1])
+	end
+
+	# Location ids the current user may see, for filtering list records.
+	# Thin delegate to the single source of truth on WkLocation.
+	# Returns nil  => no restriction (ADM_ERP) — callers should not add a filter.
+	#         array => the permitted subtree ids ([] when the user has no
+	#                  perm_location/location_id, which restricts to nothing).
+	def permitted_location_ids
+		WkLocation.accessible_location_ids
+	end
+
+	# Restrict a list of users to the current user's accessible location subtree so
+	# selection lists match the location-filtered data queries. No-op for
+	# unrestricted / ADM_ERP users (accessible_location_ids => nil).
+	# Accepts User/Principal objects, Member objects, or [name, id] pairs.
+	def filterByAccessibleLocation(collection)
+		return collection if collection.blank?
+		loc_ids = WkLocation.accessible_location_ids
+		return collection if loc_ids.nil?                       # unrestricted
+		permitted = WkUser.where(location_id: loc_ids).pluck(:user_id).to_set
+		collection.select { |item| permitted.include?(accessibleUserId(item)) }
+	end
+
+	def accessibleUserId(item)
+		return item.user_id if item.respond_to?(:user_id)       # Member
+		return item[1].to_i if item.is_a?(Array)                # [name, id]
+		item.id                                                 # User / Principal
 	end
 
 	def erpModules

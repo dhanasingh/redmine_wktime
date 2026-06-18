@@ -91,6 +91,13 @@ include ActionView::Helpers::TagHelper
 		else
 			ids = user_id
 		end
+		loc_ids = WkLocation.accessible_location_ids
+		if loc_ids
+			permitted_user_ids = WkUser.where(location_id: loc_ids).pluck(:user_id).map(&:to_s)
+			ids_array = ids.to_s.split(',').map(&:strip).reject(&:blank?)
+			ids_array = ids_array & permitted_user_ids
+			ids = ids_array.blank? ? '-1' : ids_array.join(',')
+		end
 		if @from.blank? && @to.blank?
 			getAllTimeRange(ids, true)
 		end
@@ -143,6 +150,7 @@ include ActionView::Helpers::TagHelper
 			project.members.each{|member| members << [member.user.name, member.user.id] }
 		end
 		members.each {|userID| @users << userID if userID && !@users.include?(userID) }
+		@users = filterByAccessibleLocation(@users)
 		if getSheetView == 'W'
 			getUserwkStatuses
 			getApproverPermProj
@@ -822,6 +830,7 @@ include ActionView::Helpers::TagHelper
 		if !projmembers.nil?
 			projmembers = projmembers.to_a.uniq
 		end
+		projmembers = filterByAccessibleLocation(projmembers)
 		return projmembers
 	end
 
@@ -1344,6 +1353,7 @@ include ActionView::Helpers::TagHelper
 		elsif params[:filter_type].to_s == '5'
 			members = getReportUsers(User.current.id)
 		end
+		members = filterByAccessibleLocation(members)
 		members.each do |m|
 			userStr << m.id.to_s() + ',' + m.firstname + ' ' + m.lastname + "\n"
 		end
@@ -2093,7 +2103,7 @@ private
 				@members = projMem.collect{|m| [ m.name, m.user_id ] } if !projMem.blank?
 			end
 		end
-		@members = @members.uniq
+		@members = filterByAccessibleLocation(@members).uniq
 	end
 
   def setup

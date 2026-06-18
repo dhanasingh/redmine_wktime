@@ -146,6 +146,12 @@ class WkorderentityController < WkbillingController
 				sqlwhere = sqlwhere + " invoice_date between '#{@from}' and '#{@to}'  "
 			end
 
+			loc_ids = WkLocation.accessible_location_ids
+			if loc_ids
+				list = (loc_ids.presence || [-1]).join(',')
+				sqlwhere = sqlwhere.blank? ? "" : sqlwhere + " and "
+				sqlwhere = sqlwhere + " (a.location_id IN (#{list}) OR c.location_id IN (#{list})) "
+			end
 			invEntries = WkInvoice.where(sqlwhere)
 
 			if !projectId.blank? && projectId.to_i != 0

@@ -20,7 +20,8 @@
 							:field_name   => "location_id",
 							:selected_value => session[controller_name].try(:[], :location_id),
 							:form_id      => "query_form",
-							:auto_submit  => true
+							:auto_submit  => true,
+							:show_label   => false
 						} %></td>
 				<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
 				<td><%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %></td>

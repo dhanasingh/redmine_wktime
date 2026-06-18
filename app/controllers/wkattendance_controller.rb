@@ -63,6 +63,15 @@ class WkattendanceController < WkbaseController
 		if !getSession(:name).blank?
 			sqlStr = sqlStr + " and (LOWER(u.firstname) like LOWER('%#{getSession(:name)}%') or LOWER(u.lastname) like LOWER('%#{getSession(:name)}%'))"
 		end
+		loc_ids = WkLocation.accessible_location_ids
+		if loc_ids
+			list = (loc_ids.presence || [-1]).join(',')
+			if getLeaveSettings.blank?
+				sqlStr = sqlStr + " and u.id IN (SELECT user_id FROM wk_users WHERE location_id IN (#{list})) "
+			else
+				sqlStr = sqlStr + " and wu.location_id IN (#{list}) "
+			end
+		end
 		orderStr = " ORDER BY " + (sort_clause.present? ? sort_clause.first : "u.firstname")
 
 		respond_to do |format|
@@ -124,6 +133,13 @@ class WkattendanceController < WkbaseController
 		   ids =user_id.to_i == 0 ? (userIds.blank? ? 0 : userIds.join(',')) : user_id.to_i
 		else
 		   ids = userIds.join(',')
+		end
+		loc_ids = WkLocation.accessible_location_ids
+		if loc_ids
+			permitted_user_ids = WkUser.where(location_id: loc_ids).pluck(:user_id).map(&:to_s)
+			ids_array = ids.to_s.split(',').map(&:strip).reject(&:blank?)
+			ids_array = ids_array & permitted_user_ids
+			ids = ids_array.blank? ? '-1' : ids_array.join(',')
 		end
 		if @from.blank? && @to.blank?
 			getAllTimeRange(ids, false)
@@ -209,7 +225,7 @@ class WkattendanceController < WkbaseController
 		else
 			userList = User.where(type: "User").order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 		end
-		userList
+		filterByAccessibleLocation(userList)
 	end
 
 	def set_filter_session(filters, param={})

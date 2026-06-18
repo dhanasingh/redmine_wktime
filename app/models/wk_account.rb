@@ -16,6 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkAccount < ApplicationRecord
+  include LocationScoped
 
   include Redmine::SafeAttributes
 
@@ -47,6 +48,9 @@ class WkAccount < ApplicationRecord
   belongs_to :location, :class_name => 'WkLocation'
   has_many :spent_fors, as: :spent_for, class_name: 'WkSpentFor', :dependent => :restrict_with_error
   validates_presence_of :name
+  # Customer accounts ('A') must have a location. Suppliers ('S') and lead-stage
+  # accounts ('L') have no location field, so they're exempt.
+  validates :location_id, presence: true, if: -> { account_type == 'A' }
   validate :hasAnyValues
 
   def hasAnyValues

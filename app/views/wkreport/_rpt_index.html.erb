@@ -54,10 +54,9 @@
 	</table>
 	<%= render :partial => 'wktime/date_range' %>
 	<div id="location_filter_row" style="margin-top:5px;">
-	<label><strong><%= l(:field_location) %></strong></label>
-	<%= select_tag 'location_id',
-		generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', session[controller_name].try(:[], :location_id), true),
-		style: "width:200px;" %>
+	<%= render partial: "wklocation/multi_lvl_loc_dropdown",
+		locals: { layout: "horizontal", field_name: "location_id",
+			selected_value: session[controller_name].try(:[], :location_id), form_id: "query_form" } %>
 	</div>
 
 	<%= call_hook(:report_additional_filters, report_type: rpttype, controller_name: controller_name) %>

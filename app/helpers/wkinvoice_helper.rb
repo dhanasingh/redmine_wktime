@@ -929,9 +929,9 @@ include WkpayrollHelper
 
 	def invoiceDesc(invObj,invAmount)
 		if invObj.parent_type == "WkCrmContact"
-			accName = WkCrmContact.find(invObj.parent_id)
+			accName = WkCrmContact.unscoped.find(invObj.parent_id)
 		else
-			accName = WkAccount.find(invObj.parent_id)
+			accName = WkAccount.unscoped.find(invObj.parent_id)
 		end
 		inv_desc = "AccName:" + accName.name + " InvNo:#" + invObj.invoice_number.to_s + " InvoiceAmt:" + invObj.invoice_items[0].original_currency.to_s + invAmount.to_s
 		inv_desc

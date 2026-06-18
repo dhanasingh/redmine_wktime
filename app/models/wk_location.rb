@@ -38,6 +38,97 @@ class WkLocation < ApplicationRecord
     WkLocation.where(:is_default => 'true').first&.id
   end
 
+  # Single source of truth for per-user location visibility. Model-safe (no
+  # controller-only call_hook) so it can be used from scopes and raw-SQL builders.
+  # Memoized per request (WkCurrent, auto-reset each request) since the gated
+  # default_scope calls it on every query of the scoped models during a list.
+  #   nil  => unrestricted (ADM_ERP permission, or blank/0 perm_location => old flow)
+  #   []   => perm_location is set but points to a missing location
+  #   [..] => the permitted location subtree ids
+  def self.accessible_location_ids(user = User.current)
+    cache = (WkCurrent.location_ids_cache ||= {})
+    key = user&.id
+    return cache[key] if cache.key?(key)
+    cache[key] = compute_accessible_location_ids(user)
+  end
+
+  def self.compute_accessible_location_ids(user)
+    return nil unless user&.logged?
+    return nil if WkPermission.joins(:grpPermission)
+                    .where(wk_group_permissions: { group_id: user.groups.pluck(:id) })
+                    .where(short_name: 'ADM_ERP').exists?
+    # perm_location is the sole driver of scoping. Blank/0 => unrestricted (the
+    # original pre-permission flow); location_id is NOT used for access scoping.
+    pl = WkUser.find_by(user_id: user.id)&.perm_location
+    return nil if pl.blank? || pl == 0
+    root = WkLocation.unscoped.find_by(id: pl)
+    root ? root.self_and_descendants.pluck(:id) : []
+  end
+  private_class_method :compute_accessible_location_ids
+
+  # Picked-location filter helper: the given location id plus all its descendants
+  # (nested set). Lets a parent selection (e.g. a zone) match records stored at its
+  # child locations. Falls back to [id] if the location is missing, so behaviour
+  # degrades to an exact match. Returns integers, safe to interpolate in SQL.
+  def self.subtree_ids(location_id)
+    return [] if location_id.blank?
+    loc = unscoped.find_by(id: location_id)
+    loc ? loc.self_and_descendants.pluck(:id) : [location_id.to_i]
+  end
+
+  # Deepest-leaf locations PER top-level zone within `scope`: for each top-level
+  # root (the depth-0 ancestor within scope), the leaves (no children in scope) at
+  # that root's MAXIMUM leaf depth. So an uneven branch (e.g. Madurai -> Melur)
+  # collapses to its deepest leaf (Melur), while shallower-but-sibling zones keep
+  # their own deepest leaves. Computed over the given scope, so it works at any
+  # permission level (a user permitted only one leaf still gets that leaf). Used by
+  # edit-form location dropdowns.
+  def self.final_location_ids(scope = all)
+    ordered, depths, ancestors = tree_ordered_by_name(scope)
+    has_child = ordered.map(&:parent_id).compact.to_set
+    root_of = ->(l) { (ancestors[l.id] && ancestors[l.id].first) || l.id }
+    max_depth = Hash.new(-1)
+    ordered.each do |l|
+      next if has_child.include?(l.id)               # leaves only
+      r = root_of.call(l); d = depths[l.id] || 0
+      max_depth[r] = d if d > max_depth[r]
+    end
+    ordered.select { |l|
+      !has_child.include?(l.id) && (depths[l.id] || 0) == max_depth[root_of.call(l)]
+    }.map(&:id)
+  end
+
+  # Final-leaf ids within the current user's PERMITTED scope, memoized per request
+  # (row-repeated edit forms render one location dropdown per row — without the
+  # memo each render reloads the location table and walks the tree).
+  def self.permitted_final_location_ids(user = User.current)
+    cache = (WkCurrent.location_final_ids_cache ||= {})
+    key = user&.id
+    return cache[key] if cache.key?(key)
+    ids = accessible_location_ids(user)
+    cache[key] = final_location_ids(ids ? where(id: ids) : all)
+  end
+
+  # Applies the contact/account location condition to a relation already joined
+  # to wk_crm_contacts + wk_accounts (Residents, Incidents, Account-Projects,
+  # Evaluations, ...). Single home for the OR-condition so every join-based page
+  # filters identically. nil ids => unrestricted => relation unchanged;
+  # [] => matches nothing.
+  def self.filter_by_contact_account_location(relation, ids)
+    return relation if ids.nil?
+    relation.where(
+      "wk_crm_contacts.location_id IN (:ids) OR wk_accounts.location_id IN (:ids)",
+      ids: ids.presence || [-1])
+  end
+
+  # SQL condition string for raw-SQL / join queries (e.g. find_by_sql), or nil
+  # when the current user is unrestricted. ids come from pluck so are integers.
+  def self.accessible_location_sql(table_alias, column = 'location_id')
+    ids = accessible_location_ids
+    return nil if ids.nil?
+    "#{table_alias}.#{column} IN (#{(ids.presence || [-1]).join(',')})"
+  end
+
   # Returns [ordered_array, depths_hash, ancestor_ids_hash] for the given
   # scope, walking the tree depth-first with siblings sorted alphabetically.
   # Rows whose parent is missing from the scope are promoted to roots.

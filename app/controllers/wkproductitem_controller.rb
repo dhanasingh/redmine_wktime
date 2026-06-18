@@ -56,7 +56,6 @@ class WkproductitemController < WkinventoryController
 		availabilityId =session[controller_name].try(:[], :availability)
 		projectId =session[controller_name].try(:[], :project_id)
 		isDisposed =session[controller_name].try(:[], :is_dispose)
-		location = WkLocation.where(:is_default => 'true').first
 		sqlwhere = ""
 		selectStr = "select iit.id as inventory_item_id, pit.id as product_item_id, iit.product_item_id as inv_product_item_id, piit.product_item_id as parent_product_item_id, iit.status, p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as product_attribute_name, iit.serial_number, iit.currency, iit.selling_price, iit.total_quantity, iit.available_quantity, uom.short_desc as uom_short_desc, l.name as location_name, projects.name as project_name, (case when iit.product_type is null then p.product_type else iit.product_type end) as product_type, iit.is_loggable, ap.name as asset_name, piit.id as parent_id, pap.name as parent_name, ap.owner_type, ap.currency as asset_currency, ap.rate, ap.rate_per, ap.current_value, pcr.child_count, ap.is_disposed,ap.latitude as latitude, ap.longitude as longitude, iit.running_sn"
 		if name.blank?
@@ -68,9 +67,13 @@ class WkproductitemController < WkinventoryController
 			end
 		end
 
-		if (!locationId.blank? || !location.blank?) && locationId != "0"
-			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i
-			sqlwhere = sqlwhere + " AND iit.location_id = #{location_id}"
+		# Inventory list is built with find_by_sql, which bypasses the location
+		# default_scope, so apply the permitted-location condition explicitly. A
+		# picked location narrows further by its subtree; blank means "All".
+		cond = WkLocation.accessible_location_sql('iit')
+		sqlwhere = sqlwhere + " AND #{cond}" if cond
+		if locationId.present? && locationId != "0"
+			sqlwhere = sqlwhere + " AND iit.location_id IN (#{WkLocation.subtree_ids(locationId.to_i).join(',')})"
 		end
 
 		unless availabilityId.blank?

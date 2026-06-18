@@ -81,7 +81,7 @@
 		<%=h select_tag("uom_id_#{row_index.to_s}", generic_options_for_select(WkMesureUnit, nil, 'short_desc', 'short_desc', 'id', uomID, false), :disabled => isDisable, :style => "width: 80px;") %>
 	</td>
 	<td class="lbl-txt-align" headers="location_id">
-		<%=h select_tag("location_id_#{row_index.to_s}", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', entry.location_id, false), :disabled => isDisable, :style => "width: 80px;", :required => true) %>
+		<%=h select_tag("location_id_#{row_index.to_s}", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', entry.location_id, false, true), :disabled => isDisable, :style => "width: 80px;", :required => true) %>
 	</td>
 	<td class="lbl-txt-align" headers="project_id">
 		<%=h select_tag("project_id_#{row_index.to_s}", options_for_select(get_projects, :selected => entry.project_id), :disabled => isDisable, :style => "width: 80px;") %>

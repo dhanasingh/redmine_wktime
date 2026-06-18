@@ -35,7 +35,6 @@ class WkaccountController < WkcrmController
 		locationId = session[controller_name].try(:[], :location_id)
 		accName = session[controller_name].try(:[], :accountname)
 		@account_entries = nil
-		location = WkLocation.where(:is_default => 'true').first
 
 		entries = WkAccount.includes(:location, :address)
 
@@ -44,9 +43,11 @@ class WkaccountController < WkcrmController
 		else
 			entries = entries.where(:account_type => getAccountType).where("lower(wk_accounts.name) like ?", "%#{accName.downcase}%")
 		end
-		if (!locationId.blank? || !location.blank?) && locationId != "0"
-			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i
-			entries = entries.where(:location_id => location_id)
+		# Permission filtering is applied automatically by the location default_scope
+		# (LocationScoped). A picked location narrows further by its subtree; blank
+		# means "All" (no org default-location fallback).
+		if locationId.present? && locationId != "0"
+			entries = entries.where(:location_id => WkLocation.subtree_ids(locationId.to_i))
 		end
 		entries = entries.reorder(sort_clause)
 		respond_to do |format|

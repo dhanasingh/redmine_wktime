@@ -28,7 +28,12 @@ class WkpublicholidayController < WkbaseController
 				@month = getSession(:month).to_i
 			end
 		end
-		location = WkLocation.where(:is_default => 'true').first
+		# Permission filtering is applied automatically by the location default_scope
+		# (LocationScoped) on list actions. For restricted users, don't force the org
+		# default location; just honour an explicitly picked location.
+		# No location picked => show all holidays (permission scope still applies).
+		# Don't fall back to the org default location, so blank means "All".
+		location = nil
 		locationId = getSession(:location_id).present? ?  getSession(:location_id) : (location.blank? ? nil : location.id)
 
 		entries = WkPublicHoliday.all
@@ -37,7 +42,7 @@ class WkpublicholidayController < WkbaseController
 		elsif locationId == "All"
 			entries = WkPublicHoliday.where("location_id IS NOT NULL")
 		elsif !locationId.blank? && !(["0", "All"].include? locationId)
-			entries = WkPublicHoliday.where(:location_id => locationId)
+			entries = WkPublicHoliday.where(:location_id => WkLocation.subtree_ids(locationId))
 		end
 		@locationId = locationId.blank? ? "All" :  locationId
 		if getSession(:month).present?

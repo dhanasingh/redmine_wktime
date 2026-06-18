@@ -177,7 +177,8 @@ class WkreferralsController < WkleadController
 
 	def set_filter_session
 		filters = [:lead_name, :status, :location_id, :pass_out]
-		super(filters, {location_id: WkLocation.default_id, status: "N" })
+		# No location default: blank means "All" (see wkscheduling#set_filter_session).
+		super(filters, {status: "N" })
 	end
 
   def get_filter(key)

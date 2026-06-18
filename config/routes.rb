@@ -987,4 +987,3 @@ get 'wkpg_paypal/response_handler', to: 'wkpg_paypal#response_handler', as: 'wkp
 get 'wkpg_paypal/cancel_handler', to: 'wkpg_paypal#cancel_handler', as: 'wkpg_paypal_cancel_handler'
 
 get 'wklocation/location_tree', to: 'wklocation#location_tree'
-get 'wklocation/hierarchy_children', to: 'wklocation#hierarchy_children'

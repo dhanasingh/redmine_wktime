@@ -94,7 +94,7 @@ accept_api_auth :get_reports, :get_report_data, :export
 		else
 			userList = User.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 		end
-		userList
+		filterByAccessibleLocation(userList)
 	end
 
 	def get_reports

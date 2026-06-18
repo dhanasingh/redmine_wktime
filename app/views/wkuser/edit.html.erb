@@ -3,9 +3,8 @@
 <%
   roleArr = Role.order(:name).pluck(:name, :id)
   genderHash = get_genders
-  locationArr = WkLocation.order(:name).pluck(:name, :id)
-  ordered_locs, loc_depths, _ = WkLocation.tree_ordered_by_name
-  permLocationArr = ordered_locs.map { |l| ["#{" " * 4 * (loc_depths[l.id] || 0)}#{l.name}", l.id] }
+  locationArr = permitted_location_options(@wkuser&.location_id, indent: false, final_only: true)
+  permLocationArr = permitted_location_options(@wkuser&.perm_location)
   departmentArr = WkCrmEnumeration.where(enum_type: 'DP').order(:name).pluck(:name, :id)
   maritalArr = WkCrmEnumeration.where(enum_type: 'MS').order(:name).pluck(:name, :id)
   emergContactTypeArr = WkCrmEnumeration.where(enum_type: 'EC').order(:name).pluck(:name, :id)
@@ -48,7 +47,7 @@
           <p><%= f.text_field :employee_id, label:l(:label_employee_id) %></p>
           <p><%= f.text_field :state_insurance, label:l(:label_state_insurance) %></p>
           <p><%= f.select :location_id, locationArr, {} %></p>
-          <p><%= f.select :perm_location, permLocationArr, {include_blank: true, label: l(:label_permitted_location)} %></p>
+          <p><%= f.select :perm_location, permLocationArr, {label: l(:label_permitted_location)} %></p>
           <p><%= f.select :department_id, departmentArr, {} %></p>
           <p><%= f.select :dept_section_id, dept_section_arr, {label:l(:label_dept_section)} %></p>
           <p><%= f.check_box :is_schedulable %></p>

@@ -20,7 +20,8 @@ require 'redmine/helpers/calendar'
 class WkbaseController < ApplicationController
 
 	before_action :require_login
-	before_action :clear_sort_session, :unseen
+	before_action :clear_sort_session, :unseen	
+	before_action :activate_location_scope
 	before_action :check_update_user_permissions, :only => [:update_wkuser_data, :update_wkuser_val]
 	accept_api_auth :get_user_permissions, :update_clockinout, :my_account, :get_groups, :save_issue_log
 	helper :sort
@@ -426,5 +427,12 @@ class WkbaseController < ApplicationController
 		year = date.blank? ? User.current.today.year : date.year
 		month = date.blank? ? User.current.today.month : date.month
 		@calendar = Redmine::Helpers::Calendar.new(Date.civil(year, month, 1), current_language, :month)
+	end
+
+	# Turns on location filtering for all actions. The location default_scope
+	# (LocationScoped) reads this flag so restricted users cannot access records
+	# outside their permitted location subtree on any action.
+	def activate_location_scope
+		WkCurrent.location_scope_active = true
 	end
 end

@@ -9,6 +9,8 @@ class AddHierarchyToWkLocations < ActiveRecord::Migration[7.2]
 
     WkLocation.unscoped.update_all("root_id = id, lft = 1, rgt = 2")
 
+    # No default: perm_location starts NULL, so location scoping falls back to the
+    # user's own location_id until an admin sets a specific permitted location.
     add_column :wk_users, :perm_location, :integer, null: true
     add_index  :wk_users, :perm_location
   end

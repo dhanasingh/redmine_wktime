@@ -35,6 +35,11 @@ class WkuserController < WkbaseController
       @status = getSession(:status) == "0" ? nil : getSession(:status) || 1
 
       entries = User.joins(:email_address).reorder(sort_clause)
+      loc_ids = WkLocation.accessible_location_ids
+      if loc_ids
+        entries = entries.joins("INNER JOIN wk_users ON wk_users.user_id = users.id")
+                         .where(wk_users: { location_id: loc_ids.presence || [-1] })
+      end
       if @status.present?
         entries = entries.where("users.status = ? ", @status)
       end

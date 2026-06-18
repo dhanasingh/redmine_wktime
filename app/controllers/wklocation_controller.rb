@@ -17,8 +17,6 @@
 
 class WklocationController < WkbaseController
 
-  MAX_FILTER_LEVELS = 2
-
   menu_item :wkcrmenumeration
   include WktimeHelper
   include WkdocumentHelper
@@ -42,66 +40,13 @@ class WklocationController < WkbaseController
 			entries = entries.where("LOWER(wk_locations.name) like LOWER(?) ", "%#{locationName}%")
 		end
 
-		# Cascading location filter. Each level picks a specific location whose
-		# children populate the next level's dropdown. Validate the chain: each
-		# selected location must be a child of the previous one. If a deeper
-		# level is picked without the level above, derive the missing ancestor
-		# from the picked location's own parent chain.
-		raw_levels = (1..MAX_FILTER_LEVELS).map { |n|
-			session[controller_name].try(:[], :"location_level_#{n}").to_i
-		}
-		MAX_FILTER_LEVELS.downto(2) do |n|
-			if raw_levels[n - 1] > 0 && raw_levels[n - 2] == 0
-				loc = WkLocation.find_by(id: raw_levels[n - 1])
-				raw_levels[n - 2] = loc.parent_id if loc && loc.parent_id
-			end
+		# Picked-location filter: restrict the list to the chosen location's subtree
+		# (the node itself + all descendants). The single indented location dropdown
+		# submits one location_id; WkLocation.subtree_ids expands it.
+		locationId = session[controller_name].try(:[], :location_id)
+		if locationId.present? && locationId.to_i != 0
+			entries = entries.where(id: WkLocation.subtree_ids(locationId))
 		end
-
-		validated_path = []
-		prev_id = nil
-		raw_levels.each do |id|
-			break if id == 0
-			loc = WkLocation.find_by(id: id)
-			break unless loc
-			if validated_path.empty?
-				break unless loc.parent_id.nil?
-			else
-				break unless loc.parent_id == prev_id
-			end
-			validated_path << loc
-			prev_id = loc.id
-		end
-
-		# When a path is chosen, restrict the list to that location's subtree.
-		if validated_path.any?
-			current = validated_path.last
-			subtree_ids = [current.id] + current.descendants.pluck(:id)
-			entries = entries.where(id: subtree_ids)
-		end
-
-		# Build the cascading dropdowns. Both levels are always rendered. Level 1 =
-		# root names; Level N+1 = children of the level-N selection, or — until
-		# that selection is made — children of every level-N option.
-		@level_selections = validated_path.map(&:id)
-		@level_options = []
-		MAX_FILTER_LEVELS.times do |idx|
-			@level_options <<
-				if idx == 0
-					WkLocation.where(parent_id: nil).order(:name).pluck(:name, :id)
-				elsif (parent = validated_path[idx - 1])
-					WkLocation.where(parent_id: parent.id).order(:name).pluck(:name, :id)
-				else
-					prev_ids = @level_options[idx - 1].map(&:last)
-					WkLocation.where(parent_id: prev_ids).order(:name).pluck(:name, :id)
-				end
-		end
-
-		# Map each Level 1 (root) id => its Level 2 children options, so the view
-		# can re-populate the Level 2 dropdown client-side without re-submitting.
-		root_ids = @level_options[0].map(&:last)
-		@level2_options_by_root = WkLocation.where(parent_id: root_ids).order(:name)
-			.group_by(&:parent_id)
-			.transform_values { |arr| arr.map { |l| [l.name, l.id] } }
 
 		entries = entries.includes(:address, :location_type)
 		ordered_entries, @depths, @ancestor_ids = WkLocation.tree_ordered_by_name(entries)
@@ -169,8 +114,8 @@ class WklocationController < WkbaseController
 
 		blocking_ids = (
 			WkInventoryItem.where(location_id: subtree_ids).distinct.pluck(:location_id) +
-			WkCrmContact.where(location_id: subtree_ids).distinct.pluck(:location_id) +
-			WkAccount.where(location_id: subtree_ids).distinct.pluck(:location_id)
+			WkCrmContact.unscoped.where(location_id: subtree_ids).distinct.pluck(:location_id) +
+			WkAccount.unscoped.where(location_id: subtree_ids).distinct.pluck(:location_id)
 		).uniq
 
 		if blocking_ids.any?
@@ -185,8 +130,7 @@ class WklocationController < WkbaseController
   	end
 
 	def set_filter_session
-		filters = [:location_name, :location_type, :show_on_map]
-		filters += (1..MAX_FILTER_LEVELS).map { |n| :"location_level_#{n}" }
+		filters = [:location_name, :location_type, :location_id, :show_on_map]
 		super(filters)
 	end
 
@@ -225,12 +169,11 @@ class WklocationController < WkbaseController
 
 	def location_tree
 
-		locations =
-			WkLocation.includes(:children)
-								.where(parent_id: nil)
-
+		# Root the tree at the user's permitted location(s); recursion via the
+		# nested-set #children method then stays within the permitted subtree.
+		# NOTE: :children is a method, not an AR association — do NOT .includes it.
 		render json:
-			build_location_tree(locations)
+			build_location_tree(permitted_location_roots)
 
 	end
 
@@ -252,27 +195,4 @@ class WklocationController < WkbaseController
 
 	end
 
-	def hierarchy_children
-    if params[:parent_id].blank?
-      # Edge case: no parent_id → return root locations (L1)
-      locations = WkLocation
-                    .includes(:location_type)
-                    .where(parent_id: nil)
-                    .order(:name)
-    else
-      locations = WkLocation
-                    .includes(:location_type)
-                    .where(parent_id: params[:parent_id])
-                    .order(:name)
-    end
- 
-    render json: locations.map { |loc|
-      {
-        id:           loc.id,
-        name:         loc.name,
-        type:         loc.location_type&.name,
-        has_children: loc.children.exists?
-      }
-    }
-  end
 end

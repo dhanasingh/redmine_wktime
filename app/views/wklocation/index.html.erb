@@ -6,6 +6,7 @@
 <%=h hidden_field_tag('tab', "wklocation") %>
 <%	locName = session[controller_name].try(:[], :location_name) %>
 <%	locType = session[controller_name].try(:[], :location_type) %>
+<%	locId = session[controller_name].try(:[], :location_id) %>
 <%	showOnMap = session[controller_name].try(:[], :show_on_map) %>
 <fieldset>
 	<div style="float:right; display:flex; align-items:center; gap:8px;">
@@ -20,14 +21,11 @@
 			<label for="location_type"><%= l(:field_type) %></label>
 			<%=h select_tag('location_type', options_for_select(options_for_enum_select('LT', locType, true))) %>
 		</span>
-		<% (@level_options || []).each_with_index do |opts, idx| %>
-			<% level_num = idx + 1 %>
-			<span style="display:inline-flex; align-items:center; gap:6px;">
-				<label for="location_level_<%= level_num %>"><%= l(:label_level) %> <%= level_num %></label>
-				<%= select_tag("location_level_#{level_num}",
-					options_for_select([['', '']] + opts, @level_selections[idx])) %>
-			</span>
-		<% end %>
+		<span style="display:inline-flex; align-items:center; gap:6px;">
+			<label for="location_id"><%= l(:field_location) %></label>
+			<%= select_tag('location_id',
+				options_for_select([['', '']] + permitted_location_options(locId, indent: true), locId)) %>
+		</span>
 		<span style="display:inline-flex; align-items:center; gap:6px;">
 			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
 			<%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
@@ -51,27 +49,4 @@
 <% else %>
 	<p class="nodata"><%= l(:label_no_data) %></p>
 <% end %>
-
-<script>
-(function() {
-	var byRoot = <%= raw (@level2_options_by_root || {}).to_json %>;
-	var allOpts = <%= raw (@level_options[1] || []).to_json %>;
-	var l1 = document.getElementById('location_level_1');
-	var l2 = document.getElementById('location_level_2');
-	if (!l1 || !l2) return;
-	l1.addEventListener('change', function() {
-		var v = this.value;
-		var opts = v ? (byRoot[v] || []) : allOpts;
-		l2.innerHTML = '';
-		var blank = document.createElement('option');
-		blank.value = ''; blank.text = '';
-		l2.appendChild(blank);
-		opts.forEach(function(p) {
-			var o = document.createElement('option');
-			o.value = p[1]; o.text = p[0];
-			l2.appendChild(o);
-		});
-	});
-})();
-</script>
 

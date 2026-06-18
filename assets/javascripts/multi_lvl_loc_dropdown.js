@@ -26,10 +26,6 @@
       });
     }
 
-    function withParent(url, parentId) {
-      return url + (url.indexOf('?') === -1 ? '?' : '&') + 'parent_id=' + encodeURIComponent(parentId || '');
-    }
-
     function findNode(nodes, id) {
       var t = String(id || '');
       for (var i = 0; i < nodes.length; i++) {
@@ -50,11 +46,32 @@
       return null;
     }
 
-    function leafRows(nodes, out) {
-      out = out || [];
-      (nodes || []).forEach(function(n) {
-        if (n.children && n.children.length) leafRows(n.children, out);
-        else out.push({ id: n.id, name: n.name });
+    // Direct children of every top-level node (the Level 2 set across all roots).
+    function secondLevel(tree) {
+      var out = [];
+      (tree || []).forEach(function(n) {
+        (n.children || []).forEach(function(c) { out.push({ id: c.id, name: c.name }); });
+      });
+      return out;
+    }
+
+    // Deepest leaves PER zone: for each node in `nodes` (a zone root), only the
+    // leaves at that zone's maximum depth. Mirrors WkLocation.final_location_ids,
+    // so e.g. South Zone with Madurai -> Melur yields only Melur (Chennai hidden).
+    function deepestLeaves(nodes) {
+      var out = [];
+      (nodes || []).forEach(function(root) {
+        var best = -1, acc = [];
+        (function walk(node, d) {
+          var kids = node.children || [];
+          if (!kids.length) {
+            if (d > best) { best = d; acc = [{ id: node.id, name: node.name }]; }
+            else if (d === best) { acc.push({ id: node.id, name: node.name }); }
+          } else {
+            kids.forEach(function(c) { walk(c, d + 1); });
+          }
+        })(root, 0);
+        out = out.concat(acc);
       });
       return out;
     }
@@ -95,7 +112,6 @@
       var level1         = document.getElementById(id + '_level_1');
       var level2         = document.getElementById(id + '_level_2');
       var locationSelect = document.getElementById(id + '_location_select');
-      var childrenUrl    = root.dataset.childrenUrl;
       var treeUrl        = root.dataset.treeUrl;
       var selectedId     = root.dataset.selectedId;
       var includeBlank   = root.dataset.includeBlank !== 'false';
@@ -123,7 +139,14 @@
         });
       }
 
+      // Direct children of a tree node, as {id,name} option rows.
+      function childRows(node) {
+        return (node && node.children || []).map(function(c){ return { id: c.id, name: c.name }; });
+      }
+
       // ── User change handlers ──────────────────────────────────────────────
+      // All option lists are derived from the single cached location tree
+      // (loadTree), so changing a level never makes another server round-trip.
 
       $(level1).on('change', function() {
         if (_restoring) return;
@@ -132,9 +155,10 @@
         fillOptions(level2, [], '');
         fillOptions(locationSelect, [], '');
         if (!level1.value) return;
-        getJSON(withParent(childrenUrl, level1.value), function(err, rows) {
-          fillOptions(level2, err ? [] : rows, '');
-          setHidden(level1.value, false);
+        loadTree(function(tree) {
+          var node = findNode(tree, level1.value);
+          fillOptions(level2, childRows(node), '');
+          fillOptions(locationSelect, node ? deepestLeaves([node]) : [], '');
         });
       });
 
@@ -144,16 +168,14 @@
         setHidden(level2.value, false);
         fillOptions(locationSelect, [], '');
         if (!level2.value) return;
-        getJSON(withParent(childrenUrl, level2.value), function(err, children) {
-          children = err ? [] : children;
-          if (!children.length) {
-            setHidden(level2.value, true);
+        loadTree(function(tree) {
+          var node = findNode(tree, level2.value);
+          var kids = node ? (node.children || []) : [];
+          if (!kids.length) {
+            setHidden(level2.value, true);          // level 2 is itself a leaf
           } else {
-            loadTree(function(tree) {
-              var parent = findNode(tree, level2.value);
-              fillOptions(locationSelect, parent ? leafRows(parent.children || []) : [], '');
-              setHidden(level2.value, false);
-            });
+            fillOptions(locationSelect, deepestLeaves([node]), '');
+            setHidden(level2.value, false);
           }
         });
       });
@@ -165,73 +187,45 @@
       });
 
       // ── Restore on page load ──────────────────────────────────────────────
-      // Sequential: roots → level1 → level2 children → location children
-      // Uses setVal() which syncs both native select and Semantic UI display
+      // Single round-trip: fetch the whole permitted tree once, then build and
+      // restore all three dropdowns synchronously from it (no per-level AJAX).
 
-      getJSON(withParent(childrenUrl, ''), function(err, roots) {
-        var rootRows = err ? [] : roots;
-        fillOptions(level1, rootRows, includeBlank ? '' : '');
+      loadTree(function(tree) {
+        fillOptions(level1, tree.map(function(n){ return { id: n.id, name: n.name }; }),
+                    includeBlank ? '' : '');
 
-        if (!selectedId) return;
+        if (!selectedId) {
+          // Nothing pre-selected: show all Level 2 nodes and all leaves so every
+          // dropdown is populated; picking a higher level narrows the rest.
+          fillOptions(level2, secondLevel(tree), '');
+          fillOptions(locationSelect, deepestLeaves(tree), '');
+          return;
+        }
 
-        loadTree(function(tree) {
-          var chain = findChain(tree, selectedId);
-          if (!chain || !chain.length) { log('chain not found', selectedId); return; }
-          log('restoring', chain.map(function(n){ return n.name; }).join(' > '));
+        var chain = findChain(tree, selectedId);
+        if (!chain || !chain.length) { log('chain not found', selectedId); return; }
+        log('restoring', chain.map(function(n){ return n.name; }).join(' > '));
 
-          // Resolve level1Id — must be one of the loaded roots
-          var rootIds = rootRows.map(function(r){ return String(r.id); });
-          var level1Id = null;
-          if (rootIds.indexOf(String(chain[0].id)) !== -1) {
-            level1Id = String(chain[0].id);
-          } else {
-            for (var i = 0; i < rootRows.length; i++) {
-              var rn = findNode(tree, rootRows[i].id);
-              if (rn && findNode(rn.children || [], chain[0].id)) {
-                level1Id = String(rootRows[i].id);
-                chain = findChain([rn], selectedId) || chain;
-                break;
-              }
-            }
-          }
-          if (!level1Id) { log('no root found', selectedId); return; }
+        var level1Id = String(chain[0].id);
+        var level2Id = chain[1] ? String(chain[1].id) : null;
+        var locId    = chain.length > 2 ? String(selectedId) : null;
 
-          var level2Id = chain[1] ? String(chain[1].id) : null;
-          var locId    = chain.length > 2 ? String(selectedId) : null;
+        _restoring = true;
+        setVal(level1, level1Id);
 
-          _restoring = true;
+        // Always populate the lower dropdowns from the selected branch so the
+        // user can keep drilling, even when only Level 1 (or Level 2) is chosen.
+        var l1node = findNode(tree, level1Id);
+        fillOptions(level2, childRows(l1node), '');
+        if (level2Id) setVal(level2, level2Id);
 
-          // Step 1: restore level1
-          setVal(level1, level1Id);
-          log('level1 restored:', level1.value);
+        var l2node = level2Id ? findNode(tree, level2Id) : null;
+        var zone = l2node || l1node;
+        fillOptions(locationSelect, zone ? deepestLeaves([zone]) : [], '');
+        if (locId) setVal(locationSelect, locId);
 
-          if (!level2Id) {
-            setHidden(level1Id, false);
-            _restoring = false;
-            return;
-          }
-
-          // Step 2: load level2 options then restore level2
-          getJSON(withParent(childrenUrl, level1Id), function(err, l2rows) {
-            fillOptions(level2, err ? [] : l2rows, '');
-            setVal(level2, level2Id);
-            log('level2 restored:', level2.value);
-            setHidden(level2Id, false);
-
-            if (!locId) { _restoring = false; return; }
-
-            // Step 3: load location options then restore location
-            loadTree(function(tree2) {
-              var parent = findNode(tree2, level2Id);
-              var locs = parent ? leafRows(parent.children || []) : [];
-              fillOptions(locationSelect, locs, '');
-              setVal(locationSelect, locId);
-              log('location restored:', locationSelect.value);
-              setHidden(locId, false);
-              _restoring = false;
-            });
-          });
-        });
+        setHidden(selectedId, false);
+        _restoring = false;
       });
     }
 

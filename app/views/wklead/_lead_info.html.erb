@@ -84,14 +84,12 @@
 			<% end %>
 		</tr>
 	
-		<%= render :partial => 'wklocation/multi_lvl_loc_dropdown',
-             :locals => {
-               :layout         => 'vertical',
-               :field_name     => 'location_id',
-               :selected_value => locationId,
-               :form_id        => nil,
-               :auto_submit    => false
-             } %>
+		<tr>
+			<th align="left"><%= l(:field_location) %></th>
+			<td align="left" style="padding-left:40px;">
+				<%=h select_tag('location_id', generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, false, true), :required => true) %>
+			</td>
+		</tr>
 		
 		<% if isContact %>
 			<tr>

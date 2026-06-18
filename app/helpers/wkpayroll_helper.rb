@@ -672,7 +672,7 @@ module WkpayrollHelper
 		end
 		userList = userList.where("(LOWER(firstname) like LOWER('%#{params[:name]}%') or LOWER(lastname) like LOWER('%#{params[:name]}%'))") if params[:name].present?
 		userList = userList.where("status = ?", params[:status]) if params[:status].present?
-		userList
+		filterByAccessibleLocation(userList)
 	end
 
 	def getUsersAndGroups

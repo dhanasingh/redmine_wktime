@@ -46,10 +46,10 @@
 						<td class="lbl-txt-align"><%= link_to entry.contact&.name, {:action => 'edit', :lead_id => entry.id, :address_id => entry&.address&.id, id: entry.id}, :title => l(:button_edit) %></td>
 						<td class="lbl-txt-align colorcode-bg-setup col-status-<%= entry.status %>"><%=h getLeadStatusHash[entry.status] %></td>
 						<td class="lbl-txt-align"><%=h entry.account.blank? ? "" : entry.account.name %></td>
-						<td class="lbl-txt-align"><%=h entry.contact.location_id.blank? ? "" : entry.contact&.location&.name %></td>
-						<td class="lbl-txt-align"><%=h entry.contact.address.blank? ? "" : entry.contact&.address&.work_phone %></td>
-						<td class="lbl-txt-align"><%=h entry.contact.address.blank? ? "" : entry.contact&.address&.email %></td>
-						<td class="lbl-txt-align"><%=h entry.created_by_user.name(:firstname_lastname) %></td>
+						<td class="lbl-txt-align"><%=h entry.contact&.location_id.blank? ? "" : entry.contact&.location&.name %></td>
+						<td class="lbl-txt-align"><%=h entry.contact&.address.blank? ? "" : entry.contact&.address&.work_phone %></td>
+						<td class="lbl-txt-align"><%=h entry.contact&.address.blank? ? "" : entry.contact&.address&.email %></td>
+						<td class="lbl-txt-align"><%=h entry.created_by_user&.name(:firstname_lastname) %></td>
 						<td class="lbl-txt-align"><%=h entry.updated_at.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
 					<% end %>
 					<td align="center">

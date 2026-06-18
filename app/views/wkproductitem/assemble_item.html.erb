@@ -27,7 +27,7 @@
 <%= submit_tag l(:button_save),  hidden: false, id: 'items_save'%>
 <% end %>
 <%
-    locationArr = WkLocation.order(:name).pluck(:name, :id)
+    locationArr = permitted_location_options(nil, indent: false, final_only: true)
     productArr = getProductArray(WkProduct, '', 'I', false)
     locationId = locationArr[0][1] || nil
     productId = productArr[0][1] || nil
