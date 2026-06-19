@@ -284,7 +284,7 @@
     <div>
       <div>
         <%= button_tag(l(:button_save), type: 'button', onclick: 'survey_submit();') if @survey.save_allowed %>
-        <%= button_tag(l(:button_submit), type: 'button', onclick: 'validationWithEffectiveDate();') %>
+        <%= button_tag(l(:button_submit), type: 'button', id: 'survey-submit-btn', onclick: 'validationWithEffectiveDate();') %>
         <%= hidden_field_tag("commit", "") %>
       </div>
       <% if points[:show_points].present? %>
@@ -339,6 +339,8 @@
     }
 
     $("#survey-confirm-msg").text(warn_survey_submit);
+    var today = new Date().toISOString().split("T")[0];
+    $("#effective_date_input").attr("min", today).val("");
     $("#effective-date-dlg").dialog("open");
   }
 
@@ -358,6 +360,13 @@
               alert("<%= l(:label_effective_date) %> cannot be blank");
               return;
             }
+            var today = new Date().toISOString().split("T")[0];
+            if (effectiveDate < today) {
+              alert("<%= l(:label_effective_date) %> cannot be in the past");
+              return;
+            }
+            $(this).dialog("widget").find(".ui-dialog-buttonpane button").prop("disabled", true);
+            $("#survey-submit-btn").prop("disabled", true);
             $("[name='effective_date']").remove();
             $("<input>").attr({ type: "hidden", name: "effective_date", value: effectiveDate })
               .appendTo("#survey_form");
