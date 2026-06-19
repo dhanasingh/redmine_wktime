@@ -7,7 +7,7 @@ alert('<%= escape_javascript(@errorMsg.gsub(/<br\s*\/?>/i, "\n")) %>');
 <% else %>
 hideModal();
 <% if @parentEntry.present? %>
-$('#wkproductitem_components_<%= @parentEntry.id %>').replaceWith('<%= escape_javascript(render partial: "wkproductitem/wkproductitem", locals: { currentObj: @parentEntry.reload }) %>');
+$('#wkproductitem_components_<%= @parentEntry.id %>').html('<%= escape_javascript(render partial: "wkproductitem/component_content", locals: { currentObj: @parentEntry.reload, newAccordianLink: controller.newcomponentLbl }) %>');
 <% else %>
 window.location.reload();
 <% end %>

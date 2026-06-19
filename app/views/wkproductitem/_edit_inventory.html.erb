@@ -62,7 +62,8 @@
 					<%=h select_tag("product_attribute_id", generic_options_for_select(WkProductAttribute, attributeSql, 'name', 'name', 'id', invntItem.blank? ? '' : invntItem.product_attribute_id, true), :disabled => isDisable || isTransfer) %>
 				</td>
 			</tr>
-			<% if invntItem.blank? || invntItem.parent_id.blank? %>
+			<% has_parent = @parentEntry.present? || invntItem&.parent_id.present? %>
+			<% if !has_parent && (invntItem.blank? || invntItem.parent_id.blank?) %>
 				<tr>
 					<th style="text-align: left"><%= l(:field_location) %></th>
 					<td style="text-align: left;padding-left:40px;">

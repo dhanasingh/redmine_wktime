@@ -10,9 +10,5 @@
 <%= accordianHeader %>
 </label>
 <div id="wkproductitem_components_<%= currentObj.id %>">
-	<div class="wk-contextual">
-			<%= link_to sprite_icon('add', newAccordianLink), url_for(:controller => controller_name, :action => 'edit', :format => 'js', :newItem => true, :parentId => currentObj.id), :class => 'icon icon-add', :remote => true %>
-	</div>
-	<% @productInventory = currentObj.components.includes(:asset_property, :product_item) %>
-	<%= render :partial => 'wkproductitem/product_item_list', locals: { in_apartment_edit: true } %>
+	<%= render :partial => 'wkproductitem/component_content', locals: { currentObj: currentObj, newAccordianLink: newAccordianLink } %>
 </div>
