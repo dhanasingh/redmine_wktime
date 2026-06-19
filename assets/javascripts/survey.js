@@ -3,6 +3,7 @@ $(function () {
 	$('input[type=text]').blur();
 
 	$(".group-accordion-item").uiAccordion({
+		header: "h3.group-accordion-header",
 		icons: { "header": "ui-icon-triangle-1-e", "activeHeader": "ui-icon-triangle-1-s" },
 		collapsible: true,
 		active: 0,
@@ -495,32 +496,49 @@ function syncSidebarGroupOrder() {
 
 function DeleteGroup(element) {
 	const container = element.closest('.group-accordion-item') || element.closest('.surveyquestion') || element.closest('tr');
-	const destroyField = container.querySelector('input[name*="_destroy"]');
-	if (destroyField) {
-		destroyField.value = '1';
-		if (destroyField.type === 'checkbox') destroyField.checked = true;
-	}
 
 	if (!confirm(deleteGrp)) return;
 
-	if (destroyField) {
-		destroyField.value = '1';
-	}
+	const destroyField = container.querySelector('input[name*="_destroy"]');
+	const idField = container.querySelector('input[name*="[wk_survey_que_groups_attributes]"][name$="[id]"]');
+	const savedId = idField ? idField.value.trim() : '';
 	const $wrap = $(element).closest('.group-container-wrap');
-	if ($wrap.length > 0) {
-		$wrap.hide();
+
+	if (savedId) {
+		// Saved group: mark group _destroy=1 and also all nested questions/choices
+		// so Rails can cascade-delete without FK conflicts
+		if (destroyField) {
+			destroyField.value = '1';
+			if (destroyField.type === 'checkbox') destroyField.checked = true;
+		} else {
+			// No _destroy field in DOM — inject one dynamically using the group id field name
+			if (idField) {
+				var df = document.createElement('input');
+				df.type = 'hidden';
+				df.name = idField.name.replace(/\[id\]$/, '[_destroy]');
+				df.value = '1';
+				container.appendChild(df);
+			}
+		}
+		// Mark every nested question as _destroy=1
+		$(container).find('input[name*="[wk_survey_questions_attributes]"][name$="[_destroy]"]').each(function() {
+			this.value = '1';
+			if (this.type === 'checkbox') this.checked = true;
+		});
+		if ($wrap.length > 0) $wrap.hide();
+		else container.style.display = 'none';
 	} else {
-		container.style.display = 'none';
+		// New (unsaved) group: remove DOM entirely so form never submits its data
+		if ($wrap.length > 0) $wrap.remove();
+		else container.remove();
 	}
+
 	if (typeof unlinkQuestion === "function") {
 		$(container).find('.choice-row, .text-points').each(function () {
 			unlinkQuestion($(this));
 		});
 	}
 	reOrderIndex(false);
-	// Rebuild the outline / sidebar so the deleted group (and all its
-	// questions and follow-ups) disappear from the table-of-contents
-	// without requiring a page reload.
 	if (typeof refreshSurveySidebar === "function") refreshSurveySidebar();
 };
 
@@ -746,6 +764,7 @@ function addSurveyGroup() {
 function initializeGroupAccordion(groupIndex) {
 	const $questionsAccordion = $("#group-" + groupIndex);
 	$questionsAccordion.uiAccordion({
+		header: "h3.group-accordion-header",
 		icons: { "header": "ui-icon-triangle-1-e", "activeHeader": "ui-icon-triangle-1-s" },
 		collapsible: true,
 		active: 0,
@@ -1861,6 +1880,37 @@ $(function () {
         );
       }
     });
+    if (typeof window.refreshLinkedQNumLabels === "function") window.refreshLinkedQNumLabels();
+  };
+
+  window.refreshLinkedQNumLabels = function() {
+    $(".choice-followup-actions").each(function() {
+      var $actions = $(this);
+      var $fuVal = $actions.find(".followup-val");
+      var $qnumSpan = $actions.find(".fu-linked-qnum");
+      if (!$qnumSpan.length || !$fuVal.length) return;
+
+      var linkedId = ($fuVal.attr("name") || "").indexOf("[follow_up_question_id]") >= 0 ? $fuVal.val() : "";
+      var linkedTempId = $actions.find("input[name*='[follow_up_temp_id]']").val() ||
+                         (($fuVal.attr("name") || "").indexOf("[follow_up_temp_id]") >= 0 ? $fuVal.val() : "");
+
+      if (!linkedId && !linkedTempId) { $qnumSpan.text(""); return; }
+
+      var $linkedQ = $([]);
+      if (linkedId) {
+        $linkedQ = $("input[name*='[wk_survey_questions_attributes]'][name$='[id]'][value='" + linkedId + "']").closest(".surveyquestion");
+      }
+      if (!$linkedQ.length && linkedTempId) {
+        $linkedQ = $("input[name$='[temp_id]'][value='" + linkedTempId + "']").closest(".surveyquestion");
+      }
+
+      if ($linkedQ.length) {
+        var numText = ($linkedQ.find(".childIndexNo b").text() || $linkedQ.find(".childIndexNo").text()).replace(/\.$/, "").trim();
+        $qnumSpan.text(numText ? "→ " + numText : "");
+      } else {
+        $qnumSpan.text("");
+      }
+    });
   };
 
   // ---- removeFollowUpLink : new selectors ----
@@ -1877,6 +1927,7 @@ $(function () {
     $ctx.find("input[name*='[follow_up_temp_id]'], input[name*='[follow_up_question_id]']").val("");
     $ctx.find(".followup-linked-label").hide();
     $ctx.find(".icon-unlink, .fu-unlink").hide();
+    $ctx.find(".fu-linked-qnum").text("");
     $ctx.find("a[onclick*='addFollowUpQuestion']").show();
 
     // Hide the inline follow-up div that immediately follows this choice
@@ -1896,7 +1947,7 @@ $(function () {
   window._clearFollowUpUI = function($ctx){
     $ctx.find(".followup-val").val("");
     $ctx.find("input[name*='[follow_up_temp_id]'], input[name*='[follow_up_question_id]']").val("");
-    $ctx.find(".followup-linked-label, .icon-unlink, .fu-unlink").remove();
+    $ctx.find(".followup-linked-label, .icon-unlink, .fu-unlink, .fu-linked-qnum").remove();
     $ctx.find("a[onclick*='addFollowUpQuestion']").show();
     if ($ctx.hasClass("choice")){
       $ctx.next(".followup-inline-row").hide();
@@ -1949,17 +2000,13 @@ $(function () {
     // Inline follow-ups don't render .q-gutter — strip it and prepend the .fu-tag
     // header to .q-body so the layout matches the static ERB inline branch.
     newQuestion.find("> .q-gutter").remove();
-    var $fuBody = newQuestion.find(".q-body").first();
-    if ($fuBody.find(".fu-tag").length === 0) {
+    var $fuBody = newQuestion.find("> .q-body").first();
+    if ($fuBody.find("> .fu-tag").length === 0) {
+      var choiceText = $ctx.find(".choice-text").val() || '';
+      var choiceSpan = choiceText ? '<span class="fu-tag-choice">\xb7 ' + $('<span>').text(choiceText).html() + '</span>' : '';
       var base = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>' +
-                 '<span class="fu-tag-base">FOLLOW-UP</span>';
+                 '<span class="fu-tag-base">FOLLOW-UP</span>' + choiceSpan;
       $fuBody.prepend('<div class="fu-tag">' + base + '</div>');
-    }
-    // Always inject choice label into fu-tag (after tag is guaranteed to exist)
-    var fuChoiceName = $choice.length ? ($choice.find(".choice-text").val() || "") : "";
-    var $fuTag = $fuBody.find(".fu-tag").first();
-    if ($fuTag.length && fuChoiceName && $fuTag.find(".fu-tag-choice").length === 0) {
-      $fuTag.append('<span class="fu-tag-choice">· ' + fuChoiceName + '</span>');
     }
 	// Inject the question-number badge IN FRONT of the title input
     // (matches the static ERB inline branch layout).
@@ -2030,8 +2077,10 @@ $(function () {
       if (p2 === nameAttr) p2 = nameAttr.substring(0, nameAttr.lastIndexOf("[")) + "[follow_up_question_id]";
       $target.append('<input type="hidden" class="followup-val" name="' + p2 + '" value="' + targetId + '">');
     }
-    $target.find(".followup-linked-label, .icon-unlink, .fu-unlink").remove();
-    $target.append(window.linkedLabelHtml + " " + window.unlinkFollowupHtml);
+    $target.find(".followup-linked-label, .icon-unlink, .fu-unlink, .fu-linked-qnum").remove();
+    var _qnumClean = (indexNo || "").replace(/\.$/, "").trim();
+    var _qnumHtml = _qnumClean ? '<span class="fu-linked-qnum">Follow up → ' + $('<span>').text(_qnumClean).html() + 'Question'+ '</span>' : '<span class="fu-linked-qnum"></span>';
+    $target.append(_qnumHtml + window.linkedLabelHtml + " " + window.unlinkFollowupHtml);
     $link.hide();
     if (typeof reOrderIndex === "function") reOrderIndex(false);
     if (typeof refreshSurveySidebar === "function") refreshSurveySidebar();

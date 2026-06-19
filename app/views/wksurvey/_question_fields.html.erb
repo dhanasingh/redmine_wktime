@@ -94,7 +94,7 @@
             <% if has_fu %>
               <%= c.hidden_field :follow_up_question_id, class: 'followup-val' %>
               <% unless isDisable %>
-                <%= link_to "unlink ×", 'javascript:void(0)', onclick: 'removeFollowUpLink(this)', class: 'fu-unlink icon-unlink', title: 'Unlink' %>
+                <span class="fu-linked-qnum"></span><%= link_to "unlink ×", 'javascript:void(0)', onclick: 'removeFollowUpLink(this)', class: 'fu-unlink icon-unlink', title: 'Unlink' %>
               <% end %>
             <% else %>
               <% unless isDisable %>

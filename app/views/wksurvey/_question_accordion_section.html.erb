@@ -23,6 +23,7 @@
           <div class="group-accordion-item" style="font-size: 16px;" id="group-<%= group.id || 'new' %>">
             <%= f.hidden_field :id %>
             <%= f.hidden_field :sort_order, class: 'group-sort-order' %>
+            <%= f.hidden_field :_destroy, class: 'group-destroy-field', value: 0 %>
 
         <h3 class="group-accordion-header ed-section-head">
           <%= f.hidden_field :name, class: 'group-name-hidden' %>

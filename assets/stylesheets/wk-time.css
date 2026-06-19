@@ -234,6 +234,14 @@ fieldset.surveyquestion tr.tb-mtb-followup-adder-row td {
     padding-bottom: 2px;
 }
 /* inline follow-up container indentation */
+.ed-root .fu-linked-qnum {
+  font-size: 11px;
+  font-weight: 600;
+  color: #5b6876;
+  letter-spacing: .3px;
+  margin-right: 4px;
+}
+.ed-root .fu-linked-qnum:empty { display: none; }
 .ed-root .follow-up-container{
     margin-left: 0;
     border-left: 3px solid var(--ed-accent);
@@ -1946,6 +1954,11 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
 }
 .ed-root .group-accordion-header:hover{
   background:transparent !important;
+}
+/* Higher specificity (0,3,1) beats jQuery UI's (0,2,0) display:block on init */
+.ed-root h3.group-accordion-header.ui-accordion-header{
+  display:flex !important;
+  align-items:center !important;
 }
 
 /* Accordion content — no border-left rail, no inner box */
