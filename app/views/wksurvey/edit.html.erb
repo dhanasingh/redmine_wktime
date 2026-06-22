@@ -61,7 +61,7 @@
 	<div id="survey-structure-sidebar">
 
 		<!-- SURVEY (Settings shortcut) -->
-		<h4 class="ed-side-h"><%= l(:label_survey) %></h4>
+		<h4 class="ed-side-h"><%= controller.ItemLabel %></h4>
 		<a class="ed-nav-item" href="javascript:void(0)" onclick="edScrollToSettings(this)">
 			<svg class="ed-nic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 				<circle cx="12" cy="12" r="3"/>
@@ -99,7 +99,7 @@
 	<!-- ============ SETTINGS BLOCK ============ -->
 	<section class="ed-settings" id="ed-settings">
 		<div class="ed-block-head" onclick="edToggleCollapse(this.parentElement)">
-			<h2><%= "Survey" %></h2>
+			<h2><%= controller.ItemLabel %></h2>
 			<svg class="ed-twirl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg>
 		</div>
 		<div class="ed-settings-body">

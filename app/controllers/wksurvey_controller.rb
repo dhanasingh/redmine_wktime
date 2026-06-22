@@ -603,6 +603,10 @@ class WksurveyController < WkbaseController
 		l(:label_edit_survey)
 	end
 
+	def surveyResponseLabel
+		l(:label_survey_response)
+	end
+
 	def export
 		getSurveyForType(params)
     get_response_status(params[:survey_id], params[:response_id])
