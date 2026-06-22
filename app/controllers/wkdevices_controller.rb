@@ -38,7 +38,7 @@ class WkdevicesController < WkbaseController
 
   def index
     if params[:clear]
-      redirect_to wkdevices_path and return
+      redirect_to wkdevices_path(tab: 'wkdevices') and return
     end
 
     @status = params[:status] || 'pending'

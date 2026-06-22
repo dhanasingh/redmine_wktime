@@ -3,13 +3,16 @@
 <%= render partial: "wkcrmenumeration/render_settings_tabs" %>
 
 <%= form_tag(wkdevices_path, method: :get, id: 'query_form') do %>
+  <%# Keep the Devices settings tab highlighted after applying the filter -
+      render_tabs falls back to the first tab when params[:tab] is missing. %>
+  <%= hidden_field_tag 'tab', 'wkdevices' %>
   <fieldset>
     <legend><%= l(:label_filter_plural) %></legend>
     <label for='status'><%= l(:field_status) %>:</label>
     <%= select_tag 'status', options_for_select([[l(:label_all), 'all'], [l(:label_device_status_pending), 'pending'], [l(:wk_status_approved), 'approved'], [l(:default_issue_status_rejected), 'rejected']], @status), class: 'small' %>
     
     <%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-    <%= link_to sprite_icon('reload', l(:button_clear)), wkdevices_path(clear: true), class: 'icon icon-reload' %>
+    <%= link_to sprite_icon('reload', l(:button_clear)), wkdevices_path(clear: true, tab: 'wkdevices'), class: 'icon icon-reload' %>
   </fieldset>
 <% end %>
 
