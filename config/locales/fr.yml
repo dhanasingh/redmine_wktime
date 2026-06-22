@@ -152,6 +152,12 @@ fr:
   label_clock_in: Pointage d'entrée
   label_clock_out: Pointage de sortie
   label_device_id: ID de l'appareil
+  label_wk_device_awaiting_title: Awaiting Device Approval
+  label_wk_device_denied_title: Device Registration Denied
+  label_wk_device_awaiting_message: Your device is registered and awaiting approval from your administrator. Please contact your administrator to approve this device.
+  label_wk_device_denied_message: This device has been denied access by your administrator. Please contact your administrator for details.
+  label_wk_device_checking: Checking status...
+  label_wk_device_refresh_status: Refresh status
   label_wk_leave_exists: Ce congé existe déjà
   wk_field_balance: Balance
   wk_field_used: Utilisé

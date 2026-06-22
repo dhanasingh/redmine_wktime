@@ -153,6 +153,12 @@ pl:
   label_clock_in: Rozpoczęcie pracy
   label_clock_out: Zakończenie pracy
   label_device_id: ID urządzenia
+  label_wk_device_awaiting_title: Awaiting Device Approval
+  label_wk_device_denied_title: Device Registration Denied
+  label_wk_device_awaiting_message: Your device is registered and awaiting approval from your administrator. Please contact your administrator to approve this device.
+  label_wk_device_denied_message: This device has been denied access by your administrator. Please contact your administrator for details.
+  label_wk_device_checking: Checking status...
+  label_wk_device_refresh_status: Refresh status
   label_wk_leave_exists: Ten urlop już istnieje
   wk_field_balance: Bilans
   wk_field_used: Użyte

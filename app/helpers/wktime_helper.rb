@@ -671,15 +671,16 @@ end
 				{:name => 'wksupplieraccount', :partial => 'wktime/tab_content', :label => :label_supplier_account},
 				{:name => 'wksuppliercontact', :partial => 'wktime/tab_content', :label => :label_supplier_contact}
 			   ]
-		elsif params[:controller] == "wkcrmenumeration" || params[:controller] == "wktax" || params[:controller] == "wkexchangerate" || params[:controller] == "wklocation" || params[:controller] == "wkgrouppermission" || params[:controller] == "wknotification"
+		elsif params[:controller] == "wkcrmenumeration" || params[:controller] == "wktax" || params[:controller] == "wkexchangerate" || params[:controller] == "wklocation" || params[:controller] == "wkgrouppermission" || params[:controller] == "wknotification" || params[:controller] == "wkdevices"
 			tabs = [
 				{:name => 'wkcrmenumeration', :partial => 'wktime/tab_content', :label => :label_enumerations},
 				{:name => 'wklocation', :partial => 'wktime/tab_content', :label => :field_location},
 				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax},
 				{:name => 'wkexchangerate', :partial => 'wktime/tab_content', :label => :label_rate},
 				{:name => 'wkgrouppermission', :partial => 'wktime/tab_content', :label => :label_permissions},
-				{:name => 'wknotification', :partial => 'wktime/tab_content', :label => :label_notification_plural},
+				{:name => 'wknotification', :partial => 'wktime/tab_content', :label => :label_notification_plural}
 			   ]
+			tabs << {:name => 'wkdevices', :partial => 'wktime/tab_content', :label => :label_wkdevices} if User.current.admin? || validateERPPermission('A_DEVICE')
 		else
 			tabs = [
 				{name: 'wkproduct', partial: 'wktime/tab_content', label: :label_product},
@@ -1378,7 +1379,7 @@ end
 
 	def hasSettingPerm
 		ret = false
-		ret = (User.current.admin) || validateERPPermission("ADM_ERP") || validateERPPermission('A_TE_PRVLG') || (validateERPPermission("B_INV_PRVLG") && validateERPPermission("A_INV_PRVLG")) || validateERPPermission("A_ACC_PRVLG") || validateERPPermission("A_CRM_PRVLG") || validateERPPermission("A_PUR_PRVLG") || validateERPPermission("M_BILL")
+		ret = (User.current.admin) || validateERPPermission("ADM_ERP") || validateERPPermission('A_TE_PRVLG') || (validateERPPermission("B_INV_PRVLG") && validateERPPermission("A_INV_PRVLG")) || validateERPPermission("A_ACC_PRVLG") || validateERPPermission("A_CRM_PRVLG") || validateERPPermission("A_PUR_PRVLG") || validateERPPermission("M_BILL") || validateERPPermission("A_DEVICE")
 		ret
 	end
 
@@ -2047,10 +2048,12 @@ end
 		return valid ? "" : l(:label_warning_wktime_time_entry)
 	end
 
-	def getAllLocations
-		wklocations = WkLocation.order(name: :asc)
-		locations = []
-		locations = wklocations.map { |loc| { value: loc.id, label: loc.name }}
+	# Location dropdown options for API/mobile clients: scoped to the current user's
+	# permitted location subtree and tree-ordered with indentation, matching the web
+	# (`permitted_location_options`). `selected` is always kept so editing a record
+	# whose location is outside the user's scope never drops that value.
+	def getAllLocations(selected = nil)
+		permitted_location_options(selected, indent: true).map { |label, id| { value: id, label: label } }
 	end
 
 	def getLeaveSettings

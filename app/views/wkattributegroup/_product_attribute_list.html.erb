@@ -73,7 +73,7 @@
 				<textarea name="attribute_descriptions[]"></textarea>
 			</td>
 			<td align="center">
-				<button type="button" class="remove-row"><%= escape_javascript(l(:button_delete)) %></button>
+				<a href="#" class="remove-row" title="<%= escape_javascript(l(:button_delete)) %>"><%= escape_javascript(sprite_icon('del')) %></a>
 			</td>
 		</tr>`;
 
@@ -85,7 +85,8 @@
 		$('#attribute_table tbody').prepend(attributeRowHtml);
 	});
 
-	$(document).on('click', '.remove-row', function() {
+	$(document).on('click', '.remove-row', function(e) {
+		e.preventDefault();
 		$(this).closest('tr').remove();
 	});
 <% end %>

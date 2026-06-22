@@ -911,6 +911,8 @@ post 'wknotification/mark_read_notification', to: 'wknotification#mark_read_noti
 
 get 'wkbase/get_wkuser_data', to: 'wkbase#get_wkuser_data'
 
+match 'wkbase/login', to: 'wkbase#login', via: [:get, :post]
+
 get 'wkbase/update_wkuser_data', to: 'wkbase#update_wkuser_data'
 
 get 'wkbase/update_wkuser_val', to: 'wkbase#update_wkuser_val'
@@ -987,3 +989,11 @@ get 'wkpg_paypal/response_handler', to: 'wkpg_paypal#response_handler', as: 'wkp
 get 'wkpg_paypal/cancel_handler', to: 'wkpg_paypal#cancel_handler', as: 'wkpg_paypal_cancel_handler'
 
 get 'wklocation/location_tree', to: 'wklocation#location_tree'
+
+# For Devices
+resources :wkdevices, only: [:index, :update, :destroy] do
+  collection do
+    get :check
+    post :check
+  end
+end

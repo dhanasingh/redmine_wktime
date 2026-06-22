@@ -149,6 +149,12 @@ de:
   label_clock_in: Einstempeln
   label_clock_out: Ausstempeln
   label_device_id: Geräte-ID
+  label_wk_device_awaiting_title: Awaiting Device Approval
+  label_wk_device_denied_title: Device Registration Denied
+  label_wk_device_awaiting_message: Your device is registered and awaiting approval from your administrator. Please contact your administrator to approve this device.
+  label_wk_device_denied_message: This device has been denied access by your administrator. Please contact your administrator for details.
+  label_wk_device_checking: Checking status...
+  label_wk_device_refresh_status: Refresh status
   label_wk_leave_exists: Dieser Abwesenheit besteht bereits
   wk_field_balance: Balance
   wk_field_used: Benutzt

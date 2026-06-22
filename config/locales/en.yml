@@ -141,6 +141,24 @@ en:
   label_clock_in: Clock in
   label_clock_out: Clock out
   label_device_id: Device ID
+  label_wkdevices: Devices
+  "MANAGE DEVICES": Manage Devices
+  label_device_brand: Brand
+  label_device_model: Model
+  label_device_os_version: OS Version
+  label_device_last_login: Last Login
+  label_device_actions: Actions
+  label_device_status_pending: Pending
+  error_device_update_failed: Failed to update device status.
+  error_device_delete_failed: Failed to delete device record.
+  error_invalid_status: Invalid status value.
+  error_invalid_device_data: Invalid device data.
+  label_wk_device_awaiting_title: Awaiting Device Approval
+  label_wk_device_denied_title: Device Registration Denied
+  label_wk_device_awaiting_message: Your device is registered and awaiting approval from your administrator. Please contact your administrator to approve this device.
+  label_wk_device_denied_message: This device has been denied access by your administrator. Please contact your administrator for details.
+  label_wk_device_checking: Checking status...
+  label_wk_device_refresh_status: Refresh status
   label_wk_leave_exists: This leave already exists
   wk_field_balance: Balance
   wk_field_used: Used

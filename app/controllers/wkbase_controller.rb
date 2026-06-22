@@ -19,8 +19,9 @@ require 'redmine/helpers/calendar'
 
 class WkbaseController < ApplicationController
 
-	before_action :require_login
-	before_action :clear_sort_session, :unseen	
+	skip_before_action :check_if_login_required, only: [:login]
+	before_action :require_login, except: [:login]
+	before_action :clear_sort_session, :unseen
 	before_action :activate_location_scope
 	before_action :check_update_user_permissions, :only => [:update_wkuser_data, :update_wkuser_val]
 	accept_api_auth :get_user_permissions, :update_clockinout, :my_account, :get_groups, :save_issue_log
@@ -31,6 +32,24 @@ class WkbaseController < ApplicationController
 	include SortHelper
 	include WkattendanceHelper
 	include WktimeHelper
+
+	def login
+		user = User.try_to_login(params[:username], params[:password], false)
+		if user.nil?
+			render json: { error: l(:notice_account_invalid_credentials) }, status: :unauthorized
+			return
+		end
+
+		if user.active?
+			render_user_login(user)
+		else
+			render json: { error: l(:notice_account_locked) }, status: :unauthorized
+		end
+	end
+
+	def render_user_login(user)
+		render json: { user: user.as_json(only: [:id, :login, :firstname, :lastname, :mail, :admin]).merge(api_key: user.api_key) }
+	end
 
 	def update_clockinout
 		lastAttnEntries = findLastAttnEntry(true)

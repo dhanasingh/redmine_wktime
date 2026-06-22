@@ -8,7 +8,9 @@
 	wklocationUrl =  '<%=url_for(controller: "wklocation", tab: "wklocation")%>';
 	wkgrpPermissionUrl =  '<%=url_for(controller: "wkgrouppermission", tab: "wkgrouppermission")%>';
 	wknotificationUrl =  '<%=url_for(controller: "wknotification", tab: "wknotification")%>';
+	wkdevicesUrl =  '<%=url_for(controller: "wkdevices", tab: "wkdevices")%>';
     prevTab = 'tab-<%= "#{controller_name}" %>';
+	$(function() { changeProp('tab-wkdevices', wkdevicesUrl); });
 </script>
 
 <%= render_tabs time_expense_tabs %>
