@@ -16,13 +16,15 @@ class CreateWkDevices < ActiveRecord::Migration[7.2]
     end
 
     unless WkPermission.where(short_name: 'A_DEVICE').exists?
-      WkPermission.create(
+      perm = {
         name: "MANAGE DEVICES",
         short_name: "A_DEVICE",
         modules: "Devices",
+        id: (WkPermission.unscoped.maximum(:id) || 0) + 1,
         created_at: Time.current,
         updated_at: Time.current
-      )
+      }
+      WkPermission.create!(perm) rescue puts "Failed: A_DEVICE"
     end
   end
 
