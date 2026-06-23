@@ -1,4 +1,7 @@
-<%= form_tag({ action: 'update_survey'}, method: :post, id: 'survey_form') do %>
+<%# In print mode (e.g. the evaluation report) this partial is rendered under a
+    controller that has no update_survey route. The form is read-only there, so
+    target an existing route to keep url generation from raising. %>
+<%= form_tag(isPrint ? { controller: 'wksurvey', action: 'update_survey' } : { action: 'update_survey' }, method: :post, id: 'survey_form') do %>
   <%= hidden_field_tag('surveyForID', params[:surveyForID]) %>
   <%= hidden_field_tag('surveyForType', params[:surveyForType]) %>
   <%= hidden_field_tag("survey_id", @survey.id) %>
