@@ -38,7 +38,7 @@
           <td><%= device.brand %></td>
           <td><%= device.model %></td>
           <td><%= device.os_version %></td>
-          <td>
+          <td class="colorcode-bg-setup col-status-<%= device.status %>">
             <strong>
               <%= case device.status
                   when 'pending' then l(:label_device_status_pending)
@@ -64,6 +64,7 @@
       <% end %>
     </tbody>
   </table>
+  <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
 <% else %>
   <p class="nodata"><%= l(:label_no_data) %></p>
 <% end %>

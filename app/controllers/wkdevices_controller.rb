@@ -42,13 +42,17 @@ class WkdevicesController < WkbaseController
     end
 
     @status = params[:status] || 'pending'
-    @devices = WkDevice.includes(:user)
+    devices = WkDevice.includes(:user)
 
     if @status.present? && @status != 'all'
-      @devices = @devices.where(status: WkDevice.statuses[@status])
+      devices = devices.where(status: WkDevice.statuses[@status])
     end
 
-    @devices = @devices.order(last_login_at: :desc)
+    devices = devices.order(last_login_at: :desc)
+
+    @entry_count = devices.count
+    setLimitAndOffset()
+    @devices = devices.limit(@limit).offset(@offset)
   end
 
   def update
@@ -83,6 +87,18 @@ class WkdevicesController < WkbaseController
   end
 
   private
+
+  def setLimitAndOffset
+    if api_request?
+      @offset, @limit = api_offset_and_limit
+      @limit = params[:limit] unless params[:limit].blank?
+      @offset = params[:offset] unless params[:offset].blank?
+    else
+      @entry_pages = Paginator.new @entry_count, per_page_option, params['page']
+      @limit = @entry_pages.per_page
+      @offset = @entry_pages.offset
+    end
+  end
 
   def check_perm_and_redirect
     unless User.current.admin? || validateERPPermission('A_DEVICE')
