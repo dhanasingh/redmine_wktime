@@ -110,7 +110,7 @@
         </div>
 
         <%# Render inline follow-up for this specific choice %>
-        <% if local_assigns[:question_builders_map] && c.object.follow_up_question_id.present? %>
+        <% if is_choice && local_assigns[:question_builders_map] && c.object.follow_up_question_id.present? %>
           <% fu_id = c.object.follow_up_question_id %>
           <% fu_builder = question_builders_map[fu_id] %>
           <% if fu_builder && !current_rendered_ids.include?(fu_id) %>
@@ -165,6 +165,7 @@
         <% end %>
         <span class="tb-mtb-followup-cell" style="display:inline-flex;align-items:center;gap:4px;">
           <%= f.fields_for :wk_survey_choices, f.object.wk_survey_choices.presence || [f.object.wk_survey_choices.build] do |c| %>
+            <span class="fu-linked-qnum"></span>
             <% if c.object.follow_up_question_id.present? %>
               <% unless isDisable %>
                 <%= link_to "unlink ×", 'javascript:void(0)', onclick: 'removeFollowUpLink(this)', class: 'fu-unlink icon-unlink', title: 'Unlink' %>

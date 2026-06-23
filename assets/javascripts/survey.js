@@ -154,6 +154,7 @@ $(function () {
 
 
 	$('#survey_form').on('submit', function() {
+		if (typeof reOrderIndex === "function") reOrderIndex(false);
 		var $allChoiceInputs = $(this).find('input[name*="[wk_survey_choices_attributes]"], select[name*="[wk_survey_choices_attributes]"]');
 		var groups = {};
 		$allChoiceInputs.each(function() {
@@ -1742,6 +1743,10 @@ $(function () {
     var globalGroupSortOrder = 0;
     var ungroupedCounter = 0;
 
+    // wk_survey_questions.sort_order is a STRING column, so the backend's
+    // ORDER BY sort_order is lexicographic. Pad to 5 digits so lex == numeric.
+    function _padSortOrder(n) { return String(n).padStart(5, '0'); }
+
     function processFollowUps($parentQ, parentIndex){
       var $body = $parentQ.find("> .q-body").first();
       var choiceIdx = 0;
@@ -1772,7 +1777,7 @@ $(function () {
             globalSortOrder++;
             var label = parentIndex + "." + cur;
             _writeChildIndex($child, label);
-            $child.find("> input.question-sort-order").val(globalSortOrder);
+            $child.find("> input.question-sort-order").val(_padSortOrder(globalSortOrder));
             processFollowUps($child, label);
           }
         }
@@ -1785,7 +1790,7 @@ $(function () {
           globalSortOrder++;
           var label = parentIndex + "." + cur;
           _writeChildIndex($child, label);
-          $child.find("> input.question-sort-order").val(globalSortOrder);
+          $child.find("> input.question-sort-order").val(_padSortOrder(globalSortOrder));
           processFollowUps($child, label);
         }
       });
@@ -1884,7 +1889,7 @@ $(function () {
   };
 
   window.refreshLinkedQNumLabels = function() {
-    $(".choice-followup-actions").each(function() {
+    $(".choice-followup-actions, .tb-mtb-followup-cell").each(function() {
       var $actions = $(this);
       var $fuVal = $actions.find(".followup-val");
       var $qnumSpan = $actions.find(".fu-linked-qnum");
@@ -1906,7 +1911,7 @@ $(function () {
 
       if ($linkedQ.length) {
         var numText = ($linkedQ.find(".childIndexNo b").text() || $linkedQ.find(".childIndexNo").text()).replace(/\.$/, "").trim();
-        $qnumSpan.text(numText ? "→ " + numText : "");
+        $qnumSpan.text(numText ? numText : "");
       } else {
         $qnumSpan.text("");
       }
@@ -1978,7 +1983,8 @@ $(function () {
     var $ctx = $choice.length ? $choice : $tbCell;
     if ($ctx.length === 0) return;
 
-    var nameAttr = $ctx.find("input[name*='[wk_survey_choices_attributes]']").first().attr("name");
+    var $nameAttrCtx = $choice.length ? $choice : $tbCell.closest(".tb-mtb-tools");
+    var nameAttr = $nameAttrCtx.find("input[name*='[wk_survey_choices_attributes]']").first().attr("name");
     if (!nameAttr) return;
 
     // Find a place to spawn the new question
@@ -2058,11 +2064,13 @@ $(function () {
   // ---- _doLinkExistingFollowUp : updated context ----
   window._doLinkExistingFollowUp = function(link, targetId, isTemp, indexNo){
     var $link = $(link);
-    var $ctx = $link.closest(".choice");
-    if ($ctx.length === 0) $ctx = $link.closest(".tb-mtb-followup-cell");
+    var $choice = $link.closest(".choice");
+    var $tbCell = $link.closest(".tb-mtb-followup-cell");
+    var $ctx = $choice.length ? $choice : $tbCell;
     if ($ctx.length === 0) return;
 
-    var nameAttr = $ctx.find("input[name*='[wk_survey_choices_attributes]']").first().attr("name");
+    var $nameAttrCtx = $choice.length ? $choice : $tbCell.closest(".tb-mtb-tools");
+    var nameAttr = $nameAttrCtx.find("input[name*='[wk_survey_choices_attributes]']").first().attr("name");
     if (!nameAttr) return;
 
     var $target = $link.parent();
@@ -2079,7 +2087,7 @@ $(function () {
     }
     $target.find(".followup-linked-label, .icon-unlink, .fu-unlink, .fu-linked-qnum").remove();
     var _qnumClean = (indexNo || "").replace(/\.$/, "").trim();
-    var _qnumHtml = _qnumClean ? '<span class="fu-linked-qnum">Follow up → ' + $('<span>').text(_qnumClean).html() + 'Question'+ '</span>' : '<span class="fu-linked-qnum"></span>';
+    var _qnumHtml = _qnumClean ? '<span class="fu-linked-qnum">' + $('<span>').text(_qnumClean).html() + '</span>' : '<span class="fu-linked-qnum"></span>';
     $target.append(_qnumHtml + window.linkedLabelHtml + " " + window.unlinkFollowupHtml);
     $link.hide();
     if (typeof reOrderIndex === "function") reOrderIndex(false);
