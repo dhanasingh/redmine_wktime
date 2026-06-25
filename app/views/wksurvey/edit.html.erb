@@ -262,10 +262,12 @@
 	<!-- Footer Save bar (always visible / sticky) -->
 	<div class="ed-actions-footer">
 		<%= submit_tag l(:button_save), id: 'wksurvey_save_footer', class: 'ed-btn ed-btn-primary' %>
-		<a class="ed-btn ed-btn-ghost" href="javascript:showConfirmationDlg();">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg>
-			<%= l(:button_email_user) %>
-		</a>
+		<% if @survey.status == "O" %>
+			<a class="ed-btn ed-btn-ghost" href="javascript:showConfirmationDlg();">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg>
+				<%= l(:button_email_user) %>
+			</a>
+		<% end %>
 	</div>
 
 <% end %>

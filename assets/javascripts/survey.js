@@ -12,8 +12,6 @@ $(function () {
 
 	$('.group-accordion-item').find('.group-accordion-content').first().show();
 
-	if ($('#survey_status').val() != 'O')
-		$('.icon-email-add').hide();
 
 	$('#survey_for').change(function () {
 		$('#survey_for_id').val('');
@@ -1305,6 +1303,28 @@ $(document).on('input', '.group-name-input, .question-name-input', function() {
 	refreshSurveySidebar();
 });
 
+$(document).on('blur', '.choice-text', function () {
+	var $choice = $(this).closest('.choice');
+	if (!$choice.length) return;
+	var $wrap = $choice.next('.followup-inline-row');
+	if (!$wrap.length) return;
+	var $fuTag = $wrap.find('> .surveyquestion > .q-body > .fu-tag').first();
+	if (!$fuTag.length) return;
+	var newName = $(this).val().trim();
+	$wrap.attr('data-choice-name', newName || 'followup');
+	var $tagChoice = $fuTag.find('> .fu-tag-choice').first();
+	if (newName) {
+		var safeHtml = '\xb7 ' + $('<span>').text(newName).html();
+		if ($tagChoice.length) {
+			$tagChoice.html(safeHtml);
+		} else {
+			$fuTag.append('<span class="fu-tag-choice">' + safeHtml + '</span>');
+		}
+	} else if ($tagChoice.length) {
+		$tagChoice.remove();
+	}
+});
+
 $(document).on('click', '.sidebar-question', function() {
 	const targetId = $(this).attr('data-sidebar-target');
 	if (!targetId) return;
@@ -1822,30 +1842,24 @@ $(function () {
       globalGroupSortOrder++;
       $group.children(".group-sort-order").val(globalGroupSortOrder);
 
-      // NOTE: the group template wraps its first question in
-      //   .group-questions > .questions_container > .surveyquestion
-      // while dynamically-added questions land as direct children of
-      //   .group-questions
-      // So we need a DESCENDANT selector here, not a direct-child one.
-      // `:not(.child-question)` already excludes inline follow-up questions,
-      // and the .followup-inline-row guard below excludes deeper nesting.
       function _isTopLevel($q){
         // Excludes any question that lives inside a follow-up wrapper.
         return $q.closest(".followup-inline-row").length === 0;
       }
 
       if ($group.hasClass("group-accordion-item")){
-        groupCounter++;
-        $group.find(".group-accordion-header .group-num").text("GROUP " + groupCounter);
+        groupCounter++;1
+        var $nameChip       = $group.find(".group-accordion-header .group-num").first();
+        var placeholderText = ($nameChip.text() || "").trim();
+        $nameChip.text("GROUP " + groupCounter);
 
-        // Sync hidden name field if blank (server-rendered group whose name
-        // was never saved — e.g. the initial default group on a new survey).
-        // Without this the form submits name="" and the view treats the group
-        // as "ungrouped", losing all its questions in the accordion layout.
         var $nameHidden   = $group.find(".group-accordion-header .group-name-hidden").first();
         var $nameEditable = $group.find(".group-accordion-header .group-name-editable").first();
         if (!$nameHidden.val()) {
-          var nm = $nameEditable.text().trim() || ("Group-" + groupCounter);
+          var rawText = $nameEditable.text().trim();
+          var isPlaceholder = !rawText ||
+            (placeholderText && rawText.toLowerCase() === placeholderText.toLowerCase());
+          var nm = isPlaceholder ? ("Group-" + groupCounter) : rawText;
           $nameHidden.val(nm);
           $nameEditable.text(nm);
         }
@@ -1891,12 +1905,17 @@ $(function () {
   window.refreshLinkedQNumLabels = function() {
     $(".choice-followup-actions, .tb-mtb-followup-cell").each(function() {
       var $actions = $(this);
-      var $fuVal = $actions.find(".followup-val");
+      var $scope = $actions;
+      var $fuVal = $scope.find(".followup-val");
+      if (!$fuVal.length && $actions.hasClass("tb-mtb-followup-cell")) {
+        $scope = $actions.closest(".q-tools");
+        $fuVal = $scope.find(".followup-val");
+      }
       var $qnumSpan = $actions.find(".fu-linked-qnum");
       if (!$qnumSpan.length || !$fuVal.length) return;
 
       var linkedId = ($fuVal.attr("name") || "").indexOf("[follow_up_question_id]") >= 0 ? $fuVal.val() : "";
-      var linkedTempId = $actions.find("input[name*='[follow_up_temp_id]']").val() ||
+      var linkedTempId = $scope.find("input[name*='[follow_up_temp_id]']").val() ||
                          (($fuVal.attr("name") || "").indexOf("[follow_up_temp_id]") >= 0 ? $fuVal.val() : "");
 
       if (!linkedId && !linkedTempId) { $qnumSpan.text(""); return; }
@@ -1918,7 +1937,6 @@ $(function () {
     });
   };
 
-  // ---- removeFollowUpLink : new selectors ----
   window.removeFollowUpLink = function(link){
     if (!confirm("Are you sure you want to unlink this follow-up question?")) return;
     var $el = $(link);
@@ -1928,34 +1946,136 @@ $(function () {
     if ($ctx.length === 0) $ctx = $el.closest(".q-tools");
     if ($ctx.length === 0) return;
 
-    $ctx.find(".followup-val").val("");
-    $ctx.find("input[name*='[follow_up_temp_id]'], input[name*='[follow_up_question_id]']").val("");
-    $ctx.find(".followup-linked-label").hide();
-    $ctx.find(".icon-unlink, .fu-unlink").hide();
-    $ctx.find(".fu-linked-qnum").text("");
-    $ctx.find("a[onclick*='addFollowUpQuestion']").show();
+    var $valScope = $ctx;
+    if (!$valScope.find(".followup-val").length && $ctx.hasClass("tb-mtb-followup-cell")) {
+      $valScope = $ctx.closest(".q-tools");
+    }
+    var followUpId = $valScope.find(".followup-val[name*='[follow_up_question_id]']").val();
+    var followUpTempId = $valScope.find("input[name*='[follow_up_temp_id]']").last().val();
 
-    // Hide the inline follow-up div that immediately follows this choice
-    if ($ctx.hasClass("choice")){
-      $ctx.next(".followup-inline-row").hide();
+    var $myQuestion = $ctx.closest(".surveyquestion");
+
+    var otherRefCount = 0;
+    if (followUpId){
+      $(".followup-val[name*='[follow_up_question_id]'][value='" + followUpId + "']").each(function(){
+        var $otherQuestion = $(this).closest(".surveyquestion");
+        if ($myQuestion.length && $otherQuestion.is($myQuestion)) return;
+        otherRefCount++;
+      });
+    }
+    if (followUpTempId){
+      $("input[name*='[follow_up_temp_id]'][value='" + followUpTempId + "']").each(function(){
+        var $otherQuestion = $(this).closest(".surveyquestion");
+        if ($myQuestion.length && $otherQuestion.is($myQuestion)) return;
+        otherRefCount++;
+      });
+    }
+
+    if (otherRefCount > 0){
+      // Question is still referenced by another parent. Business rule: with
+      // two parents sharing one follow-up, unlinking one makes the OTHER
+      // the sole visible parent — the follow-up's inline DOM block must
+      // move there, not stay frozen under the parent that just unlinked.
+      var $newOwnerCtx = null;
+      if (followUpId){
+        $(".followup-val[name*='[follow_up_question_id]'][value='" + followUpId + "']").each(function(){
+          if ($newOwnerCtx) return;
+          var $otherQuestion = $(this).closest(".surveyquestion");
+          if ($myQuestion.length && $otherQuestion.is($myQuestion)) return;
+          $newOwnerCtx = $(this).closest(".choice, .tb-mtb-followup-cell, .q-tools");
+        });
+      }
+      if (!$newOwnerCtx && followUpTempId){
+        $("input[name*='[follow_up_temp_id]'][value='" + followUpTempId + "']").each(function(){
+          if ($newOwnerCtx) return;
+          var $otherQuestion = $(this).closest(".surveyquestion");
+          if ($myQuestion.length && $otherQuestion.is($myQuestion)) return;
+          $newOwnerCtx = $(this).closest(".choice, .tb-mtb-followup-cell, .q-tools");
+        });
+      }
+      _clearFollowUpUI($ctx);
+      if ($newOwnerCtx && $newOwnerCtx.length && typeof window._reparentFollowUpTo === "function"){
+        window._reparentFollowUpTo($myQuestion, followUpId, followUpTempId, $newOwnerCtx);
+      }
+    } else if (typeof unlinkQuestion === "function") {
+      // Sole owner — fully destroy the follow-up question.
+      unlinkQuestion($ctx);
     } else {
-      // TB/MTB: follow-up div lives as a sibling inside .tb-mtb-followup-adder-row
-      var $adder = $el.closest(".tb-mtb-followup-adder-row");
-      if ($adder.length) $adder.find("> .followup-inline-row").hide();
+      _clearFollowUpUI($ctx);
     }
 
     if (typeof reOrderIndex === "function") reOrderIndex(false);
     if (typeof refreshSurveySidebar === "function") refreshSurveySidebar();
   };
 
-  // ---- _clearFollowUpUI : updated ----
   window._clearFollowUpUI = function($ctx){
+    var $question = $ctx.closest(".surveyquestion");
+    var $valScope = $ctx;
+    if (!$valScope.find(".followup-val").length && $ctx.hasClass("tb-mtb-followup-cell")) {
+      $valScope = $ctx.closest(".q-tools");
+    }
+    var oldId = $valScope.find(".followup-val[name*='[follow_up_question_id]']").val();
+    var oldTempId = $valScope.find("input[name*='[follow_up_temp_id]']").val();
+    var $scope = $question.length ? $question : $ctx;
+
+    if (oldId){
+      $scope.find(".followup-val[name*='[follow_up_question_id]'][value='" + oldId + "']").val("");
+    }
+    if (oldTempId){
+      $scope.find("input[name*='[follow_up_temp_id]'][value='" + oldTempId + "']").val("");
+    }
     $ctx.find(".followup-val").val("");
     $ctx.find("input[name*='[follow_up_temp_id]'], input[name*='[follow_up_question_id]']").val("");
     $ctx.find(".followup-linked-label, .icon-unlink, .fu-unlink, .fu-linked-qnum").remove();
-    $ctx.find("a[onclick*='addFollowUpQuestion']").show();
+    var $addLink = $ctx.find("a[onclick*='addFollowUpQuestion']");
+    if ($addLink.length) {
+      $addLink.show();
+    } else if (window.addFollowupHtml) {
+      $ctx.append(window.addFollowupHtml);
+    }
     if ($ctx.hasClass("choice")){
       $ctx.next(".followup-inline-row").hide();
+    }
+  };
+
+  window._reparentFollowUpTo = function($oldQuestion, followUpId, followUpTempId, $newOwnerCtx){
+    if (!$oldQuestion || !$oldQuestion.length) return;
+
+    var $wrap = null;
+    $oldQuestion.find(".followup-inline-row").each(function(){
+      if ($wrap) return;
+      var $q = $(this).find("> .surveyquestion").first();
+      if (!$q.length) return;
+      if (followUpId){
+        var qid = $q.find("> input[name*='[wk_survey_questions_attributes]'][name$='[id]']").val();
+        if (qid && qid === followUpId) { $wrap = $(this); return; }
+      }
+      if (followUpTempId){
+        var tid = $q.find("> input[name*='[temp_id]']").val();
+        if (tid && tid === followUpTempId) { $wrap = $(this); return; }
+      }
+    });
+    if (!$wrap || !$wrap.length) return;
+
+    $wrap.detach().show();
+
+    var $newChoice = $newOwnerCtx.closest(".choice");
+    var $fuTag = $wrap.find("> .surveyquestion > .q-body > .fu-tag").first();
+    $fuTag.find("> .fu-tag-choice").remove();
+
+    if ($newChoice.length){
+      var newChoiceName = $newChoice.find(".choice-text").val() || "";
+      $wrap.attr("data-choice-name", newChoiceName || "followup");
+      if ($fuTag.length && newChoiceName){
+        $fuTag.append('<span class="fu-tag-choice">\xb7 ' + $('<span>').text(newChoiceName).html() + '</span>');
+      }
+      $newChoice.after($wrap);
+    } else {
+      $wrap.attr("data-choice-name", "followup");
+      var $newQuestion = $newOwnerCtx.closest(".surveyquestion");
+      var $adder = $newQuestion.find("> .q-body > .tb-mtb-choice.tb-mtb-followup-adder-row").first();
+      if ($adder.length) $adder.append($wrap);
+      else $newQuestion.find("> .q-body").first().append($wrap);
     }
   };
 
@@ -2043,14 +2163,14 @@ $(function () {
     if ($choice.length){
       $choice.after($wrap);
     } else {
-      // TB/MTB: append inside .tb-mtb-followup-adder-row
-      var $adder = $link.closest(".tb-mtb-followup-adder-row");
+      var $qBody = $link.closest(".q-body");
+      var $adder = $qBody.find("> .tb-mtb-choice.tb-mtb-followup-adder-row").first();
       if ($adder.length) $adder.append($wrap);
-      else $link.closest(".q-body").append($wrap);
+      else $qBody.append($wrap);
     }
 
-    $target.find(".followup-linked-label, .icon-unlink, .fu-unlink").remove();
-    $target.append(window.linkedLabelHtml + " " + window.unlinkFollowupHtml);
+    $target.find(".followup-linked-label, .icon-unlink, .fu-unlink, .fu-linked-qnum").remove();
+    $target.append('<span class="fu-linked-qnum"></span>' + window.linkedLabelHtml + " " + window.unlinkFollowupHtml);
     $(link).hide();
 
     if (typeof reOrderIndex === "function") reOrderIndex(false);
@@ -2096,7 +2216,7 @@ $(function () {
 
   // ---- unlinkQuestion : new context selector ----
   window.unlinkQuestion = function($ctx){
-    var followUpId = $ctx.find(".followup-val").val();
+    var followUpId = $ctx.find(".followup-val[name*='[follow_up_question_id]']").val();
     var followUpTempId = $ctx.find("input[name*='[follow_up_temp_id]']").last().val();
     var questionToDelete = null;
 

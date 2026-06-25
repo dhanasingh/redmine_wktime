@@ -740,10 +740,15 @@ fieldset.surveyquestion tr.tb-mtb-followup-adder-row td {
 .ed-status-pill.ed-st-C{color:var(--ed-text-3)}
 .ed-status-pill.ed-st-C .ed-dot{background:var(--ed-text-3)}
 
-.ed-btn{
-  font:inherit;font-size:13.5px;font-weight:600;
-  border-radius:8px;padding:8px 16px;cursor:pointer;
-  border:1px solid transparent;display:inline-flex;align-items:center;gap:7px;
+.ed-btn,
+input.ed-btn,
+button.ed-btn,
+a.ed-btn{
+  font:inherit !important;font-size:13.5px !important;font-weight:600 !important;
+  border-radius:8px !important;padding:8px 16px !important;cursor:pointer;
+  border:1px solid transparent;display:inline-flex !important;align-items:center;gap:7px;
+  line-height:normal !important;height:auto !important;box-sizing:border-box;
+  text-decoration:none;
 }
 .ed-btn svg{width:15px;height:15px}
 .ed-btn-primary,
@@ -768,7 +773,7 @@ button.ed-btn-primary:hover,
 .ed-block-head{display:flex;align-items:center;gap:12px;margin:0 0 4px;cursor:pointer;user-select:none}
 .ed-block-head h2{font-size:13px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ed-text-3);margin:0}
 .ed-block-head .ed-ln{flex:1;height:1px;background:var(--ed-border)}
-.ed-twirl{width:18px;height:18px;color:var(--ed-text-3);transition:transform .15s;margin-top:-10px}
+.ed-twirl{width:18px;height:18px;color:var(--ed-text-3);transition:transform .15s;flex:none}
 .ed-collapsed .ed-twirl{transform:rotate(-90deg)}
 .ed-collapsed .ed-settings-body{display:none}
 
@@ -791,10 +796,12 @@ button.ed-btn-primary:hover,
 .ed-input:focus{outline:none;border-color:var(--ed-accent);box-shadow:0 0 0 3px var(--ed-accent-soft)}
 .ed-input.ed-w-lg{width:340px}
 .ed-input.ed-w-sm{width:80px;text-align:center}
-.ed-select{
-  appearance:none;-webkit-appearance:none;
+select.ed-select,
+.ed-root select.ed-select{
+  appearance:none !important;-webkit-appearance:none !important;
   border:1px solid var(--ed-border-2);background:#fff;border-radius:8px;
-  padding:7px 30px 7px 11px;font:inherit;color:var(--ed-text);cursor:pointer;
+  padding:7px 30px 7px 11px !important;font:inherit;color:var(--ed-text);cursor:pointer;
+  height:auto !important;min-width:140px;line-height:normal;box-sizing:border-box;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23656d76' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");
   background-repeat:no-repeat;background-position:right 10px center;
 }
@@ -1636,10 +1643,11 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
 .ed-root .q-title:focus { outline: none; background: #fff; border-color: #016bff; box-shadow: 0 0 0 3px #eaf1ff; }
 
 .ed-root .q-type-select {
-  appearance: none; -webkit-appearance: none;
+  appearance: none !important; -webkit-appearance: none !important;
   border: 1px solid #d8dbe0; background: #fff; border-radius: 8px;
-  padding: 7px 30px 7px 12px; font-size: 13px; font-weight: 600;
+  padding: 7px 30px 7px 12px !important; font-size: 13px; font-weight: 600;
   cursor: pointer; flex: none;
+  height: auto !important; min-width: 140px; line-height: normal; box-sizing: border-box;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23656d76' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");
   background-repeat: no-repeat; background-position: right 10px center;
 }
