@@ -491,6 +491,20 @@ class WkproductitemController < WkinventoryController
 		true
 	end
 
+	# Whether the "parent name" column in the list links to the item's edit page.
+	# Off by default; subclasses (e.g. apartments) override to make the name
+	# clickable, like other ERPmine list pages.
+	def linkParentNameToEdit
+		false
+	end
+
+	# Whether the "asset name" column (e.g. components/beds) links to the edit page.
+	# On by default; subclasses (e.g. apartments) override to show plain text, since
+	# beds are edited via the row's edit icon instead.
+	def linkAssetNameToEdit
+		true
+	end
+
 	def lblInventory
 		l(:label_inventory)
 	end

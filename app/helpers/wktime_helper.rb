@@ -846,7 +846,12 @@ end
 			# viewMenu  = viewMenu.blank? ? '' : (viewMenu.is_a?(Array) ? (viewMenu[0].blank? ? '': viewMenu[0].to_s) : viewMenu.to_s)
 			#@manger_user = (!viewMenu.blank? && to_boolean(viewMenu))
 			# ret = (!viewProjects.blank? && viewProjects.size > 0) || (!loggableProjects.blank? && loggableProjects.size > 0) || validateERPPermission('A_TE_PRVLG') || (isSupervisorApproval && getSuperViewPermission) #(!viewMenu.blank? && to_boolean(viewMenu))
-			ret = Project.count > 0
+			# Memoized on User.current (reset each request) - called once per top menu item.
+			ret = User.current.instance_variable_get(:@wktime_view_permission)
+			if ret.nil?
+				ret = Project.count > 0
+				User.current.instance_variable_set(:@wktime_view_permission, ret)
+			end
 		end
 		ret
 	end
@@ -1365,7 +1370,10 @@ end
 			#ddArray = ddValues.collect {|t| [t["#{displayCol}"], t["#{valueCol}"]]
 			ddValues.each do | entry |
 				ddArray << [entry["#{displayCol}"], entry["#{valueCol}"]]
-				selectedVal = entry.id if model == WkLocation && selectedVal.nil? && entry.is_default?
+				# Pre-select the org default location only on mandatory dropdowns
+				# (no blank option). When needBlank is set, blank means "All"/"none",
+				# so don't mask that intent by forcing the default location.
+				selectedVal = entry.id if model == WkLocation && selectedVal.nil? && !needBlank && entry.is_default?
 			end
 		end
 
@@ -1456,19 +1464,26 @@ end
 	end
 
 	def validateERPPermission(permission)
-		permissionArr = Array.new
 		user = User.current
-		user.groups.each do |group|
-			groupPermission = WkGroupPermission.where(:group_id => group.id)
-			groupPermission.each do |grp|
-				unless grp.permission.blank?
-					shortname = grp.permission.short_name
-					permissionArr << shortname
-				end
-		  end
-		end		
-		is_allow = Array(call_hook(:allow_module)).first
-		is_allow.present? || permissionArr.include?(permission)		
+		# A user's ERP permissions don't change within a single request, but
+		# validateERPPermission is invoked dozens of times per page (top menus,
+		# show* helpers, views). Recomputing it each time previously iterated every
+		# group permission with an N+1 on grp.permission - ~1500 queries that
+		# dominated page render time. Compute the permission list once and memoize
+		# it on the shared User.current object (a fresh object each request, so the
+		# cache never goes stale across requests).
+		permissionArr = user.instance_variable_get(:@wktime_erp_permissions)
+		if permissionArr.nil?
+			groupIds = user.groups.map(&:id)
+			permissionArr = WkGroupPermission.where(:group_id => groupIds)
+				.includes(:permission)
+				.filter_map { |grp| grp.permission&.short_name }
+				.uniq
+			user.instance_variable_set(:@wktime_erp_permissions, permissionArr)
+			isAllow = Array(call_hook(:allow_module)).first
+			user.instance_variable_set(:@wktime_erp_allow_module, isAllow.present?)
+		end
+		user.instance_variable_get(:@wktime_erp_allow_module) || permissionArr.include?(permission)
 	end
 
 	def showShiftScheduling

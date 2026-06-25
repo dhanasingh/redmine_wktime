@@ -430,6 +430,19 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, bla
 					text, val, false, val == userid);
 			}
 		}
+		// Re-sync the Semantic UI dropdown widget (sidebar-white theme) after its
+		// <option>s are replaced/cleared via AJAX, so it doesn't keep stale text
+		// (e.g. a previously selected apartment) when a dependent dropdown reloads
+		// or goes empty. No-op on themes without the Semantic dropdown wrapper.
+		if (window.jQuery && jQuery.fn.dropdown) {
+			var $sel = jQuery(dropdown), $wrap = $sel.parent();
+			if ($sel.length && $wrap.hasClass('dropdown')) {
+				$sel.removeClass('ui dropdown');
+				$sel.insertBefore($wrap);
+				$wrap.remove();
+				$sel.dropdown({ placeholder: false });
+			}
+		}
 	}
 }
 
