@@ -87,13 +87,17 @@ module Wkcrmdashboard
     private
 
     def getLeadsForRange(from, to)
-      WkLead
+      rel = WkLead
         .joins(:contact)
         .where(
           status: 'N',
           created_at: getFromDateTime(from)..getToDateTime(to),
           "wk_crm_contacts.contact_type" => ["C", "SC"]
         )
+      # Scope to the current user's accessible contact locations (nil => admin).
+      ids = WkLocation.accessible_location_ids
+      rel = rel.where(wk_crm_contacts: { location_id: (ids.presence || [-1]) }) unless ids.nil?
+      rel
     end
   end
 end

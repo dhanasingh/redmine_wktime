@@ -66,11 +66,27 @@ module Wkdashboard
     private
 
     def getInvoiceEntries
-      WkInvoice.where(:invoice_date => getToDateTime(@startDate) .. getToDateTime(@endDate), invoice_type: "I")
+      scope_by_parent_location(WkInvoice.where(:invoice_date => getToDateTime(@startDate) .. getToDateTime(@endDate), invoice_type: "I"))
     end
 
     def getPaymentEntries
-      WkPayment.where("wk_payments.payment_date BETWEEN ? AND ?", getToDateTime(@startDate), getToDateTime(@endDate))
+      scope_by_parent_location(WkPayment.where("wk_payments.payment_date BETWEEN ? AND ?", getToDateTime(@startDate), getToDateTime(@endDate)))
+    end
+
+    # Scope an invoice/payment relation to records whose polymorphic parent
+    # (WkAccount / WkCrmContact) is in the current user's accessible locations.
+    # nil scope => admin/unrestricted, relation returned unchanged.
+    def scope_by_parent_location(rel)
+      ids = WkLocation.accessible_location_ids
+      return rel if ids.nil?
+      acc = WkAccount.unscoped.where(location_id: ids).pluck(:id).presence || [-1]
+      con = WkCrmContact.unscoped.where(location_id: ids).pluck(:id).presence || [-1]
+      t = rel.table_name
+      rel.where(
+        "(#{t}.parent_type = 'WkAccount' AND #{t}.parent_id IN (?)) OR " \
+        "(#{t}.parent_type = 'WkCrmContact' AND #{t}.parent_id IN (?))",
+        acc, con
+      )
     end
   end
 end

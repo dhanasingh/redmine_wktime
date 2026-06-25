@@ -30,8 +30,13 @@ module Wkdashboard
     private
 
     def getEntries(from)
-      WkAttendance.joins("LEFT JOIN groups_users ON groups_users.user_id = wk_attendances.user_id")
+      entries = WkAttendance.joins("LEFT JOIN groups_users ON groups_users.user_id = wk_attendances.user_id")
         .where("start_time BETWEEN ? AND ?", (getToDateTime(from)).beginning_of_day().utc, (getToDateTime(from)).end_of_day().utc)
+      # Scope to employees whose work location is in the current user's accessible
+      # scope (nil => admin/unrestricted, no filter).
+      user_ids = WkUser.user_ids_in_accessible_location
+      entries = entries.where(user_id: (user_ids.presence || [-1])) unless user_ids.nil?
+      entries
     end
   end
 end

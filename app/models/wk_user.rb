@@ -39,6 +39,16 @@ class WkUser < ApplicationRecord
   belongs_to :marital, :class_name => 'WkCrmEnumeration'
   before_save :encrypt_user_credentials
 
+  # User ids whose employee work location (WkUser.location_id) is within the current
+  # user's accessible location scope. Returns nil when unrestricted (admin / no
+  # perm_location) so callers can skip filtering. Used by the dashboard graphs that
+  # scope attendance/expense by the employee's location.
+  def self.user_ids_in_accessible_location(user = User.current)
+    ids = WkLocation.accessible_location_ids(user)
+    return nil if ids.nil?
+    where(location_id: (ids.presence || [-1])).pluck(:user_id)
+  end
+
 	def save_address
 		self.address ||= WkAddress.new(:wk_user => self)
 	end

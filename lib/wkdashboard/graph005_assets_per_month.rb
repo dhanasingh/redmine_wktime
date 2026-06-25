@@ -40,7 +40,7 @@ module Wkdashboard
     private
 
     def getAssets(to)
-      WkInventoryItem.joins("INNER JOIN wk_product_items pt ON (pt.id = wk_inventory_items.product_item_id AND wk_inventory_items.product_type = 'A'"+get_comp_cond('pt')+")")
+      entries = WkInventoryItem.joins("INNER JOIN wk_product_items pt ON (pt.id = wk_inventory_items.product_item_id AND wk_inventory_items.product_type = 'A'"+get_comp_cond('pt')+")")
       .joins("LEFT OUTER JOIN (
           SELECT MAX(depreciation_date) as depreciation_date, inventory_item_id
           FROM wk_asset_depreciations d
@@ -53,6 +53,10 @@ module Wkdashboard
         "+get_comp_cond('ap')+"
         LEFT OUTER JOIN projects ON (projects.id = wk_inventory_items.project_id "+get_comp_cond('projects')+")")
         .where("ap.id is not null and s.shipment_date <= '#{to}'")
+      # Restrict to assets in the current user's accessible locations (nil => admin).
+      acc_sql = WkLocation.accessible_location_sql('wk_inventory_items')
+      entries = entries.where(acc_sql) if acc_sql.present?
+      entries
     end
   end
 end

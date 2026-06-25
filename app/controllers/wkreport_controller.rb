@@ -102,7 +102,11 @@ accept_api_auth :get_reports, :get_report_data, :export
 		reportType = getReportType(true)
 		projects = Project.active.order('name')
 		groups = Group.sorted.givable
-		locations = WkLocation.order(:name)
+		# Scope the location filter to the user's accessible locations so the dropdown
+		# never exposes (or lets them pick) locations outside their permitted scope.
+		# accessible_location_ids => nil means unrestricted (admin), so show all.
+		acc_loc_ids = WkLocation.accessible_location_ids
+		locations = acc_loc_ids.nil? ? WkLocation.order(:name) : WkLocation.where(id: acc_loc_ids).order(:name)
 		headers[:projects] = projects.map{ |p| [p.name, p.id]}
 		headers[:groups] = groups.map{ |g| [g.name, g.id]}
 		headers[:locations] = locations.map{ |l| [l.name, l.id]}

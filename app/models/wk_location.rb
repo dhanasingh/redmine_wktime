@@ -76,6 +76,19 @@ class WkLocation < ApplicationRecord
     loc ? loc.self_and_descendants.pluck(:id) : [location_id.to_i]
   end
 
+  # Effective location-id restriction for report builders: the intersection of the
+  # picked location's subtree (when one is selected) with the user's accessible
+  # scope. Single source of truth so every report filters identically.
+  #   nil  => no restriction at all (admin/unrestricted AND no location picked) =>
+  #           caller should add no location condition.
+  #   [..] => the allowed location ids (use `ids.presence || [-1]` so an empty
+  #           intersection matches nothing rather than producing invalid SQL).
+  def self.report_location_ids(location_id, user = User.current)
+    acc = accessible_location_ids(user)
+    sel = (location_id.present? && location_id.to_s != "0") ? subtree_ids(location_id) : nil
+    [acc, sel].compact.reduce(:&)
+  end
+
   # Deepest-leaf locations PER top-level zone within `scope`: for each top-level
   # root (the depth-0 ancestor within scope), the leaves (no children in scope) at
   # that root's MAXIMUM leaf depth. So an uneven branch (e.g. Madurai -> Melur)
@@ -127,6 +140,26 @@ class WkLocation < ApplicationRecord
     ids = accessible_location_ids
     return nil if ids.nil?
     "#{table_alias}.#{column} IN (#{(ids.presence || [-1]).join(',')})"
+  end
+
+  # SQL condition (or nil when unrestricted) that scopes a CRM record's polymorphic
+  # parent (parent_type / parent_id columns on `table_alias`) to the current user's
+  # accessible contact/account locations. Handles direct WkCrmContact / WkAccount
+  # parents and one level of WkLead -> contact and WkOpportunity -> (contact|account).
+  # Used by the CRM dashboard activity/opportunity graphs.
+  def self.accessible_parent_sql(table_alias)
+    ids = accessible_location_ids
+    return nil if ids.nil?
+    cids = (WkCrmContact.unscoped.where(location_id: ids).pluck(:id).presence || [-1]).join(',')
+    aids = (WkAccount.unscoped.where(location_id: ids).pluck(:id).presence || [-1]).join(',')
+    t = table_alias
+    "(" \
+      "(#{t}.parent_type = 'WkCrmContact' AND #{t}.parent_id IN (#{cids})) OR " \
+      "(#{t}.parent_type = 'WkAccount' AND #{t}.parent_id IN (#{aids})) OR " \
+      "(#{t}.parent_type = 'WkLead' AND #{t}.parent_id IN (SELECT id FROM wk_leads WHERE contact_id IN (#{cids}))) OR " \
+      "(#{t}.parent_type = 'WkOpportunity' AND #{t}.parent_id IN (SELECT id FROM wk_opportunities WHERE " \
+        "(parent_type = 'WkCrmContact' AND parent_id IN (#{cids})) OR (parent_type = 'WkAccount' AND parent_id IN (#{aids}))))" \
+    ")"
   end
 
   # Returns [ordered_array, depths_hash, ancestor_ids_hash] for the given

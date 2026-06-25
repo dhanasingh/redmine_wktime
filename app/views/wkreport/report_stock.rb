@@ -19,10 +19,15 @@ module ReportStock
   include WkreportHelper
 
 	def calcReportData(userId, groupId, projId, from, to, location_id = nil)
+		# Location filter: picked-zone subtree ∩ accessible locations (nil => admin/
+		# unrestricted, no condition), so parent zones match child-location stock and
+		# normal users never see stock outside their permitted scope.
+		loc_ids = WkLocation.report_location_ids(location_id)
+		locationCond = loc_ids.nil? ? "" : " AND location_id IN (#{(loc_ids.presence || [-1]).join(',')})"
 		sqlStr = " select p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as attribute_name, inv.stock_value, inv.stock_quantity, um.short_desc, projects.name as project_name, inv.currency
 					from wk_product_items pitm
 					inner join (select product_item_id, product_attribute_id, uom_id, project_id, currency, sum((cost_price * available_quantity) + over_head_price) as stock_value, sum(available_quantity) as stock_quantity
-					from wk_inventory_items where product_type='I'"+get_comp_cond('wk_inventory_items')+ (location_id.present? && location_id.to_s != "0" ? " AND location_id = #{location_id.to_i}" : "") +" group by product_item_id, product_attribute_id, uom_id, project_id, currency
+					from wk_inventory_items where product_type='I'"+get_comp_cond('wk_inventory_items')+ locationCond +" group by product_item_id, product_attribute_id, uom_id, project_id, currency
           ) inv on (inv.product_item_id = pitm.id)
 					left join wk_products p on (p.id = pitm.product_id) "+get_comp_cond('p')+"
 					left join wk_product_models m on (m.id = pitm.product_model_id)"+get_comp_cond('m')+"

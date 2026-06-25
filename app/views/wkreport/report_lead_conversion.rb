@@ -7,7 +7,11 @@ module ReportLeadConversion
     end
     leads = {}
 	  leadList = getLeadList(from, to, group_id, user_id)
-    leadList = leadList.joins(:contact).where(wk_crm_contacts: { location_id: location_id }) if location_id.present? && location_id.to_s != "0"
+    # Location filter: picked-zone subtree ∩ accessible locations (nil => admin/
+    # unrestricted), so parent zones match child-location contacts and a normal user
+    # never sees leads outside their permitted scope.
+    loc_ids = WkLocation.report_location_ids(location_id)
+    leadList = leadList.joins(:contact).where(wk_crm_contacts: { location_id: (loc_ids.presence || [-1]) }) unless loc_ids.nil?
     filteredList = leadList.to_a
     filteredList.each do |lead|
       key = lead.id.to_s

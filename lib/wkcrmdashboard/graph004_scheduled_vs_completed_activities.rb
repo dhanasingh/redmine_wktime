@@ -29,12 +29,13 @@ def get_detail_report(param = {})
   from = param[:to].beginning_of_week
   date_range = getFromDateTime(from)..getToDateTime(to)
 
-  scheduled = WkCrmActivity.where(status: 'NS', start_date: date_range)
+  scheduled = scope_by_parent_location(WkCrmActivity.where(status: 'NS', start_date: date_range))
                             .order(start_date: :desc)
 
-  completed = WkCrmActivity.where(status: 'C')
+  completed = scope_by_parent_location(
+                            WkCrmActivity.where(status: 'C')
                             .where(end_date: date_range)
-                            .or(WkCrmActivity.where(status: 'C', end_date: nil, start_date: date_range))
+                            .or(WkCrmActivity.where(status: 'C', end_date: nil, start_date: date_range)))
                             .order(end_date: :desc)
 
   activities = scheduled.map do |activity|
@@ -72,6 +73,14 @@ end
 
     private
 
+    # Restrict a WkCrmActivity relation to activities whose polymorphic parent
+    # resolves to one of the current user's accessible contact/account locations.
+    # nil scope => admin/unrestricted, relation returned unchanged.
+    def scope_by_parent_location(rel)
+      cond = WkLocation.accessible_parent_sql('wk_crm_activities')
+      cond ? rel.where(cond) : rel
+    end
+
     def count_weekly(from, to, status)
       counts = [0] * 7
 
@@ -91,6 +100,10 @@ end
                                     )
                                   )
       end
+
+      # Scope to activities whose polymorphic parent is in the user's accessible
+      # contact/account locations (nil => admin/unrestricted, no filter).
+      activities = scope_by_parent_location(activities)
 
       activities.each do |activity|
         date = (status == 'NS') ? activity.start_date : (activity.end_date || activity.start_date)

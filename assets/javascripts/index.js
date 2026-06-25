@@ -303,9 +303,14 @@ function openReportPopup() {
 		projectId = document.getElementById('project_id').value;
 	}
 
+	// The location dropdown (wklocation/_multi_lvl_loc_dropdown) renders a <select>
+	// with name="location_id" but a randomized id, so read it by name within the
+	// form (fall back to id for any legacy form that still uses id="location_id").
 	var locationId = "";
-	if (document.getElementById('location_id')) {
-		locationId = document.getElementById('location_id').value;
+	var locEl = document.querySelector('#query_form [name="location_id"]') ||
+		document.getElementById('location_id');
+	if (locEl) {
+		locationId = locEl.value;
 	}
 
 	var searchlist = document.getElementById('searchlist').value;
