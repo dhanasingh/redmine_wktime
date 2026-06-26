@@ -49,7 +49,7 @@
 <% end %>
 
 <div class="ed-root">
-<%= form_with model: @survey, url: { controller: 'wksurvey', action: 'save_survey' }, scope: :wksurvey, id: 'survey_form', method: :post do |f| %>
+<%= form_with model: @survey, url: { controller: controller_name, action: 'save_survey' }, scope: :wksurvey, id: 'survey_form', method: :post do |f| %>
 
 	<%= hidden_field_tag 'project_id', params[:project_id] %>
 	<%= f.hidden_field :id %>
