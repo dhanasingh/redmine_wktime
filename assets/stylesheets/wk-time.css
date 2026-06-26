@@ -234,14 +234,13 @@ fieldset.surveyquestion tr.tb-mtb-followup-adder-row td {
     padding-bottom: 2px;
 }
 /* inline follow-up container indentation */
-.ed-root .fu-linked-qnum {
-  font-size: 11px;
-  font-weight: 600;
-  color: #5b6876;
-  letter-spacing: .3px;
-  margin-right: 4px;
+.ed-root .fu-linked-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #016bff;
+  margin-right: 6px;
 }
-.ed-root .fu-linked-qnum:empty { display: none; }
+.ed-root .fu-linked-label:empty { display: none; }
 .ed-root .follow-up-container{
     margin-left: 0;
     border-left: 3px solid var(--ed-accent);

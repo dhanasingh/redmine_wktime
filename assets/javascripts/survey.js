@@ -1911,14 +1911,14 @@ $(function () {
         $scope = $actions.closest(".q-tools");
         $fuVal = $scope.find(".followup-val");
       }
-      var $qnumSpan = $actions.find(".fu-linked-qnum");
-      if (!$qnumSpan.length || !$fuVal.length) return;
+      var $labelSpan = $actions.find(".fu-linked-label");
+      if (!$labelSpan.length || !$fuVal.length) return;
 
       var linkedId = ($fuVal.attr("name") || "").indexOf("[follow_up_question_id]") >= 0 ? $fuVal.val() : "";
       var linkedTempId = $scope.find("input[name*='[follow_up_temp_id]']").val() ||
                          (($fuVal.attr("name") || "").indexOf("[follow_up_temp_id]") >= 0 ? $fuVal.val() : "");
 
-      if (!linkedId && !linkedTempId) { $qnumSpan.text(""); return; }
+      if (!linkedId && !linkedTempId) { $labelSpan.text(""); return; }
 
       var $linkedQ = $([]);
       if (linkedId) {
@@ -1930,9 +1930,10 @@ $(function () {
 
       if ($linkedQ.length) {
         var numText = ($linkedQ.find(".childIndexNo b").text() || $linkedQ.find(".childIndexNo").text()).replace(/\.$/, "").trim();
-        $qnumSpan.text(numText ? numText : "");
+        var labelText = numText ? "Follow-up (" + numText + ")" : "";
+        $labelSpan.text(labelText);
       } else {
-        $qnumSpan.text("");
+        $labelSpan.text("");
       }
     });
   };
@@ -2169,8 +2170,8 @@ $(function () {
       else $qBody.append($wrap);
     }
 
-    $target.find(".followup-linked-label, .icon-unlink, .fu-unlink, .fu-linked-qnum").remove();
-    $target.append('<span class="fu-linked-qnum"></span>' + window.linkedLabelHtml + " " + window.unlinkFollowupHtml);
+    $target.find(".followup-linked-label, .icon-unlink, .fu-unlink, .fu-linked-label").remove();
+    $target.append('<span class="fu-linked-label"></span> ' + window.unlinkFollowupHtml);
     $(link).hide();
 
     if (typeof reOrderIndex === "function") reOrderIndex(false);
@@ -2205,10 +2206,11 @@ $(function () {
       if (p2 === nameAttr) p2 = nameAttr.substring(0, nameAttr.lastIndexOf("[")) + "[follow_up_question_id]";
       $target.append('<input type="hidden" class="followup-val" name="' + p2 + '" value="' + targetId + '">');
     }
-    $target.find(".followup-linked-label, .icon-unlink, .fu-unlink, .fu-linked-qnum").remove();
+    $target.find(".followup-linked-label, .icon-unlink, .fu-unlink, .fu-linked-label").remove();
     var _qnumClean = (indexNo || "").replace(/\.$/, "").trim();
-    var _qnumHtml = _qnumClean ? '<span class="fu-linked-qnum">' + $('<span>').text(_qnumClean).html() + '</span>' : '<span class="fu-linked-qnum"></span>';
-    $target.append(_qnumHtml + window.linkedLabelHtml + " " + window.unlinkFollowupHtml);
+    var _labelText = _qnumClean ? "Follow-up (" + $('<span>').text(_qnumClean).html() + ")" : "";
+    var _labelHtml = _labelText ? '<span class="fu-linked-label">' + _labelText + '</span>' : '<span class="fu-linked-label"></span>';
+    $target.append(_labelHtml + " " + window.unlinkFollowupHtml);
     $link.hide();
     if (typeof reOrderIndex === "function") reOrderIndex(false);
     if (typeof refreshSurveySidebar === "function") refreshSurveySidebar();
