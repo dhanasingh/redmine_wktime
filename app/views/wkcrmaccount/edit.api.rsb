@@ -19,5 +19,5 @@ end
 api.headers do
   api.categories getEnumerations('AC')
   api.locations getAllLocations(@accountEntry&.location_id)
-  api.defaultLocation WkLocation.default_id
+  api.defaultLocation WkLocation.default_id_for
 end

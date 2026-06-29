@@ -337,7 +337,9 @@ class WkproductitemController < WkinventoryController
 		inventoryItem.available_quantity = params[:available_quantity]
 		inventoryItem.status = inventoryItem.available_quantity == 0 ? 'c' : 'o'
 		inventoryItem.uom_id = params[:uom_id].to_i
-		inventoryItem.location_id = locationId if params[:location_id] != "0"
+		# Clamp to the user's permitted scope: read scope only hides out-of-scope
+		# records, it does not stop a crafted web/API request from writing one.
+		inventoryItem.location_id = WkLocation.permit_or_default(locationId) if params[:location_id] != "0"
 		inventoryItem.project_id = projId
 		inventoryItem.serial_number = params[:serial_number]
 		inventoryItem.running_sn = params[:running_sn]

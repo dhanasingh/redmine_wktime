@@ -52,7 +52,7 @@ include WkcrmenumerationHelper
 		wkaccount.name = params[:account_name]
 		wkaccount.account_number = params[:account_number]
 		wkaccount.description = params[:description]
-		wkaccount.location_id = params[:location_id] if params[:location_id] != "0"
+		wkaccount.location_id = WkLocation.permit_or_default(params[:location_id]) if params[:location_id] != "0"
 		if params[:lead_id].blank? || params[:lead_id].to_i == 0
 			wkLead = WkLead.new
 			wkContact = WkCrmContact.new
@@ -77,7 +77,7 @@ include WkcrmenumerationHelper
 		wkContact.description = params[:description]
 		wkContact.department = params[:department]
 		wkContact.salutation = params[:salutation]
-		wkContact.location_id = params[:location_id] if params[:location_id] != "0"
+		wkContact.location_id = WkLocation.permit_or_default(params[:location_id]) if params[:location_id] != "0"
 		wkContact.created_by_user_id = User.current.id if wkContact.new_record?
 		wkContact.updated_by_user_id = User.current.id
 		wkContact.contact_type = "IC" if is_referral

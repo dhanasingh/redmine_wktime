@@ -174,7 +174,7 @@ class WkdeliveryController < WkinventoryController
 				deliveryItem.running_sn = params["running_sn_#{i}"]
 				deliveryItem.notes = params["notes_#{i}"]
 				deliveryItem.total_quantity = params["total_quantity_#{i}"]
-				deliveryItem.location_id = params["location_id_#{i}"].to_i if !params["location_id_#{i}"].blank? && params["location_id_#{i}"] != "0"
+				deliveryItem.location_id = WkLocation.permit_or_default(params["location_id_#{i}"]).to_i if !params["location_id_#{i}"].blank? && params["location_id_#{i}"] != "0"
 				deliveryItem.project_id = params["project_id_#{i}"]
 				deliveryItem.save()
 				errorMsg += deliveryItem.errors.full_messages.join("<br>")

@@ -62,7 +62,7 @@ class WkdevicesController < WkbaseController
 
     unless VALID_STATUSES.include?(new_status)
       flash[:error] = l(:error_invalid_status)
-      redirect_to wkdevices_path(status: filter_status) and return
+      redirect_to wkdevices_path(status: filter_status, tab: 'wkdevices') and return
     end
 
     if @device.update(status: new_status)
@@ -70,7 +70,7 @@ class WkdevicesController < WkbaseController
     else
       flash[:error] = l(:error_device_update_failed)
     end
-    redirect_to wkdevices_path(status: filter_status)
+    redirect_to wkdevices_path(status: filter_status, tab: 'wkdevices')
   end
 
   def destroy
@@ -83,7 +83,7 @@ class WkdevicesController < WkbaseController
     else
       flash[:error] = l(:error_device_delete_failed)
     end
-    redirect_to wkdevices_path(status: filter_status)
+    redirect_to wkdevices_path(status: filter_status, tab: 'wkdevices')
   end
 
   private

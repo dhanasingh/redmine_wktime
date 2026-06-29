@@ -38,6 +38,44 @@ class WkLocation < ApplicationRecord
     WkLocation.where(:is_default => 'true').first&.id
   end
 
+  # Location id a NEW record should default to for `user`, respecting the
+  # permitted-location scope. Unrestricted users (admins / no perm_location) get
+  # the global is_default location. A user restricted to a permitted subtree gets
+  # the global default when it falls inside that subtree, otherwise their own
+  # permitted location - so create flows (e.g. the mobile API, which pre-selects
+  # defaultLocation) never file records under a location outside the user's scope.
+  def self.default_id_for(user = User.current)
+    ids = accessible_location_ids(user)
+    default = default_id
+    return default if ids.nil? || (default && ids.include?(default))
+    pl = WkUser.find_by(user_id: user&.id)&.perm_location
+    (pl.present? && ids.include?(pl)) ? pl : (ids.first || default)
+  end
+
+  # Sanitises a user-supplied location_id on the WRITE path: returns it unchanged
+  # when the user may file a record there (inside their permitted subtree, or
+  # unrestricted), otherwise falls back to their permitted default. Blank / "0"
+  # (no location) passes through untouched. This makes the permission model that
+  # the read default_scope enforces also hold on writes - a crafted web/mobile-API
+  # request can no longer store a record under a location outside the user's scope.
+  def self.permit_or_default(location_id, user = User.current)
+    return location_id if location_id.blank? || location_id.to_s == "0"
+    ids = accessible_location_ids(user)
+    return location_id if ids.nil? || ids.include?(location_id.to_i)
+    default_id_for(user)
+  end
+
+  # Boolean sibling of permit_or_default: true when `user` may file a record at
+  # `location_id` (it is inside their permitted subtree, or they are unrestricted).
+  # Used where there is no sensible value to fall back to and an out-of-scope choice
+  # must be rejected rather than silently redirected - e.g. a resident move-in
+  # references an apartment by id, which can't be "clamped" to another apartment.
+  # A blank location is only allowed for unrestricted users.
+  def self.permitted?(location_id, user = User.current)
+    ids = accessible_location_ids(user)
+    ids.nil? || (location_id.present? && ids.include?(location_id.to_i))
+  end
+
   # Single source of truth for per-user location visibility. Model-safe (no
   # controller-only call_hook) so it can be used from scopes and raw-SQL builders.
   # Memoized per request (WkCurrent, auto-reset each request) since the gated
