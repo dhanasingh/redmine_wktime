@@ -2067,8 +2067,11 @@ end
 	# permitted location subtree and tree-ordered with indentation, matching the web
 	# (`permitted_location_options`). `selected` is always kept so editing a record
 	# whose location is outside the user's scope never drops that value.
-	def getAllLocations(selected = nil)
-		permitted_location_options(selected, indent: true).map { |label, id| { value: id, label: label } }
+	# final_only => only assignable final-level (leaf) locations, flat (matches the
+	# web edit-form location dropdown, generic_options_for_select(..., finalOnly: true)).
+	# Default keeps the full indented permitted tree (matches the web filter dropdown).
+	def getAllLocations(selected = nil, final_only: false)
+		permitted_location_options(selected, indent: !final_only, final_only: final_only).map { |label, id| { value: id, label: label } }
 	end
 
 	def getLeaveSettings

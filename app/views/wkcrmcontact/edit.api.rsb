@@ -24,6 +24,10 @@ api.wk_contact do
 end
 api.headers do
   api.locations getAllLocations(@conEditEntry&.location_id)
+  # Leaf/final locations only, for the resident move-in apartment picker (matches
+  # web _move_in_details.html.erb). Apartments live at leaf locations, so a zone
+  # selection would return no apartments.
+  api.finalLocations getAllLocations(nil, final_only: true)
   api.assignees get_crm_Users
   api.defaultLocation WkLocation.default_id_for
 end
