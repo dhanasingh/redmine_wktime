@@ -59,7 +59,7 @@
       <% if isInlineFollowup %>
         <span class="childIndexNo q-num q-num-inline"></span>
       <% end %>
-      <%= f.text_field :name, size: 40, maxlength: 255, disabled: isDisable, class: 'q-title question-name-input', placeholder: l(:label_question_name) %><span class="required-star">*</span>
+      <span class="required-star">*</span><%= f.text_field :name, size: 40, maxlength: 255, disabled: isDisable, class: 'q-title question-name-input', placeholder: l(:label_question_name) %>
       <%= f.select :question_type,
                    options_for_select(getQuestionType, selected: qtype),
                    {}, {
@@ -94,7 +94,7 @@
             <% if has_fu %>
               <%= c.hidden_field :follow_up_question_id, class: 'followup-val' %>
               <% unless isDisable %>
-                <span class="fu-linked-qnum"></span><%= link_to "unlink ×", 'javascript:void(0)', onclick: 'removeFollowUpLink(this)', class: 'fu-unlink icon-unlink', title: 'Unlink' %>
+                <span class="fu-linked-label"></span><%= link_to "unlink ×", 'javascript:void(0)', onclick: 'removeFollowUpLink(this)', class: 'fu-unlink icon-unlink', title: 'Unlink' %>
               <% end %>
             <% else %>
               <% unless isDisable %>
@@ -165,7 +165,7 @@
         <% end %>
         <span class="tb-mtb-followup-cell" style="display:inline-flex;align-items:center;gap:4px;">
           <%= f.fields_for :wk_survey_choices, f.object.wk_survey_choices.presence || [f.object.wk_survey_choices.build] do |c| %>
-            <span class="fu-linked-qnum"></span>
+            <span class="fu-linked-label"></span>
             <% if c.object.follow_up_question_id.present? %>
               <% unless isDisable %>
                 <%= link_to "unlink ×", 'javascript:void(0)', onclick: 'removeFollowUpLink(this)', class: 'fu-unlink icon-unlink', title: 'Unlink' %>

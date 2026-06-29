@@ -2027,7 +2027,7 @@ $(function () {
     }
     $ctx.find(".followup-val").val("");
     $ctx.find("input[name*='[follow_up_temp_id]'], input[name*='[follow_up_question_id]']").val("");
-    $ctx.find(".followup-linked-label, .icon-unlink, .fu-unlink, .fu-linked-qnum").remove();
+    $ctx.find(".followup-linked-label, .icon-unlink, .fu-unlink, .fu-linked-label").remove();
     var $addLink = $ctx.find("a[onclick*='addFollowUpQuestion']");
     if ($addLink.length) {
       $addLink.show();

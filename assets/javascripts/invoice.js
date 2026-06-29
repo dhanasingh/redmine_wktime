@@ -806,7 +806,9 @@ function getSelectEntry(url, data){
 				modal: true,
 				title: title,
 				width: "80%",
-				height: $(window).height(),
+				height: "auto",
+				maxHeight: $(window).height() - 100,
+				position: { my: "center", at: "center", of: window },
 				buttons: {
 					"Generate": function() {
 						invoiceFormSubmission(false)

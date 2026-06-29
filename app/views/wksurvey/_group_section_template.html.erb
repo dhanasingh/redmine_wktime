@@ -9,10 +9,10 @@
   <h3 class="group-accordion-header ed-section-head">
     <%= f.hidden_field :name, value: 'Group-__GROUP_INDEX_NO__', class: 'group-name-hidden' %>
     <span class="ed-sec-label group-num"><%= l(:label_group).to_s.upcase %></span>
-    <span class="ed-sec-name group-name-editable"
+    <span class="required-star">*</span><span class="ed-sec-name group-name-editable"
           contenteditable="false"
           spellcheck="false"
-          onclick="event.stopPropagation(); activateGroupNameEdit(this)">Group-__GROUP_INDEX_NO__</span><span class="required-star">*</span>
+          onclick="event.stopPropagation(); activateGroupNameEdit(this)">Group-__GROUP_INDEX_NO__</span>
     <span class="ed-sec-count"><span class="ed-q-count"></span></span>
     <span class="ed-spacer"></span>
     <% unless isDisable %>

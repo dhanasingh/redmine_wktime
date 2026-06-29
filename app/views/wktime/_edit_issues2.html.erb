@@ -156,7 +156,20 @@
 			# locationBillProject = projBillList.select {|bp| bp.parent.location_id == usrLocationId unless bp.parent.nil?}
 			locationBillProject = projBillList.sort_by{|parent_type| parent_type}
 			billableProject = locationBillProject.detect {|billProj| billProj.parent_type == parentType && billProj.parent_id == parentId} unless entry.nil?
-			billableProjects = locationBillProject.collect {|billProj| [billProj&.parent&.name, billProj.parent_type.to_s + '_' + billProj.parent_id.to_s]}
+			# NOTE: WkAccount/WkCrmContact apply a location-based default_scope
+			# (LocationScoped) that hides records outside the current user's
+			# permitted location, so `billProj.parent` can silently resolve to nil
+			# for an out-of-scope resident (correct value, blank label). Resolve via
+			# .unscoped to read the real record, then explicitly drop any parent
+			# outside the user's accessible_location_ids — a restricted user must
+			# not see (or be able to select) a resident from another location here.
+			accessible_ids = WkLocation.accessible_location_ids
+			billableProjects = locationBillProject.filter_map { |billProj|
+				parent = billProj.parent_type.constantize.unscoped.find_by(id: billProj.parent_id)
+				next if parent.blank?
+				next if accessible_ids && !accessible_ids.include?(parent.location_id)
+				[parent.name, billProj.parent_type.to_s + '_' + billProj.parent_id.to_s]
+			}
 		end
 	%>
 	<% if showBilling && controller.showSpentFor %>
@@ -166,7 +179,7 @@
 			billableProjects.blank? ? nil : options_for_select(billableProjects, :selected => spent_for_key),
 			:style=> "width:150px" ) %>
 		<% else %>
-			<%= billableProject.parent.name unless billableProject.nil?%>
+			<%= billableProject.parent_type.constantize.unscoped.find_by(id: billableProject.parent_id)&.name unless billableProject.nil? %>
 		<% end %>
 		</td>
 	<% end %>
