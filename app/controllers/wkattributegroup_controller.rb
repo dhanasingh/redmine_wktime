@@ -101,11 +101,15 @@ class WkattributegroupController < WkinventoryController
 
 			end
 			
-			redirect_to :controller => 'wkattributegroup',:action => 'index' , :tab => 'wkattributegroup'
 			flash[:notice] = l(:notice_successful_update)
+			if params[:save_and_edit].present?
+				redirect_to :controller => 'wkattributegroup', :action => 'edit', :group_id => attrGroup.id, :tab => 'wkattributegroup'
+			else
+				redirect_to :controller => 'wkattributegroup', :action => 'index', :tab => 'wkattributegroup'
+			end
 		else
-			redirect_to :controller => 'wkattributegroup',:action => 'index' , :tab => 'wkattributegroup'
 			flash[:error] = attrGroup.errors.full_messages.join("<br>")
+			redirect_to :controller => 'wkattributegroup', :action => 'index', :tab => 'wkattributegroup'
 		end
 	end
 
