@@ -315,6 +315,12 @@ fieldset.surveyquestion tr.tb-mtb-followup-adder-row td {
 
 .ui-dialog {
     max-height: 90vh;
+    /* Without overflow handling here, a dialog whose title bar + content +
+       button pane together exceed 90vh gets squeezed by this max-height but
+       has nowhere for the excess to go (default overflow is visible), so it
+       bleeds past the box edge instead of scrolling — even when the inner
+       .ui-dialog-content already has its own maxHeight/overflow set via JS. */
+    overflow-y: auto;
 }
 
 .icon-gravatar {
@@ -848,7 +854,11 @@ select.ed-select,
 }
 .ed-sec-name:hover{background:var(--ed-hover);border-color:#d1d5db}
 .ed-sec-name:focus{background:#fff;border-color:var(--ed-accent);box-shadow:0 0 0 3px var(--ed-accent-soft)}
-.required-star{color:#e53e3e;font-size:13px;font-weight:700;margin-left:3px;line-height:1;vertical-align:middle}
+.required-star{color:#e53e3e;font-size:15px;font-weight:700;line-height:1;vertical-align:middle}
+/* Inside .q-toprow (align-items:flex-start) the star would sit at the top of
+   the row instead of aligning to the input's vertical center. Override with
+   align-self:center so the question row's star matches the group row's. */
+.ed-root .q-toprow > .required-star{align-self:center;display:inline-flex;align-items:center;height:100%}
 .ed-sec-count{color:var(--ed-text-3);font-size:13px;font-weight:400}
 .ed-spacer{flex:1}
 .ed-sec-actions{display:flex;gap:2px;opacity:1;transition:.12s}
@@ -1275,9 +1285,12 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
 .ed-root .ed-section-head .ed-sec-actions{opacity:1}
 
 /* ─── Settings collapse arrow right next to label ─── */
-.ed-root .ed-block-head{gap:8px}
-.ed-root .ed-block-head h2{flex:none}
-.ed-root .ed-block-head .ed-twirl{flex:none;}
+/* Use !important on flex properties so custom Redmine themes (e.g. rules like
+   "#content h2 { width:100% }") cannot break the inline layout — without these
+   the h2 fills the full flex row width and the twirl SVG wraps below it. */
+.ed-root .ed-block-head{gap:8px;display:flex !important;align-items:center !important;flex-wrap:nowrap !important}
+.ed-root .ed-block-head h2{flex:none;width:auto !important;float:none !important;line-height:1 !important;align-self:center;margin:0 !important;padding:0 !important}
+.ed-root .ed-block-head .ed-twirl{flex:none;align-self:center;display:block !important;width:14px !important;height:14px !important;margin:0 !important;padding:0 !important;vertical-align:middle !important;position:relative;top:0}
 .ed-root .ed-block-head .ed-ln{margin-left:0}
 
 /* Section count needs a little separator dot */
