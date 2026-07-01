@@ -30,7 +30,9 @@ class WkdevicesController < WkbaseController
     if device.approved?
       render json: { status: 'approved' }
     elsif device.rejected?
-      render json: { status: 'rejected' }
+      payload = { status: 'rejected' }
+      payload[:reject_reason] = l(:label_wk_single_device_denied) if device.single_device_denied
+      render json: payload
     else
       render json: { status: 'pending' }
     end
@@ -65,7 +67,13 @@ class WkdevicesController < WkbaseController
       redirect_to wkdevices_path(status: filter_status, tab: 'wkdevices') and return
     end
 
-    if @device.update(status: new_status)
+    case new_status
+    when 'approved' then @device.approve
+    when 'rejected' then @device.reject
+    else @device.status = new_status
+    end
+
+    if @device.save
       flash[:notice] = l(:notice_successful_update)
     else
       flash[:error] = l(:error_device_update_failed)

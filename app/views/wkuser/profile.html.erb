@@ -70,6 +70,14 @@
             <td> <%= ": " + (@wkuser&.is_schedulable ? "Yes" : "No")%> </td>
           </tr>
           <tr>
+            <th align="left"><%= l(:field_auto_approve_device) %></th>
+            <td> <%= ": " + (@wkuser&.auto_approve_device ? "Yes" : "No")%> </td>
+          </tr>
+          <tr>
+            <th align="left"><%= l(:field_allow_multi_device) %></th>
+            <td> <%= ": " + (@wkuser&.allow_multi_device ? "Yes" : "No")%> </td>
+          </tr>
+          <tr>
             <th align="left"><%= l(:field_shift) %></th>
             <td> <%= ": " + @wkuser&.shift&.name.to_s %> </td>
           </tr>

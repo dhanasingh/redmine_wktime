@@ -24,7 +24,7 @@ class WkUser < ApplicationRecord
   'bank_code', 'loan_acc_number', 'tax_id', 'ss_id', 'custom_number1', 'custom_number2','custom_date1', 'custom_date2', 'is_schedulable',
   'billing_rate', 'billing_currency', 'location_id', 'perm_location', 'department_id', 'address_id', 'shift_id', 'created_by_user_id', 'updated_by_user_id',
   'source_id', 'source_type', 'retirement_account', 'marital_id', 'state_insurance','employee_id', 'emerg_type_id',
-  'emergency_contact', 'dept_section_id', 'notes'
+  'emergency_contact', 'dept_section_id', 'notes', 'auto_approve_device', 'allow_multi_device'
 
   belongs_to :user
   belongs_to :role

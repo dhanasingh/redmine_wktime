@@ -51,6 +51,8 @@
           <p><%= f.select :department_id, departmentArr, {} %></p>
           <p><%= f.select :dept_section_id, dept_section_arr, {label:l(:label_dept_section)} %></p>
           <p><%= f.check_box :is_schedulable %></p>
+          <p><%= f.check_box :auto_approve_device %></p>
+          <p><%= f.check_box :allow_multi_device %></p>
           <p><%= f.select :shift_id, shiftArr, {} %></p>
 
           <p><%= f.text_field :bank_name %></p>
