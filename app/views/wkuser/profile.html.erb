@@ -58,6 +58,10 @@
             <td> <%= ": " + @wkuser&.location&.name.to_s %> </td>
           </tr>
           <tr>
+            <th align="left"><%= l(:label_permitted_location) %></th>
+            <td> <%= ": " + @wkuser&.permitted_location&.name.to_s %> </td>
+          </tr>
+          <tr>
             <th align="left"><%= l(:field_department) %></th>
             <td> <%= ": " + @wkuser&.department&.name.to_s %> </td>
           </tr>
