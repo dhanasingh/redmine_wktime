@@ -94,7 +94,7 @@
 		if ($('#attribute_table').length === 0) {
 			$('#attribute_container').html(attributeTableHtml);
 		}
-		$('#attribute_table tbody').prepend(attributeRowHtml);
+		$('#attribute_table tbody').append(attributeRowHtml);
 		updateAttrSerialNumbers();
 	});
 
