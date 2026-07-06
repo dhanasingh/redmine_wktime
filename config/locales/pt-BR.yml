@@ -1288,6 +1288,7 @@ pt-BR:
   label_vs: vs
   label_scheduled: Scheduled
   label_custom_range: Custom Range
+  label_date_range: Período
   label_dashboard_as_home: Set Dashboard as Home page
   ADMIN EMPLOYEE PRIVILEGE: Admin Employee Privilege 
   label_employee_creation: Employee Created
