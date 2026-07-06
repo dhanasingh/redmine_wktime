@@ -54,14 +54,16 @@ module SendPatch::ApplicationHelperPatch
               link_to_attachment(
                 object,
                 :class => ['icon-only', 'icon-download'],
+                :icon => 'download',
                 :title => l(:button_download),
                 :download => true
-              )
+              ),
+              class: 'attachment-filename'
             )
           else
             object.filename
           end
-          # ============= ERPmine_patch Redmine 6.1  =====================
+          # ============= ERPmine_patch Redmine 7.0  =====================
         when WkInventoryItem
           brandName = object.product_item.brand.blank? ? "" : object.product_item.brand.name
           modelName = object.product_item.product_model.blank? ? "" : object.product_item.product_model.name
