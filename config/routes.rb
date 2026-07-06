@@ -354,7 +354,7 @@ delete 'wkcrmcontact/:id', :to => 'wkcrmcontact#destroy'
 # For CRM Account Project
 
 resources :projects do
-	resource :wkaccountproject, :only => [:index], :controller => :wkaccountproject do
+	resource :wkaccountproject, :only => [], :controller => :wkaccountproject do
 		get :index
 	end
 end

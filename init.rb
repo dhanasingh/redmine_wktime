@@ -64,6 +64,7 @@ Rails.configuration.to_prepare do
 	TimeEntry.send(:include, LoadPatch::EditablebyTimeEntryPatch)
 	User.send(:include, LoadPatch::AllowedtoUserPatch)
 	ApplicationController.send(:include, LoadPatch::AuthAppControllerPatch)
+	ContextMenus::TimeEntriesController.send(:include, LoadPatch::ContextMenusTimeEntriesControllerPatch)
 	if ActiveRecord::Base.connection.table_exists?("#{User.table_name}") &&
 		ActiveRecord::Base.connection.column_exists?("#{User.table_name}", :parent_id)
 		TimeEntryQuery.send(:include, LoadPatch::ScopeTimeEntryQueryPatch)
