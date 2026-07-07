@@ -1,14 +1,17 @@
-# Webinar on ERPmine – Referral and Skills, June 30th, 2026,(11:30 AM GMT)
+# Webinar on ERPmine – Time & Expense, July 28th, 2026,(11:30 AM GMT)
  
 Please click here to register if interested,
-[[(https://us02web.zoom.us/meeting/register/tDGqqIVxTS-4go4SdVm8LA)](https://us02web.zoom.us/meeting/register/pu9T_5s6RXewMEm0E_qSsw)]
+[[([https://us02web.zoom.us/meeting/register/tDGqqIVxTS-4go4SdVm8LA](https://us02web.zoom.us/meeting/register/ptjut3YYSSuwRz8gztU_8w))]
  
 **Topics**:
--  Referral Information	
--  Job Interviews
--  Candidate Documents
--  Employees Skill Sets
--  Project Skill Set
+-  Attachments to Time & Expense
+-  Project based approvals
+-  Minimum maximum validation on holidays
+-  Issue logger on /off
+-  Map on timesheet
+-  Start / Stop button on time entries
+-  Timesheet Report
+-  Mobile App
 -----
 # ERPmine
 
