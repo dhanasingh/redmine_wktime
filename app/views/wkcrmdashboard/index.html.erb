@@ -3,9 +3,7 @@
 
 <%= render :partial => "wkcrmdashboard/filters" %>
 
-<% content_for :header_tags do %>
-  <%= javascript_include_tag "chart.min" %>
-<% end %>
+<%= render partial: "wkbase/chartjs" %>
 <%= javascript_include_tag "dashboard", plugin: "redmine_wktime" %>
 
 <%= javascript_tag do %>

@@ -8,9 +8,7 @@
 	<canvas id="survey_result_graph<%= unique_graph_id %>" width="600" height=<%= height * 55 %>></canvas>
 </div>
 
-<% content_for :header_tags do %>
-  <%= javascript_include_tag "chart.min" %>
-<% end %>
+<%= render partial: "wkbase/chartjs" %>
 
 <% getSurveyForType(params) %>
 <%= javascript_tag do %>
@@ -18,6 +16,7 @@
 		var url = <%= raw url_for(controller: 'wksurvey', action: 'graph', graph: "graph", question_id: entry.id, surveyForType: @surveyForType,
 			surveyForID: @surveyForID, groupName: params[:groupName], survey_id: @survey.id, parent_choice_id: parent_choice_id).to_json %>;
 		$.getJSON(url, function(data){
+			window.chartjsReady.then(function(){
 			if (data['graphtype'] == "line"){
 				var chartData = {
 				labels: data['labels'],
@@ -138,7 +137,7 @@
 							}
 						}
 					},
-					plugins: {
+					plugins: [{
 						beforeInit: function (chart) {
 							chart.data.labels.forEach(function (value, index, array) {
 								var a = [];
@@ -151,9 +150,10 @@
 								array[index] = a;
 							})
 						}
-					}
+					}]
 				});
 			};
+			});
 		});
 	});
 <% end %>
