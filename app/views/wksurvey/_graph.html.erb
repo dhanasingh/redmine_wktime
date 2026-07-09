@@ -33,35 +33,37 @@
 					type: 'line',
 					data: chartData,
 					options: {
+						responsive: true,
+						maintainAspectRatio: false,
+						layout: {
+							padding: {
+							left: 0,
+							right: 20,
+							top: 0,
+							bottom: 0
+							}
+						},
+						hover: {
+							mode: 'index',
+							intersect: false
+						},
 						plugins: {
-							tooltips: {
+							tooltip: {
 								mode: 'index',
 								intersect: false
 							},
-							hover: {
-								mode: 'index',
-								intersect: false
-							},
-							layout: {
-								padding: {
-								left: 0,
-								right: 20,
-								top: 0,
-								bottom: 0
-								}
-							},
-							responsive: true,
-							maintainAspectRatio: false,
 							legend: {
 								display: false,
 								position: 'right'
-							},
+							}
 						},
 						scales: {
 							x: {
 								grid: {
-									drawBorder: true,
 									display : false
+								},
+								border: {
+									display: true
 								}
 							},
 							y: {
@@ -69,8 +71,10 @@
 									scaleInstance.width = 250;
 								},
 								grid: {
-									drawBorder: true,
 									display : false
+								},
+								border: {
+									display: true
 								}
 							}
 						}
@@ -99,31 +103,33 @@
 					data: chartData,
 					options: {
         		indexAxis: 'y',
+						responsive: true,
+						maintainAspectRatio: false,
+						events: [],
+						layout: {
+							padding: {
+							left: 0,
+							right: 20,
+							top: 0,
+							bottom: 0
+							}
+						},
 						plugins: {
-							layout: {
-								padding: {
-								left: 0,
-								right: 20,
-								top: 0,
-								bottom: 0
-								}
-							},
-							events: [],
-							responsive: true,
-							maintainAspectRatio: false,
 							legend: {
 								display: false
-							},
+							}
 						},
 						scales: {
 							x: {
+								beginAtZero: true,
 								ticks: {
-									display: false,
-									beginAtZero: true
+									display: false
 								},
 								grid: {
-									drawBorder: false,
 									display : false
+								},
+								border: {
+									display: false
 								}
 							},
 							y: {
@@ -131,9 +137,11 @@
 									scaleInstance.width = 250;
 								},
 								grid: {
-									drawBorder: false,
 									display : false
 								},
+								border: {
+									display: false
+								}
 							}
 						}
 					},
