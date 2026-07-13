@@ -1449,3 +1449,5 @@ pl:
   label_export_desc_sage_business_cloud: "Sage Business Cloud Accounting compatible CSV for journal import"
   label_export_format_tally_prime: "Tally Prime"
   label_export_desc_tally_prime: "Tally-compatible CSV for import into Tally Prime"
+  label_date_from: From
+  label_date_to: To
