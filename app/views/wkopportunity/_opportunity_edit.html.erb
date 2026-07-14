@@ -17,67 +17,96 @@
 	relHash.delete("WkOpportunity")
 	relHash.delete("WkLead")
  %>
+<style>
+	/* Keep paired controls on one line: the sidebar-white theme replaces selects with
+	   Fomantic dropdown wrappers (min-width:14em, inline select widths ignored), which
+	   wrap onto a second line in narrow columns. Flex lets them shrink instead. */
+	.wk-field-pair { display: flex; align-items: center; gap: 6px; width: 95%; }
+	.wk-field-pair > select,
+	.wk-field-pair > input[type="text"],
+	.wk-field-pair .ui.selection.dropdown { flex: 1 1 0; min-width: 0; width: auto; }
+</style>
 <%= form_tag({:controller => 'wkopportunity', :action => 'update'}, :method => :get, :id => 'query_form') do %>
 <%=h hidden_field_tag('opp_id', (!@oppEditEntry.blank? ? @oppEditEntry[0].id : "") ) %>
 <fieldset class="box tabular">
 	<legend><%= l(:label_opportunity_information) %></legend>
-	<table >
-		<tr>
-			<th align="left"><%= l(:label_opportunity_name)  %><span style="color:red;">*</span></th>
-			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_name", (!@oppEditEntry.blank? ? @oppEditEntry[0].name : ""), :maxlength => 255, :style => "width:190px;") %></td>
-			<th align="left" style="padding-left:240px;"><%= l(:label_expected_date_to_close_project) %></th>
-			<td align="left" style="padding-left:40px;"><%= date_field_tag('expected_close_date', (!@oppEditEntry.blank? && !@oppEditEntry[0].close_date.blank? ? @oppEditEntry[0].close_date.to_date : Date.today), {:id => 'expected_close_date', :size => 12, :style => "width:160px;"}) + calendar_for('expected_close_date') %></td>
-		</tr>
-		<%  selectedSSId = @oppEditEntry.blank? ? nil : get_sales_stage(@oppEditEntry[0]) %>
-		<%  selectedOTId = @oppEditEntry.blank? ? nil : @oppEditEntry[0].opportunity_type_id %>
-		<tr>
-			<th align="left"><%= l(:label_txn_sales_stage) %></th>
-			<td align="left" style="padding-left:40px;"><%=h select_tag('sales_stage', options_for_select(options_for_enum_select('SS', selectedSSId, true))) %></td>
-
-			<th align="left" style="padding-left:240px;"><%= l(:field_type) %></th>
-			<td align="left" style="padding-left:40px;"><%=h select_tag('opp_type', options_for_select(options_for_enum_select('OT', selectedOTId, true))) %></td>
-		</tr>
-
-		<tr>
-			<th align="left"><%= l(:label_opportunity_amount) %><span style="color:red;">*</span></th>
-			<td align="left" style="padding-left:40px;">
-			<%=h select_tag("currency",options_for_select(wkexpense_helper.options_for_currency, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].currency : Setting.plugin_redmine_wktime['wktime_currency']) )) %>
-			<%=h text_field_tag("opp_amount", (!@oppEditEntry.blank? && !@oppEditEntry[0].amount.blank? ? @oppEditEntry[0].amount : ""), :maxlength => 10, :style => "width:190px;") %></td>
-
-			<th align="left" style="padding-left:240px;"><%= l(:label_probability) + " (%)" %> </th>
-			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_probability", (!@oppEditEntry.blank? && !@oppEditEntry[0].probability.blank? ? @oppEditEntry[0].probability : ""), :maxlength => 255, :style => "width:190px;") %></td>
-		</tr>
-
-		<tr>
-			<th align="left"><%= l(:label_next_step) %></th>
-			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_next_step", (!@oppEditEntry.blank? && !@oppEditEntry[0].next_step.blank? ? @oppEditEntry[0].next_step : ""), :maxlength => 255, :style => "width:190px;") %></td>
-
-			<th align="left" style="padding-left:240px;"><%= l(:field_assigned_to) %></th>
-			<td align="left" style="padding-left:40px;"><%=h select_tag('assigned_user_id', options_for_select(groupOfUsers, :selected => (!@oppEditEntry.blank? && !@oppEditEntry[0].assigned_user_id.blank? ? @oppEditEntry[0].assigned_user_id : "")),:required => true) %></td>
-		</tr>
-
-		<tr>
-			<th align="left" ><%= l(:label_relates_to) %></th>
-			<td align="left" style="padding-left:40px;"><%=h select_tag("related_to", options_for_select(relHash.invert, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].parent_type : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id}, false, false, 'A', 'C', false)", :style => "width:200px;") %>
-
-			<%=h select_tag("related_parent", options_for_select(accArr, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].parent_id : (params[:parentId].blank? ? "" : params[:parentId]))), :style => "width:200px;") %></td>
-			<%  selectedLsId = (!@oppEditEntry.blank? && !@oppEditEntry[0].lead_source_id.blank? ? @oppEditEntry[0].lead_source_id : nil) %>
-			<th align="left" style="padding-left:240px;"><%= l(:label_lead_source) %></th>
-			<td align="left" style="padding-left:40px;"><%=h select_tag('lead_source_id', options_for_select(options_for_enum_select('LS', selectedLsId, true)),:required => true) %></td>
-
-		</tr>
-
-		<tr>
-		<th align="left" ><%= l(:field_description) %></th>
-		<td align="left" style="padding-left:40px;"><%= text_area_tag 'opp_description', (!@oppEditEntry.blank? && !@oppEditEntry[0].description.blank? ? @oppEditEntry[0].description : ""), :maxlength => 255, :style => "width:605px" %></td>
-
-		<th align="left" style="padding-left:240px;"><%= l(:label_created_date) %> </th>
-		<td align="left" style="padding-left:40px;"><%= @oppEditEntry[0]&.created_at&.localtime&.strftime("%Y-%m-%d") || '' if @oppEditEntry.present? %></td>
-
-		</tr>
-
-
-	</table>
+	<%  selectedSSId = @oppEditEntry.blank? ? nil : get_sales_stage(@oppEditEntry[0]) %>
+	<%  selectedOTId = @oppEditEntry.blank? ? nil : @oppEditEntry[0].opportunity_type_id %>
+	<%  selectedLsId = (!@oppEditEntry.blank? && !@oppEditEntry[0].lead_source_id.blank? ? @oppEditEntry[0].lead_source_id : nil) %>
+	<div class="splitcontent">
+		<div class="splitcontentleft">
+			<table width="100%">
+				<colgroup>
+					<col style="width:180px;">
+					<col>
+				</colgroup>
+				<tr>
+					<th align="left"><%= l(:label_opportunity_name)  %><span style="color:red;">*</span></th>
+					<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_name", (!@oppEditEntry.blank? ? @oppEditEntry[0].name : ""), :maxlength => 255, :style => "width:190px;") %></td>
+				</tr>
+				<tr>
+					<th align="left"><%= l(:label_txn_sales_stage) %></th>
+					<td align="left" style="padding-left:40px;"><%=h select_tag('sales_stage', options_for_select(options_for_enum_select('SS', selectedSSId, true))) %></td>
+				</tr>
+				<tr>
+					<th align="left"><%= l(:label_opportunity_amount) %><span style="color:red;">*</span></th>
+					<td align="left" style="padding-left:40px;">
+					<div class="wk-field-pair">
+					<%=h select_tag("currency",options_for_select(wkexpense_helper.options_for_currency, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].currency : Setting.plugin_redmine_wktime['wktime_currency']) )) %>
+					<%=h text_field_tag("opp_amount", (!@oppEditEntry.blank? && !@oppEditEntry[0].amount.blank? ? @oppEditEntry[0].amount : ""), :maxlength => 10) %>
+					</div></td>
+				</tr>
+				<tr>
+					<th align="left"><%= l(:label_next_step) %></th>
+					<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_next_step", (!@oppEditEntry.blank? && !@oppEditEntry[0].next_step.blank? ? @oppEditEntry[0].next_step : ""), :maxlength => 255, :style => "width:190px;") %></td>
+				</tr>
+				<tr>
+					<th align="left" ><%= l(:label_relates_to) %></th>
+					<td align="left" style="padding-left:40px;">
+					<div class="wk-field-pair">
+					<%=h select_tag("related_to", options_for_select(relHash.invert, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].parent_type : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id}, false, false, 'A', 'C', false)") %>
+					<%=h select_tag("related_parent", options_for_select(accArr, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].parent_id : (params[:parentId].blank? ? "" : params[:parentId])))) %>
+					</div></td>
+				</tr>
+				<tr>
+					<th align="left" ><%= l(:field_description) %></th>
+					<td align="left" style="padding-left:40px;"><%= text_area_tag 'opp_description', (!@oppEditEntry.blank? && !@oppEditEntry[0].description.blank? ? @oppEditEntry[0].description : ""), :maxlength => 255, :style => "width:95%" %></td>
+				</tr>
+			</table>
+		</div>
+		<div class="splitcontentright">
+			<table width="100%">
+				<colgroup>
+					<col style="width:180px;">
+					<col>
+				</colgroup>
+				<tr>
+					<th align="left"><%= l(:label_expected_date_to_close_project) %></th>
+					<td align="left" style="padding-left:40px;"><%= date_field_tag('expected_close_date', (!@oppEditEntry.blank? && !@oppEditEntry[0].close_date.blank? ? @oppEditEntry[0].close_date.to_date : Date.today), {:id => 'expected_close_date', :size => 12, :style => "width:160px;"}) + calendar_for('expected_close_date') %></td>
+				</tr>
+				<tr>
+					<th align="left"><%= l(:field_type) %></th>
+					<td align="left" style="padding-left:40px;"><%=h select_tag('opp_type', options_for_select(options_for_enum_select('OT', selectedOTId, true))) %></td>
+				</tr>
+				<tr>
+					<th align="left"><%= l(:label_probability) + " (%)" %> </th>
+					<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_probability", (!@oppEditEntry.blank? && !@oppEditEntry[0].probability.blank? ? @oppEditEntry[0].probability : ""), :maxlength => 255, :style => "width:190px;") %></td>
+				</tr>
+				<tr>
+					<th align="left"><%= l(:field_assigned_to) %></th>
+					<td align="left" style="padding-left:40px;"><%=h select_tag('assigned_user_id', options_for_select(groupOfUsers, :selected => (!@oppEditEntry.blank? && !@oppEditEntry[0].assigned_user_id.blank? ? @oppEditEntry[0].assigned_user_id : "")),:required => true) %></td>
+				</tr>
+				<tr>
+					<th align="left"><%= l(:label_lead_source) %></th>
+					<td align="left" style="padding-left:40px;"><%=h select_tag('lead_source_id', options_for_select(options_for_enum_select('LS', selectedLsId, true)),:required => true) %></td>
+				</tr>
+				<tr>
+					<th align="left"><%= l(:label_created_date) %> </th>
+					<td align="left" style="padding-left:40px;"><%= @oppEditEntry[0]&.created_at&.localtime&.strftime("%Y-%m-%d") || '' if @oppEditEntry.present? %></td>
+				</tr>
+			</table>
+		</div>
+	</div>
 </fieldset>
 
 <div>
