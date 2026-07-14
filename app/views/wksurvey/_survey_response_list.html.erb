@@ -54,7 +54,7 @@
             <% end %>
             <% if !survey_helper.showSurveyResult(params) %>
               <th>
-                <%= link_to l(:button_pdf), url_for(controller: controller_name, action: "export", survey_id: entry.survey_id, surveyForType: entry.survey_for_type, surveyForID: entry.survey_for_id, response_id: entry.id, format: 'pdf'),
+                <%= link_to sprite_icon('download', l(:button_pdf)), url_for(controller: controller_name, action: "export", survey_id: entry.survey_id, surveyForType: entry.survey_for_type, surveyForID: entry.survey_for_id, response_id: entry.id, format: 'pdf'),
                         class: 'icon-only icon-download', title: l(:button_pdf) %>
               </th>
             <% end %>

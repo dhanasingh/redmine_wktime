@@ -119,9 +119,11 @@ module WkdocumentHelper
 
   def location_attachment(attachment, options={})
     text = options.delete(:text) || attachment.filename
+    icon = options.delete(:icon)
     html_options = options.slice!(:only_path, :filename)
     url = url_for(controller: "wkdocument", action: "download", id: attachment.id)
-    (html_options[:editable] || html_options[:download]) ? link_to( text, url, html_options) : text
+    label = icon ? sprite_icon(icon, text) : text
+    (html_options[:editable] || html_options[:download]) ? link_to( label, url, html_options) : text
   end
 
   def container_attachments_edit_path(container)
