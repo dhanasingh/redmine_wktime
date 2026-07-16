@@ -140,3 +140,21 @@ fieldset label {
     float: left;
     margin-right: 4px;
 }
+
+/* Filter bar: one row when it fits the screen, wraps to more rows when narrow */
+.wk-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 16px;
+    row-gap: 8px;
+    padding: 2px 0;
+}
+
+.wk-filters .wk-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    margin: 0;
+}
