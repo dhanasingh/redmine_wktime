@@ -8,9 +8,7 @@
 	<canvas id="survey_result_graph<%= unique_graph_id %>" width="600" height=<%= height * 55 %>></canvas>
 </div>
 
-<% content_for :header_tags do %>
-  <%= javascript_include_tag "chart.min" %>
-<% end %>
+<%= render partial: "wkbase/chartjs" %>
 
 <% getSurveyForType(params) %>
 <%= javascript_tag do %>
@@ -18,6 +16,7 @@
 		var url = <%= raw url_for(controller: 'wksurvey', action: 'graph', graph: "graph", question_id: entry.id, surveyForType: @surveyForType,
 			surveyForID: @surveyForID, groupName: params[:groupName], survey_id: @survey.id, parent_choice_id: parent_choice_id).to_json %>;
 		$.getJSON(url, function(data){
+			window.chartjsReady.then(function(){
 			if (data['graphtype'] == "line"){
 				var chartData = {
 				labels: data['labels'],
@@ -34,35 +33,37 @@
 					type: 'line',
 					data: chartData,
 					options: {
+						responsive: true,
+						maintainAspectRatio: false,
+						layout: {
+							padding: {
+							left: 0,
+							right: 20,
+							top: 0,
+							bottom: 0
+							}
+						},
+						hover: {
+							mode: 'index',
+							intersect: false
+						},
 						plugins: {
-							tooltips: {
+							tooltip: {
 								mode: 'index',
 								intersect: false
 							},
-							hover: {
-								mode: 'index',
-								intersect: false
-							},
-							layout: {
-								padding: {
-								left: 0,
-								right: 20,
-								top: 0,
-								bottom: 0
-								}
-							},
-							responsive: true,
-							maintainAspectRatio: false,
 							legend: {
 								display: false,
 								position: 'right'
-							},
+							}
 						},
 						scales: {
 							x: {
 								grid: {
-									drawBorder: true,
 									display : false
+								},
+								border: {
+									display: true
 								}
 							},
 							y: {
@@ -70,8 +71,10 @@
 									scaleInstance.width = 250;
 								},
 								grid: {
-									drawBorder: true,
 									display : false
+								},
+								border: {
+									display: true
 								}
 							}
 						}
@@ -100,31 +103,33 @@
 					data: chartData,
 					options: {
         		indexAxis: 'y',
+						responsive: true,
+						maintainAspectRatio: false,
+						events: [],
+						layout: {
+							padding: {
+							left: 0,
+							right: 20,
+							top: 0,
+							bottom: 0
+							}
+						},
 						plugins: {
-							layout: {
-								padding: {
-								left: 0,
-								right: 20,
-								top: 0,
-								bottom: 0
-								}
-							},
-							events: [],
-							responsive: true,
-							maintainAspectRatio: false,
 							legend: {
 								display: false
-							},
+							}
 						},
 						scales: {
 							x: {
+								beginAtZero: true,
 								ticks: {
-									display: false,
-									beginAtZero: true
+									display: false
 								},
 								grid: {
-									drawBorder: false,
 									display : false
+								},
+								border: {
+									display: false
 								}
 							},
 							y: {
@@ -132,13 +137,15 @@
 									scaleInstance.width = 250;
 								},
 								grid: {
-									drawBorder: false,
 									display : false
 								},
+								border: {
+									display: false
+								}
 							}
 						}
 					},
-					plugins: {
+					plugins: [{
 						beforeInit: function (chart) {
 							chart.data.labels.forEach(function (value, index, array) {
 								var a = [];
@@ -151,9 +158,10 @@
 								array[index] = a;
 							})
 						}
-					}
+					}]
 				});
 			};
+			});
 		});
 	});
 <% end %>

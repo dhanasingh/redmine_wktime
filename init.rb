@@ -64,6 +64,7 @@ Rails.configuration.to_prepare do
 	TimeEntry.send(:include, LoadPatch::EditablebyTimeEntryPatch)
 	User.send(:include, LoadPatch::AllowedtoUserPatch)
 	ApplicationController.send(:include, LoadPatch::AuthAppControllerPatch)
+	ContextMenus::TimeEntriesController.send(:include, LoadPatch::ContextMenusTimeEntriesControllerPatch)
 	if ActiveRecord::Base.connection.table_exists?("#{User.table_name}") &&
 		ActiveRecord::Base.connection.column_exists?("#{User.table_name}", :parent_id)
 		TimeEntryQuery.send(:include, LoadPatch::ScopeTimeEntryQueryPatch)
@@ -165,7 +166,7 @@ Redmine::Plugin.register :redmine_wktime do
   name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
   description 'ERPmine is an ERP for Service Industries. It has the following modules: Time & Expense, Attendance, Payroll, CRM, Billing, Accounting, Purchasing, Inventory, Asset , Reports, Dashboards and Survey'
-  version '4.9.4'
+  version '5.0'
   url 'https://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
 
@@ -288,7 +289,7 @@ Redmine::Plugin.register :redmine_wktime do
 	  menu.push :wkdashboard, { :controller => 'wkdashboard', :action => 'index' }, :caption => :label_dashboards, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WkdashboardHelper).showDashboard }
 	  menu.push :wktime, { :controller => 'wktime', :action => 'index' }, :caption => :label_te, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && (Object.new.extend(WktimeHelper).showTime || Object.new.extend(WktimeHelper).showExpense)}
 	  menu.push :wkattendance, { :controller => 'wkuser', :action => 'index' }, :caption => :label_hr, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && (Object.new.extend(WktimeHelper).showAttendance || Object.new.extend(WktimeHelper).showPayroll || Object.new.extend(WktimeHelper).showShiftScheduling || Object.new.extend(WktimeHelper).showSurvey)}
-	  menu.push :wkcrmdashboard, { :controller => 'wkcrmdashboard', :action => 'index' }, :caption => :label_crm, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showCRMModule }
+	  menu.push :wklead, { :controller => 'wkcrmdashboard', :action => 'index' }, :caption => :label_crm, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showCRMModule }
 		Redmine::Hook.call_hook(:wktime_menu_hook, menu: menu) # Call hook to add external menus
 	  menu.push :wkinvoice, { :controller => 'wkinvoice', :action => 'index' }, :caption => :label_wk_billing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showBilling && Object.new.extend(WktimeHelper).validateERPPermission("M_BILL")}
 	  menu.push :wkgltransaction, { :controller => 'wkgltransaction', :action => 'index' }, :caption => :label_accounting, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showAccounting }

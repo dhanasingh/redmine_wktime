@@ -228,7 +228,7 @@ class WkcrmactivityController < WkcrmController
 
   private
 
-  def check_perm_and_redirect
+  def check_basic_perm
     if !check_permission && params[:controller_from] != "wkreferrals"
       render_403
       return

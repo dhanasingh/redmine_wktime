@@ -1301,6 +1301,7 @@ fr:
   label_vs: vs
   label_scheduled: Scheduled
   label_custom_range: Custom Range
+  label_date_range: Période
   label_dashboard_as_home: Set Dashboard as Home page
   ADMIN EMPLOYEE PRIVILEGE: Admin Employee Privilege 
   label_employee_creation: Employee Created
@@ -1433,3 +1434,5 @@ fr:
   label_export_desc_sage_business_cloud: "Sage Business Cloud Accounting compatible CSV for journal import"
   label_export_format_tally_prime: "Tally Prime"
   label_export_desc_tally_prime: "Tally-compatible CSV for import into Tally Prime"
+  label_date_from: From
+  label_date_to: To

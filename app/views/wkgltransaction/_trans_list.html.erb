@@ -1,5 +1,12 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'bootstrap', :plugin => "redmine_wktime" %>
+<%# Bootstrap's $.fn.dropdown clobbers the sidebar-white theme's,which every "ui dropdown" <select> on this page
+    depends on. Restore it via Bootstrap's own noConflict hook. %>
+<script>
+  if (typeof $.fn.dropdown !== 'undefined' && typeof $.fn.dropdown.noConflict === 'function') {
+    $.fn.dropdown.noConflict();
+  }
+</script>
 <% typeHash = { 'C'  => l(:label_txn_contra), 'P' =>  l(:label_txn_payment),  } %>
 <style>
 	.tooltip{

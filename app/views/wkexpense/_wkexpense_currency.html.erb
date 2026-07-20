@@ -1,5 +1,5 @@
 <% if @editable %>	
-	<%=h select_tag('time_entry[][currency]', 
+	<%=h select_tag(isTemplate ? '__template__time_entry[][currency]' : 'time_entry[][currency]',
 	options_for_select(options_for_currency,entry.nil? ? (Setting.plugin_redmine_wktime['wktime_currency'] || number_currency_format_unit) : entry.currency)) %>
 <% else %>
 	<%= entry.currency unless entry.nil? %>

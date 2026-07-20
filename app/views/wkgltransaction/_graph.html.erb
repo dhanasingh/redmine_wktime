@@ -2,14 +2,13 @@
 	<canvas id="ledger_graph" height="250"></canvas>
 </div>
 
-<% content_for :header_tags do %>
-  <%= javascript_include_tag "chart.min" %>
-<% end %>
+<%= render partial: "wkbase/chartjs" %>
 
 <%= javascript_tag do %>
 	$(document).ready(function(){
 		var url = <%= raw url_for(controller: 'wkgltransaction', action: 'graph', graph: "graph", ledger_id: ledger_id, from: from, to: to).to_json %>;
 		$.getJSON(url, function(data){
+			window.chartjsReady.then(function(){
 				var chartData = {
 					labels: data['month_name'],
 					datasets: [{
@@ -25,23 +24,16 @@
 					type: 'bar',
 					data: chartData,
 					options: {
+						responsive: true,
+						maintainAspectRatio: false,
 						plugins: {
-							responsive: true,
-							maintainAspectRatio: false,
 							legend: {
 								display: false
-							},
+							}
 						},
-      			maintainAspectRatio: false,
 						scales: {
 							x: {
-								grid: {
-									drawBorder: true,
-									display : true
-								},
-								ticks: {
-									beginAtZero: true
-								},
+								beginAtZero: true,
 								title: {
 									display: true,
 									text: data['x_title'],
@@ -49,13 +41,7 @@
 								}
 							},
 							y: {
-								grid: {
-									drawBorder: true,
-									display : true
-								},
-								ticks: {
-									beginAtZero: true
-								},
+								beginAtZero: true,
 								title: {
 									display: true,
 									text: data['y_title'],
@@ -65,6 +51,7 @@
 						}
 					}
 				});
+			});
 		});
 	});
 <% end %>

@@ -75,8 +75,8 @@
 					<% if @isReferral %>
 						<%= select_tag("activity_status", options_for_select(rf_status.invert, selected: @activityEntry&.first&.status), style: "width:190px;") %>
 					<% else %>
-						<%=h select_tag("activity_direction", options_for_select(directionHash.invert, :selected => (!@activityEntry.blank? ? @activityEntry[0].direction : 'I') ), :style => "float:left;margin-right: 3px;") %>
-						<%=h select_tag("activity_status", options_for_select(activityStatusHash.invert, :selected =>(!@activityEntry.blank? ? @activityEntry[0].status : 'NS'))) %>
+						<%=h select_tag("activity_direction", options_for_select(directionHash.invert, :selected => (!@activityEntry.blank? ? @activityEntry[0].direction : 'I') ), :style => "float:left;margin-right: 3px;", :class => 'multi-row') %>
+						<%=h select_tag("activity_status", options_for_select(activityStatusHash.invert, :selected =>(!@activityEntry.blank? ? @activityEntry[0].status : 'NS')), :class => 'multi-row') %>
 					<% end %>
 				</td>
 				<td></td>
@@ -91,9 +91,9 @@
 				</td>
 				<td>
 					<%= select_tag("start_hour", options_for_select(hr,
-						:selected => !@activityEntry.blank? && !@activityEntry[0].start_date.blank? ? ((@activityEntry[0].start_date.localtime).strftime("%H")).to_i : 00 ))%> :
+						:selected => !@activityEntry.blank? && !@activityEntry[0].start_date.blank? ? ((@activityEntry[0].start_date.localtime).strftime("%H")).to_i : 00 ), :class => 'multi-row')%> :
 					<%= select_tag("start_min", options_for_select([['00',00], [15, 15], [30, 30], [45, 45]],
-						:selected => !@activityEntry.blank? && !@activityEntry[0].start_date.blank? ? (@activityEntry[0].start_date.localtime).strftime("%M") : 0))%>
+						:selected => !@activityEntry.blank? && !@activityEntry[0].start_date.blank? ? (@activityEntry[0].start_date.localtime).strftime("%M") : 0), :class => 'multi-row')%>
 				</td>
 				<% unless @isReferral %>
 					<th align="left" style="padding-left:150px;"><label id="lblEndDate"><%= l(:label_end_date_time) %></label></th>
@@ -106,18 +106,18 @@
 					</td>
 					<td align="left">
 						<%= select_tag("end_hour", options_for_select(hr, :selected => !@activityEntry.blank? && !@activityEntry[0].end_date.blank? ?
-							((@activityEntry[0].end_date.localtime).strftime("%H")).to_i : 0), :style => "width: 50px;")%>
+							((@activityEntry[0].end_date.localtime).strftime("%H")).to_i : 0), :style => "width: 50px;", :class => 'multi-row')%>
 					</td>
 					<td align="left">
 						<%= select_tag("end_min", options_for_select([['00',00], [15, 15], [30, 30], [45, 45]],
 							:selected => !@activityEntry.blank? && !@activityEntry[0].end_date.blank? ? (@activityEntry[0].end_date.localtime).strftime("%M") : 0),
-							:style => "width:50px;")%>
+							:style => "width:50px;", :class => 'multi-row')%>
 						<div style="clear: both;"></div>
 					</td>
 				<% else %>
 					<th style="text-align: end;"><%= l(:label_rating) %></th>
 					<td style="padding-left:40px;">
-						<%= select_tag("rating", options_for_select((1..10).to_a.unshift(""), selected: @activityEntry&.first&.rating || ''), :style => "width: 50px;")%>
+						<%= select_tag("rating", options_for_select((1..10).to_a.unshift(""), selected: @activityEntry&.first&.rating || ''), :style => "width: 50px;", :class => 'multi-row')%>
 					</td>
 				<% end %>
 			</tr>
@@ -129,7 +129,7 @@
 				</td>
 				<td>
 					<%= select_tag("activity_duration_min", options_for_select([['00',00], [15, 15], [30, 30], [45, 45]],
-						:selected => !@activityEntry.blank? ? mm : 00))%>
+						:selected => !@activityEntry.blank? ? mm : 00), :class => 'multi-row')%>
 				</td>
 				<% unless @isReferral %>
 					<th align="left" style="padding-left:150px;"><label id="lblLocation"><%= l(:field_location) %></label></th>

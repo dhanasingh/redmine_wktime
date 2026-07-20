@@ -138,6 +138,25 @@ class WkreferralsController < WkleadController
     validateERPPermission("A_REFERRAL")
   end
 
+  # Overrides WkcrmController#check_basic_perm. Using A_REFERRAL for both
+  # basic and admin checks for now; split into a separate basic-view
+  # permission code later if Referrals needs a "can view but not manage"
+  # tier, same as CRM's B_CRM_PRVLG/A_CRM_PRVLG split.
+  def check_basic_perm
+    unless validateERPPermission("A_REFERRAL")
+      render_403
+      return false
+    end
+  end
+
+  # Overrides WkcrmController#check_admin_perm.
+  def check_admin_perm
+    unless validateERPPermission("A_REFERRAL")
+      render_403
+      return false
+    end
+  end
+
   def edit_label
     l(:label_referral)
   end

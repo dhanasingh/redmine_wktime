@@ -1,23 +1,33 @@
-module SendPatch::ContextMenusControllerPatch
+module LoadPatch::ContextMenusTimeEntriesControllerPatch
   def self.included(base)
     base.class_eval do
 
-      def time_entries
-        # ============= ERPmine_patch Redmine 6.1  =====================
+      # In Redmine 7.0 the monolithic ContextMenusController#time_entries action
+      # became ContextMenus::TimeEntriesController#index. For expense (E) and
+      # material (M) entries the ids don't refer to TimeEntry records, so skip
+      # the default find_time_entries lookup (which would render_404) and let
+      # #index load the proper records.
+      def find_time_entries
+      # ============= ERPmine_patch Redmine 7.0 =====================
+        return if session[:timelog] && session[:timelog][:spent_type] != "T"
+      # =======================
+        @time_entries = TimeEntry.find_with_preloads(params[:ids])
+
+        if @time_entries.blank? || !@time_entries.all?(&:visible?)
+          render_404
+          return
+        end
+
+        if @time_entries.size == 1
+          @time_entry = @time_entries.first
+        end
+
+        find_project_from_items(@time_entries)
+      end
+
+      def index
         @options_by_custom_field = {}
-        if session[:timelog][:spent_type] === "T"
-        # =======================
-          @time_entries = TimeEntry.where(:id => params[:ids]).
-            preload(:project => :time_entry_activities).
-            preload(:user).to_a
-
-          (render_404; return) unless @time_entries.present?
-          if @time_entries.size == 1
-            @time_entry = @time_entries.first
-          end
-
-          @projects = @time_entries.filter_map(&:project).uniq
-          @project = @projects.first if @projects.size == 1
+        if session[:timelog].nil? || session[:timelog][:spent_type] === "T"
           @activities = @projects.map(&:activities).reduce(:&)
 
           edit_allowed = @time_entries.all? {|t| t.editable_by?(User.current)}
@@ -35,7 +45,7 @@ module SendPatch::ContextMenusControllerPatch
             end
           end
 
-        # ============= ERPmine_patch Redmine 6.1  =====================
+        # ============= ERPmine_patch Redmine 7.0 =====================
         elsif session[:timelog][:spent_type] === "E"
           @time_entries = WkExpenseEntry.where(id: params[:ids]).to_a
           @can = {:edit => true, :delete => true}
@@ -48,7 +58,8 @@ module SendPatch::ContextMenusControllerPatch
           @time_entry = @time_entries.first
         end
         # =======================
-        render :layout => false
+
+        render_context_menu 'time_entries'
       end
     end
   end

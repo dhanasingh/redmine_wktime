@@ -4,6 +4,13 @@ class WksuppliercontactController < WkcontactController
 
 	include WktimeHelper
 
+	before_action :init_survey
+
+	def init_survey
+		@survey_ctrl = "wksurvey"
+		@survey_perm = validateERPPermission("E_SUR")
+	end
+
 	def getContactType
 		'SC'
 	end
