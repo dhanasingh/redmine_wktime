@@ -1,0 +1,9 @@
+<%# Plugin-bundled Chart.js 4.5.1 (copy of Redmine core vendor/javascript/chart.min.js);
+	sets window.Chart. Chart code must wait on window.chartjsReady. Safe to render multiple times.
+	Upgrade: copy vendor/javascript/chart.min.js over chart.esm.js, then rake assets:precompile. %>
+<%= javascript_tag type: "module" do %>
+	window.chartjsReady = window.chartjsReady || import("<%= j asset_path('plugin_assets/redmine_wktime/chart.esm.js') %>").then(function(m) {
+		window.Chart = m.default || m.Chart;
+		return window.Chart;
+	});
+<% end %>

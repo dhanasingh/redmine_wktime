@@ -2,7 +2,7 @@ module LoadPatch::ScopeTimeEntryQueryPatch
   def self.included(base)
     base.class_eval do
 
-        # ============= ERPmine_patch Redmine 6.1  =====================
+        # ============= ERPmine_patch Redmine 7.0  =====================
       def base_scope(options={})
         if options[:nonSpentTime].present?
           TimeEntry.
@@ -49,7 +49,7 @@ module LoadPatch::ScopeTimeEntryQueryPatch
         order_option = [group_by_sort_order, (options[:order] || sort_clause)].flatten.reject(&:blank?)
 
         order_option << "#{TimeEntry.table_name}.id ASC"
-        # ============= ERPmine_patch Redmine 6.1  =====================
+        # ============= ERPmine_patch Redmine 7.0  =====================
         if options[:nonSpentTime].present?
           base_scope(options)
         else
@@ -60,7 +60,7 @@ module LoadPatch::ScopeTimeEntryQueryPatch
         end
       end
 
-      #========= ERPmine_patch Redmine 6.1 for get supervision condition string ======
+      #========= ERPmine_patch Redmine 7.0 for get supervision condition string ======
       def getSupervisorCondStr
         orgCondStatement = statement
         condStatement = orgCondStatement

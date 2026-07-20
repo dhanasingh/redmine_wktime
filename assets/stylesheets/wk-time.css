@@ -2217,3 +2217,20 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
   padding-left:48px;font-size:12.5px;color:var(--ed-text-3);
 }
 .ed-root .sidebar-question.sidebar-child-question::before{opacity:.55}
+/* Filter bar: one row when it fits the screen, wraps to more rows when narrow */
+.wk-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 16px;
+    row-gap: 8px;
+    padding: 2px 0;
+}
+
+.wk-filters .wk-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    margin: 0;
+}

@@ -241,6 +241,7 @@ function invoiceAddRow(tableId, rowCount){
 					ele = dd;
 					$(parent).before(dd);
 					$(parent).remove();
+					$(dd).removeClass('ui dropdown'); // reset init marker so theme.js re-initializes this select
 				}else{
 					ele = this;
 				}

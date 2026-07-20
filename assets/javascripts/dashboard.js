@@ -25,7 +25,7 @@ $('<style>')
       transform: translateY(-5px);
       box-shadow: 0 8px 16px rgba(0,0,0,0.2);
     }
-    
+
     /* Tablet: 2 per row */
     @media (max-width: 1024px) {
       .icon-gravatar {
@@ -60,65 +60,27 @@ function renderChart(url, path){
   url += "&"+params;
 
   $.getJSON(url, function(data){
-    createChart(data, name);
-    $("#"+name).click(function(){
-      renderDetailReport(path, data.graphName);
-    });
-  });
-}
-
-function registerChart(){
-  Chart.pluginService.register({
-    beforeRender: function (chart) {
-      if (chart.config.options.showAllTooltips) {
-        chart.pluginTooltips = [];
-        chart.config.data.datasets.forEach(function (dataset, i) {
-          chart.getDatasetMeta(i).data.forEach(function (sector, j) {
-            chart.pluginTooltips.push(new Chart.Tooltip({
-              _chart: chart.chart,
-              _chartInstance: chart,
-              _data: chart.data,
-              _options: chart.options.tooltips,
-              _active: [sector]
-            }, chart));
-          });
-        });
-        chart.options.tooltips.enabled = false;
-      }
-    },
-    afterDraw: function (chart, easing) {
-      if (chart.config.options.showAllTooltips) {
-        // if (!chart.allTooltipsOnce) {
-        //   if (easing !== 1)
-        //     return;
-        //   chart.allTooltipsOnce = true;
-        // }
-        // chart.options.tooltips.enabled = true;
-        // Chart.helpers.each(chart.pluginTooltips, function (tooltip) {
-        //   tooltip.initialize();
-        //   tooltip.update();
-        //   tooltip.pivot();
-        //   tooltip.transition(easing).draw();
-        // });
-        chart.options.tooltips.enabled = true;
-      }
-    },
-    beforeDraw: function (chart, easing) {
-      if (chart.config.options.chartArea && chart.config.options.chartArea.backgroundColor) {
-        var ctx = chart.chart.ctx;
-        var chartArea = chart.chartArea;
-        ctx.save();
-        ctx.fillStyle = chart.config.options.chartArea.backgroundColor;
-        ctx.fillRect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
-        ctx.restore();
-      }
+    if (!data || data.error) {
+      console.error("No chart data for " + name, data && data.error);
+      return;
     }
+    (window.chartjsReady || Promise.resolve()).then(function(){
+      try {
+        createChart(data, name);
+        $("#"+name).click(function(){
+          renderDetailReport(path, data.graphName);
+        });
+      } catch (e) {
+        console.error("Failed to render chart " + name, e);
+      }
+    });
+  }).fail(function(jqxhr, textStatus){
+    console.error("Failed to load chart data for " + name + ": " + textStatus);
   });
 }
 
 function createChart(data, name) {
-  var isNonPiechart = (data["chart_type"] != "doughnut") ? true : false;
-  var isPieChart = (data["chart_type"] == "doughnut") ? true : false;
+  var isNonPiechart = (data["chart_type"] != "doughnut");
 
   var bgcolor = isNonPiechart ? "rgba(0, 138, 230)" : [
     "#50b432", "#6384FF", "#F7464A", "#46BFBD", "#FDB45C", "#FEDCBA",
@@ -167,68 +129,62 @@ function createChart(data, name) {
     datasets: dataArr
   };
 
+  var options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      title: { display: true, text: data["graphName"] },
+      tooltip: {
+        backgroundColor: "rgb(0,0,0,0)",
+        titleColor: 'rgb(0,0,0)',
+        callbacks: {
+          labelTextColor: function (context) {
+            return 'rgb(0,0,0)';
+          }
+        }
+      }
+    },
+    elements: {bar: {borderWidth: 5}}
+  };
+
+  if (isNonPiechart) {
+    options.scales = {
+      y: getAxes(false, "yTitle", data),
+      x: getAxes(true, "xTitle", data)
+    };
+  }
+
   new Chart(document.getElementById(name).getContext("2d"), {
     type: data["chart_type"],
     data: chartData,
-    options: {
-      plugins: {
-        responsive: true,
-        legend: { display: false },
-        title: { display: true, text: data["graphName"] },
-        tooltip: {
-          backgroundColor: "rgb(0,0,0,0)",
-          titleColor: 'rgb(0,0,0)',
-          callbacks: {
-            labelTextColor: function (context) {
-              return 'rgb(0,0,0)';
-            }
-          }
-        }
-      },
-      tooltips: {
-        titleFontColor: "rgba(0, 0, 0, 1)",
-        bodyFontColor: "rgba(0, 0, 0, 1)",
-        backgroundColor: "rgba(0, 0, 0, 0)",
-        bodyFontSize: 12
-      },
-      showAllTooltips: isPieChart,
-      chartArea: { backgroundColor: "rgba(255, 255, 255, 0)" },
-      scales: {
-        yAxes: getAxes(false, "yTitle", isNonPiechart, data),
-        xAxes: getAxes(true, "xTitle", isNonPiechart, data),
-      },
-      maintainAspectRatio: false,
-      elements: {rectangle: {borderWidth: 5}}
-    }
+    options: options
   });
 }
 
-function getAxes(autoSkip, label, isNonPiechart, data){
-  return (
-    {
-      grid : {
-        drawBorder: false,
-        display : false
-      },
-      ticks: {
-        display: isNonPiechart,
-        autoSkip: autoSkip,
-        maxRotation: 0,
-        minRotation: 0,
-        maxTicksLimit: label == "yTitle" ? 8 : 24,
-        suggestedMax: label == "yTitle" ? (data.data1.at ? data.data1.at(-1)*1.10 : 0) : 0
-      },
-      title: {
-        display: isNonPiechart,
-        // labelString: data[label],
-        fontColor: "#515151"
-      }
+function getAxes(autoSkip, label, data){
+  var axis = {
+    grid: {
+      display: false
+    },
+    border: {
+      display: false
+    },
+    ticks: {
+      autoSkip: autoSkip,
+      maxRotation: 0,
+      minRotation: 0,
+      maxTicksLimit: label == "yTitle" ? 8 : 24
     }
-  )
+  };
+  if (label == "yTitle" && data.data1 && data.data1.at) {
+    axis.suggestedMax = data.data1.at(-1) * 1.10;
+  }
+  return axis;
 }
 
-function renderDetailReport(path, graphName){  
-  
+function renderDetailReport(path, graphName){
+
   // Choose base path based on 'path' content
   let basePath = "wkdashboard";
   if (path.includes("wkcrmdashboard")) {

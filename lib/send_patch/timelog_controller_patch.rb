@@ -5,7 +5,7 @@ module SendPatch::TimelogControllerPatch
 		base.class_eval do
 
 			def index
-			# ============= ERPmine_patch Redmine 6.1  =====================
+			# ============= ERPmine_patch Redmine 7.0  =====================
 					set_filter_session
 				# =======================
 				retrieve_time_entry_query
@@ -13,7 +13,7 @@ module SendPatch::TimelogControllerPatch
 				preload(:issue => [:project, :tracker, :status, :assigned_to, :priority]).
 				preload(:project, :user)
 
-			# ============= ERPmine_patch Redmine 6.1  =====================
+			# ============= ERPmine_patch Redmine 7.0  =====================
 					if session[:timelog][:spent_type] === "A" || session[:timelog][:spent_type] === "M"
 						if session[:timelog][:spent_type] === "M"
 							productType = 'I'
@@ -55,7 +55,7 @@ module SendPatch::TimelogControllerPatch
 			def report
 				set_filter_session
 				retrieve_time_entry_query
-			# ============= ERPmine_patch Redmine 6.1  =====================
+			# ============= ERPmine_patch Redmine 7.0  =====================
 				options = session[:timelog][:spent_type] == "T" ? {nonSpentTime: params[:non_spent_time]} : {}
 				scope = time_entry_scope(options)
 					if session[:timelog][:spent_type] === "A" || session[:timelog][:spent_type] === "M"
@@ -79,12 +79,12 @@ module SendPatch::TimelogControllerPatch
 			end
 
 			def edit
-			# ============= ERPmine_patch Redmine 6.1  =====================
+			# ============= ERPmine_patch Redmine 7.0  =====================
 					@spentType = session[:timelog][:spent_type]
 					if @spentType === "T"
 				# =======================
 					@time_entry.safe_attributes = params[:time_entry]
-			# ============= ERPmine_patch Redmine 6.1  =====================
+			# ============= ERPmine_patch Redmine 7.0  =====================
 					elsif @spentType === "E"
 						@expenseEntry = WkExpenseEntry.find(params[:id].to_i)
 						@time_entry.project_id = @expenseEntry.project_id
@@ -106,7 +106,7 @@ module SendPatch::TimelogControllerPatch
 			end
 
 			def retrieve_time_entry_query
-			# ============= ERPmine_patch Redmine 6.1  =====================
+			# ============= ERPmine_patch Redmine 7.0  =====================
 					if !session[:timelog].blank? && (session[:timelog][:spent_type] == "M" || session[:timelog][:spent_type] == "A")
 						retrieve_query(WkMaterialEntryQuery, false)
 					elsif !session[:timelog].blank? && session[:timelog][:spent_type] == "E"
@@ -114,7 +114,7 @@ module SendPatch::TimelogControllerPatch
 					else
 				# =====================
 					retrieve_query(TimeEntryQuery, false, :defaults => @default_columns_names)
-			# ============= ERPmine_patch Redmine 6.1  =====================
+			# ============= ERPmine_patch Redmine 7.0  =====================
 					end
 					hookModel = call_hook(:retrieve_time_entry_query_model, :params => params)
 					unless hookModel[0].blank?
@@ -128,7 +128,7 @@ module SendPatch::TimelogControllerPatch
 				TimeEntry.new(:project => @project, :issue => @issue,
 										:author => User.current, :user => User.current,
 										:spent_on => User.current.today)
-				# ============= ERPmine_patch Redmine 6.1  =====================
+				# ============= ERPmine_patch Redmine 7.0  =====================
 				paramEntry = getParams(params[:log_type], params)
 				@time_entry.safe_attributes = paramEntry
 				#=====================
@@ -137,7 +137,7 @@ module SendPatch::TimelogControllerPatch
 					return
 				end
 
-				# ============= ERPmine_patch Redmine 6.1  =====================
+				# ============= ERPmine_patch Redmine 7.0  =====================
 					set_filter_session
 					model = nil
 					errorMsg = ""
@@ -149,7 +149,7 @@ module SendPatch::TimelogControllerPatch
 						call_hook(:controller_timelog_edit_before_save,
 							{:params => params, :time_entry => @time_entry})
 
-				# ============= ERPmine_patch Redmine 6.1  =====================
+				# ============= ERPmine_patch Redmine 7.0  =====================
 						errorMsg += wktime_helper.statusValidation(@time_entry)
 						unless errorMsg.blank? && @time_entry.save
 							timeErrorMsg = @time_entry.errors.full_messages.join("<br>")
@@ -169,11 +169,11 @@ module SendPatch::TimelogControllerPatch
 						#=====================
 					respond_to do |format|
 								format.html do
-							# ============= ERPmine_patch Redmine 6.1  =====================
+							# ============= ERPmine_patch Redmine 7.0  =====================
 							if errorMsg.blank? && timeErrorMsg.blank?
 							#=====================
 								flash[:notice] = l(:notice_successful_create)
-							# ============= ERPmine_patch Redmine 6.1 =====================
+							# ============= ERPmine_patch Redmine 7.0 =====================
 								if spentForModel.clock_action == "S"
 									redirect_to controller: 'timelog', action: 'edit', id: model.id
 								else
@@ -181,7 +181,7 @@ module SendPatch::TimelogControllerPatch
 								if params[:continue]
 									options = {
 										:time_entry => {
-											# ============= ERPmine_patch Redmine 6.1  =====================
+											# ============= ERPmine_patch Redmine 7.0  =====================
 											:project_id => paramEntry[:project_id],
 											#=====================
 											:issue_id => @time_entry.issue_id,
@@ -202,7 +202,7 @@ module SendPatch::TimelogControllerPatch
 									redirect_back_or_default project_time_entries_path(@time_entry.project)
 								end
 							end
-							# ============= ERPmine_patch Redmine 6.1  =====================
+							# ============= ERPmine_patch Redmine 7.0  =====================
 							else
 								flash[:error] = errorMsg if errorMsg.present?
 								if @assetObj.present? && @assetObj.id.present? && @modelEntry.id.present?
@@ -214,7 +214,7 @@ module SendPatch::TimelogControllerPatch
 							#=====================
 						end
 						format.api do
-							# ============= ERPmine_patch Redmine 6.1 =====================
+							# ============= ERPmine_patch Redmine 7.0 =====================
 							if errorMsg.blank? && timeErrorMsg.blank?
 								if params[:log_type].blank? || params[:log_type] == 'T' || params[:log_type] == 'A'
 									renderLog
@@ -231,7 +231,7 @@ module SendPatch::TimelogControllerPatch
 					end
 			end
 
-	# ============= ERPmine_patch Redmine 6.1  =====================
+	# ============= ERPmine_patch Redmine 7.0  =====================
 			def renderLog
 				data = {}
 				entry = params[:log_type] == 'A' ? @modelEntry : @time_entry
@@ -312,7 +312,7 @@ module SendPatch::TimelogControllerPatch
 		# ========================
 
 			def update
-				# ============= ERPmine_patch Redmine 6.1  =====================
+				# ============= ERPmine_patch Redmine 7.0  =====================
 				paramEntry = getParams(params[:log_type], params)
 				@time_entry.safe_attributes = paramEntry
 				model = nil
@@ -324,7 +324,7 @@ module SendPatch::TimelogControllerPatch
 				# =========================
 					call_hook(:controller_timelog_edit_before_save,
 						{:params => params, :time_entry => @time_entry})
-				# ============= ERPmine_patch Redmine 6.1  =====================
+				# ============= ERPmine_patch Redmine 7.0  =====================
 					if params[:clock_action] == "E" && @time_entry.spent_for.end_on.blank?
 						end_on = Time.now - (Time.now.utc_offset.seconds + (params[:offSet].to_i).minutes)
 						@time_entry.hours = ((end_on - @time_entry.spent_for.spent_on_time)/3600).round(2)
@@ -349,18 +349,18 @@ module SendPatch::TimelogControllerPatch
 				# =========================
 				respond_to do |format|
 					format.html do
-						# ============= ERPmine_patch Redmine 6.1  =====================
+						# ============= ERPmine_patch Redmine 7.0  =====================
 						if errorMsg.blank? && timeErrorMsg.blank?
 						# =========================
 							flash[:notice] = l(:notice_successful_update)
-							# ============= ERPmine_patch Redmine 6.1  =====================
+							# ============= ERPmine_patch Redmine 7.0  =====================
 							if spentForModel.clock_action == "E" && params[:commit] != "Save"
 								redirect_to controller: 'timelog', action: 'edit', id: model.id
 							else
 							# =========================
 								redirect_back_or_default project_time_entries_path(@time_entry.project)
 							end
-						# ============= ERPmine_patch Redmine 6.1  =====================
+						# ============= ERPmine_patch Redmine 7.0  =====================
 						else
 							flash[:error] = (errorMsg + timeErrorMsg)
 							redirect_to controller: 'timelog', action: 'edit', id: model.id
@@ -383,7 +383,7 @@ module SendPatch::TimelogControllerPatch
 				end
 			end
 
-	# ============= ERPmine_patch Redmine 6.1  =====================
+	# ============= ERPmine_patch Redmine 7.0  =====================
 			def saveMatterial
 				wklog_helper = Object.new.extend(WklogmaterialHelper)
 				wktime_helper = Object.new.extend(WktimeHelper)
@@ -482,15 +482,13 @@ module SendPatch::TimelogControllerPatch
 		# =======================================
 
 			def find_time_entries
-				# ============= ERPmine_patch Redmine 6.1  =====================
+				# ============= ERPmine_patch Redmine 7.0  =====================
 				set_filter_session
 				if session[:timelog][:spent_type] === "T"
 				# ==========================================
-					@time_entries = TimeEntry.where(:id => params[:id] || params[:ids]).
-						preload(:project => :time_entry_activities).
-						preload(:user).to_a
+					@time_entries = TimeEntry.find_with_preloads(params[:id] || params[:ids])
 					raise Unauthorized unless @time_entries.all? {|t| t.editable_by?(User.current)}
-				# ============= ERPmine_patch Redmine 6.1  =====================
+				# ============= ERPmine_patch Redmine 7.0  =====================
 				elsif session[:timelog][:spent_type] === "E"
 					@time_entries = WkExpenseEntry.where(:id => params[:id] || params[:ids])
 				else
@@ -498,19 +496,19 @@ module SendPatch::TimelogControllerPatch
 					raise ActiveRecord::RecordNotFound if @time_entries.empty?
 				# ===================================
 				end
-				@projects = @time_entries.filter_map(&:project).uniq
-				@project = @projects.first if @projects.size == 1
+				find_project_from_items(@time_entries)
 				rescue ActiveRecord::RecordNotFound
 				render_404
 			end
 
 			def find_time_entry
-    		# ============= ERPmine_patch Redmine 6.1  =====================
+    		# ============= ERPmine_patch Redmine 7.0  =====================
 				set_filter_session
 				if session[:timelog][:spent_type] === "T"
 					# ========================
 					@time_entry = TimeEntry.find(params[:id])
-				# ============= ERPmine_patch Redmine 6.1  =====================
+    			Unauthorized unless @time_entry.visible?
+				# ============= ERPmine_patch Redmine 7.0  =====================
 						elsif session[:timelog][:spent_type] === "E"
 							@time_entry = WkExpenseEntry.find(params[:id])
 						else
@@ -523,7 +521,7 @@ module SendPatch::TimelogControllerPatch
 				end
 
 			def check_editability
-      		# ============= ERPmine_patch Redmine 6.1  =====================
+      		# ============= ERPmine_patch Redmine 7.0  =====================
 						wktime_helper = Object.new.extend(WktimeHelper)
 						set_filter_session
 						if session[:timelog][:spent_type] === "T"
@@ -532,7 +530,7 @@ module SendPatch::TimelogControllerPatch
 									render_403
 									return false
 							end
-      		# ============= ERPmine_patch Redmine 6.1  =====================
+      		# ============= ERPmine_patch Redmine 7.0  =====================
 						elsif session[:timelog][:spent_type] === "E"
 							return true
 						else
@@ -542,7 +540,7 @@ module SendPatch::TimelogControllerPatch
 			end
 
 			def bulk_edit
-			# ============= ERPmine_patch Redmine 6.1  =====================
+			# ============= ERPmine_patch Redmine 7.0  =====================
 				if session[:timelog][:spent_type] == "T"
 				# =============================
 					@target_projects = Project.allowed_to(:log_time).to_a
@@ -555,7 +553,7 @@ module SendPatch::TimelogControllerPatch
 					else
 						@available_activities = @projects.map(&:activities).reduce(:&)
 					end
-			# ============= ERPmine_patch Redmine 6.1  =====================
+			# ============= ERPmine_patch Redmine 7.0  =====================
 				else
 					render_404
 				end
@@ -577,7 +575,7 @@ module SendPatch::TimelogControllerPatch
 					:controller_time_entries_bulk_edit_before_save,
 					{:params => params, :time_entry => time_entry}
 					)
-				# ============= ERPmine_patch Redmine 6.1  =====================
+				# ============= ERPmine_patch Redmine 7.0  =====================
 					wktime_helper = Object.new.extend(WktimeHelper)
 					errorMsg = wktime_helper.statusValidation(time_entry)
 					if errorMsg.blank? && time_entry.save
@@ -604,14 +602,14 @@ module SendPatch::TimelogControllerPatch
 			end
 
 			def destroy
-      		# ============= ERPmine_patch Redmine 6.1  =====================
+      		# ============= ERPmine_patch Redmine 7.0  =====================
 						wktime_helper = Object.new.extend(WktimeHelper)
 							errMsg = ""
 							if session[:timelog][:spent_type] === "T"
 								# ============================
 								destroyed = TimeEntry.transaction do
 						@time_entries.each do |t|
-					# ============= ERPmine_patch Redmine 6.1  =====================
+					# ============= ERPmine_patch Redmine 7.0  =====================
 						status = wktime_helper.getTimeEntryStatus(t.spent_on, t.user_id)
 						if !status.blank? && ('a' == status || 's' == status || 'l' == status)
 							errMsg = "#{l(:error_time_entry_delete)}"
@@ -620,14 +618,14 @@ module SendPatch::TimelogControllerPatch
 						if errMsg.blank?
 							# ===========================
 							unless t.destroy && t.destroyed?
-							# ============= ERPmine_patch Redmine 6.1  =====================
+							# ============= ERPmine_patch Redmine 7.0  =====================
 								errMsg = l(:notice_unable_delete_time_entry)
 								# ============================
 								raise ActiveRecord::Rollback
 							end
 						end
 								end
-      				# ============= ERPmine_patch Redmine 6.1  =====================
+      				# ============= ERPmine_patch Redmine 7.0  =====================
 								end
 					elsif session[:timelog][:spent_type] === "E"
 						destroyed = WkExpenseEntry.transaction do
@@ -685,7 +683,7 @@ module SendPatch::TimelogControllerPatch
 							if destroyed
 								flash[:notice] = l(:notice_successful_delete)
 							else
-              # ============= ERPmine_patch Redmine 6.1  =====================
+              # ============= ERPmine_patch Redmine 7.0  =====================
 								flash[:error] = errMsg || l(:notice_unable_delete_time_entry)
 								# ==========================================
 							end

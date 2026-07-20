@@ -1218,7 +1218,8 @@ ta-IN:
   label_upcoming_activity_reminder: உங்களுக்கு வரவிருக்கும் ஒரு செயல்பாடு உள்ளது  
   label_vs: எதிர் (vs)  
   label_scheduled: திட்டமிடப்பட்டது  
-  label_custom_range: தனிப்பயன் வரம்பு  
+  label_custom_range: தனிப்பயன் வரம்பு
+  label_date_range: தேதி வரம்பு
   label_dashboard_as_home: டாஷ்போர்டை முகப்புப் பக்கமாக அமைக்கவும்  
   ADMIN EMPLOYEE PRIVILEGE: நிர்வாக பணியாளர் சலுகை  
   label_employee_creation: பணியாளர் உருவாக்கப்பட்டது
@@ -1352,3 +1353,5 @@ ta-IN:
   label_export_desc_sage_business_cloud: "Sage Business Cloud Accounting compatible CSV for journal import"
   label_export_format_tally_prime: "Tally Prime"
   label_export_desc_tally_prime: "Tally-compatible CSV for import into Tally Prime"
+  label_date_from: From
+  label_date_to: To

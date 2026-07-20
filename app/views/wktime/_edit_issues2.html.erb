@@ -200,7 +200,7 @@
 	<!-- dropdown for currency -->
 	<% if !(controller.getUnitDDHTML).blank? %>
 		<td align="left">
-				<%= render :partial => controller.getUnitDDHTML , :locals => {:entry => entry} %>
+				<%= render :partial => controller.getUnitDDHTML , :locals => {:entry => entry, :isTemplate => isTemplate} %>
 		</td>
 	<% end %>
 

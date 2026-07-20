@@ -53,6 +53,12 @@
               <td class="lbl-txt-align"><%= entry.total_points.to_f%></td>
             <% end %>
             <%= call_hook(:survey_response_list_row, survey: @survey, entry: entry, show_survey_result: survey_helper.showSurveyResult(params), position: :end) %>
+            <% if !survey_helper.showSurveyResult(params) %>
+              <th>
+                <%= link_to sprite_icon('download', l(:button_pdf)), url_for(controller: controller_name, action: "export", survey_id: entry.survey_id, surveyForType: entry.survey_for_type, surveyForID: entry.survey_for_id, response_id: entry.id, format: 'pdf'),
+                        class: 'icon-only icon-download', title: l(:button_pdf) %>
+              </th>
+            <% end %>
         </tr>
       <% end %>
     <% end %>

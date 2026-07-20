@@ -22,7 +22,7 @@
 				brandSql = 'id in (select brand_id from wk_brand_products where product_id = ' + productId.to_s + get_comp_cond('wk_brand_products') + ')'
 			end
 		%>
-		<fieldset style="font-wight: bold;">
+		<fieldset>
 			<div style="float:right">
 				<% if controller.getItemType == "I" %>
 					<%= link_to sprite_icon('add', l(:label_assemble_item)), url_for(controller: controller_name, action: 'assemble_item', isAssemble: true), class: 'icon icon-add' %>
@@ -61,10 +61,37 @@
 				<% if controller.getItemType == "I" %>
 					<%= l(:label_text_search) %> <%= text_field_tag 'name', controller.getSession(:name), :size => 15 %>
 				<% end %>
-				<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>&nbsp;
-				<%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
+				<% if controller.getItemType == "I" %>
+					<span class="wk-filter">
+						<%= l(:label_brand) %>
+						<%=h select_tag("brand_id", generic_options_for_select(WkBrand, brandSql, 'name', 'name', 'id', brandId, true)) %>
+					</span>
+				<% else %>
+					<span class="wk-filter">
+						<%= l(:label_availability) %>
+						<%=h select_tag("availability", options_for_select(availabilityHash.invert, :selected=> availabilityId)) %>
+					</span>
+				<% end %>
+				<span class="wk-filter">
+					<%= l(:label_project) %>
+					<%=h select_tag("project_id", options_for_select(getProjectArr, :selected=> projectId)) %>
+				</span>
+				<% if controller.getItemType == "A" %>
+					<label class="wk-filter"><%= check_box_tag('is_dispose', 1, isDisposed) %> <%= l(:label_disposed) %></label>
+				<% end %>
+				<% if controller.getItemType == "I" %>
+					<label class="wk-filter"><%= l(:label_show_available_items) %> <%= check_box_tag('available_items', 1, availableItems) %></label>
+					<span class="wk-filter">
+						<%= l(:label_text_search) %>
+						<%= text_field_tag 'name', controller.getSession(:name), :size => 15 %>
+					</span>
+				<% end %>
+				<span class="wk-filter">
+					<%= link_to_function sprite_icon('checked', l(:button_apply)), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
+					<%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
+				</span>
 				<% if wktime_helper.isChecked('asset_save_geo_location') && params[:controller] == 'wkasset' %>
-					<label style="padding-left:5px">
+					<label class="wk-filter">
 						<%= check_box_tag('show_on_map', true, showOnMap, onclick: '$("#query_form").submit(); return false;') %>
 						<%= l(:label_show_on_map) %>
 					</label>
