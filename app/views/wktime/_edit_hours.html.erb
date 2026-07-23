@@ -122,6 +122,9 @@
 			<% @wday_index += 1 %>
 		<% end %>
 		<% if padAt == 'end' %>
+			<% unless @renderer.showSpentOnInRow %>
+				<td class="hours" align="center"><b><% if !controller.getUnitLabel.blank? %><%= controller.getUnit(nil) %>&nbsp;<% end %><span id="<%= 'row_total_' + @row.to_s %>">0.00</span></b></td>
+			<% end %>
 			<td align="center">
 			<% if @editable %>
 				<% if has_approved(ids: @entry_ids) %>
