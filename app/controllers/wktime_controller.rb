@@ -558,7 +558,7 @@ include ActionView::Helpers::TagHelper
 
 		if !params[:autocomplete]
 			respond_to do |format|
-				issues = issues.select(&:present?)
+				issues = sortIssuesForDD(issues.select(&:present?))
 				format.any(:html, :text) do
 					issStr =""
 					issues.each do |issue|
@@ -575,6 +575,8 @@ include ActionView::Helpers::TagHelper
 			if params[:format] != "json"
 				subject = params[:q].present? ? "%"+(params[:q]).downcase+"%" : ""
 				issues = issues.where("subject like ? OR issues.id = ?", subject, params[:q].to_i) if params[:q].present?
+				# sort must stay AFTER the q-filter above: .where needs a Relation
+				issues = sortIssuesForDD(issues)
 				issueRlt = (+"").html_safe
 				issues.each do |issue|
 					issueRlt << content_tag("span", "#"+issue.id.to_s+": "+issue.subject, class: "issue_select", id: issue.id ) if issue.visible?(user) && showIssueLogger(issue.project)
@@ -583,7 +585,7 @@ include ActionView::Helpers::TagHelper
 				issueRlt = "$('#issueLog .drdn-items.issues').html('" + issueRlt + "');"
 				render js: issueRlt
 			else
-				render :json => formatIssue(issues, user)
+				render :json => formatIssue(sortIssuesForDD(issues), user)
 			end
 		end
 	end
@@ -652,9 +654,11 @@ include ActionView::Helpers::TagHelper
 		end
 
 		if error.blank?
+			# alphabetical for dropdowns; Enumeration default order is position
+			projActivities = project.activities.to_a.sort_by { |a| [a.name.to_s.downcase, a.id] }
 			if params[:format].present?
 				actStr =""
-				project.activities.each do |a|
+				projActivities.each do |a|
 				actStr << project_id.to_s() + '|' + a.id.to_s() + '|' + a.is_default.to_s() + '|' + a.name + "\n"
 				end
 				respond_to do |format|
@@ -664,7 +668,7 @@ include ActionView::Helpers::TagHelper
 				end
 			else
 				activities = []
-				activities = project.activities.map { |act| { value: act.id, label: act.name }}
+				activities = projActivities.map { |act| { value: act.id, label: act.name }}
 				render json: activities
 			end
 		else
@@ -692,7 +696,9 @@ include ActionView::Helpers::TagHelper
 			error = "403"
 		end
 		usrLocationId = teUser.wk_user.blank? ? nil : teUser.wk_user.location_id
-		project = project.account_projects.includes(:parent).order(:parent_type) unless project.blank?
+		# label name lives on the polymorphic parent, so it can't be sorted in SQL
+		project = project.account_projects.includes(:parent).to_a
+			.sort_by { |ap| [ap.parent&.name.to_s.downcase, ap.parent_type.to_s, ap.parent_id] } unless project.blank?
 
 		respond_to do |format|
 			format.text  {
@@ -1471,6 +1477,14 @@ include ActionView::Helpers::TagHelper
 	end
 
 private
+
+	# Sort issues for dropdowns: group by project, then subject A-Z (case-insensitive).
+	# Ruby-side because getissues may merge the Relation with group-user issues into an
+	# Array (wktime_allow_filter_issue), which defeats SQL ORDER BY. id = deterministic
+	# tiebreak (sort_by is not stable).
+	def sortIssuesForDD(issues)
+		issues.to_a.sort_by { |i| [i.project_id, i.subject.to_s.downcase, i.id] }
+	end
 
 	def getManager(user, approver)
 		hookMgr = call_hook(:controller_get_manager, {:user => user, :approver => approver})
