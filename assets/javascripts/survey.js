@@ -182,6 +182,11 @@ $(function () {
 });
 
 
+// Survey is read-only (status other than 'N') whenever every other field
+function isSurveyReadonly() {
+	return $('#survey_form').data('disabled') === true;
+}
+
 function refreshSurveySidebar(activeGroupId) {
 	const accordion = $('#survey-sidebar-accordion');
 	if (accordion.length === 0) return;
@@ -192,6 +197,8 @@ function refreshSurveySidebar(activeGroupId) {
 
 	if (accordion.hasClass('ui-accordion')) accordion.uiAccordion('destroy');
 	accordion.empty();
+
+	const readonly = isSurveyReadonly();
 
 	let sidebarGroupCounter = 0;
 	let globalUngroupedCounter = 0;
@@ -223,7 +230,7 @@ function refreshSurveySidebar(activeGroupId) {
 		if (isGrouped) {
 			accordion.append(`
 				<h3 class="sidebar-sortable-group" data-sidebar-group-target="${sidebarGroupId}">
-					<span class="sidebar-drag-handle group-drag-handle">
+					<span class="sidebar-drag-handle group-drag-handle" style="${readonly ? 'display:none;' : ''}">
 						<svg width="14" height="14" viewBox="0 0 24 24" fill="none">
 							<circle cx="6" cy="6" r="1.5" fill="currentColor"/>
 							<circle cx="12" cy="6" r="1.5" fill="currentColor"/>
@@ -315,7 +322,7 @@ function refreshSurveySidebar(activeGroupId) {
 			const isChildQuestion = question.hasClass('child-question');
 			const questionHtml = $(`
 				<div class="sidebar-question ${isChildQuestion ? 'sidebar-child-question' : ''}" data-sidebar-target="${sidebarQuestionId}">
-					${!isChildQuestion ? `
+					${!isChildQuestion && !readonly ? `
 					<span class="sidebar-drag-handle question-drag-handle" title="Drag to reorder question">
 						<svg width="14" height="14" viewBox="0 0 24 24" fill="none">
 							<circle cx="6" cy="6" r="1.5" fill="currentColor"/>
@@ -364,6 +371,7 @@ function initializeSidebarGroupSortable() {
 	if (accordion.length === 0) return;
 
 	if (accordion.hasClass('ui-sortable')) accordion.sortable('destroy');
+	if (isSurveyReadonly()) return;
 
 	accordion.sortable({
 		items: '> h3, > .sidebar-question:not(.sidebar-child-question)',
@@ -420,6 +428,7 @@ function initializeSidebarQuestionSortable() {
 		const questionPanel = $(this);
 
 		if (questionPanel.hasClass('ui-sortable')) questionPanel.sortable('destroy');
+		if (isSurveyReadonly()) return;
 
 		questionPanel.sortable({
 			items: '> .sidebar-question:not(.sidebar-child-question)',
@@ -2264,22 +2273,8 @@ $(function () {
       $(this).removeClass("rb cb tb mtb").addClass((v || "RB").toLowerCase());
     });
 
-    // jQuery UI sortable for top-level questions inside each .group-questions
-    if ($.fn.sortable){
-      $(".group-questions").each(function(){
-          $(this).sortable({
-            items: "> .surveyquestion:not(.child-question)",
-            handle: ".q-grip",
-            axis: "y",
-            tolerance: "pointer",
-            placeholder: "ui-sortable-placeholder",
-            stop: function(){
-              if (typeof reOrderIndex === "function") reOrderIndex(false);
-              if (typeof refreshSurveySidebar === "function") refreshSurveySidebar();
-            }
-          });
-      });
-    }
+    // Question reordering on the main page has been removed — reordering is
+    // done via the sidebar TOC drag handles only (initializeSidebarQuestionSortable).
   });
 
 })();

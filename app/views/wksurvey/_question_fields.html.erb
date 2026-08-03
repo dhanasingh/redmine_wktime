@@ -41,7 +41,6 @@
       <div class="q-num index-num">
         <b>__QUESTION_INDEX__</b>
       </div>
-      <span class="q-grip" title="Drag to reorder">&#x2807;</span>
     </div>
   <% end %>
 
@@ -79,7 +78,12 @@
     <%# ===================== RB/CB: choices block ===================== %>
     <div class="choices" style="<%= 'display:none;' unless is_choice %>">
       <%= f.fields_for :wk_survey_choices, f.object.wk_survey_choices.presence || [f.object.wk_survey_choices.build] do |c| %>
-        <% next if is_text && c.object.name.blank? && c.object.points.blank? %>
+        <%# TB/MTB questions render their single choice's fields via the
+            tb-mtb-tools blocks below instead — skipping here unconditionally
+            (rather than only when blank) avoids a second, CSS-hidden-but-not-
+            disabled set of id/name/points inputs for the same choice, whose
+            stale value would otherwise be submitted alongside the real one. %>
+        <% next if is_text %>
         <% has_fu = c.object.follow_up_question_id.present? %>
         <div class="choice choice-row">
           <span class="glyph <%= glyph_class %>"></span>
@@ -152,7 +156,11 @@
 
       <%# TB/MTB: points + add-followup live in the tools footer — always rendered, shown only for TB/MTB %>
       <span class="text-points tb-mtb-tools" style="<%= is_text ? 'display:inline-flex;' : 'display:none;' %>align-items:center;gap:10px;margin-left:auto;">
+        <%# RB/CB questions' choices are rendered by the .choices block above
+            instead — skip here so only one set of id/name/points/destroy
+            inputs per choice ever reaches the form. %>
         <%= f.fields_for :wk_survey_choices, f.object.wk_survey_choices.presence || [f.object.wk_survey_choices.build] do |c| %>
+          <% next unless is_text %>
           <%= c.hidden_field :id %>
           <%= c.hidden_field :name, maxlength: 100 %>
           <%= c.check_box :_destroy, class: 'hide', style: 'display:none' %>
@@ -165,6 +173,7 @@
         <% end %>
         <span class="tb-mtb-followup-cell" style="display:inline-flex;align-items:center;gap:4px;">
           <%= f.fields_for :wk_survey_choices, f.object.wk_survey_choices.presence || [f.object.wk_survey_choices.build] do |c| %>
+            <% next unless is_text %>
             <span class="fu-linked-label"></span>
             <% if c.object.follow_up_question_id.present? %>
               <% unless isDisable %>
