@@ -751,9 +751,9 @@ button.ed-btn,
 a.ed-btn{
   font:inherit !important;font-size:13.5px !important;font-weight:600 !important;
   border-radius:8px !important;padding:8px 16px !important;cursor:pointer;
-  border:1px solid transparent;display:inline-flex !important;align-items:center;gap:7px;
+  border:1px solid;display:inline-flex !important;align-items:center;gap:7px;
   line-height:normal !important;height:auto !important;box-sizing:border-box;
-  text-decoration:none;
+  text-decoration:none;border-color: #1864ab;
 }
 .ed-btn svg{width:15px;height:15px}
 .ed-btn-primary,
