@@ -1,16 +1,15 @@
-# Webinar on ERPmine – Time & Expense, July 28th, 2026,(11:30 AM GMT)
+# Webinar on ERPmine – Attendance, August 25th, 2026,(11:30 AM GMT)
  
 Please click here to register if interested,
-[[([https://us02web.zoom.us/meeting/register/tDGqqIVxTS-4go4SdVm8LA](https://us02web.zoom.us/meeting/register/ptjut3YYSSuwRz8gztU_8w))]
+[(https://us02web.zoom.us/meeting/register/DBTkyXPhRA-3r2g5GZPc8A)]
  
 **Topics**:
--  Attachments to Time & Expense
--  Project based approvals
--  Minimum maximum validation on holidays
--  Issue logger on /off
--  Map on timesheet
--  Start / Stop button on time entries
--  Timesheet Report
+-  Clock In / Clock Out
+-  Review Leave Status
+-  Leave Request
+-  Integrate with Attendance Devices
+-  Attendance Report
+-  Attendance on Map
 -  Mobile App
 -----
 # ERPmine
