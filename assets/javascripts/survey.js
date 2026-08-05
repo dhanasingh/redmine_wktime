@@ -1734,6 +1734,9 @@ $(function () {
       $q.find("> .q-body > .choices > .add-choice").show();
       $tbMtbAdder.hide();
       $tbMtbTools.hide();
+      // Fieldset disabled cascades natively to all descendant form controls.
+      $choices.prop("disabled", false);
+      $tbMtbTools.prop("disabled", true);
       // swap glyphs
       var newGlyph = value === "CB" ? "check" : "radio";
       $choices.find("> .choice > .glyph").removeClass("radio check").addClass(newGlyph);
@@ -1760,6 +1763,8 @@ $(function () {
       });
       $tbMtbAdder.show();
       $tbMtbTools.css("display","inline-flex");
+      $choices.prop("disabled", true);
+      $tbMtbTools.prop("disabled", false);
     }
     if (typeof reOrderIndex === "function") reOrderIndex(false);
   };

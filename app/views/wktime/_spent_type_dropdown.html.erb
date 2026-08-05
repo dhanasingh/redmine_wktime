@@ -1,0 +1,48 @@
+<%# Server-rendered "Spent Type" filter for the Spent Time page, hooked in via view_layouts_base_content (see WktimeHook) so other plugins can hook the same point; relocated into #query_form_content by the script below since the hook fires after the form has already rendered. %>
+<% if controller_name == "timelog" && action_name == "index" %>
+  <%
+    spent_type_hash = Object.new.extend(WklogmaterialHelper).getLogHash
+    spent_type_hash.delete("RA") # never shown in this filter
+    current_spent_type = session[:timelog] && session[:timelog][:spent_type]
+    current_spent_type = "T" unless spent_type_hash.key?(current_spent_type)
+  %>
+  <table id="spent_type_wrapper" style="display:none;">
+    <tr>
+      <td>
+        <label for="spent_type" style="text-transform:none;"><%= l(:field_spent_type) %></label>
+      </td>
+      <td>
+        <%= select_tag 'spent_type',
+                       options_for_select(spent_type_hash.invert, current_spent_type),
+                       id: 'spent_type',
+                       onchange: "document.getElementById('query_form').submit();" %>
+      </td>
+    </tr>
+  </table>
+  <script>
+    $(function(){
+      var $wrapper = $('#spent_type_wrapper');
+      var $target = $('#query_form_content');
+      if ($wrapper.length && $target.length) {
+        $wrapper.appendTo($target).show();
+      }
+
+      // Mirrors the visible spent_type into the separate CSV export form.
+      function syncCsv() {
+        var sel = document.getElementById('spent_type');
+        var form = document.getElementById('csv-export-form');
+        if (!sel || !form) return;
+        var hf = form.querySelector('input[name="spent_type"]');
+        if (!hf) {
+          hf = document.createElement('input');
+          hf.type = 'hidden';
+          hf.name = 'spent_type';
+          form.appendChild(hf);
+        }
+        hf.value = sel.value;
+      }
+      syncCsv();
+      $(document).on('change', '#spent_type', syncCsv);
+    });
+  </script>
+<% end %>

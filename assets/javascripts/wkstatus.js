@@ -19,45 +19,6 @@ $(document).ready(function(){
 	clockTitle = $('#clockin').is(':visible') ? 'Clock in' : 'Clock out';
 	$("#clockINOUT").attr('title',clockTitle);
 
-	if(document.getElementById('spent_type') == null)
-	{
-		var spentTypeDD = '<table><tr><td><label for="select" style="text-transform:   none;">Spent Type</label></td>'
-            +'<td><select name="spent_type" id="spent_type" onchange="spentTypeValue(this);">'
-            +'</select></td></tr></table>';
-		var spentTypeHF = '<input type="hidden" name="spent_type" id="spent_typeHF" value="">'
-	}
-
-	if ($('.time-entries.selected').length > 0)
-	{
-		if(document.getElementById('spent_type') == null)
-		{
-			$("#query_form_content").append(spentTypeDD);
-			$("#csv-export-form").append(spentTypeHF);
-		}
-		var spentDD = document.getElementById('spent_type');
-		var userid = document.getElementById('spent_time_user_id').value;
-		var spentDDUrl = document.getElementById('getspenttype_url').value;
-		var $this = $(this);
-		if(document.getElementById('spent_type') != null)
-		{
-			var ddloption =  document.getElementById('spent_type').options;
-			if(ddloption.length == 0)
-			{
-				$.ajax({
-				url: spentDDUrl,
-				type: 'get',
-				data: {type: 'spentType'},
-				success: function(data){ updateUserDD(data, spentDD, userid, false, false, "");},
-				beforeSend: function(){ $this.addClass('ajax-loading'); },
-				complete: function(){ spentTypeSelection(); $this.removeClass('ajax-loading'); }
-				});
-			}
-		}
-	}
-	// else {
-	// 	sessionStorage.clear();
-	// }
-
 	if (timeWarnMsg != null && issueWarnMsg != null) {
 		warnMsg = [timeWarnMsg.value, issueWarnMsg.value];
 	}
@@ -151,31 +112,6 @@ $(document).ready(function(){
 		});
 	});
 });
-
-function spentTypeValue(elespent)
-{
-	//  spentTypeVal = elespent.options[elespent.selectedIndex].value;
-	//  sessionStorage.setItem("spent_type", spentTypeVal);
-	 document.getElementById("query_form").submit();
-}
-
-function spentTypeSelection()
-{
-	// const spent_type = (new URL(window.location.href)).searchParams.get("spent_type");
-	// var spcheck = sessionStorage.getItem("spent_type") == null ? (spent_type ? spent_type : "T") : sessionStorage.getItem("spent_type");
-	var spcheck = $('#spentTypeSession').val();
-	$("#spent_typeHF").val(spcheck);
-	if(document.getElementById('spent_type') != null) {
-		var ddl = document.getElementById('spent_type');
-		var opts = ddl.options.length;
-		for (var i=0; i<opts; i++){
-			if (ddl.options[i].value == spcheck){
-				ddl.options[i].selected = true;
-				break;
-			}
-		}
-	}
-}
 
 function showEntryWarning(entrydate){
 	var $this = $(this);

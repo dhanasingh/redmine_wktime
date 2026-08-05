@@ -33,7 +33,10 @@ module LoadPatch
 				end
 			end
 		end
-		render_on :view_layouts_base_content, :partial => 'wktime/attendance_widget'
+		# A hook name may only appear in one render_on call per class (define_method overwrites) — add further partials as extra args here, not a new render_on line.
+		render_on :view_layouts_base_content,
+			{:partial => 'wktime/attendance_widget'},
+			{:partial => 'wktime/spent_type_dropdown'}
 		render_on :view_timelog_edit_form_bottom, :partial => 'wklogmaterial/log_material'
 		render_on :view_issues_form_details_bottom, :partial => 'wkissues/wk_issue_fields'
 
