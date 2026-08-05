@@ -5,7 +5,7 @@ class WkdevicesController < WkbaseController
   skip_before_action :verify_authenticity_token, only: [:check]
   accept_api_auth :check
 
-  VALID_STATUSES = %w[pending approved rejected].freeze
+  VALID_STATUSES = %w[new approved rejected].freeze
 
   def check
     unless User.current.logged?
@@ -34,21 +34,24 @@ class WkdevicesController < WkbaseController
       payload[:reject_reason] = l(:label_wk_single_device_denied) if device.single_device_denied
       render json: payload
     else
-      render json: { status: 'pending' }
+      render json: { status: 'new' }
     end
   end
 
   def index
-    if params[:clear]
-      redirect_to wkdevices_path(tab: 'wkdevices') and return
-    end
+    set_filter_session
+    getUsersAndGroups
+    @status = getSession(:status) || 'new'
+    group_id = getSession(:group_id)
+    user_id = getSession(:user_id)
 
-    @status = params[:status] || 'pending'
     devices = WkDevice.includes(:user)
 
     if @status.present? && @status != 'all'
       devices = devices.where(status: WkDevice.statuses[@status])
     end
+    devices = devices.where(user_id: User.in_group(group_id).select(:id)) if group_id.present? && group_id != '0'
+    devices = devices.where(user_id: user_id) if user_id.present? && user_id != '0'
 
     devices = devices.order(last_login_at: :desc)
 
@@ -60,11 +63,10 @@ class WkdevicesController < WkbaseController
   def update
     @device = WkDevice.find(params[:id])
     new_status = params[:status]
-    filter_status = params[:filter_status].presence || 'pending'
 
     unless VALID_STATUSES.include?(new_status)
       flash[:error] = l(:error_invalid_status)
-      redirect_to wkdevices_path(status: filter_status, tab: 'wkdevices') and return
+      redirect_to wkdevices_path(tab: 'wkdevices') and return
     end
 
     case new_status
@@ -78,12 +80,11 @@ class WkdevicesController < WkbaseController
     else
       flash[:error] = l(:error_device_update_failed)
     end
-    redirect_to wkdevices_path(status: filter_status, tab: 'wkdevices')
+    redirect_to wkdevices_path(tab: 'wkdevices')
   end
 
   def destroy
     @device = WkDevice.find(params[:id])
-    filter_status = params[:filter_status].presence || 'pending'
     user = @device.user
     if @device.destroy
       reset_api_key(user)
@@ -91,10 +92,32 @@ class WkdevicesController < WkbaseController
     else
       flash[:error] = l(:error_device_delete_failed)
     end
-    redirect_to wkdevices_path(status: filter_status, tab: 'wkdevices')
+    redirect_to wkdevices_path(tab: 'wkdevices')
   end
 
   private
+
+  # Same filter-session pattern as the other list pages (leave request, users):
+  # filters live in session[controller_name]; the view submits searchlist so
+  # set_filter_session (wkbase) picks them up, and clear=true resets them.
+  def set_filter_session
+    super([:status, :group_id, :user_id])
+  end
+
+  # Group / member dropdown data, following wkattendance#get_group_members.
+  # Deliberately NOT WkpayrollHelper#get_group_members: that variant also applies
+  # params[:status] as a User-status filter, which clashes with this page's
+  # device-status filter param.
+  def getUsersAndGroups
+    group_id = params[:group_id].presence || getSession(:group_id)
+    if group_id.present? && group_id.to_i > 0
+      userList = User.in_group(group_id)
+    else
+      userList = User.where(type: "User").order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
+    end
+    @groups = Group.where(type: "Group").sorted.all
+    @members = filterByAccessibleLocation(userList).collect { |user| [user.name, user.id.to_s] }
+  end
 
   def setLimitAndOffset
     if api_request?

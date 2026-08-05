@@ -2,17 +2,43 @@
 <%= title l(:label_wkdevices) %>
 <%= render partial: "wkcrmenumeration/render_settings_tabs" %>
 
+<script type="text/javascript">
+  <%# grpChanged (index.js, loaded by render_settings_tabs) reloads the member
+      dropdown from this endpoint when the group selection changes - same
+      endpoint the HR pages use via _render_hr_tabs. %>
+  grpUrl = "<%= url_for(controller: 'wkpayroll', action: 'get_membersby_group') %>";
+</script>
+
+<% group_id = controller.getSession(:group_id)
+   user_id = controller.getSession(:user_id) %>
+
 <%= form_tag(wkdevices_path, method: :get, id: 'query_form') do %>
   <%# Keep the Devices settings tab highlighted after applying the filter -
       render_tabs falls back to the first tab when params[:tab] is missing. %>
   <%= hidden_field_tag 'tab', 'wkdevices' %>
+  <%= hidden_field_tag 'searchlist', controller_name %>
   <fieldset>
     <legend><%= l(:label_filter_plural) %></legend>
-    <label for='status'><%= l(:field_status) %>:</label>
-    <%= select_tag 'status', options_for_select([[l(:label_all), 'all'], [l(:label_device_status_pending), 'pending'], [l(:wk_status_approved), 'approved'], [l(:default_issue_status_rejected), 'rejected']], @status), class: 'small' %>
-    
-    <%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-    <%= link_to sprite_icon('reload', l(:button_clear)), wkdevices_path(clear: true, tab: 'wkdevices'), class: 'icon icon-reload' %>
+    <div style="display:flex; flex-wrap:wrap; align-items:center;">
+      <div>
+        <label for='status'><%= l(:field_status) %>:</label>
+        <%= select_tag 'status', options_for_select([[l(:label_wk_all), 'all'], [l(:label_device_status_new), 'new'], [l(:wk_status_approved), 'approved'], [l(:default_issue_status_rejected), 'rejected']], @status), class: 'small' %>&nbsp;
+      </div>
+      <div>
+        <label for='group_id'><%= l(:label_group_plural) %></label>&nbsp;
+        <%= select_tag 'group_id', options_for_select([["", 0]] + @groups.collect {|g| [g.name, g.id]}, :selected => group_id),
+              :onchange => "grpChanged(this, #{User.current.id}, true);", :style => "width:300px;" %>&nbsp;
+      </div>
+      <div>
+        <label for='user_id'><%= l(:label_member) %></label>&nbsp;
+        <%= select_tag 'user_id', options_for_select([[l(:all_users_for_select), 0]] + @members, :selected => user_id),
+              :style => "width:200px;" %>&nbsp;
+      </div>
+    </div>
+    <div>
+      <%= submit_tag l(:button_apply), :class => "small", :name => nil %>
+      <%= link_to sprite_icon('reload', l(:button_clear)), wkdevices_path(clear: true, tab: 'wkdevices'), class: 'icon icon-reload' %>
+    </div>
   </fieldset>
 <% end %>
 
@@ -41,7 +67,7 @@
           <td class="colorcode-bg-setup col-status-<%= device.status %>">
             <strong>
               <%= case device.status
-                  when 'pending' then l(:label_device_status_pending)
+                  when 'new' then l(:label_device_status_new)
                   when 'approved' then l(:wk_status_approved)
                   when 'rejected' then l(:default_issue_status_rejected)
                   end %>
@@ -50,15 +76,15 @@
           <td><%= format_time(device.last_login_at) %></td>
           <td>
             <% if !device.approved? %>
-              <%= link_to l(:button_wk_approve), wkdevice_path(device, status: 'approved', filter_status: @status), method: :put, class: 'icon icon-ok' %>
+              <%= link_to l(:button_wk_approve), wkdevice_path(device, status: 'approved'), method: :put, class: 'icon icon-ok' %>
             <% end %>
             <% if !device.rejected? && !device.approved? %>
-              <%= link_to l(:button_wk_reject), wkdevice_path(device, status: 'rejected', filter_status: @status), method: :put, class: 'icon icon-lock' %>
+              &nbsp;|&nbsp;<%= link_to l(:button_wk_reject), wkdevice_path(device, status: 'rejected'), method: :put, class: 'icon icon-lock' %>
             <% end %>
             <% if device.approved? %>
-              <%= link_to l(:button_wk_unapprove), wkdevice_path(device, status: 'pending', filter_status: @status), method: :put, class: 'icon icon-unlock' %>
+              <%= link_to l(:button_wk_unapprove), wkdevice_path(device, status: 'new'), method: :put, class: 'icon icon-unlock' %>
             <% end %>
-            <%= link_to sprite_icon('del'), wkdevice_path(device, filter_status: @status), method: :delete, data: { confirm: l(:text_are_you_sure) }, title: l(:button_delete) %>
+            &nbsp;|&nbsp;<%= link_to sprite_icon('del'), wkdevice_path(device), method: :delete, data: { confirm: l(:text_are_you_sure) }, title: l(:button_delete) %>
           </td>
         </tr>
       <% end %>

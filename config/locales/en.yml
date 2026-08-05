@@ -148,7 +148,8 @@ en:
   label_device_os_version: OS Version
   label_device_last_login: Last Login
   label_device_actions: Actions
-  label_device_status_pending: Pending
+  label_device_status_new: New
+  label_wk_all: All
   error_device_update_failed: Failed to update device status.
   error_device_delete_failed: Failed to delete device record.
   error_invalid_status: Invalid status value.
