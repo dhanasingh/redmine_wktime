@@ -2,7 +2,6 @@
 <% if controller_name == "timelog" && action_name == "index" %>
   <%
     spent_type_hash = Object.new.extend(WklogmaterialHelper).getLogHash
-    spent_type_hash.delete("RA") # never shown in this filter
     current_spent_type = session[:timelog] && session[:timelog][:spent_type]
     current_spent_type = "T" unless spent_type_hash.key?(current_spent_type)
   %>

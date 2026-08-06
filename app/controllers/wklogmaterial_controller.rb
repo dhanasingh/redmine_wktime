@@ -2,7 +2,7 @@ class WklogmaterialController < TimelogController
 
 	prepend_before_action :change_params_controller
   before_action :require_login
-	accept_api_auth :index, :spent_log, :modify_product_dd, :create, :update
+	accept_api_auth :load_spent_type, :index, :spent_log, :modify_product_dd, :create, :update
   helper :queries
   include QueriesHelper
 
@@ -114,6 +114,30 @@ class WklogmaterialController < TimelogController
 			format.api { render json: productDetail }
 		end
 	end
+
+	def load_spent_type
+		wklogtime_helper = Object.new.extend(WklogmaterialHelper)
+		spentTypeHash = wklogtime_helper.getLogHash
+		respond_to do |format|
+			format.text  {
+				spentTypes = ""
+				spentTypeHash.each{|key, value| spentTypes << key.to_s() + ',' +  value.to_s()  + "\n" }
+				render(json: spentTypes)
+			}
+			format.json  {
+				spentTypes = []
+				spentTypeHash.delete("RA")  # if resident management Plugin present
+				# spentTypeHash.delete("E") if !wklogtime_helper.isChecked('wktime_enable_expense_module')
+				# if !wklogtime_helper.isChecked('wktime_enable_inventory_module')
+				# 	spentTypeHash.delete("M")
+				# 	spentTypeHash.delete("A")
+				# end
+				spentTypeHash.each{|key, label| spentTypes << { value: key, label: label }}
+				render(json: spentTypes)
+			}
+		end
+	end
+
 
   # Returns the TimeEntry scope for index and report actions
   def time_entry_scope(options={})

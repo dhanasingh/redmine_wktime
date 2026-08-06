@@ -949,6 +949,8 @@ post 'wklogmaterial/create', to: 'wklogmaterial#create'
 
 post 'wklogmaterial/update', to: 'wklogmaterial#update'
 
+get 'wklogmaterial/load_spent_type', :to => 'wklogmaterial#load_spent_type'
+
 get 'wklogmaterial/spent_log_edit', :to => 'wklogmaterial#spent_log_edit'
 
 get 'wklogmaterial/modify_product_dd', :to => 'wklogmaterial#modify_product_dd'
