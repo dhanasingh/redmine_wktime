@@ -44,7 +44,7 @@
 		<label><b><%= l(:label_no_data) %></b></label>
 	<% end %>
 </div>
-<div id="attribute_actions" style="margin-top:8px;">
+<div id="attribute_actions" style="margin-top:8px;<%= ' display:none;' if @groupAttrEntries.blank? %>">
     <%= submit_tag l(:button_save), class: "small", name: "save_and_edit" %>
 </div>
 
@@ -97,6 +97,7 @@
 		}
 		$('#attribute_table tbody').append(attributeRowHtml);
 		updateAttrSerialNumbers();
+		$('#attribute_actions').show();
 	});
 
 	$(document).on('click', '.remove-row', function(e) {
