@@ -2234,3 +2234,24 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
     white-space: nowrap;
     margin: 0;
 }
+
+/* items, tax and round-off tables must share one column grid */
+#invoiceTable, #taxTable, #roundOffTable {
+    table-layout: fixed;
+}
+#invoiceTable th {
+    white-space: normal;
+    word-wrap: break-word;
+}
+#invoiceTable select {
+    max-width: 100%;
+}
+#invoiceTable .ui.dropdown {
+    min-width: 0;
+    max-width: 100%;
+}
+#invoiceTable .ui.dropdown > .text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
