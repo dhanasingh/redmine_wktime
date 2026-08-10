@@ -153,6 +153,12 @@ pl:
   label_clock_in: Rozpoczęcie pracy
   label_clock_out: Zakończenie pracy
   label_device_id: ID urządzenia
+  label_wk_device_awaiting_title: Awaiting Device Approval
+  label_wk_device_denied_title: Device Registration Denied
+  label_wk_device_awaiting_message: Your device is registered and awaiting approval from your administrator. Please contact your administrator to approve this device.
+  label_wk_device_denied_message: This device has been denied access by your administrator. Please contact your administrator for details.
+  label_wk_device_checking: Checking status...
+  label_wk_device_refresh_status: Refresh status
   label_wk_leave_exists: Ten urlop już istnieje
   wk_field_balance: Bilans
   wk_field_used: Użyte
@@ -196,6 +202,8 @@ pl:
 
   error_expense_entry_delete: "Nie można usunąć. Arkusz kalkulacyjny z tym wejściem jest zamknięty"
   text_are_you_sure_want_to_run: "Jesteś pewien że chcesz wykonać tę operację?"
+  text_location_destroy_cascade: "Are you sure? This will also delete all sub-locations."
+  error_location_destroy_blocked: "Cannot delete. The following location(s) have related inventory, contacts or accounts: %{names}"
   label_clock: Rozpoczęcie/Zakończenie Pracy
   label_import_attendance: Importuj frekwencję
   label_path: Import ścieżki pliku
@@ -1321,6 +1329,7 @@ pl:
   ADMIN EMPLOYEE PRIVILEGE: Admin Employee Privilege 
   label_employee_creation: Employee Created
   label_use_points: Use Points
+  label_affect_billing: Affect Billing
   label_pre_text: Pre Text
   label_post_text: Post Text
   button_add_group: Add Group
@@ -1449,5 +1458,8 @@ pl:
   label_export_desc_sage_business_cloud: "Sage Business Cloud Accounting compatible CSV for journal import"
   label_export_format_tally_prime: "Tally Prime"
   label_export_desc_tally_prime: "Tally-compatible CSV for import into Tally Prime"
-  label_date_from: From
-  label_date_to: To
+  label_table_of_contents: "Table of Contents"
+  label_drag_to_reorder: "Drag to reorder"
+  label_date_from: "From"
+  label_date_to: "To"
+  field_spent_type: "Spent Type"

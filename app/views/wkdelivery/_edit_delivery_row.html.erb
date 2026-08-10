@@ -5,7 +5,7 @@
 		isDisable = entry.id.present? || @materialID.present?
 		productItemArr = []
 		itemObj = nil
-		locationArr =  WkLocation.order(:name).pluck(:name, :id)
+		locationArr = permitted_location_options(entry.location_id, indent: false, final_only: true)
 		locationId = entry.location_id.present? ? entry.location_id : (locationArr.present? ? locationArr[0][1] : '')
 		productArr = WkInventoryItem.getProduct.collect {|t| [t.name , t.id] }
 		productId = productItem.present? ? productItem&.product_id : (productArr.present? ? productArr[0][1] : '')

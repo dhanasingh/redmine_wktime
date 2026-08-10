@@ -49,7 +49,7 @@ label =  getSurveyLabel(params)
             <td class="lbl-txt-align">
                 <% if !entry.hide_response && (["O","C"].include? entry.status) %>
                     <%= link_to sprite_icon('list'),
-                        url_for(get_survey_url(urlhash, params, "survey_response")), :title => l(:label_survey_response) %>&emsp;
+                        url_for(get_survey_url(urlhash, params, "survey_response")), :title => label["response"] || l(:label_survey_response) %>&emsp;
                 <% else %>&emsp;&emsp;&nbsp;
                 <% end %>
                 <% if ((entry.status == "O" && @survey_perm) || entry.status == "C" || getResponseGroup(entry.id).present?) && showSurveyResult(params) %>

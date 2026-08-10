@@ -208,15 +208,21 @@ class WkschedulingController < WkbaseController
 			sqlCondStr = nil
 			entries = WkUser.includes(:user)
 			@shiftRoles = WkShiftRole.all
+			loc_ids = WkLocation.accessible_location_ids
+			if loc_ids
+				entries = entries.where(location_id: loc_ids.presence || [-1])
+				@shiftRoles = @shiftRoles.where(location_id: loc_ids.presence || [-1])
+			end
 			if departmentId.present? && departmentId.to_i != 0
 				entries = entries.where(department_id: departmentId)
 				@shiftRoles = @shiftRoles.where(department_id: departmentId)
 				sqlCondStr = " where d.id = #{departmentId}"
 			end
 			if locationId.present? && locationId.to_i != 0
-				entries = entries.where(location_id: locationId)
-				@shiftRoles = @shiftRoles.where(location_id: locationId)
-				sqlCondStr = (sqlCondStr ? sqlCondStr+ " AND " : " where " )+ " l.id = #{locationId}"
+				loc_subtree = WkLocation.subtree_ids(locationId)
+				entries = entries.where(location_id: loc_subtree)
+				@shiftRoles = @shiftRoles.where(location_id: loc_subtree)
+				sqlCondStr = (sqlCondStr ? sqlCondStr+ " AND " : " where " )+ " l.id IN (#{loc_subtree.join(',')})"
 			end
 
 			sqlStr = sqlStr+(sqlCondStr || "")+ " order by l.id"
@@ -232,6 +238,8 @@ class WkschedulingController < WkbaseController
 
 	def set_filter_session
 		filters = [:location_id, :department_id, :shift_id, :day_off, :year, :month, :name]
-		super(filters, {year: @year, month: @month, location_id: WkLocation.default_id})
+		# No location default: blank means "All" (a default of the org location would
+		# silently empty the page for users whose permission excludes it).
+		super(filters, {year: @year, month: @month})
 	end
 end

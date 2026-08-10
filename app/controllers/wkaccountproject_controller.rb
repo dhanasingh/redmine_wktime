@@ -32,6 +32,7 @@ include WkaccountprojectHelper
 		set_filter_session
 		entries = accountProjctList
 		entries = entries.left_joins(:wkaccount, :wkcontact)
+		entries = WkLocation.filter_by_contact_account_location(entries, WkLocation.accessible_location_ids)
 		formPagination(entries.reorder(sort_clause))
 	end
 

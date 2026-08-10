@@ -39,7 +39,7 @@
 								<td class="lbl-txt-align"><%=h acttypeHash[entry.activity_type] %></td>
 							<% end %>
 							<% if !show_on_map && controller.is_referral %><td class="lbl-txt-align"><%= entry&.interview_type&.name %></td><% end %>
-							<td class="lbl-txt-align"><%=h entry.name %></td>
+							<td class="lbl-txt-align"><%= (!controller.is_referral || controller.deletePermission) ? link_to(entry.name, {controller: "wkcrmactivity", action: "edit", activity_id: entry.id, tab: "wkcrmactivity", controller_from: controller_name, action_from: action_name, id: entry.id}, title: l(:button_edit)) : h(entry.name) %></td>
 							<td class="lbl-txt-align colorcode-bg-setup col-status-<%=(controller.is_referral ? entry.status: (['M', 'C'].include?(entry.activity_type) ? entry.status : entry.status)) %>">
 								<%= controller.is_referral ? rf_status[entry.status] : activityStatusHash[entry.status] %>
 							</td>

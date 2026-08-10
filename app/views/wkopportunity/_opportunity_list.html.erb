@@ -31,7 +31,7 @@
    <tbody>
 	<% opportunities.each do |entry| %>
 		<tr>
-		    <td class="lbl-txt-align"><%=h entry.name  %></td>
+		    <td class="lbl-txt-align"><%= link_to entry.name, {:controller => 'wkopportunity', :action => 'edit', :opp_id => entry.id, :tab => 'wkopportunity', id: entry.id}, :title => l(:button_edit) %></td>
 		<!--	<td class="lbl-txt-align"><%#=h entry.parent.name unless entry.parent.blank? %></td> -->
 			<td class="lbl-txt-align"><%=h relatedHash[entry.parent_type] %></td>
 			<td class="lbl-txt-align colorcode-bg-setup col-status-<%= opportunityHelper.get_sales_stage(entry).blank? ? '' : opportunityHelper.get_sales_stage(entry) %>"><%=h opportunityHelper.get_sales_stage(entry).blank? ? "" : salestagehash[opportunityHelper.get_sales_stage(entry)] %></td>

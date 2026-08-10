@@ -129,7 +129,7 @@ class WkcrmController < WkbaseController
 		wkaccount.description = params[:description]
 		wkaccount.tax_number = params[:tax_number]
 		wkaccount.account_billing = params[:account_billing].blank? ? 0 : params[:account_billing]
-		wkaccount.location_id = params[:location_id] if params[:location_id] != "0"
+		wkaccount.location_id = WkLocation.permit_or_default(params[:location_id]) if params[:location_id] != "0"
 		wkaccount.created_by_user_id = User.current.id if wkaccount.new_record?
 		wkaccount.updated_by_user_id = User.current.id
 
@@ -166,7 +166,7 @@ class WkcrmController < WkbaseController
 		wkContact.account_id = params[:related_parent] if params[:related_to] == "WkAccount"
 		wkContact.contact_id = params[:related_parent] if params[:related_to] == "WkCrmContact"
 		wkContact.relationship_id = params[:relationship_id]
-		wkContact.location_id = params[:location_id] if params[:location_id] != "0"
+		wkContact.location_id = WkLocation.permit_or_default(params[:location_id]) if params[:location_id] != "0"
 		wkContact.contact_type = getContactType
 		wkContact.created_by_user_id = User.current.id if wkContact.new_record?
 		wkContact.updated_by_user_id = User.current.id

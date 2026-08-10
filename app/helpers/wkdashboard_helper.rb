@@ -12,7 +12,10 @@ module WkdashboardHelper
 			nonPermChart = !['graph001', 'graph002', 'graph003', 'graph004', 'graph005', 'graph006'].include?(fileName)
 			if(nonPermChart || (fileName == 'graph001' && showAttendance) || (fileName == 'graph002' && showExpense) ||
 				(fileName == 'graph003' && showCRMModule) || (fileName == 'graph004' && showBilling && validateERPPermission("M_BILL")) ||
-				(fileName == 'graph005' && showInventory) || (fileName == 'graph006' && showAccounting))
+				(fileName == 'graph005' && showInventory) ||
+					# Profit/Loss comes from the general ledger, which has no location dimension,
+					# so hide it from location-restricted users (admins => accessible_location_ids nil).
+					(fileName == 'graph006' && showAccounting && WkLocation.accessible_location_ids.nil?))
 					permittedfiles << file
 			end
 		end

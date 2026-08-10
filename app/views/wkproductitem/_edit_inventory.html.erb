@@ -62,21 +62,25 @@
 					<%=h select_tag("product_attribute_id", generic_options_for_select(WkProductAttribute, attributeSql, 'name', 'name', 'id', invntItem.blank? ? '' : invntItem.product_attribute_id, true), :disabled => isDisable || isTransfer) %>
 				</td>
 			</tr>
-			<% if invntItem.blank? || invntItem.parent_id.blank? %>
+			<% has_parent = @parentEntry.present? || invntItem&.parent_id.present? %>
+			<% if !has_parent && (invntItem.blank? || invntItem.parent_id.blank?) %>
 				<tr>
 					<th style="text-align: left"><%= l(:field_location) %></th>
 					<td style="text-align: left;padding-left:40px;">
-						<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', invntItem.blank? ? nil : invntItem.location_id, false), id: 'locationID', disabled: isDisable && !isTransfer) %>
+						<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', invntItem.blank? ? nil : invntItem.location_id, false, true), id: 'locationID', disabled: isDisable && !isTransfer) %>
 						<% if controller.getItemType == 'I' && invntItem.present? && !isTransfer && !@assembledComponent.present? %>
 									<%= link_to l(:button_transfer), url_for(:controller => controller_name, :action => 'transfer', :inventory_item_id => invntItem.id), :class => 'icon icon-bullet-go' %>
 						<% end %>
 					</td>
 				</tr>
 				<tr>
+				
+					<% if controller.showProjectField %>
 					<th style="text-align: left"><%= l(:label_project) %></th>
 					<td style="text-align: left;padding-left:40px;">
 						<%=h select_tag("project_id", options_for_select(get_projects, :selected => invntItem.blank? ? "" : invntItem.project_id), :disabled => isDisable && !isTransfer) %>
 					</td>
+					<% end %>
 				</tr>
 			<% end %>
 			<tr>

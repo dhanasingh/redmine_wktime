@@ -144,7 +144,8 @@ class WkshiftController < WkbaseController
 
 	def set_filter_session
 		filters = [:location_id, :department_id]
-		super(filters, {location_id: WkLocation.default_id})
+		# No location default: blank means "All" (see wkscheduling#set_filter_session).
+		super(filters)
 	end
 
 end

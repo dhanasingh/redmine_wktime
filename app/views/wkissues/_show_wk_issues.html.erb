@@ -54,6 +54,7 @@
 					<% end %>
 				</td>
 			</tr>
+		<%= call_hook(:view_wkissue_show_bottom, issue: @issue) %>
 	</table>
 	</fieldset>
 <% end %>

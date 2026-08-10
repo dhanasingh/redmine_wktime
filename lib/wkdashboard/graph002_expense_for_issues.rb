@@ -26,7 +26,12 @@ module Wkdashboard
     private
 
     def getExpenses(param={})
-      WkExpenseEntry.where("issue_id IS NOT NULL AND spent_on BETWEEN ? AND ?", param[:from], param[:to])
+      entries = WkExpenseEntry.where("issue_id IS NOT NULL AND spent_on BETWEEN ? AND ?", param[:from], param[:to])
+      # Scope to expenses of employees in the current user's accessible location
+      # scope (nil => admin/unrestricted, no filter).
+      user_ids = WkUser.user_ids_in_accessible_location
+      entries = entries.where(user_id: (user_ids.presence || [-1])) unless user_ids.nil?
+      entries
     end
   end
 end

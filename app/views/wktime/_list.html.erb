@@ -28,7 +28,7 @@
 					<tr class="time-entry <%= cycle("odd", "even") %>">
 					<td><%= entry.spent_on&.cweek %> </td>
 					<td class="start_date"><%=h format_date(entry.spent_on) %></td>
-					<td class="lbl-txt-align"><%=h entry.user&.name %></td>
+					<td class="lbl-txt-align"><%= link_to entry.user&.name, url, :title => l(:button_edit) %></td>
 					<%#= call_hook(:view_list_column_data, :entry => entry) %>
 					<% if isSupervisorApproval %>
 						<td class="lbl-txt-align"><%=h entry.user&.supervisor.blank? ? "" : entry.user&.supervisor&.name %></td>

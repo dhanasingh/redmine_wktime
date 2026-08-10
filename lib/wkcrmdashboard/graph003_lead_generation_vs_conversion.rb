@@ -19,8 +19,11 @@ module Wkcrmdashboard
       # leadsData.each_with_index {|count, index| leadsData[index] = count + leadsData[index-1] if index != 0}
       data[:data1] = leadsData
 
+      conv_ids = WkLocation.accessible_location_ids
       convLeads = WkLead.joins(:contact)
         .where(:status_update_on => getFromDateTime(to - 12.months + 1.days) .. getToDateTime(to), :status => "C", "wk_crm_contacts.contact_type"=> ["C", "SC"])
+      convLeads = convLeads.where(wk_crm_contacts: { location_id: (conv_ids.presence || [-1]) }) unless conv_ids.nil?
+      convLeads = convLeads
         .group(getDatePart("wk_leads.status_update_on","month"))
         .select(getDatePart("wk_leads.status_update_on","month","month_val"), +"count("+getDatePart("wk_leads.status_update_on","month")+") as convert_count")
       convleadsData = [0]*12
@@ -41,7 +44,11 @@ module Wkcrmdashboard
     private
 
     def getLeads(to)
-      WkLead.joins(:contact).where(:created_at => getFromDateTime(to - 12.months + 1.days) .. getToDateTime(to), "wk_crm_contacts.contact_type"=> ["C", "SC"])
+      rel = WkLead.joins(:contact).where(:created_at => getFromDateTime(to - 12.months + 1.days) .. getToDateTime(to), "wk_crm_contacts.contact_type"=> ["C", "SC"])
+      # Scope leads to the current user's accessible contact locations (nil => admin).
+      ids = WkLocation.accessible_location_ids
+      rel = rel.where(wk_crm_contacts: { location_id: (ids.presence || [-1]) }) unless ids.nil?
+      rel
     end
   end
 end

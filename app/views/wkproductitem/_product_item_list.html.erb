@@ -37,10 +37,25 @@
 							<td class="lbl-txt-align"><%=h entry.id.blank? ? entry[colName] : entry.product_item.product.name  %></td>
 						<% elsif (colName == "parent_name" && !show_on_map) %>
 							<% appartmentName = entry["parent_name"].blank? ? entry["asset_name"] : entry[colName] %>
-							<td class="lbl-txt-align"><%=h entry.id.blank? ? appartmentName : (entry.parent.blank? ? "" : entry.parent.assetName) %></td>
+							<% parentNameVal = entry.id.blank? ? appartmentName : (entry.parent.blank? ? "" : entry.parent.assetName) %>
+							<td class="lbl-txt-align">
+								<% if parentNameVal.present? && controller.linkParentNameToEdit && local_assigns[:in_apartment_edit].blank? %>
+									<%= link_to(parentNameVal, {:controller => controller.controller_name, :action => 'edit', :inventory_item_id => inventoryID, :product_item_id => productItemID, id: inventoryID}, :title => l(:button_edit)) %>
+								<% else %>
+									<%=h parentNameVal %>
+								<% end %>
+							</td>
 						<% elsif colName == "asset_name" %>
 							<% bedName = entry["parent_name"].blank? ? '' : entry[colName] %>
-							<td class="lbl-txt-align"><%=h entry.id.blank? ? bedName : entry.assetName  %></td>
+							<% assetNameVal = entry.id.blank? ? bedName : entry.assetName %>
+							<td class="lbl-txt-align">
+								<% if assetNameVal.blank? %>
+								<% elsif controller.linkAssetNameToEdit %>
+									<%= link_to(assetNameVal, {:controller => controller.controller_name, :action => 'edit', :inventory_item_id => inventoryID, :product_item_id => productItemID, id: inventoryID}, :title => l(:button_edit)) %>
+								<% else %>
+									<%=h assetNameVal %>
+								<% end %>
+							</td>
 						<% elsif (colName == "product_attribute_name" && !show_on_map) %>
 							<td class="lbl-txt-align"><%=h entry.id.blank? ? entry[colName] : (entry.product_attribute.blank? ? "" : entry.product_attribute.name)  %></td>
 						<% elsif (colName == "location_name" && !show_on_map) %>
@@ -54,7 +69,8 @@
 						<% end %>
 					<%end%>
 					  <td align="center">
-						  <%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'edit', :inventory_item_id => inventoryID, :product_item_id => productItemID, id: inventoryID}, :title => l(:button_edit) %>
+						  <% isComponent = !entry.parent_id.blank? && local_assigns[:in_apartment_edit].present? %>
+						  <%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'edit', :format => (isComponent ? 'js' : nil), :inventory_item_id => inventoryID, :product_item_id => productItemID, id: inventoryID}, :title => l(:button_edit), :remote => isComponent %>
 						  <% if controller.hasDeletePermission %>
 							<%= link_to sprite_icon('del'), {:controller => controller.controller_name, :action => 'destroy', :inventory_item_id => inventoryID, :product_item_id => entry.product_item_id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
 						  <% end %>

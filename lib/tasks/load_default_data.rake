@@ -54,8 +54,11 @@ namespace :erpmine do
     # --- Get admin user and default status ---
     admin = User.admin.first
     status = IssueStatus.first
+    raise "No admin user found" if admin.nil?
+    raise "No issue status found; load Redmine default data first" if status.nil?
 
     # --- Create projects, trackers, and issues ---
+    created_projects = {}
     projects.each do |proj_data|
       project = Project.new
       if Project.exists?(identifier: proj_data[:identifier])
@@ -69,6 +72,7 @@ namespace :erpmine do
       project.is_public = false
       project.enabled_module_names = Redmine::AccessControl.available_project_modules
       project.save!
+      created_projects[proj_data[:identifier]] = project
 
       # --- Create and assign activities to project ---
       (proj_data[:activities] || []).each do |name|
@@ -79,8 +83,7 @@ namespace :erpmine do
       end
 
       # --- Create tracker and assign to project ---
-      tracker = Tracker.new
-      tracker.name = proj_data[:tracker]
+      tracker = Tracker.find_or_initialize_by(name: proj_data[:tracker])
       tracker.default_status_id = status.id
       tracker.core_fields = Tracker::CORE_FIELDS
       tracker.save!
@@ -102,7 +105,7 @@ namespace :erpmine do
     end
 
     # --- Save leave_settings in wksettings table ---
-    hr_project = Project.find_by(identifier: 'hr')
+    hr_project = created_projects['hr']
     if hr_project.present?
       hr_issues = projects.find { |p| p[:identifier] == 'hr' }[:issues]
       subject_map = hr_issues.index_by { |i| i[:subject] }
@@ -150,7 +153,7 @@ namespace :erpmine do
     # --- Create group for permissions ---
     group = Group.create!(name: 'TE Admins')
     # Add the sole user (if exactly one user exists) and that user is admin
-    group.users << User.admin.first if User.admin.exists? && User.admin.length == 1
+    group.users << User.admin.first if User.admin.count == 1
 
     # --- Create TE Admin permission ---
     WkPermission.where(short_name: "A_TE_PRVLG").each do |perm|

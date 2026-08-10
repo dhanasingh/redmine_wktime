@@ -68,7 +68,15 @@ class ChangeWkInventoryItem < ActiveRecord::Migration[4.2]
                 execute <<-SQL
                     UPDATE wk_permissions set modules = 'PUR' where name in ('BASIC PURCHASING PRIVILEGE', 'ADMIN PURCHASING PRIVILEGE');
                 SQL
-                
+
+				# Later migrations store modules values longer than 5 characters
+				# (e.g. 'ATTENDANCE', 'PAYROLL', 'Inventory'). Trim any that the
+				# resets above did not cover so the column can be shrunk back to
+				# varchar(5) without a PG::StringDataRightTruncation error.
+				execute <<-SQL
+				    UPDATE wk_permissions SET modules = SUBSTR(modules, 1, 5) WHERE LENGTH(modules) > 5;
+				SQL
+
 				change_column :wk_permissions, :modules, :string, :limit => 5
 			end 
 		end

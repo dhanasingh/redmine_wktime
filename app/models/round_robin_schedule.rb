@@ -129,7 +129,7 @@ class RoundRobinSchedule < WkShiftSchedule
 	def getHolidays(locationId, from, to)
 		holidays = Array.new
 		unless isScheduleOnWeekEnd
-			holidays = WkPublicHoliday.where(:location_id => locationId, :holiday_date => from .. to).pluck(:holiday_date)
+			holidays = WkPublicHoliday.unscoped.where(:location_id => locationId, :holiday_date => from .. to).pluck(:holiday_date)
 		end
 		holidays
 	end

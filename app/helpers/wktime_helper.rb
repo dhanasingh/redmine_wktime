@@ -112,16 +112,21 @@ module WktimeHelper
 			#Martin Dube contribution: 'start of the week' configuration
 			headers << (l('date.abbr_day_names')[(i+startOfWeek)%7] + "\n" + I18n.localize(@startday+i, :format=>:short)) unless @startday.nil?
 		end
+		headers << l(:label_total)
 		csv << headers.collect {|c| Redmine::CodesetUtil.from_utf8(c.to_s, l(:general_csv_encoding) )  }
 		weeklyHash = getWeeklyView(entries, unitLabel, true, nil, 7) #should send false and form unique rows
 		col_values = []
 		matrix_values = nil
 		totals = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
 		weeklyHash.each do |key, matrix|
+			prev_total = totals.sum
 			matrix_values, j = getColumnValues(matrix, totals, unitLabel,false,0)
 			col_values = matrix_values[0]
 			#add the user name to the values
 			col_values.unshift(user.name)
+			row_total = totals.sum - prev_total
+			# fixed index: rows with trailing empty days are shorter than hoursIndex+7
+			col_values[hoursIndex+7] = unitLabel.blank? ? ("%.2f" % row_total) : "#{col_values[4]} #{"%.2f" % row_total}"
 			csv << col_values.collect {|c| Redmine::CodesetUtil.from_utf8(
 								c.to_s, l(:general_csv_encoding) )  }
 			if !unitLabel.blank?
@@ -129,6 +134,9 @@ module WktimeHelper
 			end
 		end
 		total_values = getTotalValues(totals, hoursIndex,unit)
+		# grand total lives in the trailing Total column; keep only the label here
+		total_values[hoursIndex-1] = l(:label_total)
+		total_values << "#{unit} #{"%.2f" % totals.sum}"
 		#add an empty cell to cover for the user column
 		#total_values.unshift("")
 		csv << total_values.collect {|t| Redmine::CodesetUtil.from_utf8(
@@ -182,20 +190,25 @@ module WktimeHelper
 		col_width = []
 		orientation = "P"
 		unit=nil
+		col_id_width = 6
+		day_width = 10
+		total_width = 12
 		# 20% for project, 60% for issue, 20% for activity
 		col_width[0]=col_id_width
-		col_width[1] = (table_width - (8*10))*0.2
-		col_width[2] = (table_width - (8*10))*0.6
-		col_width[3] = (table_width - (8*10))*0.2
+		fixed_width = col_id_width + (7*day_width) + total_width
+		col_width[1] = (table_width - fixed_width)*0.2
+		col_width[2] = (table_width - fixed_width)*0.6
+		col_width[3] = (table_width - fixed_width)*0.2
 		title=l(:label_wktime)
 		if !unitLabel.blank?
 			columns << l(:field_currency)
-			col_id_width  = 14
-			col_width[0]=col_id_width
-			col_width[1] = (table_width - (8*14))*0.20
-			col_width[2] = (table_width - (8*14))*0.44
-			col_width[3] = (table_width - (8*14))*0.16
-			col_width[4] = (table_width - (8*14))*0.20
+			day_width = 14
+			total_width = 16
+			fixed_width = col_id_width + (7*day_width) + total_width
+			col_width[1] = (table_width - fixed_width)*0.22
+			col_width[2] = (table_width - fixed_width)*0.34
+			col_width[3] = (table_width - fixed_width)*0.22
+			col_width[4] = (table_width - fixed_width)*0.22
 			title= l(:label_wkexpense)
 		end
 
@@ -207,8 +220,10 @@ module WktimeHelper
 		for i in 0..6
 			#Martin Dube contribution: 'start of the week' configuration
 			columns << l('date.abbr_day_names')[(i+startOfWeek)%7] + "\n" + (startday+i).mon().to_s() + "/" + (startday+i).day().to_s()
-			col_width << col_id_width
+			col_width << day_width
 		end
+		columns << l(:label_total)
+		col_width << total_width
 
 		#Landscape / Potrait
 		if(table_width > 220)
@@ -246,8 +261,12 @@ module WktimeHelper
 		max_height = row_height
 
 		weeklyHash.each do |key, matrix|
+			prev_total = totals.sum
 			matrix_values, j = getColumnValues(matrix, totals, unitLabel,true, j)
 			col_values = matrix_values[0]
+			row_total = totals.sum - prev_total
+			# fixed index: rows with trailing empty days are shorter than hoursIndex+7
+			col_values[hoursIndex+7] = unitLabel.blank? ? ("%.2f" % row_total) : "#{col_values[4]} #{"%.2f" % row_total}"
 			base_x = pdf.GetX
 			base_y = pdf.GetY
 			pdf.SetY(2 * page_height)
@@ -276,6 +295,8 @@ module WktimeHelper
 		end
 
 		total_values = getTotalValues(totals,hoursIndex,unit)
+		total_values[hoursIndex-1] = l(:label_total)
+		total_values << "#{unit} #{"%.2f" % totals.sum}"
 
 		#write total
 		#write an empty id
@@ -671,15 +692,16 @@ end
 				{:name => 'wksupplieraccount', :partial => 'wktime/tab_content', :label => :label_supplier_account},
 				{:name => 'wksuppliercontact', :partial => 'wktime/tab_content', :label => :label_supplier_contact}
 			   ]
-		elsif params[:controller] == "wkcrmenumeration" || params[:controller] == "wktax" || params[:controller] == "wkexchangerate" || params[:controller] == "wklocation" || params[:controller] == "wkgrouppermission" || params[:controller] == "wknotification"
+		elsif params[:controller] == "wkcrmenumeration" || params[:controller] == "wktax" || params[:controller] == "wkexchangerate" || params[:controller] == "wklocation" || params[:controller] == "wkgrouppermission" || params[:controller] == "wknotification" || params[:controller] == "wkdevices"
 			tabs = [
 				{:name => 'wkcrmenumeration', :partial => 'wktime/tab_content', :label => :label_enumerations},
 				{:name => 'wklocation', :partial => 'wktime/tab_content', :label => :field_location},
 				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax},
 				{:name => 'wkexchangerate', :partial => 'wktime/tab_content', :label => :label_rate},
 				{:name => 'wkgrouppermission', :partial => 'wktime/tab_content', :label => :label_permissions},
-				{:name => 'wknotification', :partial => 'wktime/tab_content', :label => :label_notification_plural},
+				{:name => 'wknotification', :partial => 'wktime/tab_content', :label => :label_notification_plural}
 			   ]
+			tabs << {:name => 'wkdevices', :partial => 'wktime/tab_content', :label => :label_wkdevices} if User.current.admin? || validateERPPermission('A_DEVICE')
 		else
 			tabs = [
 				{name: 'wkproduct', partial: 'wktime/tab_content', label: :label_product},
@@ -845,7 +867,12 @@ end
 			# viewMenu  = viewMenu.blank? ? '' : (viewMenu.is_a?(Array) ? (viewMenu[0].blank? ? '': viewMenu[0].to_s) : viewMenu.to_s)
 			#@manger_user = (!viewMenu.blank? && to_boolean(viewMenu))
 			# ret = (!viewProjects.blank? && viewProjects.size > 0) || (!loggableProjects.blank? && loggableProjects.size > 0) || validateERPPermission('A_TE_PRVLG') || (isSupervisorApproval && getSuperViewPermission) #(!viewMenu.blank? && to_boolean(viewMenu))
-			ret = Project.count > 0
+			# Memoized on User.current (reset each request) - called once per top menu item.
+			ret = User.current.instance_variable_get(:@wktime_view_permission)
+			if ret.nil?
+				ret = Project.count > 0
+				User.current.instance_variable_set(:@wktime_view_permission, ret)
+			end
 		end
 		ret
 	end
@@ -1309,7 +1336,31 @@ end
 			Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].to_i == 1 ) && validateERPPermission("B_INV_PRVLG")
 	end
 
-	def generic_options_for_select(model, sqlCond, orderBySql, displayCol, valueCol, selectedVal, needBlank)
+	# [name, id] pairs of locations the current user may pick, tree-ordered with
+	# indentation, ALWAYS including `selected` so an existing (possibly out-of-scope)
+	# value is never dropped. nil accessible ids => admin => all locations.
+	# final_only: true => only assignable final-level (deepest-leaf) locations.
+	def permitted_location_options(selected = nil, indent: true, final_only: false)
+		ids = WkLocation.accessible_location_ids
+		scope = ids ? WkLocation.where(id: (ids + [selected].compact.map(&:to_i)).uniq) : WkLocation.all
+		ordered, depths, _ = WkLocation.tree_ordered_by_name(scope)
+		if final_only
+			final = WkLocation.permitted_final_location_ids
+			sel = selected.to_i if selected
+			ordered = ordered.select { |l| final.include?(l.id) || l.id == sel }
+		end
+		# Indent with non-breaking spaces (U+00A0) so the hierarchy survives the
+		# whitespace collapsing browsers/select2 apply to <option> text (plain
+		# spaces get trimmed and the list renders flat). Nested entries also get a
+		# "- " marker; roots stay un-prefixed.
+		ordered.map do |l|
+			depth = depths[l.id] || 0
+			label = indent && depth > 0 ? ("\u00A0" * 4 * depth) + "- " + l.name : l.name
+			[label, l.id]
+		end
+	end
+
+	def generic_options_for_select(model, sqlCond, orderBySql, displayCol, valueCol, selectedVal, needBlank, finalOnly = false)
 		ddArray = Array.new
 		if sqlCond.blank? || orderBySql.blank?
 			if sqlCond.blank? && orderBySql.blank?
@@ -1324,11 +1375,26 @@ end
 		else
 			ddValues = model.where("#{sqlCond}").order("#{orderBySql}")
 		end
+		# Restrict location dropdowns to the user's permitted locations (keep the
+		# currently-selected value so editing never drops an out-of-scope location).
+		# finalOnly => only assignable final-level (deepest-leaf) locations.
+		if model == WkLocation
+			ids = WkLocation.accessible_location_ids
+			if finalOnly
+				allow = (WkLocation.permitted_final_location_ids + [selectedVal].compact.map(&:to_i)).uniq
+				ddValues = ddValues.where(id: allow)
+			elsif ids
+				ddValues = ddValues.where(id: (ids + [selectedVal].compact.map(&:to_i)).uniq)
+			end
+		end
 		unless ddValues.blank?
 			#ddArray = ddValues.collect {|t| [t["#{displayCol}"], t["#{valueCol}"]]
 			ddValues.each do | entry |
 				ddArray << [entry["#{displayCol}"], entry["#{valueCol}"]]
-				selectedVal = entry.id if model == WkLocation && selectedVal.nil? && entry.is_default?
+				# Pre-select the org default location only on mandatory dropdowns
+				# (no blank option). When needBlank is set, blank means "All"/"none",
+				# so don't mask that intent by forcing the default location.
+				selectedVal = entry.id if model == WkLocation && selectedVal.nil? && !needBlank && entry.is_default?
 			end
 		end
 
@@ -1342,8 +1408,60 @@ end
 
 	def hasSettingPerm
 		ret = false
-		ret = (User.current.admin) || validateERPPermission("ADM_ERP") || validateERPPermission('A_TE_PRVLG') || (validateERPPermission("B_INV_PRVLG") && validateERPPermission("A_INV_PRVLG")) || validateERPPermission("A_ACC_PRVLG") || validateERPPermission("A_CRM_PRVLG") || validateERPPermission("A_PUR_PRVLG") || validateERPPermission("M_BILL")
+		ret = (User.current.admin) || validateERPPermission("ADM_ERP") || validateERPPermission('A_TE_PRVLG') || (validateERPPermission("B_INV_PRVLG") && validateERPPermission("A_INV_PRVLG")) || validateERPPermission("A_ACC_PRVLG") || validateERPPermission("A_CRM_PRVLG") || validateERPPermission("A_PUR_PRVLG") || validateERPPermission("M_BILL") || validateERPPermission("A_DEVICE")
 		ret
+	end
+
+	# Locations allowed as Level 1 entries in the cascading location selector
+	# (the top of what the current user may browse).
+	# - ADM_ERP permission -> all root locations (full tree)
+	# - else the user's perm_location, falling back to location_id -> that node
+	# - neither set -> none
+	# Top-level node(s) of the user's permitted tree (the roots the location
+	# dropdown widget starts from). Delegates to accessible_location_ids — the
+	# single source of truth — so ADM_ERP and perm_location = 0 ("All") both
+	# yield every root.
+	def permitted_location_roots
+		ids = WkLocation.accessible_location_ids
+		return WkLocation.where(parent_id: nil) if ids.nil?   # unrestricted
+		return WkLocation.none if ids.empty?
+		WkLocation.where(id: ids).where("parent_id IS NULL OR parent_id NOT IN (?)", ids)
+	end
+
+	# Every location the current user may traverse (permitted root + its
+	# descendants). Used to scope child lookups so a crafted parent_id cannot
+	# escape the permitted subtree.
+	def permitted_location_scope
+		ids = WkLocation.accessible_location_ids
+		return WkLocation.all if ids.nil?                     # unrestricted
+		WkLocation.where(id: ids.presence || [-1])
+	end
+
+	# Location ids the current user may see, for filtering list records.
+	# Thin delegate to the single source of truth on WkLocation.
+	# Returns nil  => no restriction (ADM_ERP) — callers should not add a filter.
+	#         array => the permitted subtree ids ([] when the user has no
+	#                  perm_location/location_id, which restricts to nothing).
+	def permitted_location_ids
+		WkLocation.accessible_location_ids
+	end
+
+	# Restrict a list of users to the current user's accessible location subtree so
+	# selection lists match the location-filtered data queries. No-op for
+	# unrestricted / ADM_ERP users (accessible_location_ids => nil).
+	# Accepts User/Principal objects, Member objects, or [name, id] pairs.
+	def filterByAccessibleLocation(collection)
+		return collection if collection.blank?
+		loc_ids = WkLocation.accessible_location_ids
+		return collection if loc_ids.nil?                       # unrestricted
+		permitted = WkUser.where(location_id: loc_ids).pluck(:user_id).to_set
+		collection.select { |item| permitted.include?(accessibleUserId(item)) }
+	end
+
+	def accessibleUserId(item)
+		return item.user_id if item.respond_to?(:user_id)       # Member
+		return item[1].to_i if item.is_a?(Array)                # [name, id]
+		item.id                                                 # User / Principal
 	end
 
 	def erpModules
@@ -1367,19 +1485,26 @@ end
 	end
 
 	def validateERPPermission(permission)
-		permissionArr = Array.new
 		user = User.current
-		user.groups.each do |group|
-			groupPermission = WkGroupPermission.where(:group_id => group.id)
-			groupPermission.each do |grp|
-				unless grp.permission.blank?
-					shortname = grp.permission.short_name
-					permissionArr << shortname
-				end
-		  end
-		end		
-		is_allow = Array(call_hook(:allow_module)).first
-		is_allow.present? || permissionArr.include?(permission)		
+		# A user's ERP permissions don't change within a single request, but
+		# validateERPPermission is invoked dozens of times per page (top menus,
+		# show* helpers, views). Recomputing it each time previously iterated every
+		# group permission with an N+1 on grp.permission - ~1500 queries that
+		# dominated page render time. Compute the permission list once and memoize
+		# it on the shared User.current object (a fresh object each request, so the
+		# cache never goes stale across requests).
+		permissionArr = user.instance_variable_get(:@wktime_erp_permissions)
+		if permissionArr.nil?
+			groupIds = user.groups.map(&:id)
+			permissionArr = WkGroupPermission.where(:group_id => groupIds)
+				.includes(:permission)
+				.filter_map { |grp| grp.permission&.short_name }
+				.uniq
+			user.instance_variable_set(:@wktime_erp_permissions, permissionArr)
+			isAllow = Array(call_hook(:allow_module)).first
+			user.instance_variable_set(:@wktime_erp_allow_module, isAllow.present?)
+		end
+		user.instance_variable_get(:@wktime_erp_allow_module) || permissionArr.include?(permission)
 	end
 
 	def showShiftScheduling
@@ -1959,10 +2084,15 @@ end
 		return valid ? "" : l(:label_warning_wktime_time_entry)
 	end
 
-	def getAllLocations
-		wklocations = WkLocation.order(name: :asc)
-		locations = []
-		locations = wklocations.map { |loc| { value: loc.id, label: loc.name }}
+	# Location dropdown options for API/mobile clients: scoped to the current user's
+	# permitted location subtree and tree-ordered with indentation, matching the web
+	# (`permitted_location_options`). `selected` is always kept so editing a record
+	# whose location is outside the user's scope never drops that value.
+	# final_only => only assignable final-level (leaf) locations, flat (matches the
+	# web edit-form location dropdown, generic_options_for_select(..., finalOnly: true)).
+	# Default keeps the full indented permitted tree (matches the web filter dropdown).
+	def getAllLocations(selected = nil, final_only: false)
+		permitted_location_options(selected, indent: !final_only, final_only: final_only).map { |label, id| { value: id, label: label } }
 	end
 
 	def getLeaveSettings

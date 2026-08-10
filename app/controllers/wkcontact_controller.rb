@@ -39,7 +39,6 @@ class WkcontactController < WkcrmController
 			LEFT JOIN wk_locations AS L on wk_crm_contacts.location_id = L.id  #{get_comp_condition('L')}
 			LEFT JOIN users AS U on wk_crm_contacts.assigned_user_id = U.id  #{get_comp_condition('U')} ")
 
-		location = WkLocation.where(:is_default => 'true').first
 		if !contactName.blank? &&  !accountId.blank?
 			if accountId == 'AA'
 				wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id #{get_comp_condition('wk_crm_contacts')}")
@@ -70,9 +69,11 @@ class WkcontactController < WkcrmController
 			wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id #{get_comp_condition('wk_leads')}")
 			.where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => nil)
 		end
-		if (!locationId.blank? || !location.blank?) && locationId != "0"
-			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i
-			wkcontact = wkcontact.where("wk_crm_contacts.location_id = ? ", location_id)
+		# Permission filtering is applied automatically by the location default_scope
+		# (LocationScoped). A picked location narrows further by its subtree; blank
+		# means "All" (no org default-location fallback).
+		if locationId.present? && locationId != "0"
+			wkcontact = wkcontact.where("wk_crm_contacts.location_id IN (?) ", WkLocation.subtree_ids(locationId.to_i))
 		end
 		wkcontact = wkcontact.reorder(sort_clause)
 		respond_to do |format|

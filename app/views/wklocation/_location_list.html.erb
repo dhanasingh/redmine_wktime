@@ -5,13 +5,16 @@
 	<table class="list time-entries" style="width:<%= !show_on_map ? "100%" : "35%" %>; float:left;">
 		<thead>
 			<tr>
-				<%= sort_header_tag('name', :caption => l(:field_name), class: "lbl-txt-align", style:(show_on_map ? "width:30%" : "")) %>
-				<%= sort_header_tag('type', :caption => l(:field_type), class: "lbl-txt-align", style:(show_on_map ? "width:30%" : "")) %>
+				<th class="lbl-txt-align" style="<%= show_on_map ? 'width:30%' : '' %>"><%= l(:field_name) %></th>
+				<% if !show_on_map %>
+					<th class="lbl-txt-align"><%= l(:field_parent_location) %></th>
+				<% end %>
+				<th class="lbl-txt-align" style="<%= show_on_map ? 'width:30%' : '' %>"><%= l(:field_type) %></th>
 				<% if !show_on_map %>
 					<th class="lbl-txt-align"><%= l(:label_account_address1)   %></th>
 				<% end %>
-				<%= sort_header_tag('city', :caption => l(:label_city), class: "lbl-txt-align", style:(show_on_map ? "width:15%" : "")) %>
-				<%= sort_header_tag('state', :caption => l(:label_state), class: "lbl-txt-align", style:(show_on_map ? "width:15%" : "")) %>
+				<th class="lbl-txt-align" style="<%= show_on_map ? 'width:15%' : '' %>"><%= l(:label_city) %></th>
+				<th class="lbl-txt-align" style="<%= show_on_map ? 'width:15%' : '' %>"><%= l(:label_state) %></th>
 				<% if !show_on_map %>
 					<th class="lbl-txt-align"><%= l(:field_is_default)   %></th>
 					<th class="lbl-txt-align"><%= l(:label_main_location)   %></th>
@@ -21,8 +24,22 @@
 		</thead>
 		<tbody>
 		<% @locationObj.each do |entry| %>
-			<tr>
-				<td class="lbl-txt-align"><%=h entry.name  %></td>
+			<% depth = @depths[entry.id] || 0 %>
+			<% ancestors = (@ancestor_ids[entry.id] || []).join(',') %>
+			<% confirm_msg = entry.leaf? ? l(:text_are_you_sure) : l(:text_location_destroy_cascade) %>
+			<tr class="location-row" data-location-id="<%= entry.id %>" data-ancestor-ids="<%= ancestors %>">
+				<td class="lbl-txt-align">
+					<span style="display:inline-block; width:<%= depth * 18 %>px;"></span>
+					<% if entry.leaf? %>
+						<span class="wk-loc-toggle-spacer" style="display:inline-block; width:18px;"></span>
+					<% else %>
+						<a href="javascript:void(0)" class="wk-loc-toggle" data-location-id="<%= entry.id %>" data-collapsed="0" style="display:inline-block; width:18px; height:18px; line-height:16px; text-align:center; text-decoration:none; font-weight:bold; font-size:14px; border:1px solid #1976d2; border-radius:50%; background:#fff; color:#1976d2;">&minus;</a>
+					<% end %>
+					<%= link_to entry.name, {:controller => controller_name, :action => 'edit', :location_id => entry.id, id: entry.id, :tab => 'wklocation'}, :title => l(:button_edit) %>
+				</td>
+				<% if !show_on_map %>
+					<td class="lbl-txt-align"><%=h entry.parent&.name %></td>
+				<% end %>
 				<td class="lbl-txt-align"><%=h entry.location_type.name unless entry.location_type.blank?  %></td>
 				<% if !show_on_map %>
 					<td class="lbl-txt-align"><%=h entry.address.blank? ? nil : entry.address.address1  %></td>
@@ -34,7 +51,7 @@
 					<td class="lbl-txt-align"><%=h  checked_image entry.is_main?  %></td>
 				<% end %>
 				<td class="lbl-txt-align"><%= link_to sprite_icon('edit'), {:controller => controller_name, :action => 'edit', :location_id => entry.id, id: entry.id, :tab => 'wklocation'}, :title => l(:button_edit) %>
-								<%= link_to sprite_icon('del'), {:controller => controller_name, :action => 'destroy', :location_id => entry.id, id: entry.id, :tab => 'wklocation'},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
+								<%= link_to sprite_icon('del'), {:controller => controller_name, :action => 'destroy', :location_id => entry.id, id: entry.id, :tab => 'wklocation'},  :data => {:confirm => confirm_msg}, :method => :delete, :title => l(:button_delete) %></td>
 			</tr>
 		<% end %>
 		</tbody>
@@ -44,3 +61,12 @@
 		<%= render partial: "wkgeolocation/show_on_map", locals: { entries: @locationObj, model: "address", height: '94%', width: '64%'} %>
 	<% end %>
 </div>
+
+<%= render 'wklocation/tree_toggle_js' %>
+<script>
+WkLocTree.init({
+	rowSelector: 'tr.location-row',
+	toggleSelector: '.wk-loc-toggle',
+	rowClickToggle: true
+});
+</script>

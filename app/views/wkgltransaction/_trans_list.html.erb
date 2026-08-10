@@ -50,7 +50,7 @@
 			<tr class="trlist" data-toggle="tooltip" data-container="body" data-placement="bottom" title="<%=entry.comment%>">
 				<td class="lbl-txt-align colorcode-bg-setup col-status-<%= entry.trans_type %>"><%=h transTypeHash[entry.trans_type]  %></td>
 				<td class="lbl-txt-align"><%=h entry.trans_date %></td>
-				<td class="lbl-txt-align"><%=h @partLedgerName %></td>
+				<td class="lbl-txt-align"><%= @partLedgerName.blank? ? "" : link_to(@partLedgerName, {:controller => controller.controller_name, :action => 'edit', :txn_id => entry.id, id: entry.id, :tab => controller.controller_name}, :title => l(:button_edit)) %></td>
 				<td class="lbl-txt-align"><%=h  "%.2f" % @dbAmount unless @dbAmount.blank? %></td>
 				<td class="lbl-txt-align"><%=h  "%.2f" % @crAmount unless @crAmount.blank? %></td>
 				<td class="lbl-txt-align"><%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'edit', :txn_id => entry.id, id: entry.id, :tab => controller.controller_name},   :title => l(:button_edit) %>

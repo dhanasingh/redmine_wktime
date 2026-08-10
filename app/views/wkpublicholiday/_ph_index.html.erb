@@ -24,7 +24,7 @@
 						<%= date_field_tag('holiday_date[]', entry.holiday_date, :required => true, :style => "width:150px;", :disabled => !validateERPPermission('A_ATTEND')) %><%= calendar_for('holiday_date[]') %>
 						</td>
 					<td>
-						<%=h select_tag("location_id[]", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', entry.location_id.nil? ? "" : entry.location_id , true), :style => "width:150px;", :disabled => !validateERPPermission('A_ATTEND') ) %>
+						<%=h select_tag("location_id[]", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', entry.location_id.nil? ? "" : entry.location_id , true, true), :style => "width:150px;", :disabled => !validateERPPermission('A_ATTEND') ) %>
 					</td>
 					<!--
 					<td>
@@ -54,7 +54,7 @@
 						<%= date_field_tag('holiday_date[]',Date.today.to_s, :style => "width:150px;", :required => true) %><%= calendar_for('holiday_date[]') %>
 					</td>
 					<td>
-						<%=h select_tag("location_id[]", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', nil, true), :style => "width:150px;") %>
+						<%=h select_tag("location_id[]", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', nil, true, true), :style => "width:150px;") %>
 					</td>
 					<!--
 					<td>

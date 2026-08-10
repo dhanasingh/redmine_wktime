@@ -27,12 +27,6 @@ class WklocationController < WkbaseController
 	accept_api_auth :getlocations
 
   	def index
-		sort_init 'name', 'asc'
-		sort_update 'name' => "name",
-					'type' => "#{WkCrmEnumeration.table_name}.name",
-					'city' => "#{WkAddress.table_name}.city",
-					'state' => "#{WkAddress.table_name}.state"
-
 		set_filter_session
 		locationName = session[controller_name].try(:[], :location_name)
 		locationType =  session[controller_name].try(:[], :location_type)
@@ -46,19 +40,34 @@ class WklocationController < WkbaseController
 			entries = entries.where("LOWER(wk_locations.name) like LOWER(?) ", "%#{locationName}%")
 		end
 
-		entries = entries.left_joins(:address, :location_type)
-		entries = entries.reorder(sort_clause)
+		# Picked-location filter: restrict the list to the chosen location's subtree
+		# (the node itself + all descendants). The single indented location dropdown
+		# submits one location_id; WkLocation.subtree_ids expands it.
+		locationId = session[controller_name].try(:[], :location_id)
+		if locationId.present? && locationId.to_i != 0
+			entries = entries.where(id: WkLocation.subtree_ids(locationId))
+		end
+
+		entries = entries.includes(:address, :location_type)
+		ordered_entries, @depths, @ancestor_ids = WkLocation.tree_ordered_by_name(entries)
+
 		respond_to do |format|
 			format.html {
-				formPagination(entries)
+				formPaginationFromArray(ordered_entries)
 			}
 			format.csv{
 				headers = {name: l(:field_name), type: l(:field_type), address: l(:label_account_address1), city: l(:label_city), state: l(:label_state), default: l(:field_is_default), main: l(:label_main_location)}
-				data = entries.collect{|entry| {name: entry.name, type: entry&.location_type&.name, address: entry&.address&.address1, city: entry&.address&.city, state: entry&.address&.state, default: entry.is_default, main: entry.is_main} }
+				data = ordered_entries.collect{|entry| {name: entry.name, type: entry&.location_type&.name, address: entry&.address&.address1, city: entry&.address&.city, state: entry&.address&.state, default: entry.is_default, main: entry.is_main} }
 				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "location.csv")
 			}
 		end
   	end
+
+	def formPaginationFromArray(arr)
+		@entry_count = arr.size
+		setLimitAndOffset()
+		@locationObj = arr[@offset, @limit] || []
+	end
 
   	def edit
 		@locEntry = nil
@@ -79,6 +88,7 @@ class WklocationController < WkbaseController
 		locationObj.is_default = params[:defaultValue]
 		locationObj.is_main = params[:defaultMain]
 		locationObj.attachment_id = params[:attachment_id].present? ? params[:attachment_id] : nil
+		locationObj.parent_id = params[:parent_id].presence
 		unless locationObj.valid?
 			errorMsg = errorMsg.blank? ? locationObj.errors.full_messages.join("<br>") : locationObj.errors.full_messages.join("<br>") + "<br/>" + errorMsg
 		end
@@ -100,7 +110,18 @@ class WklocationController < WkbaseController
 
   	def destroy
 		location = WkLocation.find(params[:location_id].to_i)
-		if location.destroy
+		subtree_ids = [location.id] + location.descendants.pluck(:id)
+
+		blocking_ids = (
+			WkInventoryItem.where(location_id: subtree_ids).distinct.pluck(:location_id) +
+			WkCrmContact.unscoped.where(location_id: subtree_ids).distinct.pluck(:location_id) +
+			WkAccount.unscoped.where(location_id: subtree_ids).distinct.pluck(:location_id)
+		).uniq
+
+		if blocking_ids.any?
+			names = WkLocation.where(id: blocking_ids).order(:name).pluck(:name).join(', ')
+			flash[:error] = l(:error_location_destroy_blocked, names: names)
+		elsif location.destroy
 			flash[:notice] = l(:notice_successful_delete)
 		else
 			flash[:error] = location.errors.full_messages.join("<br>")
@@ -109,7 +130,7 @@ class WklocationController < WkbaseController
   	end
 
 	def set_filter_session
-		filters = [:location_name, :location_type, :show_on_map]
+		filters = [:location_name, :location_type, :location_id, :show_on_map]
 		super(filters)
 	end
 
@@ -145,4 +166,33 @@ class WklocationController < WkbaseController
 	def getlocations
 		render json: getAllLocations
 	end
+
+	def location_tree
+
+		# Root the tree at the user's permitted location(s); recursion via the
+		# nested-set #children method then stays within the permitted subtree.
+		# NOTE: :children is a method, not an AR association — do NOT .includes it.
+		render json:
+			build_location_tree(permitted_location_roots)
+
+	end
+
+	def build_location_tree(locations)
+
+		locations.map do |location|
+
+			{
+				id: location.id,
+				name: location.name,
+
+				children:
+					build_location_tree(
+						location.children
+					)
+			}
+
+		end
+
+	end
+
 end

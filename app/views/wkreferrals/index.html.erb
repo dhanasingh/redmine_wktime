@@ -11,28 +11,21 @@
     <div style="float:right">
       <%= link_to sprite_icon('add', l(:label_new_referral)), url_for(action: "edit"), class: "icon icon-add" %>
     </div>
-    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 15px;">
-      <span style="display: flex; align-items: center; gap: 5px;">
-        <b><label style="white-space: nowrap;"><%= l(:label_referral) %></label></b>
-        <%= text_field_tag "lead_name", session[controller_name].try(:[], :lead_name), size: 30 %>
-      </span>
-      <span style="display: flex; align-items: center; gap: 5px;">
-        <b><label style="white-space: nowrap;"><%= l(:field_status) %></label></b>
-        <%= select_tag "status", options_for_select({"": ""}.merge!(getLeadStatusArr).invert, selected: session[controller_name].try(:[], :status)) %>
-      </span>
-      <span style="display: flex; align-items: center; gap: 5px;">
-        <b><label style="white-space: nowrap;"><%= l(:field_location) %></label></b>
-        <%= select_tag "location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', session[controller_name].try(:[], :location_id), true) %>
-      </span>
-      <span style="display: flex; align-items: center; gap: 5px;">
-        <b><label style="white-space: nowrap;"><%= l(:label_pass_out) %></label></b>
-        <%= select_tag "pass_out", options_for_select(year, selected: session[controller_name].try(:[], :pass_out)) %>
-      </span>
-      <span style="display: flex; align-items: center; gap: 5px;">
-        <%= submit_tag l(:button_apply), class: "small", name: nil %>
-        <%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
-      </span>
-    </div>
+    <table>
+      <tr>
+        <th><label><%= l(:label_referral) %></label></th>
+        <td><%= text_field_tag "lead_name", session[controller_name].try(:[], :lead_name), size: 30 %></td>
+        <th><label style="padding-left: 10px;"><%= l(:field_status) %></label></th>
+        <td><%= select_tag "status", options_for_select({"": ""}.merge!(getLeadStatusArr).invert, selected: session[controller_name].try(:[], :status)) %></td>
+        <td><%= render partial: "wklocation/multi_lvl_loc_dropdown",
+            locals: { layout: "horizontal", field_name: "location_id",
+              selected_value: session[controller_name].try(:[], :location_id), form_id: "query_form" } %></td>
+        <th><label style="padding-left: 10px;"><%= l(:label_pass_out) %></label></th>
+        <td><%= select_tag "pass_out", options_for_select(year, selected: session[controller_name].try(:[], :pass_out)) %></td>
+        <td><%= submit_tag l(:button_apply), class: "small", name: nil %></td>
+        <td><%= link_to sprite_icon('reload', l(:button_clear)), {tab: controller_name, clear: true}, class: 'icon icon-reload' %></td>
+      </tr>
+    </table>
   <% end %>
 </fieldset>&nbsp;
 

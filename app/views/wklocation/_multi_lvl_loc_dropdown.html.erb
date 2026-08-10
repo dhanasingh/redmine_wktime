@@ -1,0 +1,48 @@
+<%
+  # Single indented location dropdown over the current user's PERMITTED subtree.
+  # Replaces the former Level 1 / Level 2 cascading widget. Selecting a parent node
+  # filters by that node + all descendants — every consumer already expands the
+  # submitted location_id via WkLocation.subtree_ids, so this is a drop-in swap.
+  # The partial keeps its old name and locals contract so callers are untouched.
+  layout         = local_assigns.fetch(:layout, "horizontal").to_s
+  field_name     = local_assigns.fetch(:field_name, "location_id").to_s
+  selected_value = local_assigns.fetch(:selected_value, nil).to_s
+  auto_submit    = local_assigns.key?(:auto_submit) ? local_assigns[:auto_submit] : false
+  include_blank  = local_assigns.key?(:include_blank) ? local_assigns[:include_blank] : true
+  show_label     = local_assigns.key?(:show_label) ? local_assigns[:show_label] : true
+  instance_id    = local_assigns.fetch(:instance_id, "wk_loc_selector_#{SecureRandom.hex(4)}")
+  location_label = local_assigns.fetch(:location_label, l(:field_location))
+
+  loc_opts = permitted_location_options(selected_value, indent: true)
+  loc_opts = [['', '']] + loc_opts if include_blank
+
+  # Plain native select (matches the app's other dropdowns). Options are indented
+  # with a "- " marker; note the selected box shows that marker too, which a native
+  # <select> can't strip.
+  select_opts = { :id => "#{instance_id}_value", :class => "wk-location-select" }
+  select_opts[:onchange] = "this.form.submit();" if auto_submit
+%>
+
+<% if layout == 'vertical' %>
+
+  <%# VERTICAL — a plain <tr> row to drop inside an existing <table>. -%>
+  <tr>
+    <th align="left"><label for="<%= instance_id %>_value"><%= location_label %></label></th>
+    <td align="left" style="padding-left:40px;">
+      <%= select_tag field_name, options_for_select(loc_opts, selected_value),
+            select_opts.merge(:style => "width:250px;") %>
+    </td>
+  </tr>
+
+<% else %>
+
+  <%# HORIZONTAL — a single inline label + select to drop inside a filter bar. -%>
+  <span style="display:inline-flex;align-items:center;gap:6px;vertical-align:middle;">
+    <% if show_label %>
+      <label for="<%= instance_id %>_value" style="white-space:nowrap;"><%= location_label %></label>
+    <% end %>
+    <%= select_tag field_name, options_for_select(loc_opts, selected_value),
+          select_opts.merge(:style => "height:24px;width:220px;") %>
+  </span>
+
+<% end %>

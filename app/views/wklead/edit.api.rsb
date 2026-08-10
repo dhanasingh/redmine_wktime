@@ -33,7 +33,9 @@ api.lead do
     end
 end
 api.headers do
-  api.locations getAllLocations
+  # Leaf/final locations only, matching the web lead form (_lead_info.html.erb,
+  # generic_options_for_select(..., finalOnly: true)).
+  api.locations getAllLocations(@lead&.contact&.location_id, final_only: true)
   api.lead_source getEnumerations('LS')
   api.assignees get_crm_Users
 end

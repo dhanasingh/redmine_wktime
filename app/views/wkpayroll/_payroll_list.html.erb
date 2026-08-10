@@ -40,7 +40,7 @@
 		<%  reimbursement += entry[:RT] unless entry[:RT].blank? %>
 		<% userName = (entry[:firstname].blank? ? '' : entry[:firstname]) + ' ' + (entry[:lastname].blank? ? '' : entry[:lastname]) %>
 		 <tr>
-				<td class="lbl-txt-align"><%=h userName %></td>
+				<td class="lbl-txt-align"><%= link_to userName, {controller: controller_name, action: 'edit', user_id: entry[:uID], salary_date: entry[:salDate], tab: "payroll", isPreview: @isPreview}, title: l(:button_edit) %></td>
 				<td class="lbl-txt-align"><%=h entry[:joinDate] %></td>
 				<td class="lbl-txt-align"><%=h entry[:salDate] %></td>
 				<td class="lbl-txt-align"><%=h entry[:currency] %>&nbsp;<%=h html_hours("%.2f" % entry[:BT]) %></td>

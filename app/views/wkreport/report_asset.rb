@@ -9,9 +9,11 @@ module ReportAsset
     if projId.to_i > 0
       sqlStr = sqlStr + "and ii.project_id = #{projId} "
     end
-    if location_id.present? && location_id.to_i > 0
-      sqlStr = sqlStr + "and ii.location_id = #{location_id.to_i} "
-    end
+    # Location filter: picked-zone subtree ∩ the user's accessible locations, so a
+    # parent zone matches assets in its child locations and a normal user never sees
+    # assets outside their permitted scope (nil => admin/unrestricted, no condition).
+    loc_ids = WkLocation.report_location_ids(location_id)
+    sqlStr = sqlStr + " and ii.location_id IN (#{(loc_ids.presence || [-1]).join(',')}) " unless loc_ids.nil?
     sqlStr = sqlStr + " order by dp.depreciation_date, s.shipment_date, p.name"
     entries = WkInventoryItem.find_by_sql(sqlStr)
     data = getAssetEntries(entries, to)

@@ -26,7 +26,7 @@ class WkcrmdashboardController < WkcrmController
   end
 
   def set_filter_session
-    filters = [:period, :from, :to]
+    filters = [:period_type, :period, :from, :to]
     super(filters)
 	end
 

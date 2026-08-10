@@ -93,7 +93,7 @@ class WkSurvey < ApplicationRecord
       "INTEGER"
     end
 
-    WkSurvey.joins(wk_survey_questions: { wk_survey_choices: :wk_survey_answers }, wk_survey_responses: :wk_survey_answers)
+    WkSurvey.joins(wk_survey_questions: { wk_survey_choices: { wk_survey_answers: :survey_response } })
     .where("wk_surveys.id = #{survey_id} and wk_survey_questions.id = #{question_id} ")
     .select("SUM(CAST(wk_survey_choices.name AS #{castFormat}))/count(wk_survey_responses.user_id) AS questionavg, wk_survey_questions.id AS question_id, wk_surveys.id AS survey_id, CASE WHEN wk_survey_responses.group_name IS NULL THEN 'Current' ELSE wk_survey_responses.group_name END AS grpname")
     .group("wk_surveys.id, wk_survey_questions.id, wk_survey_responses.group_date, wk_survey_responses.group_name")

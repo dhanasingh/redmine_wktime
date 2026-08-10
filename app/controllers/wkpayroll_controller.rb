@@ -105,6 +105,8 @@ class WkpayrollController < WkbaseController
 	def get_wksalaries_in_hash_format(userId, salaryDate)
 		payrollAmount = Array.new
 		sql_contd = " WHERE "
+		loc_ids = WkLocation.accessible_location_ids
+		loc_where = loc_ids ? " AND WU.location_id IN (#{(loc_ids.presence || [-1]).join(',')}) " : ""
 
 		if !salaryDate.blank?
 			sql_contd += " S.salary_date = '#{salaryDate}' "
@@ -128,7 +130,7 @@ class WkpayrollController < WkbaseController
 				INNER JOIN wk_salary_components AS SA ON SA.id = S.salary_component_id" + sql_contd + get_comp_condition('S') + get_comp_condition('SA') +
 				"GROUP BY S.user_id, S.salary_date
 			) AS SAL ON S.user_id = SAL.user_id AND S.salary_date = SAL.salary_date
-			LEFT JOIN users AS U ON U.id = S.user_id " + get_comp_condition('U') + " LEFT JOIN wk_users WU ON WU.user_id = U.id" + get_comp_condition('WU') + sql_contd + get_comp_condition('S') + orderSQL)
+			LEFT JOIN users AS U ON U.id = S.user_id " + get_comp_condition('U') + " LEFT JOIN wk_users WU ON WU.user_id = U.id" + get_comp_condition('WU') + sql_contd + get_comp_condition('S') + loc_where + orderSQL)
 
 		payroll_salaries.each do |entry|
 			payrollAmount << {:user_id => entry.user_id, :component_id => entry.salary_component_id, :amount => (entry.amount).round,

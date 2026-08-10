@@ -3,18 +3,44 @@
 <script type="text/javascript">
 	delImg = '<%= sprite_icon("del") %>';
 	deleteQues = "<%=l(:text_are_you_sure_want_to, l(:button_delete_question)) %>";
-	deleteGrp = "<%=l(:text_are_you_sure_want_to, l(:button_delete_group)) %>";
+	deleteGrp  = "<%=l(:text_are_you_sure_want_to, l(:button_delete_group)) %>";
 	deleteGrpQuesWarning = "<%=l(:text_wk_warning_group_ques_delete) %>";
+
+	// Sidebar "Settings" shortcut — expand the settings panel if collapsed,
+	// scroll into view, and highlight the nav-item. Replaces preview's goTo('settings').
+	function edScrollToSettings(el){
+		var t = document.getElementById('ed-settings');
+		if (t){
+			// Expand if collapsed (ed-block-head toggles .ed-collapsed)
+			if (t.classList.contains('ed-collapsed')) t.classList.remove('ed-collapsed');
+			t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		}
+		// Remove active from all nav items and accordion groups
+		var items = document.querySelectorAll('#survey-structure-sidebar .ed-nav-item');
+		items.forEach(function(n){ n.classList.remove('active'); });
+		var accordionHeaders = document.querySelectorAll('#survey-sidebar-accordion > h3');
+		accordionHeaders.forEach(function(h){ h.classList.remove('ui-accordion-header-active'); h.setAttribute('aria-selected', 'false'); });
+		// Add active to clicked nav item
+		if (el) el.classList.add('active');
+	}
+
+	// Deselect Settings when accordion group is clicked
+	$(document).on('click', '#survey-sidebar-accordion > h3', function(){
+		var navItems = document.querySelectorAll('#survey-structure-sidebar .ed-nav-item');
+		navItems.forEach(function(n){ n.classList.remove('active'); });
+	});
 </script>
-<% 	@isBlankSurvey = @survey.new_record?
-	status = @isBlankSurvey ? nil : @survey.status
-	group_id = @isBlankSurvey ? '' : @survey.group_id
-	isDisable = @survey.persisted? && @survey.status != 'N'
-	recur = @isBlankSurvey ? false : @survey.recur
-	recur_every = @isBlankSurvey ? nil : @survey.recur_every
-	survey_for = @isBlankSurvey ? @surveyForType : @survey.survey_for_type
-	survey_for_id = @isBlankSurvey ? @surveyForID : @survey.survey_for_id
-	is_review =  @isBlankSurvey ? false : @survey.is_review
+<%
+	@isBlankSurvey = @survey.new_record?
+	status         = @isBlankSurvey ? nil : @survey.status
+	group_id       = @isBlankSurvey ? '' : @survey.group_id
+	isDisable      = @survey.persisted? && @survey.status != 'N'
+	recur          = @isBlankSurvey ? false : @survey.recur
+	recur_every    = @isBlankSurvey ? nil : @survey.recur_every
+	survey_for     = @isBlankSurvey ? @surveyForType : @survey.survey_for_type
+	survey_for_id  = @isBlankSurvey ? @surveyForID  : @survey.survey_for_id
+	is_review      = @isBlankSurvey ? false : @survey.is_review
+	current_status = @survey.status || 'N'
 %>
 <% if @isBlankSurvey %>
 	<%= title controller.newItemLabel %>
@@ -22,110 +48,230 @@
 	<%= title controller.editItemLabel %>
 <% end %>
 
-<%= form_with model: @survey, url: { controller: 'wksurvey', action: 'save_survey' }, scope: :wksurvey, id: 'survey_form', method: :post do |f| %>
+<div class="ed-root">
+<%= form_with model: @survey, url: { controller: controller_name, action: 'save_survey' }, scope: :wksurvey, id: 'survey_form', method: :post, data: { disabled: isDisable } do |f| %>
 
-  <%= hidden_field_tag 'project_id', params[:project_id] %>
+	<%= hidden_field_tag 'project_id', params[:project_id] %>
 	<%= f.hidden_field :id %>
 
-  <fieldset class="box tabular">
-		<table width="100%" style="font-size: 14px;">
-			<tr>
-				<td width="50%" valign="top">
-					<table>
-						<tr>
-							<th align="left"><%= l(:label_survey_name) %><span style="color:red;">*</span></th>
-							<td align="left"><%= f.text_field :name, disabled: isDisable, size: 40, maxlength: 100, required: true %></td>
-						</tr>
-						<tr>
-							<th align="left"><%= l(:label_survey_for) %></th>
-							<td>
-								<%= f.select :survey_for_type, options_for_select(@survey_options, survey_for),{}, {disabled: isDisable, id: "survey_for"} %>
-								<%= f.text_field :survey_for_id, value: survey_for_id, id: "survey_for_id", disabled: isDisable, size: 3, maxlength: 30 %>
-								<span id="SurveyFor"></span>
-								<%= hidden_field_tag 'IsSurveyForValid', false %>
-							</td>
-						</tr>
+	<!-- ============ LAYOUT SHELL ============ -->
+	<div class="ed-shell">
 
-						<tr>
-							<th align="left"><%= l(:field_status) %></th>
-							<td align="left"><%= f.select :status, options_for_select(getSurveyStatus.drop(1), @survey.status),{}, {id: "survey_status"} %></td>
-						</tr>
+	<!-- SIDEBAR — preview-style outline + Settings shortcut -->
+	<div id="survey-structure-sidebar">
 
-						<tr>
-							<th align="left"><%= l(:label_user_group) %></th>
-							<td>
-								<%= f.select :group_id, options_for_select(getUserGroup, selected: @survey.group_id), disabled: isDisable %>
-								<%= hidden_field_tag 'user_group', @survey.group_id %>
-							</td>
-						</tr>
-					</table>
-				</td>
-				<td width="50%" valign="top">
-					<table>
-						<tr>
-							<th align="left"><%= l(:label_recur) %></th>
-							<td>
-								<%= f.check_box :recur, id: "recur", disabled: isDisable %>
-								<span id="tr_recur_every">
-								<b><%= l(:label_recur_every) %></b>
-								<%= f.text_field :recur_every, size: 3, maxlength: 10, id: "recur_every", disabled: isDisable %>
-								<b>&nbsp;<%= l(:label_day_plural) %></b>
-								<% if @survey.try(:status) == 'O' %>
-								<%= link_to l(:label_clos_curr_resp), 'javascript:addGrpName();' %>
-								<% end %>
-								</span>
-							</td>
-						</tr>
-						<tr>
-							<th align="left"><%= l(:label_review) %></th>
-							<td><%= f.check_box :is_review, id: "review", disabled: isDisable %></td>
-						</tr>
-						<tr>
-							<th align="left"><%= l(:label_save_allowed) %></th>
-							<td><%= f.check_box :save_allowed, disabled: isDisable %></td>
-						</tr>
-						<tr>
-							<th align="left"><%= l(:label_hide_response) %></th>
-							<td><%= f.check_box :hide_response, disabled: isDisable %></td>
-						</tr>
-						<tr>
-							<th align="left"><%= l(:label_use_points) %></th>
-							<td><%= f.check_box :use_points, disabled: isDisable %></td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-		</table>
-	</fieldset>
+		<!-- SURVEY (Settings shortcut) -->
+		<h4 class="ed-side-h"><%= controller.ItemLabel %></h4>
+		<a class="ed-nav-item" href="javascript:void(0)" onclick="edScrollToSettings(this)">
+			<svg class="ed-nic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<circle cx="12" cy="12" r="3"/>
+				<path d="M19 12a7 7 0 0 0-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 0 0-1.7-1l-.4-2.5H9.6l-.4 2.5a7 7 0 0 0-1.7 1l-2.4-1-2 3.4 2 1.6a7 7 0 0 0 0 2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 1.7 1l.4 2.5h4.8l.4-2.5a7 7 0 0 0 1.7-1l2.4 1 2-3.4-2-1.6a7 7 0 0 0 .1-1z"/>
+			</svg>
+			<%= l(:label_settings) rescue 'Settings' %>
+		</a>
 
-	<h2 style="font-size: 17px;"><%= l(:label_survey_question_grp) %></h2>
+		<div class="ed-outline-sep"></div>
 
-	<div style="border: 1px solid #ddd;padding: 10px;margin-bottom: 5px;">
-		<% shared_rendered_ids = Set.new %>
-		<%= f.fields_for :wk_survey_que_groups  do |g| %>
-			<%= render partial: 'question_accordion_section', locals: { f: g, :survey => @survey, isDisable: isDisable, rendered_ids: shared_rendered_ids } %>
+		<!-- OUTLINE -->
+		<h4 class="ed-side-h">
+			<%= l(:label_table_of_contents) %>
+			<span class="sidebar-drag-hint" title="<%= l(:label_drag_to_reorder) %>">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l5-5 5 5M7 14l5 5 5-5"/></svg>
+			</span>
+		</h4>
+		<div id="survey-sidebar-accordion"></div>
+
+		<% unless isDisable %>
+			<a class="ed-nav-add" href="javascript:void(0)" onclick="addSurveyGroup()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+				<%= l(:button_add_group) %>
+			</a>
+			<a class="ed-nav-add" href="javascript:void(0)" onclick="addUngroupedQues(this)">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+				<%= l(:button_add_question) %>
+			</a>
 		<% end %>
+	</div>
 
-		<!-- GROUP TEMPLATE -->
-		<template id="group_template">
-			<%= f.fields_for :wk_survey_que_groups, WkSurveyQueGroup.new, child_index: '__GROUP_INDEX__' do |g| %>
-				<%= render partial: 'group_section_template', locals: { f: g ,isDisable:isDisable} %>
-			<% end %>
-		</template>
+	<!-- MAIN PANE -->
+	<main class="ed-main">
 
-		<div style="font-size: 15px;margin: 8px;">
-			<% unless isDisable %>
-				<%= link_to sprite_icon('add', l(:button_add_group)), 'javascript:void(0)', onclick: 'addSurveyGroup()', class: 'icon icon-add' %>
-				<%= link_to sprite_icon('add', l(:button_add_question)), 'javascript:void(0)', onclick: 'addUngroupedQues(this)', class: 'icon icon-add' %>
-			<% end %>
+	<!-- ============ SETTINGS BLOCK ============ -->
+	<section class="ed-settings" id="ed-settings">
+		<div class="ed-block-head" onclick="edToggleCollapse(this.parentElement)">
+			<h2><%= controller.ItemLabel %></h2>
+			<svg class="ed-twirl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg>
 		</div>
+		<div class="ed-settings-body">
+
+			<!-- NAME -->
+			<div class="ed-prop">
+				<div class="ed-prop-key">
+					<svg class="ed-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+					<%= l(:label_survey_name) %> <span class="ed-req">*</span>
+				</div>
+				<div class="ed-prop-val">
+					<%= f.text_field :name, disabled: isDisable, size: 40, maxlength: 100, required: true, class: 'ed-input ed-w-lg', id: 'wksurvey_name' %>
+				</div>
+			</div>
+
+			<!-- STATUS -->
+			<div class="ed-prop">
+				<div class="ed-prop-key">
+					<svg class="ed-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+					<%= l(:field_status) %>
+				</div>
+				<div class="ed-prop-val">
+					<%= f.select :status, options_for_select(getSurveyStatus.drop(1), @survey.status), {}, { id: 'survey_status', class: 'ed-select' } %>
+				</div>
+			</div>
+
+			<!-- SURVEY FOR -->
+			<div class="ed-prop">
+				<div class="ed-prop-key">
+					<svg class="ed-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"/></svg>
+					<%= controller.surveyForLabel %>
+				</div>
+				<div class="ed-prop-val">
+					<%= f.select :survey_for_type, options_for_select(@survey_options, survey_for), {}, { disabled: isDisable, id: 'survey_for', class: 'ed-select' } %>
+					<%= f.text_field :survey_for_id, value: survey_for_id, id: 'survey_for_id', disabled: isDisable, size: 3, maxlength: 30, class: 'ed-input ed-w-sm' %>
+					<span id="SurveyFor" class="ed-hint"></span>
+					<%= hidden_field_tag 'IsSurveyForValid', false %>
+				</div>
+			</div>
+
+			<!-- USER GROUP -->
+			<div class="ed-prop">
+				<div class="ed-prop-key">
+					<svg class="ed-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"/></svg>
+					<%= l(:label_user_group) %>
+				</div>
+				<div class="ed-prop-val">
+					<%= f.select :group_id, options_for_select(getUserGroup, selected: @survey.group_id), { disabled: isDisable }, { class: 'ed-select' } %>
+					<%= hidden_field_tag 'user_group', @survey.group_id %>
+				</div>
+			</div>
+
+			<!-- OPTIONS — toggle pills -->
+			<div class="ed-prop">
+				<div class="ed-prop-key">
+					<svg class="ed-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19 12h2M3 12h2M12 19v2M12 3v2"/></svg>
+					<%= l(:label_options) %>
+				</div>
+				<div class="ed-prop-val">
+					<div class="ed-toggles">
+
+						<div class="ed-toggle">
+							<span class="ed-tlabel">
+								<%= l(:label_recur) %>
+								<span class="ed-tsub" id="ed-recur-sub" style="display:<%= recur ? 'block' : 'none' %>;">
+									<%= l(:label_recur_every) %>
+									<%= f.text_field :recur_every, size: 3, maxlength: 10, id: 'recur_every', disabled: isDisable, class: 'ed-input' %>
+									<%= l(:label_day_plural) %>
+									<% if @survey.try(:status) == 'O' %>
+										<a class="ed-link" href="javascript:addGrpName();"><%= l(:label_clos_curr_resp) %></a>
+									<% end %>
+								</span>
+							</span>
+							<label class="ed-switch">
+								<%= f.check_box :recur, { id: 'recur', disabled: isDisable, class: 'ed-toggle-cb', data: { target: 'ed-recur-sub' } } %>
+								<span class="ed-slider"></span>
+							</label>
+						</div>
+
+						<div class="ed-toggle">
+							<span class="ed-tlabel"><%= l(:label_review) %></span>
+							<label class="ed-switch">
+								<%= f.check_box :is_review, { id: 'review', disabled: isDisable, class: 'ed-toggle-cb' } %>
+								<span class="ed-slider"></span>
+							</label>
+						</div>
+
+						<div class="ed-toggle">
+							<span class="ed-tlabel"><%= l(:label_save_allowed) %></span>
+							<label class="ed-switch">
+								<%= f.check_box :save_allowed, { id: 'save_allowed', disabled: isDisable, class: 'ed-toggle-cb' } %>
+								<span class="ed-slider"></span>
+							</label>
+						</div>
+
+						<div class="ed-toggle">
+							<span class="ed-tlabel"><%= l(:label_hide_response) %></span>
+							<label class="ed-switch">
+								<%= f.check_box :hide_response, { id: 'hide_response', disabled: isDisable, class: 'ed-toggle-cb' } %>
+								<span class="ed-slider"></span>
+							</label>
+						</div>
+
+						<div class="ed-toggle">
+							<span class="ed-tlabel"><%= l(:label_use_points) %></span>
+							<label class="ed-switch">
+								<%= f.check_box :use_points, { id: 'use_points', disabled: isDisable, class: 'ed-toggle-cb' } %>
+								<span class="ed-slider"></span>
+							</label>
+						</div>
+
+						<div class="ed-toggle">
+							<span class="ed-tlabel"><%= l(:label_affect_billing) %></span>
+							<label class="ed-switch">
+								<%= f.check_box :affect_billing, { id: 'affect_billing', disabled: isDisable, class: 'ed-toggle-cb' } %>
+								<span class="ed-slider"></span>
+							</label>
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</section>
+
+	<!-- ============ QUESTION GROUPS / SECTIONS ============ -->
+	<div id="survey-builder-main">
+		<div id="survey-groups-container">
+			<% shared_rendered_ids = Set.new %>
+			<%= f.fields_for :wk_survey_que_groups do |g| %>
+				<%= render partial: 'question_accordion_section', locals: { f: g, :survey => @survey, isDisable: isDisable, rendered_ids: shared_rendered_ids } %>
+			<% end %>
+
+			<!-- GROUP TEMPLATE -->
+			<template id="group_template">
+				<%= f.fields_for :wk_survey_que_groups, WkSurveyQueGroup.new, child_index: '__GROUP_INDEX__' do |g| %>
+					<%= render partial: 'group_section_template', locals: { f: g, isDisable: isDisable } %>
+				<% end %>
+			</template>
+		</div>
+
+		<% unless isDisable %>
+			<div style="display:flex; gap:10px; margin:14px 0 0 4px; flex-wrap:wrap;">
+				<a class="ed-add-section" href="javascript:void(0)" onclick="addSurveyGroup()">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+					<%= l(:button_add_group) %>
+				</a>
+				<a class="ed-add-section" href="javascript:void(0)" onclick="addUngroupedQues(this)">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+					<%= l(:button_add_question) %>
+				</a>
+			</div>
+		<% end %>
 	</div>
 
-	<div>
-		<%= submit_tag l(:button_save), id: 'wksurvey_save' %>
-		<%= link_to sprite_icon('email', l(:button_email_user)), 'javascript:showConfirmationDlg();', class: 'icon icon-email-add' %>
+	</main><!-- /.ed-main -->
+	</div><!-- /.ed-shell -->
+
+	<!-- Footer Save bar (always visible / sticky) -->
+	<div class="ed-actions-footer">
+		<%= submit_tag l(:button_save), id: 'wksurvey_save_footer', class: 'ed-btn ed-btn-primary' %>
+		<% if @survey.status == "O" %>
+			<a class="ed-btn ed-btn-ghost" href="javascript:showConfirmationDlg();">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg>
+				<%= l(:button_email_user) %>
+			</a>
+		<% end %>
 	</div>
+
 <% end %>
+</div><!-- /.ed-root -->
 
 <% userGroupName = @survey.group_id.blank? ? l(:all_users_for_select) : getUserGroup.invert[@survey.group_id] + " Group" %>
 <div id="reminder-email-dlg" title="<%=l(:label_email_users) %>">
@@ -142,13 +288,13 @@
 		</p>
 	</fieldset>
 	<div id="dialog-confirm">
-  		<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0px 10px 0px 10px;"></span>Do you want to continue?</p>
+		<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0px 10px 0px 10px;"></span>Do you want to continue?</p>
 	</div>
 </div>
 
 <div id="add-grp-name" title="<%=l(:label_alert)%>">
 	<%= form_tag({action: 'close_current_response'}, method: :post, id: 'closedResp_form') do %>
-	<%= hidden_field_tag('survey_id', @survey.id) %>
+		<%= hidden_field_tag('survey_id', @survey.id) %>
 		<fieldset>
 			<p> <label><%= l(:label_grp_name) %></label>
 				<input type="text" name="grp_name" id="grp_name" value="" maxlength="255">
@@ -159,3 +305,12 @@
 		</div>
 	<% end %>
 </div>
+
+<style>
+/* Redmine sticky fix — needed so sidebar position:sticky works inside #content */
+#wrapper, #content { overflow: visible !important; }
+/* Remove default Redmine page padding around #content so shell is edge-to-edge */
+.ed-root { margin: -10px -10px 0; }
+/* Kill the inner padding too so sidebar truly sits at left edge */
+#content { padding: 0 !important; }
+</style>

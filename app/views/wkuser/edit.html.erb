@@ -3,7 +3,8 @@
 <%
   roleArr = Role.order(:name).pluck(:name, :id)
   genderHash = get_genders
-  locationArr = WkLocation.order(:name).pluck(:name, :id)
+  locationArr = permitted_location_options(@wkuser&.location_id, indent: false, final_only: true)
+  permLocationArr = permitted_location_options(@wkuser&.perm_location)
   departmentArr = WkCrmEnumeration.where(enum_type: 'DP').order(:name).pluck(:name, :id)
   maritalArr = WkCrmEnumeration.where(enum_type: 'MS').order(:name).pluck(:name, :id)
   emergContactTypeArr = WkCrmEnumeration.where(enum_type: 'EC').order(:name).pluck(:name, :id)
@@ -46,9 +47,12 @@
           <p><%= f.text_field :employee_id, label:l(:label_employee_id) %></p>
           <p><%= f.text_field :state_insurance, label:l(:label_state_insurance) %></p>
           <p><%= f.select :location_id, locationArr, {} %></p>
+          <p><%= f.select :perm_location, permLocationArr, {label: l(:label_permitted_location)} %></p>
           <p><%= f.select :department_id, departmentArr, {} %></p>
           <p><%= f.select :dept_section_id, dept_section_arr, {label:l(:label_dept_section)} %></p>
           <p><%= f.check_box :is_schedulable %></p>
+          <p><%= f.check_box :auto_approve_device %></p>
+          <p><%= f.check_box :allow_multi_device %></p>
           <p><%= f.select :shift_id, shiftArr, {} %></p>
 
           <p><%= f.text_field :bank_name %></p>

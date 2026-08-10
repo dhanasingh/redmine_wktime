@@ -1,38 +1,108 @@
-<h2><%= l(:label_attribute_plural) %></h2>
+<h2 style="margin-top: 16px;"><%= l(:label_attribute_plural) %></h2>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
- <div class="wk-contextual">
-        <%= link_to sprite_icon('add', l(:label_new_product_attribute)), url_for(:controller => controller_name, :action => 'edit_product_attribute', :group_id => attrGroup.id, id: nil), :class => 'icon icon-add' %>
- </div>
-<% unless @groupAttrEntries.blank? %>
-	<div class="autoscroll">
-	<table class="list time-entries">
-	  <thead>
-			 <tr>
-					<th class="lbl-txt-align">#</th>
-					<th class="lbl-txt-align"><%= l(:field_name) %></th>
-					<th class="lbl-txt-align"><%= l(:field_description) %></th>
-					<th></th>
-			 </tr>
-	  </thead>
-	  <tbody>
-		<% @groupAttrEntries.each do |entry| %>
-			<tr>
-				<td class="lbl-txt-align"><%=h entry.id %></td>
-				<td class="lbl-txt-align"><%=h entry.name  %></td>
-				<td class="lbl-txt-align"><%=h entry.description  %></td>
-				<td align="center">
-				 <%= link_to sprite_icon('edit'), {:controller => controller.controller_name, :action => 'edit_product_attribute', :product_attribute_id => entry.id, id: entry.id, :group_id => entry.group_id}, :title => l(:button_edit) %>
-				 <% if controller.hasDeletePermission %>
-					<%= link_to sprite_icon('del'), {:controller => controller.controller_name, :action => 'destroy_product_attribute', :product_attribute_id => entry.id, id: entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
-				<% end %>
-				</td>
-			</tr>
-		<% end %>
-	  </tbody>
-	</table>
-	</div>
-	<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
-<% else %>
-	<label><b><%= l(:label_no_data) %></b></label>
-<% end %>
+<div class="wk-contextual">
+	<a href="#" id="add-attribute" data-group-id="<%= attrGroup.id %>" class="icon icon-add">
+		<%= l(:label_new_product_attribute) %>
+	</a>
+</div>
 
+<div id="attribute_container">
+	<% if @groupAttrEntries.present? %>
+		<div class="autoscroll">
+			<table id="attribute_table" class="list time-entries">
+				<thead>
+					<tr>
+						<th class="lbl-txt-align">#</th>
+						<th class="lbl-txt-align"><%= l(:field_name) %></th>
+						<th class="lbl-txt-align"><%= l(:field_description) %></th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<% @groupAttrEntries.each do |entry| %>
+						<tr id="attribute_row_<%= entry.id %>">
+							<td class="lbl-txt-align attr-serial"><%=h entry.id %></td>
+							<td>
+								<input type="text" name="attribute_names[]" value="<%= entry.name %>" style="width:75%;">
+								<input type="hidden" name="attribute_ids[]" value="<%= entry.id %>">
+							</td>
+							<td>
+								<textarea name="attribute_descriptions[]" style="width:75%;"><%= entry.description %></textarea>
+							</td>
+							<td align="center">
+								<% if controller.hasDeletePermission %>
+									<%= link_to sprite_icon('del'), {:controller => controller.controller_name, :action => 'destroy_product_attribute', :product_attribute_id => entry.id, id: entry.id, :tab => controller.controller_name}, :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+								<% end %>
+							</td>
+						</tr>
+					<% end %>
+				</tbody>
+			</table>
+		</div>
+		<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+	<% else %>
+		<label><b><%= l(:label_no_data) %></b></label>
+	<% end %>
+</div>
+<div id="attribute_actions" style="margin-top:8px;<%= ' display:none;' if @groupAttrEntries.blank? %>">
+    <%= submit_tag l(:button_save), class: "small", name: "save_and_edit" %>
+</div>
+
+<%= javascript_tag do %>
+	// Header used when the table is built on the fly for an empty group.
+	var attributeTableHtml = `
+		<div class="autoscroll">
+			<table id="attribute_table" class="list time-entries">
+				<thead>
+					<tr>
+						<th class="lbl-txt-align">#</th>
+						<th class="lbl-txt-align"><%= escape_javascript(l(:field_name)) %></th>
+						<th class="lbl-txt-align"><%= escape_javascript(l(:field_description)) %></th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+		</div>`;
+
+	var attributeRowHtml = `
+		<tr>
+			<td class="lbl-txt-align attr-serial"></td>
+			<td>
+				<input type="text" name="attribute_names[]" style="width:75%;">
+				<input type="hidden" name="attribute_ids[]" value="">
+			</td>
+			<td>
+				<textarea name="attribute_descriptions[]" style="width:75%;"></textarea>
+			</td>
+			<td align="center">
+				<a href="#" class="remove-row" title="<%= escape_javascript(l(:button_delete)) %>"><%= escape_javascript(sprite_icon('del')) %></a>
+			</td>
+		</tr>`;
+
+	function updateAttrSerialNumbers() {
+		$('#attribute_table tbody tr').each(function(index) {
+			$(this).find('.attr-serial').text(index + 1);
+		});
+	}
+
+	$(document).ready(function() {
+		updateAttrSerialNumbers();
+	});
+
+	$(document).on('click', '#add-attribute', function(e) {
+		e.preventDefault();
+		if ($('#attribute_table').length === 0) {
+			$('#attribute_container').html(attributeTableHtml);
+		}
+		$('#attribute_table tbody').append(attributeRowHtml);
+		updateAttrSerialNumbers();
+		$('#attribute_actions').show();
+	});
+
+	$(document).on('click', '.remove-row', function(e) {
+		e.preventDefault();
+		$(this).closest('tr').remove();
+		updateAttrSerialNumbers();
+	});
+<% end %>

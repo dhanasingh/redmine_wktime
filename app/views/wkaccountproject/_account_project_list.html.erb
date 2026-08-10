@@ -28,7 +28,7 @@
        <% @accountproject.each do |entry| %>
 		 <tr>
 			<td class="lbl-txt-align"><%=h relatedHash[entry.parent_type]  %></td>
-			<td class="lbl-txt-align"><%=h entry.parent.blank? ? "" : entry.parent.name  %></td>
+			<td class="lbl-txt-align"><%= entry.parent.blank? ? "" : link_to(entry.parent.name, {:controller => 'wkaccountproject', :action => 'edit', :project_id => entry.project.identifier, :acc_project_id => entry.id, id: entry.id}, :title => l(:button_edit))  %></td>
 			<td class="lbl-txt-align"><%=h entry.project.blank? ? "" : entry.project.name  %></td>
 			<td class="lbl-txt-align"><%=h entry.billing_type == 'TM' ? l(:label_time_material) : l(:label_fixed_cost)  %></td>
 			<td class="lbl-txt-align"><%=h checked_image entry.apply_tax?  %></td>

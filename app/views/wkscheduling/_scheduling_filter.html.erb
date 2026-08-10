@@ -10,8 +10,8 @@
 	dateVal = params[:date]
 %>
 <% scheduleasHash = {'' => "", 'W' => l(:label_work), 'O' => l(:label_day_off)} %>
-<label><%= l(:field_location) %></label>&nbsp;
-<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, true), :disabled => false, :style => "width:120px;") %>&nbsp;
+<%= render partial: "wklocation/multi_lvl_loc_dropdown",
+	locals: { layout: "horizontal", field_name: "location_id", selected_value: locationId } %>&nbsp;
 
 <label> <%= l(:field_department) %></label>&nbsp;
 <%=h select_tag('department_id', options_for_select(options_for_enum_select('DP', depId, true)), :style => "width:120px;") %>&nbsp;

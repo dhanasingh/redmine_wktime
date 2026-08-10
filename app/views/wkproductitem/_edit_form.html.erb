@@ -1,0 +1,51 @@
+<%
+	if @inventoryItem.blank?
+		if @parentEntry.blank?
+			newLbl = controller.newItemLabel
+			editLbl = controller.editItemLabel
+		else
+			newLbl = controller.newcomponentLbl
+			editLbl = controller.editcomponentLbl
+		end
+	else
+		newLbl = controller.newcomponentLbl
+		editLbl = @inventoryItem.parent_id.blank? ? controller.editItemLabel : controller.editcomponentLbl
+	end
+	formTitle = @productItem.blank? ? newLbl : editLbl
+%>
+<% if modal %>
+	<h3 class="title"><%= formTitle %></h3>
+<% else %>
+	<h2><b><%= formTitle %></b></h2>
+<% end %>
+
+<%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form', :remote => modal) do %>
+	<div id="product_item_form" style="max-height: 75vh; overflow-y: auto; overflow-x: hidden; padding-right: 10px;">
+		<%=h hidden_field_tag('product_item_id', @productItem.blank? ? "" :@productItem.id) %>
+		<%=h hidden_field_tag('inventory_item_id', @inventoryItem.blank? ? "" :@inventoryItem.id) %>
+		<%=h hidden_field_tag('product_type', controller.getItemType) %>
+		<%= call_hook(:view_product_item, :inventoryItem => @inventoryItem) %>
+			<%= render :partial => 'wkproductitem/edit_product_item', locals: {invntItem: @inventoryItem} %>
+		<div style="clear:both;"></div>
+		<fieldset id="date-range" class="collapsible">
+			<% expand_additional = @inventoryItem.present? || @parentEntry.present? %>
+			<legend onclick="toggleFieldset(this); resizeAjaxModal();" class="icon icon-<%= expand_additional ? "expanded" : "collapsed" %>"><%= l(:label_additional_info) %></legend>
+			<div class="splitcontent" style="display:<%= expand_additional ? 'flex' : 'none' %>;">
+				<% if controller.showAssetProperties %>
+					<%= render :partial => 'wkasset/asset_property', locals: {invntItem: @inventoryItem, isTransfer: false}%>
+				<% end %>
+				<%= render :partial => 'wkproductitem/edit_inventory', locals: {invntItem: @inventoryItem, isTransfer: false}%>
+			</div>
+		</fieldset>
+	</div>
+	<div style="clear:both;"></div>
+	<div align='center' style="position: sticky; bottom: 0; background: #fff; padding: 8px 0 4px; border-top: 1px solid #e0e0e0; margin-top: 8px; z-index: 10;">
+		<%= submit_tag l(:button_save) ,:id => 'wkproductitem_save' %>
+		<% if controller.getItemType == "A" && @inventoryItem && !@inventoryItem.asset_property.is_disposed %>
+			<%= button_tag(l(:label_dispose_asset), type: "button", onclick: "window.location.href='#{url_for(controller: "wkasset", action: "dispose_asset", inventory_item_id: params[:inventory_item_id])}'") %>
+		<% end %>
+		<% if modal %>
+			<%= link_to_function l(:button_cancel), "hideModal(this);" %>
+		<% end %>
+	</div>
+<% end %>

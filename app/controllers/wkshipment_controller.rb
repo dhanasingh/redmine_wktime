@@ -192,7 +192,7 @@ include WkinventoryHelper
 				shipmentItem.total_quantity = params["total_quantity_#{i}"]
 				shipmentItem.status = 'o'
 				shipmentItem.uom_id = params["uom_id_#{i}"].to_i unless params["uom_id_#{i}"].blank?
-				shipmentItem.location_id = params["location_id_#{i}"].to_i if !params["location_id_#{i}"].blank? && params["location_id_#{i}"] != "0"
+				shipmentItem.location_id = WkLocation.permit_or_default(params["location_id_#{i}"]).to_i if !params["location_id_#{i}"].blank? && params["location_id_#{i}"] != "0"
 				shipmentItem.project_id = params["project_id_#{i}"].to_i if !params["project_id_#{i}"].blank? && params["project_id_#{i}"] != "0"
 				shipmentItem.supplier_invoice_id = params["si_id"]
 				shipmentItem.invoice_item_id = params["invoice_item_id_#{i}"]

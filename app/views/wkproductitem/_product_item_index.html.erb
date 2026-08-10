@@ -29,11 +29,12 @@
 				<% end %>
 				<%= link_to sprite_icon('add', controller.newItemLabel), url_for(:controller => controller_name, :action => 'edit', :newItem => true), :class => 'icon icon-add' %>
 			</div>
+			
+
 			<div class="wk-filters">
-				<span class="wk-filter">
-					<%= l(:field_location) %>
-					<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, true)) %>
-				</span>
+				<%= render partial: "wklocation/multi_lvl_loc_dropdown",
+					locals: { layout: "horizontal", field_name: "location_id",
+						selected_value: locationId, form_id: "query_form" } %>
 				<% if controller.getItemType == "I" || controller.getItemType == "A" %>
 					<span class="wk-filter">
 						<%= l(:label_product) %>
@@ -51,10 +52,12 @@
 						<%=h select_tag("availability", options_for_select(availabilityHash.invert, :selected=> availabilityId)) %>
 					</span>
 				<% end %>
-				<span class="wk-filter">
-					<%= l(:label_project) %>
-					<%=h select_tag("project_id", options_for_select(getProjectArr, :selected=> projectId)) %>
-				</span>
+				<% if controller.showProjectField %>
+					<span class="wk-filter">
+						<%= l(:label_project) %>
+						<%=h select_tag("project_id", options_for_select(getProjectArr, :selected=> projectId)) %>
+					</span>
+				<% end %>
 				<% if controller.getItemType == "A" %>
 					<label class="wk-filter"><%= check_box_tag('is_dispose', 1, isDisposed) %> <%= l(:label_disposed) %></label>
 				<% end %>

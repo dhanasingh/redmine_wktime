@@ -101,8 +101,8 @@
 			<% thours.each_with_index do |th,i| %>
 				<td align="center"><%= currencySym %>&nbsp;<span id=<%= "day_total_#{i+1}" %>><%= ("%.2f" % th) %></span></td>
 			<% end %>
-			<td>
-			<b>	<%= l(:label_total) %>: <%= currencySym %>&nbsp;<span id="total_hours"><%= ("%.2f" % @total_hours) %></span></b>
+			<td class="hours" align="center">
+			<b><% if !controller.getUnitLabel.blank? %><%= currencySym %>&nbsp;<% end %><span id="total_hours"><%= ("%.2f" % @total_hours) %></span></b>
 			<%=h hidden_field_tag('total', ("%.2f" % @total_hours) ) %>
 			<%=h hidden_field_tag('unit', currencySym) %>
 			</td>

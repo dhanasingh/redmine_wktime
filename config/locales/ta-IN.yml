@@ -121,6 +121,12 @@ ta-IN:
   label_clock_in: மணி உள்ளே
   label_clock_out: மணி வெளியே
   label_device_id: சாதன அடையாளம்
+  label_wk_device_awaiting_title: Awaiting Device Approval
+  label_wk_device_denied_title: Device Registration Denied
+  label_wk_device_awaiting_message: Your device is registered and awaiting approval from your administrator. Please contact your administrator to approve this device.
+  label_wk_device_denied_message: This device has been denied access by your administrator. Please contact your administrator for details.
+  label_wk_device_checking: Checking status...
+  label_wk_device_refresh_status: Refresh status
   label_wk_leave_exists: இந்த விடுப்பு ஏற்கனவே உள்ளது
   wk_field_balance: இருப்பு
   wk_field_used: பயன்படுத்தப்பட்டது
@@ -916,6 +922,8 @@ ta-IN:
   label_asset_receipt_ledger: சொத்து விற்பனை ரசீது லெட்ஜர்
   label_asset_value: சொத்து மதிப்பு
   text_are_you_sure_want_dispose_asset: "நீங்கள் நிச்சயமாக சொத்தை அப்புறப்படுத்த விரும்புகிறீர்களா?"
+  text_location_destroy_cascade: "நீங்கள் உறுதியாக இருக்கிறீர்களா? இது அனைத்து துணை இடங்களையும் நீக்கும்."
+  error_location_destroy_blocked: "நீக்க முடியாது. பின்வரும் இட(ங்க)ளில் தொடர்புடைய சரக்கு, தொடர்புகள் அல்லது கணக்குகள் உள்ளன: %{names}"
   label_auto_round_gl: ஆட்டோ சுற்று விலைப்பட்டியல்
   label_trend_chart: பிரபலமாகும் விளக்கப்படம்
 
@@ -1216,6 +1224,7 @@ ta-IN:
   ADMIN EMPLOYEE PRIVILEGE: நிர்வாக பணியாளர் சலுகை  
   label_employee_creation: பணியாளர் உருவாக்கப்பட்டது
   label_use_points: புள்ளிகளை பயன்படுத்தவும்
+  label_affect_billing: Affect Billing
   label_pre_text: முன் உரை
   label_post_text: பின் உரை
   button_add_group: குழுவைச் சேர்க்கவும்
@@ -1344,5 +1353,8 @@ ta-IN:
   label_export_desc_sage_business_cloud: "Sage Business Cloud Accounting compatible CSV for journal import"
   label_export_format_tally_prime: "Tally Prime"
   label_export_desc_tally_prime: "Tally-compatible CSV for import into Tally Prime"
-  label_date_from: From
-  label_date_to: To
+  label_table_of_contents: "Table of Contents"
+  label_drag_to_reorder: "Drag to reorder"
+  label_date_from: "From"
+  label_date_to: "To"
+  field_spent_type: "Spent Type"

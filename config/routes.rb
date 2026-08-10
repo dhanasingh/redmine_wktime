@@ -669,12 +669,6 @@ post 'wkattributegroup/update', :to => 'wkattributegroup#update'
 
 delete 'wkattributegroup/:id', :to => 'wkattributegroup#destroy'
 
-get 'wkattributegroup/edit_product_attribute', :to => 'wkattributegroup#edit_product_attribute'
-
-get 'wkattributegroup/:id/edit_product_attribute', :to => 'wkattributegroup#edit_product_attribute'
-
-post 'wkattributegroup/update_product_attribute', :to => 'wkattributegroup#update_product_attribute'
-
 delete 'wkattributegroup/:id/destroy_product_attribute', :to => 'wkattributegroup#destroy_product_attribute'
 
 	# For Inventory Unit of Measurement
@@ -917,6 +911,8 @@ post 'wknotification/mark_read_notification', to: 'wknotification#mark_read_noti
 
 get 'wkbase/get_wkuser_data', to: 'wkbase#get_wkuser_data'
 
+match 'wkbase/login', to: 'wkbase#login', via: [:get, :post]
+
 get 'wkbase/update_wkuser_data', to: 'wkbase#update_wkuser_data'
 
 get 'wkbase/update_wkuser_val', to: 'wkbase#update_wkuser_val'
@@ -992,3 +988,12 @@ get 'wkpg_paypal/process_payment', to: 'wkpg_paypal#process_payment', as: 'wkpg_
 get 'wkpg_paypal/response_handler', to: 'wkpg_paypal#response_handler', as: 'wkpg_paypal_response_handler'
 get 'wkpg_paypal/cancel_handler', to: 'wkpg_paypal#cancel_handler', as: 'wkpg_paypal_cancel_handler'
 
+get 'wklocation/location_tree', to: 'wklocation#location_tree'
+
+# For Devices
+resources :wkdevices, only: [:index, :update, :destroy] do
+  collection do
+    get :check
+    post :check
+  end
+end

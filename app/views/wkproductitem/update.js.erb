@@ -1,0 +1,14 @@
+<% if @errorMsg.present? %>
+$('#ajax-modal').html('<%= escape_javascript(render partial: "wkproductitem/edit_form", locals: { modal: true }) %>');
+showModal('ajax-modal', '950px');
+resizeAjaxModal();
+$(window).off('resize.ajaxmodal').on('resize.ajaxmodal', resizeAjaxModal);
+alert('<%= escape_javascript(@errorMsg.gsub(/<br\s*\/?>/i, "\n")) %>');
+<% else %>
+hideModal();
+<% if @parentEntry.present? %>
+$('#wkproductitem_components_<%= @parentEntry.id %>').html('<%= escape_javascript(render partial: "wkproductitem/component_content", locals: { currentObj: @parentEntry.reload, newAccordianLink: controller.newcomponentLbl }) %>');
+<% else %>
+window.location.reload();
+<% end %>
+<% end %>

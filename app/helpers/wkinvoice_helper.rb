@@ -183,6 +183,9 @@ include WkpayrollHelper
 
 		# timeEntries = TimeEntry.includes(:spent_for).where(project_id: accountProject.project_id, spent_on: genInvFrom .. @invoice.end_date, wk_spent_fors: { spent_for_type: [accountProject.parent_type, nil], spent_for_id: [accountProject.parent_id, nil], invoice_item_id: nil })
 		timeEntries = WkInvoiceItem.getUnbilledTimeEntries(accountProject.project_id, genInvFrom, @invoice.end_date, accountProject.parent_id, accountProject.parent_type)
+		context = { time_entries: timeEntries, invoice: @invoice, account_project: accountProject }
+		Redmine::Hook.call_hook(:append_recurring_unbilled_entries, context)
+		timeEntries = context[:time_entries]
 		if params[:preview_billing] == 'false'
 			timeEntryIDs = params[:timeEntryIDs].split(",")
 			timeEntries = timeEntries.where(:id=>timeEntryIDs)
@@ -285,7 +288,8 @@ include WkpayrollHelper
 								intervalEnd = interval[1] > period["end"] ? period["end"] : interval[1]
 								teDateArr = issueEntryDateHash[entry.issue_id]
 								unless teDateArr.blank? || teDateArr.empty?
-									if teDateArr.any? {|teDt| teDt.between?(intervalStart, intervalEnd)}
+									is_carryforward = entry.spent_on < @invoice.start_date
+									if is_carryforward || teDateArr.any? {|teDt| teDt.between?(intervalStart, intervalEnd)}
 										subQuantity = subQuantity + getDuration(intervalStart, intervalEnd, rateHash['rate_per'], quantity, false)
 									end
 								end
@@ -352,11 +356,17 @@ include WkpayrollHelper
 					end
 				end
 				invItem = @invoice.invoice_items.new()
+				itemRateHash = rateHash
 				if accountProject.itemized_bill
+					rate_override = Redmine::Hook.call_hook(:get_entry_billing_rate, { entry: entry, rate_hash: rateHash, invoice: @invoice, account_project: accountProject })
+					rate_override = rate_override.compact.first if rate_override.present?
+					itemRateHash = rate_override if rate_override.present? && rate_override['rate'].present?
 					pjtDescription =  entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject)
 					pjtQuantity = sumEntry[entry.issue_id]
-					amount = rateHash['rate'] * pjtQuantity
-					invItem = updateInvoiceItem(invItem, accountProject.project_id, pjtDescription, rateHash['rate'], pjtQuantity, rateHash['currency'], 'i', amount, nil, nil, nil, 'Issue', entry&.issue_id) unless isCreate
+					qty_override = Redmine::Hook.call_hook(:get_entry_billing_quantity, { entry: entry, rate_hash: itemRateHash, invoice: @invoice, account_project: accountProject })
+					pjtQuantity = qty_override.compact.first if qty_override.present? && qty_override.compact.first.present?
+					amount = itemRateHash['rate'] * pjtQuantity
+					invItem = updateInvoiceItem(invItem, accountProject.project_id, pjtDescription, itemRateHash['rate'], pjtQuantity, itemRateHash['currency'], 'i', amount, nil, nil, nil, 'Issue', entry&.issue_id) unless isCreate
 				else
 					isContinue = true
 					pjtQuantity = timeEntries.sum(:hours)
@@ -372,12 +382,12 @@ include WkpayrollHelper
 				end
 				pjtIdVal << entry.id
     			if isCreate && (oldIssueId == 0 || (oldIssueId != entry.issue_id && accountProject.itemized_bill)) # need to add accountProject.itemized_billcheck to avoid duplicate entries on preview billing
-					itemAmount = rateHash['rate'] * pjtQuantity
+					itemAmount = itemRateHash['rate'] * pjtQuantity
 					@invItems[@itemCount].store 'project_id', accountProject.project_id
 					@invItems[@itemCount].store 'item_desc', pjtDescription
 					@invItems[@itemCount].store 'item_type', 'i'
-					@invItems[@itemCount].store 'rate', rateHash['rate']
-					@invItems[@itemCount].store 'currency', rateHash['currency']
+					@invItems[@itemCount].store 'rate', itemRateHash['rate']
+					@invItems[@itemCount].store 'currency', itemRateHash['currency']
 					@invItems[@itemCount].store 'item_quantity', pjtQuantity.round(4)
 					@invItems[@itemCount].store 'item_amount', itemAmount.round(2)
 					@invItems[@itemCount].store 'issue_id', accountProject.itemized_bill ? entry.issue_id : 0
@@ -407,7 +417,7 @@ include WkpayrollHelper
 	def updateInvoiceItem(invItem, projectId, description, rate, quantity, org_currency, itemType, org_amount, creditInvoiceId, crPaymentItemId, productId, invoiceItemType=nil, invoiceItemID=nil)
 		toCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 		amount = getExchangedAmount(org_currency, org_amount)
-		invItem.project_id = projectId
+		invItem.project_id = projectId unless projectId.blank?
 		invItem.name = description
 		invItem.rate = rate
 		invItem.original_currency = org_currency
@@ -923,9 +933,9 @@ include WkpayrollHelper
 
 	def invoiceDesc(invObj,invAmount)
 		if invObj.parent_type == "WkCrmContact"
-			accName = WkCrmContact.find(invObj.parent_id)
+			accName = WkCrmContact.unscoped.find(invObj.parent_id)
 		else
-			accName = WkAccount.find(invObj.parent_id)
+			accName = WkAccount.unscoped.find(invObj.parent_id)
 		end
 		inv_desc = "AccName:" + accName.name + " InvNo:#" + invObj.invoice_number.to_s + " InvoiceAmt:" + invObj.invoice_items[0].original_currency.to_s + invAmount.to_s
 		inv_desc

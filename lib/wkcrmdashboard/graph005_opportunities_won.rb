@@ -86,7 +86,7 @@ module Wkcrmdashboard
 
     def getOpportunities(to, status)
       from = (to - 11.months).beginning_of_month
-      WkStatus.joins("
+      rel = WkStatus.joins("
         INNER JOIN (
           SELECT status_for_id, MAX(status_date) AS status_date
           FROM wk_statuses
@@ -94,10 +94,18 @@ module Wkcrmdashboard
           AND status_for_type = 'WkOpportunity'
           GROUP BY status_for_id
         ) latest
-        ON wk_statuses.status_date = latest.status_date 
+        ON wk_statuses.status_date = latest.status_date
         AND wk_statuses.status_for_id = latest.status_for_id
       ")
       .where(status: status)
+      # Restrict to opportunities whose polymorphic parent is in the user's accessible
+      # contact/account locations (nil => admin/unrestricted, no filter).
+      cond = WkLocation.accessible_parent_sql('wk_opportunities')
+      if cond
+        oppr_ids = WkOpportunity.where(cond).pluck(:id)
+        rel = rel.where(status_for_id: (oppr_ids.presence || [-1]))
+      end
+      rel
     end
 
     def getCrmEnumId(enum_type, name)

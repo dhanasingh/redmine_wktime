@@ -19,8 +19,10 @@ require 'redmine/helpers/calendar'
 
 class WkbaseController < ApplicationController
 
-	before_action :require_login
+	skip_before_action :check_if_login_required, only: [:login]
+	before_action :require_login, except: [:login]
 	before_action :clear_sort_session, :unseen
+	before_action :activate_location_scope
 	before_action :check_update_user_permissions, :only => [:update_wkuser_data, :update_wkuser_val]
 	accept_api_auth :get_user_permissions, :update_clockinout, :my_account, :get_groups, :save_issue_log
 	helper :sort
@@ -31,16 +33,22 @@ class WkbaseController < ApplicationController
 	include WkattendanceHelper
 	include WktimeHelper
 
-	def index
+	def login
+		user = User.try_to_login(params[:username], params[:password], false)
+		if user.nil?
+			render json: { error: l(:notice_account_invalid_credentials) }, status: :unauthorized
+			return
+		end
+
+		if user.active?
+			render_user_login(user)
+		else
+			render json: { error: l(:notice_account_locked) }, status: :unauthorized
+		end
 	end
 
-	def edit
-	end
-
-	def update
-	end
-
-	def destroy
+	def render_user_login(user)
+		render json: { user: user.as_json(only: [:id, :login, :firstname, :lastname, :mail, :admin]).merge(api_key: user.api_key) }
 	end
 
 	def update_clockinout
@@ -90,6 +98,35 @@ class WkbaseController < ApplicationController
 		end
 		addressId
 	end
+
+	# Country to pre-fill on a new address form: the organisation's own country,
+	# taken from its main location's address. Returns nil when unset so the field
+	# simply stays blank.
+	def defaultCountry
+		mainLocation = WkLocation.where("is_main = #{booleanFormat(true)} #{get_comp_cond('wk_locations')}").first
+		(mainLocation&.address&.country).presence
+	end
+	helper_method :defaultCountry
+
+	# Country for a new location form, resolved server-side from the request IP via
+	# a local MaxMind/DB-IP country database (no external API call). Pre-filled
+	# before the page renders. Returns nil for local/private IPs (e.g. localhost)
+	# or when the .mmdb file is missing, so the field simply stays blank. Override
+	# the database location with the WKTIME_GEOIP_DB environment variable.
+	def defaultCountryByIp
+		require 'ipaddr'
+		require 'maxminddb'
+		addr = (IPAddr.new(request.remote_ip) rescue nil)
+		return nil if addr.nil? || addr.loopback? || addr.private? || addr.link_local?
+		path = ENV['WKTIME_GEOIP_DB'].presence ||
+		       Rails.root.join('plugins', 'redmine_wktime', 'db', 'geoip', 'dbip-country-lite.mmdb').to_s
+		return nil unless File.exist?(path)
+		result = MaxMindDB.new(path).lookup(addr.to_s)
+		(result.found? ? result.country.name : nil).presence
+	rescue StandardError
+		nil
+	end
+	helper_method :defaultCountryByIp
 
 	# Retrieves the date range based on predefined ranges or specific from/to param dates
 	def retrieve_date_range
@@ -409,5 +446,12 @@ class WkbaseController < ApplicationController
 		year = date.blank? ? User.current.today.year : date.year
 		month = date.blank? ? User.current.today.month : date.month
 		@calendar = Redmine::Helpers::Calendar.new(Date.civil(year, month, 1), current_language, :month)
+	end
+
+	# Turns on location filtering for all actions. The location default_scope
+	# (LocationScoped) reads this flag so restricted users cannot access records
+	# outside their permitted location subtree on any action.
+	def activate_location_scope
+		WkCurrent.location_scope_active = true
 	end
 end

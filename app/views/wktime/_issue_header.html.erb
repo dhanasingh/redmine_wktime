@@ -32,7 +32,7 @@
 	<!-- Martin Dube contribution: 'start of the week' configuration -->
 	<th align="center" width="6px"><%= l('date.abbr_day_names')[(i+(startOfWeek))%7] %><br /><%= I18n.localize(@startday+i, :format=>:short) unless @startday.nil? %></th>
 	<% end %>
-	
+	<th align="center"><%= l(:label_total) %></th>
 <% end %>
 <th  align="center">&emsp;&emsp;&emsp;</th>
 

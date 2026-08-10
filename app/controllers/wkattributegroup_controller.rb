@@ -19,7 +19,7 @@ class WkattributegroupController < WkinventoryController
 
    menu_item :wkproduct
    before_action :require_login
-   before_action :check_basic_perm, :only => [:index, :edit, :update, :destroy, :edit_product_attribute, :update_product_attribute]
+   before_action :check_basic_perm, :only => [:index, :edit, :update, :destroy]
    before_action :check_admin_perm, :only => [:destroy, :destroy_product_attribute]
 
 
@@ -77,11 +77,39 @@ class WkattributegroupController < WkinventoryController
 		attrGroup.name = params[:name]
 		attrGroup.description = params[:description]
 		if attrGroup.save()
-			redirect_to :controller => 'wkattributegroup',:action => 'index' , :tab => 'wkattributegroup'
+
+			attribute_ids = params[:attribute_ids] || []
+			attribute_names = params[:attribute_names] || []
+			attribute_descriptions = params[:attribute_descriptions] || []
+
+			attribute_names.each_with_index do |name, index|
+
+				next if name.blank?
+
+				attr_id = attribute_ids[index]
+
+				productAttr =
+				attr_id.present? ?
+				WkProductAttribute.find(attr_id) :
+				WkProductAttribute.new
+
+				productAttr.group_id = attrGroup.id
+				productAttr.name = name
+				productAttr.description = attribute_descriptions[index]
+
+				productAttr.save
+
+			end
+			
 			flash[:notice] = l(:notice_successful_update)
+			if params[:save_and_edit].present?
+				redirect_to :controller => 'wkattributegroup', :action => 'edit', :group_id => attrGroup.id, :tab => 'wkattributegroup'
+			else
+				redirect_to :controller => 'wkattributegroup', :action => 'index', :tab => 'wkattributegroup'
+			end
 		else
-			redirect_to :controller => 'wkattributegroup',:action => 'index' , :tab => 'wkattributegroup'
 			flash[:error] = attrGroup.errors.full_messages.join("<br>")
+			redirect_to :controller => 'wkattributegroup', :action => 'index', :tab => 'wkattributegroup'
 		end
 	end
 
@@ -93,32 +121,6 @@ class WkattributegroupController < WkinventoryController
 			flash[:error] = attrGroup.errors.full_messages.join("<br>")
 		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
-	end
-
-	def edit_product_attribute
-		@attributeEntry = nil
-		@groupEntry = WkAttributeGroup.find(params[:group_id].to_i)
-		unless params[:product_attribute_id].blank?
-			@attributeEntry = WkProductAttribute.find(params[:product_attribute_id])
-		end
-	end
-
-	def update_product_attribute
-		if params[:product_attribute_id].blank?
-		  productAttr = WkProductAttribute.new
-		else
-		  productAttr = WkProductAttribute.find(params[:product_attribute_id])
-		end
-		productAttr.name = params[:name]
-		productAttr.group_id = params[:group_id]
-		productAttr.description = params[:description]
-		if productAttr.save()
-		    redirect_to :controller => 'wkattributegroup',:action => 'edit' , :tab => 'wkattributegroup', :group_id => productAttr.group_id
-		    flash[:notice] = l(:notice_successful_update)
-		else
-		    redirect_to :controller => 'wkattributegroup',:action => 'edit' , :tab => 'wkattributegroup', :group_id => productAttr.group_id
-		    flash[:error] = product.errors.full_messages.join("<br>")
-		end
 	end
 
 	def destroy_product_attribute

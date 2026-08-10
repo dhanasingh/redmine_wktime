@@ -78,9 +78,11 @@ class WksurveyController < WkbaseController
         question.survey = @survey
       end
     end
-    # Ensure Truly ungrouped questions also have survey_id set
-    @survey.wk_survey_questions.each do |question|
-      question.survey = @survey
+    # Avoid reloading grouped questions and losing edits.
+    if @survey.wk_survey_questions.loaded?
+      @survey.wk_survey_questions.each do |question|
+        question.survey = @survey
+      end
     end
     errMsg = ""
 
@@ -127,7 +129,7 @@ class WksurveyController < WkbaseController
   def survey_params(params)
     params.permit(
       :id, :name, :survey_for_type, :survey_for_id, :status, :group_id,
-      :recur, :recur_every, :is_review, :save_allowed, :hide_response, :use_points,
+      :recur, :recur_every, :is_review, :save_allowed, :hide_response, :use_points, :affect_billing,
       wk_survey_questions_attributes: [
         :id, :name, :is_reviewer_only, :is_mandatory, :not_in_report, :sort_order,
         :header, :footer, :question_type, :_destroy, :temp_id,
@@ -297,6 +299,7 @@ class WksurveyController < WkbaseController
         del_answers.destroy_all if !del_answers.blank?
         del_reviews.destroy_all if !del_reviews.blank?
         survey_response.save
+        params[:saved_survey_response_id] = survey_response.id
       end
     end
 
@@ -600,6 +603,14 @@ class WksurveyController < WkbaseController
 
 	def editItemLabel
 		l(:label_edit_survey)
+	end
+
+	def surveyResponseLabel
+		l(:label_survey_response)
+	end
+
+  def surveyForLabel
+		l(:label_survey_for)
 	end
 
 	def export

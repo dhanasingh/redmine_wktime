@@ -1,6 +1,7 @@
 class WksupplieraccountController < WkaccountController
 
   menu_item :wkrfq
+	before_action :init_survey
 
 	include WktimeHelper
 
@@ -40,6 +41,12 @@ class WksupplieraccountController < WkaccountController
 
 	def getAccountLbl
 		l(:label_supplier_account)
+	end
+
+	 
+	def init_survey
+		@survey_ctrl = "wksurvey"
+		@survey_perm = validateERPPermission("E_SUR")
 	end
 
 end

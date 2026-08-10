@@ -2,7 +2,7 @@ var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl, wkReportUrl, clockInOutUrl, p
 	blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmdashboardUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl,
 	blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl,
 	wklocationUrl, wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkassetUrl, wkassetdepreciationUrl, wkgrpPermissionUrl, wkSchedulingUrl,
-	userCurrentUrl, wkSurveyUrl, wkleavereqUrl, wknotificationUrl, wkskillUrl, wkreferralsUrl, wkdeliveryUrl, salesquoteUrl, wkuserUrl;
+	userCurrentUrl, wkSurveyUrl, wkleavereqUrl, wknotificationUrl, wkskillUrl, wkreferralsUrl, wkdeliveryUrl, salesquoteUrl, wkuserUrl, wkdevicesUrl;
 var no_user = "";
 var grpUrl = "";
 var userUrl = "";
@@ -172,6 +172,7 @@ $(document).ready(function () {
 	changeProp('tab-wksurvey', wkSurveyUrl);
 	changeProp('tab-wkleaverequest', wkleavereqUrl);
 	changeProp('tab-wknotification', wknotificationUrl);
+	changeProp('tab-wkdevices', wkdevicesUrl);
 	changeProp('tab-wkskill', wkskillUrl);
 	changeProp('tab-wkreferrals', wkreferralsUrl);
 	changeProp('tab-wkdelivery', wkdeliveryUrl);
@@ -302,9 +303,14 @@ function openReportPopup() {
 		projectId = document.getElementById('project_id').value;
 	}
 
+	// The location dropdown (wklocation/_multi_lvl_loc_dropdown) renders a <select>
+	// with name="location_id" but a randomized id, so read it by name within the
+	// form (fall back to id for any legacy form that still uses id="location_id").
 	var locationId = "";
-	if (document.getElementById('location_id')) {
-		locationId = document.getElementById('location_id').value;
+	var locEl = document.querySelector('#query_form [name="location_id"]') ||
+		document.getElementById('location_id');
+	if (locEl) {
+		locationId = locEl.value;
 	}
 
 	var searchlist = document.getElementById('searchlist').value;
@@ -322,6 +328,12 @@ function openReportPopup() {
 		'&searchlist=' + searchlist +
 		'&project_id=' + projectId +
 		'&location_id=' + locationId;
+
+	// Additional filters injected by other plugins via the
+	// :report_additional_filters hook (containers marked .report-extra-filter)
+	$('.report-extra-filter [name]').each(function () {
+		popupUrl += '&' + this.name + '=' + encodeURIComponent(this.value);
+	});
 
 	if (periodType == "2") {
 		popupUrl += '&from=' + fromVal + '&to=' + toVal;
@@ -421,6 +433,19 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, bla
 				text = items[i].substring(index + 1);
 				dropdown.options[needBlankOption ? i + 1 : i] = new Option(
 					text, val, false, val == userid);
+			}
+		}
+		// Re-sync the Semantic UI dropdown widget (sidebar-white theme) after its
+		// <option>s are replaced/cleared via AJAX, so it doesn't keep stale text
+		// (e.g. a previously selected apartment) when a dependent dropdown reloads
+		// or goes empty. No-op on themes without the Semantic dropdown wrapper.
+		if (window.jQuery && jQuery.fn.dropdown) {
+			var $sel = jQuery(dropdown), $wrap = $sel.parent();
+			if ($sel.length && $wrap.hasClass('dropdown')) {
+				$sel.removeClass('ui dropdown');
+				$sel.insertBefore($wrap);
+				$wrap.remove();
+				$sel.dropdown({ placeholder: false });
 			}
 		}
 	}
@@ -1358,6 +1383,25 @@ function deleteItemRow(index) {
 	if (isDelete) {
 		$("#assembleItemTable tr:eq(" + index + ")").remove();
 	}
+}
+
+// Resizes and re-centers the #ajax-modal dialog so it always fits within the
+// current viewport (width and height), without modifying core Redmine code.
+function resizeAjaxModal() {
+	var $modal = $('#ajax-modal');
+	if (!$modal.length || !$modal.hasClass('ui-dialog-content')) return;
+	// Reset any previous constraints so auto-sizing is accurate
+	$modal.css({ 'max-height': '', 'overflow-y': '' });
+	$modal.dialog('option', 'height', 'auto');
+	$modal.dialog('option', 'width', Math.min(950, $(window).width() - 40));
+	// After auto-sizing, cap the content if the dialog exceeds the viewport
+	var $dialog = $modal.closest('.ui-dialog');
+	var maxHeight = $(window).height() - 80;
+	if ($dialog.outerHeight() > maxHeight) {
+		var titlebarH = $dialog.find('.ui-dialog-titlebar').outerHeight(true) || 30;
+		$modal.css({ 'max-height': (maxHeight - titlebarH - 10) + 'px', 'overflow-y': 'auto' });
+	}
+	$modal.dialog('option', 'position', { my: 'center', at: 'center', of: window });
 }
 
 function itemChanged(id) {

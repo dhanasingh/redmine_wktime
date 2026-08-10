@@ -9,6 +9,9 @@ module Wkdashboard
       data = { graphName: l(:label_profit_loss), chart_type: "line", xTitle: l(:label_months), yTitle: l(:field_amount),
         legentTitle1: l(:label_income), legentTitle2: l(:label_total_expense)
       }
+      # GL/Profit-Loss has no location dimension: location-restricted users must not
+      # see company-wide figures (the graph is also hidden in wkdashboard_helper).
+      return data.merge(fields: [], data1: [], data2: []) unless WkLocation.accessible_location_ids.nil?
 
       profit = getProfits(param[:to])
       month_count = @endDate >= Date.today ? Date.today.month - @endDate.month : 12
@@ -63,6 +66,7 @@ module Wkdashboard
     end
 
     def get_detail_report(param={})
+      return { header: {date: l(:label_date), profit: l(:label_monthly) +" "+ l(:label_profit)}, data: [] } unless WkLocation.accessible_location_ids.nil?
       profits = getProfits(param[:to])
       data = []
       profits.each do |yearMon, amount|

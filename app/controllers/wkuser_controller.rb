@@ -35,6 +35,11 @@ class WkuserController < WkbaseController
       @status = getSession(:status) == "0" ? nil : getSession(:status) || 1
 
       entries = User.joins(:email_address).reorder(sort_clause)
+      loc_ids = WkLocation.accessible_location_ids
+      if loc_ids
+        entries = entries.joins("INNER JOIN wk_users ON wk_users.user_id = users.id")
+                         .where(wk_users: { location_id: loc_ids.presence || [-1] })
+      end
       if @status.present?
         entries = entries.where("users.status = ? ", @status)
       end
@@ -116,9 +121,9 @@ class WkuserController < WkbaseController
   def wkUser_params(wkParams)
     wkParams.permit(:user_id, :role_id, :id1, :id2, :id3, :join_date, :birth_date, :termination_date, :gender, :bank_name,
       :bank_code, :loan_acc_number, :custom_number1, :custom_number2, :custom_date1, :custom_date2, :is_schedulable,
-      :billing_rate, :billing_currency, :location_id, :department_id, :address_id, :shift_id, :created_by_user_id, :updated_by_user_id,
+      :billing_rate, :billing_currency, :location_id, :perm_location, :department_id, :address_id, :shift_id, :created_by_user_id, :updated_by_user_id,
       :source_id, :source_type, :retirement_account, :marital_id, :state_insurance,:employee_id, :emerg_type_id, :emergency_contact,
-      :dept_section_id, :notes)
+      :dept_section_id, :notes, :auto_approve_device, :allow_multi_device)
   end
 
 	def set_filter_session

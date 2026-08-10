@@ -153,10 +153,12 @@ module WkreportHelper
 			accCond = "A"
 			conCond = "'C', 'RA'"
 		end
-		locationCond = ""
-		if location_id.present? && location_id.to_s != "0"
-			locationCond = " AND location_id = #{location_id.to_i}"
-		end
+		# Location filter: picked-zone subtree ∩ the user's accessible locations, applied
+		# to both the wk_accounts and wk_crm_contacts legs of the union (nil => admin/
+		# unrestricted, no condition). Subtree match lets a parent zone include records
+		# at child locations; the accessible scope stops normal users seeing others.
+		loc_ids = WkLocation.report_location_ids(location_id)
+		locationCond = loc_ids.nil? ? "" : " AND location_id IN (#{(loc_ids.presence || [-1]).join(',')})"
 		sqlStr = "select 'WkAccount' #{parentSql} as parent_type, id as parent_id from wk_accounts where account_type = '#{accCond}' " + get_comp_cond('wk_accounts') + locationCond + " union select 'WkCrmContact' #{parentSql} as parent_type, id as parent_id from wk_crm_contacts where contact_type in (#{conCond})  " + get_comp_cond('wk_crm_contacts') + locationCond
 		sqlStr
 	end
