@@ -41,7 +41,6 @@
       <div class="q-num index-num">
         <b>__QUESTION_INDEX__</b>
       </div>
-      <span class="q-grip" title="Drag to reorder">&#x2807;</span>
     </div>
   <% end %>
 
@@ -77,7 +76,8 @@
     </div>
 
     <%# ===================== RB/CB: choices block ===================== %>
-    <div class="choices" style="<%= 'display:none;' unless is_choice %>">
+    <%# <fieldset disabled> when not the active type, so its fields are excluded from submission (HTML5 native cascade). %>
+    <fieldset class="choices" <%= 'disabled' unless is_choice %> style="border:0;padding:0;margin:0;min-inline-size:0;<%= 'display:none;' unless is_choice %>">
       <%= f.fields_for :wk_survey_choices, f.object.wk_survey_choices.presence || [f.object.wk_survey_choices.build] do |c| %>
         <% next if is_text && c.object.name.blank? && c.object.points.blank? %>
         <% has_fu = c.object.follow_up_question_id.present? %>
@@ -127,7 +127,7 @@
           <%= l(:button_add_choice) %>
         </a>
       <% end %>
-    </div>
+    </fieldset>
 
     <%# ===================== TB/MTB: hidden choice container ===================== %>
     <div class="tb-mtb-choice tb-mtb-followup-adder-row" style="<%= 'display:none;' unless is_text %>">
@@ -150,8 +150,8 @@
       <label class="chk"><%= f.check_box :not_in_report, disabled: isDisable %><span><%= l(:label_not_rpt) %></span></label>
       <label class="chk revieweronly"><%= f.check_box :is_reviewer_only, disabled: isDisable %><span><%= l(:label_reviewer_only) %></span></label>
 
-      <%# TB/MTB: points + add-followup live in the tools footer — always rendered, shown only for TB/MTB %>
-      <span class="text-points tb-mtb-tools" style="<%= is_text ? 'display:inline-flex;' : 'display:none;' %>align-items:center;gap:10px;margin-left:auto;">
+      <%# TB/MTB: points + add-followup live in the tools footer — always rendered, <fieldset disabled> excludes it from submission unless active. %>
+      <fieldset class="text-points tb-mtb-tools" <%= 'disabled' unless is_text %> style="border:0;padding:0;margin:0;margin-left:auto;min-inline-size:0;<%= is_text ? 'display:inline-flex;' : 'display:none;' %>align-items:center;gap:10px;">
         <%= f.fields_for :wk_survey_choices, f.object.wk_survey_choices.presence || [f.object.wk_survey_choices.build] do |c| %>
           <%= c.hidden_field :id %>
           <%= c.hidden_field :name, maxlength: 100 %>
@@ -177,7 +177,7 @@
             <% end %>
           <% end %>
         </span>
-      </span>
+      </fieldset>
 
       <span class="q-affix-toggle intro-toggle" onclick="toggleAffix(this)"><%= "#{affix_open ? '− ' : '+ '}#{l(:label_pre_text)} / #{l(:label_post_text)}" %></span>
     </div>

@@ -184,6 +184,9 @@ $(document).ready(function() {
 	const tableLen = $('#issueTable tr').length;
 	for(let i=1; i <= (tableLen -2); i++) checkLogPermissions(i);
 
+	//seed the row-wise totals for the rows loaded with the page
+	updateAllRowTotals();
+
 	$(document).on('focusin', '.load', function(){
     $(this).data('val', $(this).val());
 	}).on('change','.load', function(){
@@ -773,6 +776,7 @@ function postDeleteRow(result, row, days, deleteMsg){
 				updateRemainingHr(days[i], "");
 			}
 		}
+		updateAllRowTotals();
 	}else{
 		alert(deleteMsg);
 	}
@@ -797,6 +801,7 @@ function renameCellIDs(cell, index, newIndex){
 	renameProperty(cell, 'input', 'comments', index, newIndex);
 	renameProperty(cell, 'img', 'custfield_img', index, newIndex);
 	renameProperty(cell, 'span', 'attachment_', index, newIndex);
+	renameProperty(cell, 'span', 'row_total_', index, newIndex);
 
 	if(cf_ids != ''){
 		var cust_fids = cf_ids.split(',');
@@ -832,7 +837,16 @@ function renameProperty(cell, tag, prefix, str, newStr){
 			renameOnChange(children[j], prefix+str, prefix+newStr);
 			renameIDName(children[j], prefix+str, prefix+newStr);
 		} else if(tag == 'span' && children[j].className == "allAttach"){
-			renameAttachment(children[j], newStr);
+			if(prefix == 'attachment_'){
+				renameAttachment(children[j], newStr);
+			}
+		} else if(tag == 'span'){
+			//spans have no 'name' attribute, so only rename the id
+			var spanId = children[j].id;
+			var spanExp = new RegExp(prefix+str);
+			if(spanId && spanId.match(spanExp)){
+				children[j].id = spanId.replace(spanExp, prefix+newStr);
+			}
 		}
 	}
 }
@@ -913,6 +927,45 @@ function validateTotal(hourField, day, maxHour){
 	if(showWorkHeader){
 		updateRemainingHr(day, "");
 	}
+	//calculateTotal may clear invalid cells in any row, so refresh every row total
+	updateAllRowTotals();
+}
+
+function updateRowTotal(row){
+	var rowTotalSpan = document.getElementById("row_total_" + row);
+	if(!rowTotalSpan){
+		return;
+	}
+	var issueTable = document.getElementById("issueTable");
+	var tab = document.getElementById("tab");
+	var hours = myGetElementsByName(issueTable.rows[row + headerRows - 1], "input", "hours" + row + "[]");
+	var rowTotal = 0.0;
+	var i, val;
+	for(i = 0; i < hours.length; i++){
+		val = myTrim(hours[i].value);
+		if(tab.value == "wkexpense"){
+			val = val.replace(decSeparator, '\.');
+			if(val != '' && !isNaN(val)){
+				rowTotal += Number(val);
+			}
+		}else{
+			//skipClear: totaling must never blank a cell, clearing is the day-change path's job
+			rowTotal += validateHours(val, hours[i], true);
+		}
+	}
+	rowTotalSpan.innerHTML = rowTotal.toFixed(2);
+}
+
+function updateAllRowTotals(){
+	var issueTable = document.getElementById("issueTable");
+	if(!issueTable){
+		return;
+	}
+	var entryRowCount = issueTable.rows.length - headerRows - footerRows;
+	var i;
+	for(i = 1; i <= entryRowCount; i++){
+		updateRowTotal(i);
+	}
 }
 
 function calculateTotal(day){
@@ -949,7 +1002,7 @@ function calculateTotal(day){
 	return dayTotal;
 }
 
-function validateHours(hoursValue,hoursDay){
+function validateHours(hoursValue,hoursDay,skipClear){
 	var valid =false
 	hoursValue = myTrim(hoursValue);
 	var indexStr='',indexNextStr='',contcatStr='';
@@ -1025,7 +1078,9 @@ function validateHours(hoursValue,hoursDay){
 		}
 	}
 	if (valid){
-		hoursDay.value='';
+		if(!skipClear){
+			hoursDay.value='';
+		}
 	}else{
 		 total = totalHours(hours,mins)
 	}
@@ -1076,17 +1131,21 @@ function myTrim(val){
 
 function updateDayTotal(day, dayTotal){
 	var day_total = document.getElementById('day_total_'+day);
-	var currDayTotal = Number(day_total.innerHTML);
 	day_total.innerHTML = dayTotal.toFixed(2);
-	updateTotal(dayTotal - currDayTotal);
+	updateTotal();
 }
 
-function updateTotal(increment){
+//recompute from the day totals instead of applying deltas, so a bad
+//value (Infinity/NaN) can never stick once the offending cell is cleared
+function updateTotal(){
 	var totalSpan = document.getElementById("total_hours");
 	var totalHf = document.getElementById("total");
-	var total = Number(totalSpan.innerHTML);
-	total += increment;
-	totalHf.value = total;
+	var total = 0.0;
+	var i, daySpan;
+	for(i = 1; (daySpan = document.getElementById('day_total_' + i)); i++){
+		total += Number(daySpan.innerHTML);
+	}
+	totalHf.value = total.toFixed(2);
 	totalSpan.innerHTML = total.toFixed(2);
 }
 
@@ -1671,9 +1730,20 @@ function checkLogPermissions(row){
 	setPermissionLinkState(deleteLink, hasExistingEntries ? canEditEntries : canLogTime);
 }
 
-function renameAttachment(ele, row){
-	const col = (ele.id.split('_')).pop();
+function renameAttachment(ele, newRow){
+	// ele is the allAttach span, id = "attachdiv_<oldRow>_<col>". Every id and
+	// param name in this block ends with "_<oldRow>_<col>" (attachdiv_,
+	// attachment_, attachments_), so retarget only that token. The old
+	// replaceAll('0', row) only worked when cloning the template row (row 0)
+	// and corrupted every other '0' (e.g. data-max-file-size); it also left
+	// stale ids on row delete since the old index isn't a '0'.
+	const parts = ele.id.split('_');
+	const oldRow = parts[1];
+	const col = parts[2];
+	if(oldRow === String(newRow)){ return; }
+	const oldToken = '_' + oldRow + '_' + col;
+	const newToken = '_' + newRow + '_' + col;
 	let eleStr = $(ele).prop('outerHTML');
-	eleStr = eleStr.replaceAll( '0', row);
-	$(ele).replaceWith(eleStr)
+	eleStr = eleStr.split(oldToken).join(newToken);
+	$(ele).replaceWith(eleStr);
 }

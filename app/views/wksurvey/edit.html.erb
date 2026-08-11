@@ -49,7 +49,7 @@
 <% end %>
 
 <div class="ed-root">
-<%= form_with model: @survey, url: { controller: controller_name, action: 'save_survey' }, scope: :wksurvey, id: 'survey_form', method: :post do |f| %>
+<%= form_with model: @survey, url: { controller: controller_name, action: 'save_survey' }, scope: :wksurvey, id: 'survey_form', method: :post, data: { disabled: isDisable } do |f| %>
 
 	<%= hidden_field_tag 'project_id', params[:project_id] %>
 	<%= f.hidden_field :id %>
@@ -130,7 +130,7 @@
 			<div class="ed-prop">
 				<div class="ed-prop-key">
 					<svg class="ed-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"/></svg>
-					<%= l(:label_survey_for) %>
+					<%= controller.surveyForLabel %>
 				</div>
 				<div class="ed-prop-val">
 					<%= f.select :survey_for_type, options_for_select(@survey_options, survey_for), {}, { disabled: isDisable, id: 'survey_for', class: 'ed-select' } %>

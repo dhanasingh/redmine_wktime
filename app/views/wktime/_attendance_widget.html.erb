@@ -219,9 +219,6 @@ var label_no_data = "<%= l(:label_no_data) %>";
 	<div style="clear: both;"></div>
 <% end %>
 
-<% if controller_name == "timelog" && action_name == "index" || action_name == "report"%>
-	<input type="hidden" name="spentTypeSession" id="spentTypeSession" value="<%= session[:timelog] && session[:timelog][:spent_type] %>">
-<% end %>
 <!-- Spent time show on map -->
 <% if controller_name == "timelog" && action_name == "index" && wktime_helper.isChecked('te_save_geo_location') %>
 	<% show_on_map = session[:timelog] && session[:timelog][:show_on_map] %>
@@ -232,8 +229,14 @@ var label_no_data = "<%= l(:label_no_data) %>";
 	</div>
 	<script>
 		$(function(){
-			$('#spent_type').parent('td').after('<td id="showmap_header"></td>');
-			$('#show_map_filter').appendTo('#showmap_header');
+			// closest('td') still matches when the theme wraps #spent_type in a Fomantic div.ui.dropdown
+			var $spentTypeCell = $('#spent_type').closest('td');
+			if ($spentTypeCell.length) {
+				$spentTypeCell.after('<td id="showmap_header"></td>');
+				$('#show_map_filter').appendTo('#showmap_header');
+			} else {
+				$('#show_map_filter').appendTo('#query_form_content');
+			}
 		});
 	</script>
 	<% if show_on_map && @entries.present? %>

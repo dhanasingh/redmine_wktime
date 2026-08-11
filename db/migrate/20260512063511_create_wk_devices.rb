@@ -29,7 +29,9 @@ class CreateWkDevices < ActiveRecord::Migration[7.2]
   end
 
   def down
-    WkPermission.where(short_name: 'A_DEVICE').destroy_all
+    execute <<-SQL
+        DELETE from wk_permissions where short_name = 'A_DEVICE';
+    SQL
     drop_table :wk_devices if table_exists?(:wk_devices)
   end
 end

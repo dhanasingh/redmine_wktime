@@ -9,7 +9,9 @@ class WkDevice < ActiveRecord::Base
   validates :device_id, length: { maximum: 100 }
   validates :device_id, uniqueness: { scope: :user_id }
 
-  enum :status, { pending: 0, approved: 1, rejected: 2 }
+  # `scopes: false` because a `new` status would otherwise generate a
+  # `WkDevice.new` class scope, which collides with the constructor.
+  enum :status, { new: 0, approved: 1, rejected: 2 }, scopes: false
 
   def self.check_device(user_id, device_id, device_info = {})
     device = find_or_initialize_by(user_id: user_id, device_id: device_id)
@@ -19,7 +21,7 @@ class WkDevice < ActiveRecord::Base
     wk_user = WkUser.find_by(user_id: user_id)
 
     # Single-device employees (allow_multi_device off) may keep only one active
-    # (pending/approved) device. Deny any additional NEW device WITHOUT recording
+    # (new/approved) device. Deny any additional unknown device WITHOUT recording
     # it: no row is created, so nothing shows in the admin list. The controller
     # still returns a rejected status + reason so the app can show the message.
     if device.new_record? && !wk_user&.allow_multi_device? &&
@@ -29,10 +31,10 @@ class WkDevice < ActiveRecord::Base
       return device
     end
 
-    if device.pending? && wk_user&.auto_approve_device?
-      # Auto-approve a still-pending device when the employee is flagged for it, so
-      # the mobile app skips the "Awaiting Device Approval" page. Never overrides a
-      # manual reject or an existing approval (both fail the `pending?` guard).
+    if device.new? && wk_user&.auto_approve_device?
+      # Auto-approve a device still in "new" status when the employee is flagged for
+      # it, so the mobile app skips the "Awaiting Device Approval" page. Never
+      # overrides a manual reject or an existing approval (both fail the `new?` guard).
       device.approve
     end
 

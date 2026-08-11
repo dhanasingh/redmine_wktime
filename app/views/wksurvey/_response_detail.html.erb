@@ -341,7 +341,8 @@
       return;
     }
 
-    $("#survey-confirm-msg").text(warn_survey_submit);
+    // Update the confirmation message to use the current module label.
+    $("#survey-confirm-msg").text(warn_survey_submit.replace(/survey/i, "<%= j(controller.ItemLabel.downcase) %>"));
     var today = new Date().toISOString().split("T")[0];
     $("#effective_date_input").attr("min", today).val("");
     $("#effective-date-dlg").dialog("open");
@@ -352,7 +353,7 @@
       autoOpen: false,
       resizable: false,
       modal: true,
-      title: "Submit Survey",
+      title: "Submit <%= j(controller.ItemLabel) %>",
       width: 420,
       buttons: [
         {

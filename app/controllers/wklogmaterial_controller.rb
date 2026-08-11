@@ -138,6 +138,7 @@ class WklogmaterialController < TimelogController
 		end
 	end
 
+
   # Returns the TimeEntry scope for index and report actions
   def time_entry_scope(options={})
     @query.results_scope(options)

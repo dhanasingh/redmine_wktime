@@ -51,7 +51,8 @@
 		<%
 			curr_issue_found = false
 			issues = Array.new
-			allIssues = @projectIssues[project_id] || entry.project.issues || []
+			allIssues = (@projectIssues[project_id] || entry.project.issues || []).to_a
+				.sort_by { |i| [i.subject.to_s.downcase, i.id] }
 			if !Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? &&
 				Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 1
 				# add an empty issue to the array
@@ -102,7 +103,8 @@
 		projActList = @projActivities[project_id] || entry&.project&.activities || []
 		#activities = activities.sort_by{|name, id| name} unless activities.blank?
 		unless projActList.blank?
-			projActList = projActList.sort_by{|name| name}
+			# sort by name, not Enumeration position (records compare by position)
+			projActList = projActList.to_a.sort_by { |a| [a.name.to_s.downcase, a.id] }
 			isDefaultAct = true if projActList.detect(&:is_default) || projActList.size == 1
 			activity = projActList.detect {|a| a.id == entry.activity_id} unless entry.nil?
 			#check if the activity, which was previously reported time, is still visible
@@ -154,7 +156,9 @@
 			# usrLocationId = @user.wk_user.blank? ? nil : @user.wk_user.location_id
 			spent_for_key = parentType.to_s + '_' + parentId.to_s
 			# locationBillProject = projBillList.select {|bp| bp.parent.location_id == usrLocationId unless bp.parent.nil?}
-			locationBillProject = projBillList.sort_by{|parent_type| parent_type}
+			# no record-level sort here: WkAccountProject has no <=> (ArgumentError with
+			# 2+ records); the label array is sorted after the filter_map below
+			locationBillProject = projBillList.to_a
 			billableProject = locationBillProject.detect {|billProj| billProj.parent_type == parentType && billProj.parent_id == parentId} unless entry.nil?
 			# NOTE: WkAccount/WkCrmContact apply a location-based default_scope
 			# (LocationScoped) that hides records outside the current user's
@@ -169,7 +173,7 @@
 				next if parent.blank?
 				next if accessible_ids && !accessible_ids.include?(parent.location_id)
 				[parent.name, billProj.parent_type.to_s + '_' + billProj.parent_id.to_s]
-			}
+			}.sort_by { |name, key| [name.to_s.downcase, key] }
 		end
 	%>
 	<% if showBilling && controller.showSpentFor %>

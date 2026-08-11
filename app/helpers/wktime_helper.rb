@@ -112,16 +112,21 @@ module WktimeHelper
 			#Martin Dube contribution: 'start of the week' configuration
 			headers << (l('date.abbr_day_names')[(i+startOfWeek)%7] + "\n" + I18n.localize(@startday+i, :format=>:short)) unless @startday.nil?
 		end
+		headers << l(:label_total)
 		csv << headers.collect {|c| Redmine::CodesetUtil.from_utf8(c.to_s, l(:general_csv_encoding) )  }
 		weeklyHash = getWeeklyView(entries, unitLabel, true, nil, 7) #should send false and form unique rows
 		col_values = []
 		matrix_values = nil
 		totals = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
 		weeklyHash.each do |key, matrix|
+			prev_total = totals.sum
 			matrix_values, j = getColumnValues(matrix, totals, unitLabel,false,0)
 			col_values = matrix_values[0]
 			#add the user name to the values
 			col_values.unshift(user.name)
+			row_total = totals.sum - prev_total
+			# fixed index: rows with trailing empty days are shorter than hoursIndex+7
+			col_values[hoursIndex+7] = unitLabel.blank? ? ("%.2f" % row_total) : "#{col_values[4]} #{"%.2f" % row_total}"
 			csv << col_values.collect {|c| Redmine::CodesetUtil.from_utf8(
 								c.to_s, l(:general_csv_encoding) )  }
 			if !unitLabel.blank?
@@ -129,6 +134,9 @@ module WktimeHelper
 			end
 		end
 		total_values = getTotalValues(totals, hoursIndex,unit)
+		# grand total lives in the trailing Total column; keep only the label here
+		total_values[hoursIndex-1] = l(:label_total)
+		total_values << "#{unit} #{"%.2f" % totals.sum}"
 		#add an empty cell to cover for the user column
 		#total_values.unshift("")
 		csv << total_values.collect {|t| Redmine::CodesetUtil.from_utf8(
@@ -182,20 +190,25 @@ module WktimeHelper
 		col_width = []
 		orientation = "P"
 		unit=nil
+		col_id_width = 6
+		day_width = 10
+		total_width = 12
 		# 20% for project, 60% for issue, 20% for activity
 		col_width[0]=col_id_width
-		col_width[1] = (table_width - (8*10))*0.2
-		col_width[2] = (table_width - (8*10))*0.6
-		col_width[3] = (table_width - (8*10))*0.2
+		fixed_width = col_id_width + (7*day_width) + total_width
+		col_width[1] = (table_width - fixed_width)*0.2
+		col_width[2] = (table_width - fixed_width)*0.6
+		col_width[3] = (table_width - fixed_width)*0.2
 		title=l(:label_wktime)
 		if !unitLabel.blank?
 			columns << l(:field_currency)
-			col_id_width  = 14
-			col_width[0]=col_id_width
-			col_width[1] = (table_width - (8*14))*0.20
-			col_width[2] = (table_width - (8*14))*0.44
-			col_width[3] = (table_width - (8*14))*0.16
-			col_width[4] = (table_width - (8*14))*0.20
+			day_width = 14
+			total_width = 16
+			fixed_width = col_id_width + (7*day_width) + total_width
+			col_width[1] = (table_width - fixed_width)*0.22
+			col_width[2] = (table_width - fixed_width)*0.34
+			col_width[3] = (table_width - fixed_width)*0.22
+			col_width[4] = (table_width - fixed_width)*0.22
 			title= l(:label_wkexpense)
 		end
 
@@ -207,8 +220,10 @@ module WktimeHelper
 		for i in 0..6
 			#Martin Dube contribution: 'start of the week' configuration
 			columns << l('date.abbr_day_names')[(i+startOfWeek)%7] + "\n" + (startday+i).mon().to_s() + "/" + (startday+i).day().to_s()
-			col_width << col_id_width
+			col_width << day_width
 		end
+		columns << l(:label_total)
+		col_width << total_width
 
 		#Landscape / Potrait
 		if(table_width > 220)
@@ -246,8 +261,12 @@ module WktimeHelper
 		max_height = row_height
 
 		weeklyHash.each do |key, matrix|
+			prev_total = totals.sum
 			matrix_values, j = getColumnValues(matrix, totals, unitLabel,true, j)
 			col_values = matrix_values[0]
+			row_total = totals.sum - prev_total
+			# fixed index: rows with trailing empty days are shorter than hoursIndex+7
+			col_values[hoursIndex+7] = unitLabel.blank? ? ("%.2f" % row_total) : "#{col_values[4]} #{"%.2f" % row_total}"
 			base_x = pdf.GetX
 			base_y = pdf.GetY
 			pdf.SetY(2 * page_height)
@@ -276,6 +295,8 @@ module WktimeHelper
 		end
 
 		total_values = getTotalValues(totals,hoursIndex,unit)
+		total_values[hoursIndex-1] = l(:label_total)
+		total_values << "#{unit} #{"%.2f" % totals.sum}"
 
 		#write total
 		#write an empty id

@@ -78,9 +78,11 @@ class WksurveyController < WkbaseController
         question.survey = @survey
       end
     end
-    # Ensure Truly ungrouped questions also have survey_id set
-    @survey.wk_survey_questions.each do |question|
-      question.survey = @survey
+    # Avoid reloading grouped questions and losing edits.
+    if @survey.wk_survey_questions.loaded?
+      @survey.wk_survey_questions.each do |question|
+        question.survey = @survey
+      end
     end
     errMsg = ""
 
@@ -605,6 +607,10 @@ class WksurveyController < WkbaseController
 
 	def surveyResponseLabel
 		l(:label_survey_response)
+	end
+
+  def surveyForLabel
+		l(:label_survey_for)
 	end
 
 	def export

@@ -751,9 +751,9 @@ button.ed-btn,
 a.ed-btn{
   font:inherit !important;font-size:13.5px !important;font-weight:600 !important;
   border-radius:8px !important;padding:8px 16px !important;cursor:pointer;
-  border:1px solid transparent;display:inline-flex !important;align-items:center;gap:7px;
+  border:1px solid;display:inline-flex !important;align-items:center;gap:7px;
   line-height:normal !important;height:auto !important;box-sizing:border-box;
-  text-decoration:none;
+  text-decoration:none;border-color: #1864ab;
 }
 .ed-btn svg{width:15px;height:15px}
 .ed-btn-primary,
@@ -1013,7 +1013,7 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
 
 /* ---------- Save action footer ---------- */
 .ed-actions-footer{
-  display:flex;align-items:center;gap:10px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
   padding:20px 24px;border-top:1px solid var(--ed-border);
   margin-top:30px;background:#fafbfc;
 }
@@ -2233,4 +2233,25 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
     gap: 6px;
     white-space: nowrap;
     margin: 0;
+}
+
+/* items, tax and round-off tables must share one column grid */
+#invoiceTable, #taxTable, #roundOffTable {
+    table-layout: fixed;
+}
+#invoiceTable th {
+    white-space: normal;
+    word-wrap: break-word;
+}
+#invoiceTable select {
+    max-width: 100%;
+}
+#invoiceTable .ui.dropdown {
+    min-width: 0;
+    max-width: 100%;
+}
+#invoiceTable .ui.dropdown > .text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

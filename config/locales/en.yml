@@ -148,7 +148,8 @@ en:
   label_device_os_version: OS Version
   label_device_last_login: Last Login
   label_device_actions: Actions
-  label_device_status_pending: Pending
+  label_device_status_new: New
+  label_wk_all: All
   error_device_update_failed: Failed to update device status.
   error_device_delete_failed: Failed to delete device record.
   error_invalid_status: Invalid status value.
@@ -1450,7 +1451,8 @@ en:
   label_export_desc_sage_business_cloud: "Sage Business Cloud Accounting compatible CSV for journal import"
   label_export_format_tally_prime: "Tally Prime"
   label_export_desc_tally_prime: "Tally-compatible CSV for import into Tally Prime"
-  label_table_of_contents: Table of Contents
-  label_drag_to_reorder: Drag to reorder
-  label_date_from: From
-  label_date_to: To
+  label_table_of_contents: "Table of Contents"
+  label_drag_to_reorder: "Drag to reorder"
+  label_date_from: "From"
+  label_date_to: "To"
+  field_spent_type: "Spent Type"
