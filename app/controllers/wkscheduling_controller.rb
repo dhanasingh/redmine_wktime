@@ -20,6 +20,8 @@ class WkschedulingController < WkbaseController
   before_action :require_login
   rescue_from Query::StatementInvalid, :with => :query_statement_invalid
 
+  accept_api_auth :index
+
   helper :issues
   helper :projects
   helper :queries
@@ -55,7 +57,9 @@ class WkschedulingController < WkbaseController
 			startDt = @calendar.startdt + 7.days
 		end
 
-		unless params[:generate].blank? || !to_boolean(params[:generate])
+		# generate=true runs the scheduler and writes rows — html only, so the API
+		# stays read-only.
+		unless params[:generate].blank? || !to_boolean(params[:generate]) || api_request?
 			@locationDept.each do | entry |
 				#ScheduleStrategy.new.schedule('P', entry.location_id, entry.department_id, startDt, @calendar.enddt)
 				ScheduleStrategy.new.schedule('RR', entry.location_id, entry.department_id, startDt, @calendar.enddt)

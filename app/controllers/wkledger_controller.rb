@@ -23,6 +23,8 @@ class WkledgerController < WkaccountingController
   include WkaccountingHelper
   include WkgltransactionHelper
 
+  accept_api_auth :index, :edit
+
 
   def index
 		sort_init 'name', 'asc'
@@ -50,6 +52,9 @@ class WkledgerController < WkaccountingController
 				@ledgerdd = @ledgers.pluck(:name, :id)
 				@totalAmt = @ledgers.sum(&:opening_balance)
 			  render :layout => !request.xhr?
+      end
+      format.api do
+        formPagination(ledger)
       end
       format.csv do
         export_format = params[:export_format]

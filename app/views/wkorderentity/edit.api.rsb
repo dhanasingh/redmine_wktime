@@ -1,0 +1,40 @@
+# @invoiceItem holds saved lines, @invItems the in-memory set built when
+# composing from an RFQ or order.
+orderItems = @invoiceItem || (@invItems || {}).values || []
+api.wk_order_entity do
+  if @invoice.present?
+    api.invoice_id @invoice.id
+    api.invoice_number @invoice.invoice_number
+    api.invoice_type @invoice.invoice_type
+    api.inv_date @invoice.invoice_date
+    api.inv_start_date @invoice.start_date
+    api.inv_end_date @invoice.end_date
+    api.field_status @invoice.status
+    api.modifier_id @invoice.modifier_id
+    api.modifier_name @invoice&.modifier&.name
+    api.parent_name @invoice.parent&.name
+    api.parent_type @invoice.parent_type
+    api.parent_id @invoice.parent_id
+    api.gl_transaction_id @invoice.gl_transaction_id
+    api.invoice_num_key @invoice.invoice_num_key
+  end
+  api.rfq_id @rfqObj.id if @rfqObj.present?
+  api.purchase_order_id @poObj.id if @poObj.present?
+  api.supplier_invoice_id @siObj.id if @siObj.present?
+  api.array :invoiceItemEntries do
+    orderItems.each do |item|
+      api.invoice_item do
+        api.item_id item.try(:id)
+        api.name @invoiceItem ? item["name"] : item["item_desc"]
+        api.project_id item["project_id"]
+        api.rate item["rate"]
+        api.amount @invoiceItem ? item["amount"] : item["item_amount"]
+        api.quantity @invoiceItem ? item["quantity"] : item["item_quantity"]
+        api.hd_item_type item["item_type"]
+        api.currency item["currency"]
+        api.original_currency @invoiceItem ? item["original_currency"] : item["currency"]
+        api.original_amount @invoiceItem ? item["original_amount"] : item["item_amount"]
+      end
+    end
+  end
+end

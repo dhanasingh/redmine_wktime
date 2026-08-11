@@ -21,6 +21,8 @@ class WkproductitemController < WkinventoryController
   before_action :require_login
   before_action :check_basic_perm, :only => [:index, :edit, :update, :destroy, :transfer, :update_transfer]
 
+  accept_api_auth :index, :edit, :update
+
   include WktimeHelper
   include WkgltransactionHelper
   include WkpayrollHelper
@@ -109,7 +111,7 @@ class WkproductitemController < WkinventoryController
 				findBySql(selectStr, sqlStr, orderStr)
 			}
 			format.api do
-				@productInventory = WkProductItem.find_by_sql(selectStr + sqlStr + orderStr)
+				findBySql(selectStr, sqlStr, orderStr)
 			end
 			format.csv{
 				entries = WkProductItem.find_by_sql(selectStr + sqlStr + orderStr)

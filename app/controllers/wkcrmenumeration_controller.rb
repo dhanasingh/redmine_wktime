@@ -21,7 +21,7 @@ class WkcrmenumerationController < WkbaseController
   before_action :require_login
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
 
-  accept_api_auth :get_crm_enumerations
+  accept_api_auth :index, :edit, :update, :get_crm_enumerations
   include WkcrmenumerationHelper
 
     def index
@@ -46,6 +46,9 @@ class WkcrmenumerationController < WkbaseController
 		entries = entries.reorder(sort_clause)
 		respond_to do |format|
 			format.html {
+				formPagination(entries)
+			}
+			format.api {
 				formPagination(entries)
 			}
 			format.csv{
@@ -75,13 +78,30 @@ class WkcrmenumerationController < WkbaseController
 		wkcrmenumeration.active = params[:enumActive]
 		wkcrmenumeration.enum_type = params[:enumType]
 		wkcrmenumeration.is_default = params[:enumDefaultValue]
+		errorMsg = ""
 		if wkcrmenumeration.valid?
 			wkcrmenumeration.save
-			redirect_to :controller => 'wkcrmenumeration',:action => 'index' , :tab => 'wkcrmenumeration'
-			flash[:notice] = l(:notice_successful_update)
 		else
-			flash[:error] = wkcrmenumeration.errors.full_messages.join("<br>")
-			redirect_to :controller => 'wkcrmenumeration',:action => 'edit'
+			errorMsg = wkcrmenumeration.errors.full_messages.join("<br>")
+		end
+		respond_to do |format|
+			format.html {
+				if errorMsg.blank?
+					redirect_to :controller => 'wkcrmenumeration',:action => 'index' , :tab => 'wkcrmenumeration'
+					flash[:notice] = l(:notice_successful_update)
+				else
+					flash[:error] = errorMsg
+					redirect_to :controller => 'wkcrmenumeration',:action => 'edit'
+				end
+			}
+			format.api{
+				if errorMsg.blank?
+					render :plain => errorMsg, :layout => nil
+				else
+					@error_messages = errorMsg.split('\n')
+					render :template => 'common/error_messages', :format => [:api], :status => :unprocessable_entity, :layout => nil
+				end
+			}
 		end
 	end
 

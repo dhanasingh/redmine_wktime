@@ -20,6 +20,8 @@ class WkshipmentController < WkinventoryController
   menu_item :wkproduct
 before_action :require_login
 
+accept_api_auth :index, :edit
+
 include WkcrmHelper
 include WkshipmentHelper
 include WkinvoiceHelper
@@ -78,6 +80,9 @@ include WkinventoryHelper
 			format.html {
 				formPagination(shipEntries)
 				@totalShipAmt = @shipmentEntries.where("wk_inventory_items.parent_id is null").sum("(wk_inventory_items.total_quantity*wk_inventory_items.cost_price)+wk_inventory_items.over_head_price")
+			}
+			format.api {
+				formPagination(shipEntries)
 			}
 			format.csv{
 				headers = {serial_number: l(:label_serial_number), name: l(:field_name), shipment_date: l(:label_shipment_date), amount: l(:field_amount)}

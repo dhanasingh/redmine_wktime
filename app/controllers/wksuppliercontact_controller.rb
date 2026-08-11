@@ -1,6 +1,7 @@
 class WksuppliercontactController < WkcontactController
 
 	menu_item :wkrfq
+	accept_api_auth :index, :edit, :update
   before_action :init_survey
 
 	include WktimeHelper

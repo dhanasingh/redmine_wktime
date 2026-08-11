@@ -1,0 +1,29 @@
+api.wk_delivery do
+  if @shipment.present?
+    api.delivery_id @shipment.id
+    api.serial_number @shipment.serial_number
+    api.delivery_date @shipment.shipment_date
+    api.related_to @shipment.parent_type
+    api.related_parent @shipment.parent_id
+    api.parent_name @shipment.parent&.name
+    api.delivery_invoice_id @shipment.invoice_id
+    api.status @shipment.current_status
+  end
+  api.array :delivery_items do
+    (@deliveryItem || []).each do |item|
+      api.entry do
+        api.delivery_item_id item.id
+        api.inventory_item_id item.inventory_item_id
+        api.location_id item.location_id
+        api.project_id item.project_id
+        api.serial_number item.serial_number
+        api.currency item.currency
+        api.selling_price item.selling_price
+        api.total_quantity item.total_quantity
+      end
+    end
+  end
+end
+api.headers do
+  api.statuses getDeliveryStatus
+end

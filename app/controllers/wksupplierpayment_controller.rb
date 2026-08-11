@@ -18,6 +18,8 @@ class WksupplierpaymentController < WkpaymententityController
 
   menu_item :wkrfq
 
+  accept_api_auth :index, :edit, :update
+
 	def getOrderAccountType
 		'S'
 	end

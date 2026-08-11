@@ -1,0 +1,16 @@
+# edit loads the ledger as a one-row relation, as the html form consumes it.
+entry = (@ledgersDetail || []).first
+api.wk_ledger do
+  if entry.present?
+    api.ledger_id entry.id
+    api.name entry.name
+    api.ledger_type entry.ledger_type
+    api.ledger_type_name getLedgerTypeHash[entry.ledger_type]
+    api.opening_balance entry.opening_balance
+    api.currency entry.currency
+    api.owner entry.owner
+  end
+end
+api.headers do
+  api.ledger_types getLedgerTypeHash
+end

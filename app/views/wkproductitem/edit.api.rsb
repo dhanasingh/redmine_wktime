@@ -1,0 +1,47 @@
+api.wk_product_item do
+  if @productItem.present?
+    api.product_item_id @productItem.id
+    api.product_id @productItem.product_id
+    api.product_name @productItem&.product&.name
+    api.brand_id @productItem.brand_id
+    api.product_model_id @productItem.product_model_id
+    api.part_number @productItem.part_number
+  end
+  if @inventoryItem.present?
+    api.inventory_item_id @inventoryItem.id
+    api.serial_number @inventoryItem.serial_number
+    api.status @inventoryItem.status
+    api.currency @inventoryItem.currency
+    api.cost_price @inventoryItem.cost_price
+    api.selling_price @inventoryItem.selling_price
+    api.over_head_price @inventoryItem.over_head_price
+    api.total_quantity @inventoryItem.total_quantity
+    api.available_quantity @inventoryItem.available_quantity
+    api.uom_id @inventoryItem.uom_id
+    api.location_id @inventoryItem.location_id
+    api.project_id @inventoryItem.project_id
+    api.product_attribute_id @inventoryItem.product_attribute_id
+    api.product_type @inventoryItem.product_type
+    api.is_loggable @inventoryItem.is_loggable
+    api.shipment_id @inventoryItem.shipment_id
+    if @inventoryItem.asset_property.present?
+      asset = @inventoryItem.asset_property
+      api.asset_property(
+        id: asset.id, name: asset.name, owner_type: asset.owner_type, rate: asset.rate,
+        rate_per: asset.rate_per, currency: asset.currency, current_value: asset.current_value,
+        is_disposed: asset.is_disposed, latitude: asset.latitude, longitude: asset.longitude
+      )
+    end
+  end
+  api.parent_id @parentEntry.id if @parentEntry.present?
+  api.last_depreciation_date @lastDepr&.depreciation_date
+  api.array :assembled_components do
+    (@assembledComponent || []).each do |component|
+      api.entry do
+        api.inventory_item_id component.id
+        api.serial_number component.serial_number
+        api.total_quantity component.total_quantity
+      end
+    end
+  end
+end

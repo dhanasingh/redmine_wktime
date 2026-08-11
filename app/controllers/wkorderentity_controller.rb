@@ -182,7 +182,7 @@ class WkorderentityController < WkbillingController
 				  render :layout => !request.xhr?
 				end
 				format.api do
-					@invoiceEntries = invEntries
+					formPagination(invEntries)
 				end
 				format.csv do
 					headers = { invoice_number: getLabelInvNum, name: l(:field_name), project: l(:label_project), status: l(:field_status), inv_date: getDateLbl, start_date: l(:field_start_date), end_date: l(:label_end_date), quantity: l(:field_quantity), original_amount: l(:field_original_amount), amount: l(:field_amount), modified: l(:field_status_modified_by) }

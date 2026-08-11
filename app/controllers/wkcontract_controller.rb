@@ -20,6 +20,8 @@ class WkcontractController < WkbillingController
 before_action :require_login
 menu_item :wkinvoice
 
+accept_api_auth :index, :edit
+
 
 	def index
 		sort_init 'id', 'asc'
@@ -71,6 +73,9 @@ menu_item :wkinvoice
 			format.html do
 				formPagination(entries)
 				render :layout => !request.xhr?
+			end
+			format.api do
+				formPagination(entries)
 			end
 			format.csv do
 				headers = {contract_number: l(:label_contract_number), type: l(:field_type), name: l(:field_name), project: l(:label_project), start_date: l(:label_start_date), end_date: l(:label_end_date) }

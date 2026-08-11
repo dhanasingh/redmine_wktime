@@ -18,6 +18,8 @@ class WkpurchaseorderController < WksupplierorderentityController
 
   menu_item :wkrfq
 
+  accept_api_auth :index, :edit, :update
+
 	@@pomutex = Mutex.new
 
 	def newSupOrderEntity(parentId, parentType)

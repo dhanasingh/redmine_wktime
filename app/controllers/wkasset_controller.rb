@@ -17,6 +17,9 @@
 class WkassetController < WkproductitemController
 
 	menu_item :wkproduct
+
+	accept_api_auth :index, :edit, :update
+
 	include WktimeHelper
 	include WkassetdepreciationHelper
 	include WkassetHelper

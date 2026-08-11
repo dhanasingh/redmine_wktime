@@ -1,0 +1,20 @@
+api.array :wk_user, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  @userEntries.each do |entry|
+    api.entry do
+      api.id entry.id
+      api.login entry.login
+      api.name entry.name
+      api.firstname entry.firstname
+      api.lastname entry.lastname
+      api.mail entry.mail
+      api.status entry.status
+      api.employee_id entry&.erpmineuser&.employee_id
+      api.role entry&.erpmineuser&.role&.name
+      api.department entry&.erpmineuser&.department&.name
+      api.location entry&.erpmineuser&.location&.name
+      api.shift entry&.erpmineuser&.shift&.name
+      api.join_date entry&.erpmineuser&.join_date
+      api.termination_date entry&.erpmineuser&.termination_date
+    end
+  end
+end

@@ -18,6 +18,11 @@
 class WkassetdepreciationController < WkassetController
 
   menu_item :wkproduct
+
+  # Read-only: generating depreciation posts accounting entries. Re-declared
+  # rather than inherited from WkassetController — the attribute replaces.
+  accept_api_auth :index
+
   include WktimeHelper
   include WkinventoryHelper
   include WkpayrollHelper
@@ -68,6 +73,9 @@ class WkassetdepreciationController < WkassetController
 			orderStr = " ORDER BY " + sort_clause.join(",")
 			respond_to do |format|
 				format.html {
+					findBySql(selectStr, sqlStr, orderStr)
+				}
+				format.api {
 					findBySql(selectStr, sqlStr, orderStr)
 				}
 				format.csv{

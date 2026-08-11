@@ -1,0 +1,19 @@
+api.wk_contract do
+  if @contractEntry.present?
+    api.contract_id @contractEntry.id
+    api.contract_number @contractEntry.contract_number
+    api.related_to @contractEntry.parent_type
+    api.related_parent @contractEntry.parent_id
+    api.parent_name @contractEntry&.parent&.name
+    api.project_id @contractEntry.project_id
+    api.project @contractEntry&.project&.name
+    api.start_date @contractEntry.start_date
+    api.end_date @contractEntry.end_date
+    api.array :attachments do
+      @contractEntry.attachments.each do |attachment|
+        api.entry(id: attachment.id, filename: attachment.filename, filesize: attachment.filesize,
+                  content_type: attachment.content_type, created_on: attachment.created_on)
+      end
+    end
+  end
+end

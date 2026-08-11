@@ -1,0 +1,18 @@
+api.array :wk_product, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  @productEntries.each do |entry|
+    api.entry do
+      api.id entry.id
+      api.name entry.name
+      api.product_type entry.product_type
+      api.category entry&.category&.name
+      api.category_id entry.category_id
+      api.uom entry&.uom&.short_desc
+      api.uom_id entry.uom_id
+      api.attribute_group entry&.attribute_group&.name
+      api.attribute_group_id entry.attribute_group_id
+      api.depreciation_rate entry.depreciation_rate
+      api.ledger_id entry.ledger_id
+      api.description entry.description
+    end
+  end
+end

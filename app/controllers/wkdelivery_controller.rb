@@ -20,6 +20,8 @@ class WkdeliveryController < WkinventoryController
   menu_item :wkproduct
 	before_action :require_login
 
+	accept_api_auth :index, :edit
+
 	include WkreportHelper
 	include WkdeliveryHelper
 
@@ -83,6 +85,9 @@ class WkdeliveryController < WkinventoryController
 			format.html {
 				formPagination(delivery)
 				@totaldeliveryAmt = @deliveryEntries.sum("wk_delivery_items.total_quantity*wk_delivery_items.selling_price")
+			}
+			format.api {
+				formPagination(delivery)
 			}
 			format.csv{
 				headers = {serial_number: l(:label_serial_number), name: l(:field_name), shipment_date: l(:label_delivery_date), status: l(:field_status), amount: l(:field_amount)}

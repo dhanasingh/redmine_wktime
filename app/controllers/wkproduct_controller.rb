@@ -20,6 +20,8 @@ class WkproductController < WkinventoryController
   before_action :require_login
   before_action :check_basic_perm, :only => [:index, :edit, :update, :destroy, :category, :update_category]
 
+  accept_api_auth :index, :edit
+
 
 	def index
 		sort_init 'product_name', 'asc'
@@ -47,6 +49,9 @@ class WkproductController < WkinventoryController
 		entries = entries.reorder(sort_clause)
 		respond_to do |format|
 			format.html {
+				formPagination(entries)
+			}
+			format.api {
 				formPagination(entries)
 			}
 			format.csv{

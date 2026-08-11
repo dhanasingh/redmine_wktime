@@ -1,5 +1,8 @@
 class WksalesquoteController < WkquoteController
   menu_item :wklead
+
+  accept_api_auth :index, :edit, :update
+
 	@@sqmutex = Mutex.new
 
 	before_action :require_login

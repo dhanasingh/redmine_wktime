@@ -1,6 +1,9 @@
 class WksupplierinvoiceController < WksupplierorderentityController
 
   menu_item :wkrfq
+
+  accept_api_auth :index, :edit, :update
+
 	@@simutex = Mutex.new
 
 	def newSupOrderEntity(parentId, parentType)

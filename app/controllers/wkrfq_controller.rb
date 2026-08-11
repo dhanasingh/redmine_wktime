@@ -7,6 +7,8 @@ class WkrfqController < WkbaseController
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update]
   before_action :check_pur_admin_and_redirect, :only => [:destroy]
 
+  accept_api_auth :index, :edit
+
     def index
 		sort_init 'id', 'asc'
 		sort_update 'name' => "name",
@@ -34,6 +36,9 @@ class WkrfqController < WkbaseController
 		entries = entries.reorder(sort_clause)
 		respond_to do |format|
 			format.html {
+				formPagination(entries, "list")
+			}
+			format.api {
 				formPagination(entries, "list")
 			}
 			format.csv{

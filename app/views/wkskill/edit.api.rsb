@@ -1,0 +1,18 @@
+api.wk_skill do
+  if @skills.present?
+    api.id @skills.id
+    api.user_id @skills.user_id
+    api.user @skills&.user&.name
+    api.skill_set_id @skills.skill_set_id
+    api.skill_set @skills&.skill_set&.name
+    api.rating @skills.rating
+    api.interest_level @skills.interest_level
+    api.experience @skills.experience
+    api.last_used @skills.last_used
+    api.source_type @skills.source_type
+    api.source_id @skills.source_id
+  end
+end
+api.headers do
+  api.skill_sets getEnumerations('SK')
+end

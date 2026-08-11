@@ -19,6 +19,8 @@ class WkshiftController < WkbaseController
 	menu_item :wkattendance
 	before_action :require_login
 
+	accept_api_auth :index, :edit
+
 	def index
 		entries = WkShift.all
 		formPagination(entries)

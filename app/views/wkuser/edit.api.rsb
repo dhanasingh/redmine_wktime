@@ -1,0 +1,53 @@
+# decrypt_user_credentials is the accessor the profile screen uses — no wider
+# exposure than the A_EMP holder already has.
+api.wk_user do
+  if @user.present?
+    api.id @user.id
+    api.login @user.login
+    api.firstname @user.firstname
+    api.lastname @user.lastname
+    api.mail @user.mail
+    api.status @user.status
+    api.admin @user.admin?
+    api.supervisor @user&.supervisor&.name
+  end
+  if @wkuser.present?
+    api.wk_user_id @wkuser.id
+    api.employee_id @wkuser.employee_id
+    api.role_id @wkuser.role_id
+    api.role @wkuser&.role&.name
+    api.shift_id @wkuser.shift_id
+    api.shift @wkuser&.shift&.name
+    api.location_id @wkuser.location_id
+    api.location @wkuser&.location&.name
+    api.department_id @wkuser.department_id
+    api.department @wkuser&.department&.name
+    api.dept_section_id @wkuser.dept_section_id
+    api.billing_rate @wkuser.billing_rate
+    api.billing_currency @wkuser.billing_currency
+    api.is_schedulable @wkuser.is_schedulable
+    api.join_date @wkuser.join_date
+    api.birth_date @wkuser.birth_date
+    api.termination_date @wkuser.termination_date
+    api.gender @wkuser.gender
+    api.marital_id @wkuser.marital_id
+    api.emergency_contact @wkuser.emergency_contact
+    api.emerg_type_id @wkuser.emerg_type_id
+    api.state_insurance @wkuser.state_insurance
+    api.bank_name @wkuser.bank_name
+    api.bank_code @wkuser.bank_code
+    api.account_number WkUser.decrypt_user_credentials(@user&.id, 'account_number')
+    api.tax_id WkUser.decrypt_user_credentials(@user&.id, 'tax_id')
+    api.ss_id WkUser.decrypt_user_credentials(@user&.id, 'ss_id')
+    api.retirement_account @wkuser.retirement_account
+    api.id1 @wkuser.id1
+    api.id2 @wkuser.id2
+    api.id3 @wkuser.id3
+    api.custom_date1 @wkuser.custom_date1
+    api.custom_date2 @wkuser.custom_date2
+    api.custom_number1 @wkuser.custom_number1
+    api.custom_number2 @wkuser.custom_number2
+    api.notes @wkuser.notes
+    api.address @wkuser.address
+  end
+end

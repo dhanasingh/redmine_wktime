@@ -56,7 +56,7 @@ class WkaccountController < WkcrmController
 			  render :layout => !request.xhr?
 			end
 			format.api do
-				@account_entries = entries
+				formPagination(entries)
 			end
 			format.csv do
 				headers = { name: l(:field_name), location: l(:field_location), address: l(:label_address), phone: l(:label_work_phone), country: l(:label_country), city: l(:label_city) }
