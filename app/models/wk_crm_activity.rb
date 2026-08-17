@@ -32,6 +32,7 @@ class WkCrmActivity < ApplicationRecord
 
   def validate_crm_activity
 	errors.add(:base, (l(:field_subject)  + " " + l('activerecord.errors.messages.blank'))) if name.blank?
+	errors.add(:base, (l(:label_start_date_time)  + " " + l('activerecord.errors.messages.blank'))) if start_date.blank?
 	# if activity_type == 'T'
 		# errors.add :start_date, :blank if name.blank?
 		# errors.add :end_date, :blank if name.blank?

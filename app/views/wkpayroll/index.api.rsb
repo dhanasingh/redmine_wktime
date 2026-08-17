@@ -2,7 +2,7 @@ api.array :wk_payroll, api_meta(:total_count => @entry_count, :offset => @offset
   @payrollEntries.each do |key, entry|
     api.entry do
       api.id entry[:uID]
-      api.name entry[:firstname] + ' ' + entry[:lastname]
+      api.name "#{entry[:firstname]} #{entry[:lastname]}".strip
       api.joindate entry[:joinDate]
       api.saldate entry[:salDate]
       api.basic entry[:BT]

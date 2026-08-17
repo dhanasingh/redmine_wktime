@@ -1230,7 +1230,7 @@ end
 		grpArr = nil
 		grpArr = (getGroupUserArr('B_CRM_PRVLG') +
 				 getGroupUserArr('A_CRM_PRVLG')).uniq
-		grpArr.unshift(["",0])
+		grpArr.unshift(["",""])
 
 		grpArr
 	end
