@@ -65,7 +65,7 @@ class WkcrmactivityController < WkcrmController
 		end
 
 		crmactivity = crmactivity.where(status: status) if status.present?
-		crmactivity = crmactivity.where(assigned_user_id: assignee) if assignee.present?
+		crmactivity = crmactivity.where(assigned_user_id: assignee) if assignee.present? if assignee.present? && assignee != "0"
 
 		crmactivity = crmactivity.reorder(sort_clause)
 		respond_to do |format|
