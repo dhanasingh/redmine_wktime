@@ -108,7 +108,7 @@ module WknotificationHelper
 			notifyHash['url'] = {controller:'wkpurchaseorder', action:'edit',invoice_id: notification&.source&.purchase_order_id, new_invoice: false, preview_billing:false, id: notification&.source&.purchase_order_id}
 			notifyHash['icon'] = "fa fa-file-text-o"
 		when 'supplierInvoiceReceived'
-			notifyHash['text'] = l(:label_supplier_invoice)+" "+notification.source&.invoice_items.first.original_currency.to_s+notification.source&.invoice_items.sum(:original_amount).to_s+" "+ l(:label_has_generated)+" "+ l(:label_for)+" "+notification.source&.parent&.name.to_s
+			notifyHash['text'] = l(:label_supplier_invoice)+" "+notification.source&.invoice_items&.first&.original_currency.to_s+notification.source&.invoice_items.sum(:original_amount).to_s+" "+ l(:label_has_generated)+" "+ l(:label_for)+" "+notification.source&.parent&.name.to_s
 			notifyHash['url'] = {controller:'wksupplierinvoice', action:'edit', invoice_id: notification.source_id, new_invoice: false, preview_billing: false, tab: 'wksupplierinvoice', id: notification.source_id}
 			notifyHash['icon'] = "fa fa-usd"
 		when 'supplierPaymentSent'
