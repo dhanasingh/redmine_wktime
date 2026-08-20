@@ -438,6 +438,7 @@ class WkgltransactionController < WkaccountingController
 	end
 
 	def set_transaction_session
+		session[controller_name] ||= {}
 		session[controller_name][:start_date] = params[:date]
 		session[controller_name][:txn_type] = params[:txn_type]
 		session[controller_name][:ledger_id1] = params[:txn_particular_1]

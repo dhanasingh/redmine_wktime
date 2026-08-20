@@ -31,10 +31,10 @@ api.wk_survey do
     
     questions_by_group.each do |group, group_questions|
       api.groups do
-        if group.present? && group.name.present?
-          group_counter += 1
+        if group.present?
+          group_counter += 1 if group.name.present?
           api.id group.id
-          api.name group.name
+          api.name group.name.to_s
         else
           api.id 0
           api.name ""
