@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2021  Adhi software pvt ltd
+# Copyright (C) 2011-  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -24,6 +24,8 @@ class WkuserController < WkbaseController
 	before_action :require_login
   before_action :check_perm_and_redirect, :only => [:edit, :save]
   before_action :check_save_perm, :only => [:save]
+
+  accept_api_auth :index, :edit
 
   def index
 		if validateERPPermission('A_EMP')
@@ -57,7 +59,11 @@ class WkuserController < WkbaseController
           @userEntries = entries.limit(@user_pages.per_page).offset(@user_pages.offset).to_a
           render :layout => !request.xhr?
         end
-        format.api
+        format.api do
+          @entry_count = entries.count
+          @offset, @limit = api_offset_and_limit
+          @userEntries = entries.limit(@limit).offset(@offset).to_a
+        end
         format.csv do
           headers = {user: l(:field_user), email: l(:field_mail), role: l(:field_role), joindate: l(:field_join_date) }
           data = entries.map{|e| {user: e.name, email: e.mail, role: e&.erpmineuser&.role, joindate: e&.erpmineuser&.join_date }}
@@ -65,16 +71,21 @@ class WkuserController < WkbaseController
         end
       end
     else
-      profile
+      # There is no profile.api.rsb, so the html fallback would be a missing
+      # template for an API caller. 403 instead — /wkbase/my_account.json is the
+      # tool for one's own record.
+      api_request? ? render_403 : profile
     end
   end
 
   def edit
-    if params[:id].to_i == User.current.id.to_i
+    # html swaps in the self-service profile for one's own record; the API always
+    # gets the employee representation. Still gated on A_EMP by the before_action.
+    if params[:id].to_i == User.current.id.to_i && !api_request?
       profile
     else
       @user = User.where("id =?", params[:id]).first
-      @wkuser = @user.erpmineuser
+      @wkuser = @user&.erpmineuser
     end
   end
 

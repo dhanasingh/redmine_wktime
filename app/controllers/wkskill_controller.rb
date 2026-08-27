@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2021  Adhi software pvt ltd
+# Copyright (C) 2011-  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -18,6 +18,8 @@
 class WkskillController < WkbaseController
   before_action :check_module_permission, only: [:index, :edit, :save, :delete]
   menu_item :wkattendance
+
+  accept_api_auth :index, :edit
   include WkpayrollHelper
   include WktimeHelper
   include WksurveyHelper
@@ -53,7 +55,11 @@ class WkskillController < WkbaseController
         @skillEntries = entries.limit(@skill_pages.per_page).offset(@skill_pages.offset).to_a
 				render :layout => !request.xhr?
       end
-			format.api
+			format.api do
+        @entry_count = entries.count
+        @offset, @limit = api_offset_and_limit
+        @skillEntries = entries.limit(@limit).offset(@offset).to_a
+      end
       format.csv do
         if params[:project_id].present?
           headers = {skillset: l(:label_skill_set), rating: l(:label_rating), experience: l(:label_years_of_exp), modifiedby: l(:field_status_modified_by)}

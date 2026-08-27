@@ -1,0 +1,17 @@
+api.array :wk_skill, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  @skillEntries.each do |entry|
+    api.entry do
+      api.id entry.id
+      api.user_id entry.user_id
+      api.user entry&.user&.name
+      api.skill_set_id entry.skill_set_id
+      api.skill_set entry&.skill_set&.name
+      api.rating entry.rating
+      api.interest_level entry.interest_level
+      api.experience entry.experience
+      api.last_used entry.last_used
+      api.source_type entry.source_type
+      api.source_id entry.source_id
+    end
+  end
+end

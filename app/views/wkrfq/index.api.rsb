@@ -1,0 +1,14 @@
+api.array :wk_rfq, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  @rfqEntries.each do |entry|
+    api.entry do
+      api.id entry.id
+      api.name entry.name
+      api.status entry.status
+      api.status_name getRfqStatusHash[entry.status] unless entry.status.nil?
+      api.start_date entry.start_date
+      api.end_date entry.end_date
+      api.description entry.description
+      api.quote_count entry.quotes.size
+    end
+  end
+end

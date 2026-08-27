@@ -1,0 +1,18 @@
+api.array :wk_delivery, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  @deliveryEntries.each do |entry|
+    api.entry do
+      api.id entry.id
+      api.serial_number entry.serial_number
+      api.name entry&.parent&.name
+      api.parent_type entry.parent_type
+      api.parent_id entry.parent_id
+      api.delivery_date entry.shipment_date
+      api.invoice_id entry.invoice_id
+      api.status entry.current_status
+      api.status_name getDeliveryStatus[entry.current_status]
+      api.currency entry.delivery_items[0]&.currency
+      api.amount entry.delivery_items.sum('wk_delivery_items.total_quantity*wk_delivery_items.selling_price').to_f.round(2)
+      api.item_count entry.delivery_items.size
+    end
+  end
+end

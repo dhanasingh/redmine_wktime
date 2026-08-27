@@ -1,0 +1,13 @@
+api.array :wk_ledger, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  @ledgers.each do |entry|
+    api.entry do
+      api.id entry.id
+      api.name entry.name
+      api.ledger_type entry.ledger_type
+      api.ledger_type_name getLedgerTypeHash[entry.ledger_type]
+      api.opening_balance ("%.2f" % (entry.opening_balance || 0))
+      api.currency entry.currency
+      api.owner entry.owner
+    end
+  end
+end

@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2016  Adhi software pvt ltd
+# Copyright (C) 2011-  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -19,6 +19,8 @@ class WkcontractController < WkbillingController
 
 before_action :require_login
 menu_item :wkinvoice
+
+accept_api_auth :index, :edit
 
 
 	def index
@@ -71,6 +73,9 @@ menu_item :wkinvoice
 			format.html do
 				formPagination(entries)
 				render :layout => !request.xhr?
+			end
+			format.api do
+				formPagination(entries)
 			end
 			format.csv do
 				headers = {contract_number: l(:label_contract_number), type: l(:field_type), name: l(:field_name), project: l(:label_project), start_date: l(:label_start_date), end_date: l(:label_end_date) }

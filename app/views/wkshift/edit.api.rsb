@@ -1,0 +1,14 @@
+# edit lists a shift's staffing rules (WkShiftRole), not the shift itself.
+api.array :wk_shift_role, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  (@shiftentry || []).each do |entry|
+    api.entry do
+      api.id entry.id
+      api.shift_id entry.shift_id
+      api.role_id entry.role_id
+      api.role entry&.role&.name
+      api.location_id entry.location_id
+      api.department_id entry.department_id
+      api.staff_count entry.staff_count
+    end
+  end
+end

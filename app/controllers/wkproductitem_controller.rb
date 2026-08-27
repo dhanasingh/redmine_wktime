@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2020  Adhi software pvt ltd
+# Copyright (C) 2011-  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -20,6 +20,8 @@ class WkproductitemController < WkinventoryController
   menu_item :wkproduct
   before_action :require_login
   before_action :check_basic_perm, :only => [:index, :edit, :update, :destroy, :transfer, :update_transfer]
+
+  accept_api_auth :index, :edit, :update
 
   include WktimeHelper
   include WkgltransactionHelper
@@ -109,7 +111,7 @@ class WkproductitemController < WkinventoryController
 				findBySql(selectStr, sqlStr, orderStr)
 			}
 			format.api do
-				@productInventory = WkProductItem.find_by_sql(selectStr + sqlStr + orderStr)
+				findBySql(selectStr, sqlStr, orderStr)
 			end
 			format.csv{
 				entries = WkProductItem.find_by_sql(selectStr + sqlStr + orderStr)

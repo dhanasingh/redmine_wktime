@@ -1,0 +1,26 @@
+api.wk_rfq do
+  if @rfqEntry.present?
+    api.rfq_id @rfqEntry.id
+    api.name @rfqEntry.name
+    api.status @rfqEntry.status
+    api.start_date @rfqEntry.start_date
+    api.end_date @rfqEntry.end_date
+    api.description @rfqEntry.description
+  end
+  api.array :quotes do
+    (@invoiceEntries || []).each do |quote|
+      api.entry do
+        api.invoice_id quote.id
+        api.quote_number quote.invoice_number
+        api.supplier_name quote.parent&.name
+        api.quote_date quote.invoice_date
+        api.status (quote.status == 'o' ? 'open' : 'closed')
+        api.amount ("%.2f" % quote.invoice_items.sum(:amount))
+        api.currency quote.invoice_items[0].currency unless quote.invoice_items[0].blank?
+      end
+    end
+  end
+end
+api.headers do
+  api.statuses getRfqStatusHash
+end

@@ -1,0 +1,17 @@
+# Attributes are column aliases from getDepreciationSql, not model methods.
+api.array :wk_asset_depreciation, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  @depreciation_entries.each do |entry|
+    api.entry do
+      api.id entry.id
+      api.asset_name entry.asset_name
+      api.product_name entry.product_name
+      api.purchase_date entry.purchase_date
+      api.purchase_value (entry.cost_price.to_f + entry.over_head_price.to_f).round(2)
+      api.previous_value entry.actual_amount.to_f.round(2)
+      api.depreciation_date entry.depreciation_date
+      api.depreciation entry.depreciation_amount.to_f.round(2)
+      api.current_value (entry.actual_amount.to_f - entry.depreciation_amount.to_f).round(2)
+      api.currency entry.currency
+    end
+  end
+end

@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2016  Adhi software pvt ltd
+# Copyright (C) 2011-  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -118,8 +118,8 @@ accept_api_auth :get_reports, :get_report_data, :export
 		group_id = params[:group_id] || "0"
 		projId = params[:project_id] || "0"
 		locId = params[:location_id] || "0"
-		from = params[:from].to_date || Date.today.beginning_of_month
-		to = params[:to].to_date || Date.today.end_of_month
+		from = params[:from]&.to_date || Date.today.beginning_of_month
+		to = params[:to]&.to_date || Date.today.end_of_month
 		attachment = WkLocation.getMainLogo
 		base64Image = getBase64Image(attachment)
 		if(params[:report_type].present?)

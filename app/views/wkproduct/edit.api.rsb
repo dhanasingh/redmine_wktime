@@ -1,0 +1,27 @@
+api.wk_product do
+  if @productEntry.present?
+    api.product_id @productEntry.id
+    api.name @productEntry.name
+    api.product_type @productEntry.product_type
+    api.category_id @productEntry.category_id
+    api.category_name @productEntry&.category&.name
+    api.uom_id @productEntry.uom_id
+    api.uom_name @productEntry&.uom&.short_desc
+    api.attribute_group_id @productEntry.attribute_group_id
+    api.ledger_id @productEntry.ledger_id
+    # Stored as a fraction; the form shows and posts it as a percentage.
+    api.depreciation_rate (@productEntry.depreciation_rate.to_f * 100.0).round(4)
+    api.description @productEntry.description
+    api.tax_id (@applicableTaxes || [])
+    api.array :brands do
+      @productEntry.brands.each do |brand|
+        api.entry(id: brand.id, name: brand.name)
+      end
+    end
+    api.array :product_models do
+      @productEntry.product_models.each do |model|
+        api.entry(id: model.id, name: model.name)
+      end
+    end
+  end
+end

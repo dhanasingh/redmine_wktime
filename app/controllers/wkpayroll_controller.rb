@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2021  Adhi software pvt ltd
+# Copyright (C) 2011-  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -36,8 +36,8 @@ class WkpayrollController < WkbaseController
 		@payrollEntries = Hash.new
 		setLimitAndOffset()
 		page_no = (params['page'].blank? ? 1 : params['page']).to_i
-		from = @offset
-		to = (@limit * page_no)
+		from = @offset.to_i
+		to = (@limit.to_i * page_no)
 
 		payrollEntriesArr.each_with_index do |entry, index|
 			index += 1
@@ -286,10 +286,10 @@ class WkpayrollController < WkbaseController
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
-				@limit = params[:limit]
+				@limit = params[:limit].to_i
 			end
 			if !params[:offset].blank?
-				@offset = params[:offset]
+				@offset = params[:offset].to_i
 			end
 		else
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']

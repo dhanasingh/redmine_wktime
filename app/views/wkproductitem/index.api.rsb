@@ -1,0 +1,35 @@
+# Shared with wkasset. Attributes are column aliases from getProductInventorySql,
+# not model methods.
+api.array :wk_product_item, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  @productInventory.each do |entry|
+    api.entry do
+      api.id entry.inventory_item_id
+      api.inventory_item_id entry.inventory_item_id
+      api.product_item_id entry.product_item_id
+      api.parent_id entry.parent_id
+      api.parent_name entry.parent_name
+      api.product_name entry.product_name
+      api.product_type entry.product_type
+      api.brand_name entry.brand_name
+      api.product_model_name entry.product_model_name
+      api.product_attribute_name entry.product_attribute_name
+      api.serial_number entry.serial_number
+      api.currency entry.currency
+      api.selling_price entry.selling_price
+      api.total_quantity entry.total_quantity
+      api.available_quantity entry.available_quantity
+      api.uom entry.uom_short_desc
+      api.location_name entry.location_name
+      api.project_name entry.project_name
+      api.status entry.status
+      api.is_loggable entry.is_loggable
+      api.asset_name entry.asset_name
+      api.owner_type entry.owner_type
+      api.asset_currency entry.asset_currency
+      api.rate entry.rate
+      api.rate_per entry.rate_per
+      api.current_value entry.current_value
+      api.is_disposed entry.is_disposed
+    end
+  end
+end

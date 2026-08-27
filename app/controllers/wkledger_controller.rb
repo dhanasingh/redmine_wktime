@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2020  Adhi software pvt ltd
+# Copyright (C) 2011-  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -22,6 +22,8 @@ class WkledgerController < WkaccountingController
   before_action :check_perm_and_redirect, :only => [:index, :edit]
   include WkaccountingHelper
   include WkgltransactionHelper
+
+  accept_api_auth :index, :edit
 
 
   def index
@@ -50,6 +52,9 @@ class WkledgerController < WkaccountingController
 				@ledgerdd = @ledgers.pluck(:name, :id)
 				@totalAmt = @ledgers.sum(&:opening_balance)
 			  render :layout => !request.xhr?
+      end
+      format.api do
+        formPagination(ledger)
       end
       format.csv do
         export_format = params[:export_format]

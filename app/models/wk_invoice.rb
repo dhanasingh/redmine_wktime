@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2020  Adhi software pvt ltd
+# Copyright (C) 2011-  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -76,7 +76,7 @@ class WkInvoice < ApplicationRecord
       userId = WkPermission.permissionUser('M_BILL').uniq
       WkNotification.notification(userId, emailNotes, subject, invoice, 'invoiceGenerated')
     elsif WkNotification.notify('supplierInvoiceReceived') && invoice.invoice_type == 'SI'
-      emailNotes = l(:label_supplier_invoice)+": #"+invoice.invoice_number.to_s+" "+invoice.invoice_items.first.original_currency.to_s+ invoice.invoice_items.sum(:original_amount).to_s+" "+l(:label_has_generated)+" "+l(:label_for)+invoice.parent.name.to_s + "\n\n" + l(:label_redmine_administrator)
+      emailNotes = l(:label_supplier_invoice)+": #"+invoice.invoice_number.to_s+" "+invoice.invoice_items&.first&.original_currency.to_s+ invoice.invoice_items&.sum(:original_amount).to_s+" "+l(:label_has_generated)+" "+l(:label_for)+invoice.parent&.name.to_s + "\n\n" + l(:label_redmine_administrator)
       userId = (WkPermission.permissionUser('B_PUR_PRVLG') + WkPermission.permissionUser('A_PUR_PRVLG')).uniq
       subject = l(:label_supplier_invoice) + " " + l(:label_notification)
       WkNotification.notification(userId, emailNotes, subject, invoice, 'supplierInvoiceReceived')

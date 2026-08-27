@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2021 Adhi software pvt ltd
+# Copyright (C) 2011- Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -65,7 +65,7 @@ class WkcrmactivityController < WkcrmController
 		end
 
 		crmactivity = crmactivity.where(status: status) if status.present?
-		crmactivity = crmactivity.where(assigned_user_id: assignee) if assignee.present?
+		crmactivity = crmactivity.where(assigned_user_id: assignee) if assignee.present? && assignee.to_i != 0
 
 		crmactivity = crmactivity.reorder(sort_clause)
 		respond_to do |format|
@@ -122,8 +122,8 @@ class WkcrmactivityController < WkcrmController
     crmActivity.name = params[:activity_subject]
     crmActivity.status = params[:activity_status]
     crmActivity.description = params[:activity_description]
-    crmActivity.start_date = Time.parse("#{params[:activity_start_date].to_s} #{ params[:start_hour].to_s}:#{params[:start_min]}:00 ").localtime.to_s
-    crmActivity.end_date = Time.parse("#{params[:activity_end_date].to_s} #{ params[:end_hour].to_s}:#{params[:end_min]}:00 ").localtime.to_s if !["C", "I"].include?(params[:activity_type])
+    crmActivity.start_date = Time.parse("#{params[:activity_start_date].to_s} #{ params[:start_hour].to_s}:#{params[:start_min]}:00 ").localtime.to_s if params[:activity_start_date].present?
+    crmActivity.end_date = Time.parse("#{params[:activity_end_date].to_s} #{ params[:end_hour].to_s}:#{params[:end_min]}:00 ").localtime.to_s if params[:activity_end_date].present? && !["C", "I"].include?(params[:activity_type])
     crmActivity.rating = params[:rating] || nil
 
     crmActivity.activity_type = params[:activity_type]
@@ -201,7 +201,11 @@ class WkcrmactivityController < WkcrmController
 
   def set_filter_session
     filters = [:period_type, :period, :from, :to, :activity_type, :related_to, :show_on_map, :assignee, :status]
+    isNewSession = session[controller_name].blank?
     super(filters, {status: ['IP', 'NS'], assignee: User.current.id, :from => @from, :to => @to})
+    # On the first load super drops the default assignee when the request carries
+    # no assignee param, which lists every user's activities. Keep the default.
+    session[controller_name][:assignee] = User.current.id if isNewSession && !params.key?(:assignee)
   end
 
   def formPagination(entries)

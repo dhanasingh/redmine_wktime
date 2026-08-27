@@ -1,0 +1,14 @@
+api.wk_crm_enumeration do
+  if @enumEntry.present?
+    api.enum_id @enumEntry.id
+    api.enumname @enumEntry.name
+    api.enumType @enumEntry.enum_type
+    api.enum_type_name enumType[@enumEntry.enum_type]
+    api.enumPosition @enumEntry.position
+    api.enumActive @enumEntry.active
+    api.enumDefaultValue @enumEntry.is_default
+  end
+end
+api.headers do
+  api.enum_types enumType.reject { |code, _| code.blank? }
+end

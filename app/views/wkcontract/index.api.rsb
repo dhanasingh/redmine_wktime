@@ -1,0 +1,15 @@
+api.array :wk_contract, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  @contract_entries.each do |entry|
+    api.entry do
+      api.id entry.id
+      api.contract_number entry.contract_number
+      api.parent_type entry.parent_type
+      api.parent_id entry.parent_id
+      api.name entry&.parent&.name
+      api.project entry&.project&.name
+      api.project_id entry.project_id
+      api.start_date entry.start_date
+      api.end_date entry.end_date
+    end
+  end
+end

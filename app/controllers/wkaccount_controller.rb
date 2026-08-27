@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2020  Adhi software pvt ltd
+# Copyright (C) 2011-  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -56,7 +56,7 @@ class WkaccountController < WkcrmController
 			  render :layout => !request.xhr?
 			end
 			format.api do
-				@account_entries = entries
+				formPagination(entries)
 			end
 			format.csv do
 				headers = { name: l(:field_name), location: l(:field_location), address: l(:label_address), phone: l(:label_work_phone), country: l(:label_country), city: l(:label_city) }

@@ -1,0 +1,16 @@
+api.array :wk_shipment, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  @shipmentEntries.each do |entry|
+    api.entry do
+      api.id entry.id
+      api.serial_number entry.serial_number
+      api.name entry&.parent&.name
+      api.parent_type entry.parent_type
+      api.parent_id entry.parent_id
+      api.shipment_date entry.shipment_date
+      api.supplier_invoice_id entry.supplier_invoice_id
+      api.currency entry.inventory_items.shipment_item[0]&.currency
+      api.amount entry.inventory_items.shipment_item.sum('(total_quantity*cost_price)+over_head_price').to_f.round(2)
+      api.item_count entry.inventory_items.shipment_item.size
+    end
+  end
+end

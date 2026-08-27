@@ -1,0 +1,32 @@
+api.wk_shipment do
+  if @shipment.present?
+    api.shipment_id @shipment.id
+    api.serial_number @shipment.serial_number
+    api.shipment_date @shipment.shipment_date
+    api.related_to @shipment.parent_type
+    api.related_parent @shipment.parent_id
+    api.parent_name @shipment.parent&.name
+    api.supplier_invoice_id @shipment.supplier_invoice_id
+    api.gl_transaction_id @shipment.gl_transaction_id
+  end
+  api.array :shipment_items do
+    (@shipmentItem || []).each do |item|
+      api.entry do
+        api.inventory_item_id item.id
+        api.product_item_id item.product_item_id
+        api.product_attribute_id item.product_attribute_id
+        api.serial_number item.serial_number
+        api.location_id item.location_id
+        api.project_id item.project_id
+        api.uom_id item.uom_id
+        api.currency item.currency
+        api.cost_price item.cost_price
+        api.selling_price item.selling_price
+        api.over_head_price item.over_head_price
+        api.total_quantity item.total_quantity
+        api.available_quantity item.available_quantity
+        api.invoice_item_id item.invoice_item_id
+      end
+    end
+  end
+end

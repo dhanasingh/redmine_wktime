@@ -1,0 +1,12 @@
+api.array :wk_shift, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  @shiftentry.each do |entry|
+    api.entry do
+      api.id entry.id
+      api.name entry.name
+      api.start_time entry.start_time
+      api.end_time entry.end_time
+      api.in_active entry.in_active
+      api.is_schedulable entry.is_schedulable
+    end
+  end
+end

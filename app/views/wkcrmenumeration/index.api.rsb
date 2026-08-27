@@ -1,0 +1,16 @@
+api.array :wk_crm_enumeration, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  @crmenum.each do |entry|
+    api.entry do
+      api.id entry.id
+      api.name entry.name
+      api.enum_type entry.enum_type
+      api.enum_type_name enumType[entry.enum_type]
+      api.position entry.position
+      api.active entry.active
+      api.is_default entry.is_default
+    end
+  end
+end
+api.headers do
+  api.enum_types enumType.reject { |code, _| code.blank? }
+end

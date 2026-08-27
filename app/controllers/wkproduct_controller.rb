@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2020  Adhi software pvt ltd
+# Copyright (C) 2011-  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -19,6 +19,8 @@ class WkproductController < WkinventoryController
 
   before_action :require_login
   before_action :check_basic_perm, :only => [:index, :edit, :update, :destroy, :category, :update_category]
+
+  accept_api_auth :index, :edit
 
 
 	def index
@@ -47,6 +49,9 @@ class WkproductController < WkinventoryController
 		entries = entries.reorder(sort_clause)
 		respond_to do |format|
 			format.html {
+				formPagination(entries)
+			}
+			format.api {
 				formPagination(entries)
 			}
 			format.csv{

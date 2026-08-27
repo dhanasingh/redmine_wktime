@@ -1,0 +1,36 @@
+api.wk_scheduling do
+  api.year @year
+  api.month @month
+  api.from @calendar.startdt
+  api.to @calendar.enddt
+  api.can_schedule_shift @schedulesShift
+  api.can_edit_shift_schedules @editShiftSchedules
+  api.array :schedules do
+    @shiftObj.each do |entry|
+      api.entry do
+        api.id entry.id
+        api.user_id entry.user_id
+        api.user entry&.user&.name
+        api.shift_id entry.shift_id
+        api.shift entry&.shift&.name
+        api.schedule_date entry.schedule_date
+        api.schedule_as entry.schedule_as
+        api.schedule_type entry.schedule_type
+      end
+    end
+  end
+  api.array :preferences do
+    (@shiftPreference || []).each do |entry|
+      api.entry do
+        api.id entry.id
+        api.user_id entry.user_id
+        api.user entry&.user&.name
+        api.shift_id entry.shift_id
+        api.shift entry&.shift&.name
+        api.schedule_date entry.schedule_date
+        api.schedule_as entry.schedule_as
+        api.schedule_type entry.schedule_type
+      end
+    end
+  end
+end

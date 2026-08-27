@@ -1,0 +1,17 @@
+# Shared with wksupplieraccount. wkcrmaccount's own template wins by precedence.
+api.array :wk_accounts, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit, unseen_count: @unseen_count) do
+  @account_entries.each do |entry|
+    api.entry do
+      api.id entry.id
+      api.name entry.name
+      api.account_number entry&.account_number
+      api.account_type entry.account_type
+      api.location entry.location.name unless entry.location_id.nil?
+      api.address entry.address.address1 unless entry.address.nil?
+      api.work_phone entry.address.work_phone unless entry.address.nil?
+      api.email entry.address.email unless entry.address.nil?
+      api.country entry.address.country unless entry.address.nil?
+      api.city entry.address.city unless entry.address.nil?
+    end
+  end
+end
