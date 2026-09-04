@@ -1,15 +1,14 @@
-# Webinar on ERPmine – Attendance, August 25th, 2026,(11:30 AM GMT)
+# Webinar on ERPmine – Payroll, September 29th, 2026,(11:30 AM GMT)
  
 Please click here to register if interested,
-[(https://us02web.zoom.us/meeting/register/DBTkyXPhRA-3r2g5GZPc8A)]
+[(https://us02web.zoom.us/meeting/register/tpzdLyHGTwWoz5-x6AUFoA)]
  
 **Topics**:
--  Clock In / Clock Out
--  Review Leave Status
--  Leave Request
--  Integrate with Attendance Devices
--  Attendance Report
--  Attendance on Map
+-  Generate payroll
+-  Reimbursement
+-  Apply tax
+-  Payroll Report
+-  Payslip report
 -  Mobile App
 -----
 # ERPmine
