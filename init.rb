@@ -1,4 +1,5 @@
 require_relative 'lib/nested_set/location_nested_set'
+require_relative 'lib/erpmine_mcp_hook'
 
 # Load Patch files
 begin
