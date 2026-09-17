@@ -645,7 +645,7 @@ end
 			tabs = []
 			tabs << {:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime} if showTime
 			tabs << {:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense} if showExpense
-		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" || params[:controller] == "wkscheduling"  || params[:controller] == "wkschedulepreference" || params[:controller] == "wkshift" || params[:controller] == "wkpublicholiday" || params[:controller] == "wksurvey" || params[:controller] == "wkleaverequest" || params[:controller] == "wkskill" || params[:controller] == "wkreferrals" || params[:controller] == "wkuser"
+		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" || params[:controller] == "wkscheduling"  || params[:controller] == "wkschedulepreference" || params[:controller] == "wkshift" || params[:controller] == "wkpublicholiday" || params[:controller] == "wksurvey" || params[:controller] == "wkleaverequest" || params[:controller] == "wkskill" || params[:controller] == "wkreferrals" || params[:controller] == "wkuser" || params[:controller] == "wkdevices"
 				tabs = []
 				if showAttendance
 					tabs <<	{name: 'wkuser', partial: 'wktime/tab_content', :label => :label_employee}
@@ -659,6 +659,7 @@ end
 				tabs << {:name => 'wksurvey', :partial => 'wktime/tab_content', :label => :label_survey} if showSurvey
 				tabs <<	{name: 'wkskill', partial: 'wktime/tab_content', :label => :label_wk_skill} if showSkill
 				tabs << {:name => 'wkreferrals', :partial => 'wktime/tab_content', :label => :label_referrals} if isChecked("wktime_enable_referrals_module")
+				tabs << {:name => 'wkdevices', :partial => 'wktime/tab_content', :label => :label_wkdevices} if User.current.admin? || validateERPPermission('A_DEVICE')
 
 		elsif params[:controller] == "wkcrmdashboard" || params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact" || params[:controller] == "wksalesquote"
 			tabs = [
@@ -692,7 +693,7 @@ end
 				{:name => 'wksupplieraccount', :partial => 'wktime/tab_content', :label => :label_supplier_account},
 				{:name => 'wksuppliercontact', :partial => 'wktime/tab_content', :label => :label_supplier_contact}
 			   ]
-		elsif params[:controller] == "wkcrmenumeration" || params[:controller] == "wktax" || params[:controller] == "wkexchangerate" || params[:controller] == "wklocation" || params[:controller] == "wkgrouppermission" || params[:controller] == "wknotification" || params[:controller] == "wkdevices"
+		elsif params[:controller] == "wkcrmenumeration" || params[:controller] == "wktax" || params[:controller] == "wkexchangerate" || params[:controller] == "wklocation" || params[:controller] == "wkgrouppermission" || params[:controller] == "wknotification"
 			tabs = [
 				{:name => 'wkcrmenumeration', :partial => 'wktime/tab_content', :label => :label_enumerations},
 				{:name => 'wklocation', :partial => 'wktime/tab_content', :label => :field_location},
@@ -701,7 +702,6 @@ end
 				{:name => 'wkgrouppermission', :partial => 'wktime/tab_content', :label => :label_permissions},
 				{:name => 'wknotification', :partial => 'wktime/tab_content', :label => :label_notification_plural}
 			   ]
-			tabs << {:name => 'wkdevices', :partial => 'wktime/tab_content', :label => :label_wkdevices} if User.current.admin? || validateERPPermission('A_DEVICE')
 		else
 			tabs = [
 				{name: 'wkproduct', partial: 'wktime/tab_content', label: :label_product},
@@ -1408,7 +1408,7 @@ end
 
 	def hasSettingPerm
 		ret = false
-		ret = (User.current.admin) || validateERPPermission("ADM_ERP") || validateERPPermission('A_TE_PRVLG') || (validateERPPermission("B_INV_PRVLG") && validateERPPermission("A_INV_PRVLG")) || validateERPPermission("A_ACC_PRVLG") || validateERPPermission("A_CRM_PRVLG") || validateERPPermission("A_PUR_PRVLG") || validateERPPermission("M_BILL") || validateERPPermission("A_DEVICE")
+		ret = (User.current.admin) || validateERPPermission("ADM_ERP") || validateERPPermission('A_TE_PRVLG') || (validateERPPermission("B_INV_PRVLG") && validateERPPermission("A_INV_PRVLG")) || validateERPPermission("A_ACC_PRVLG") || validateERPPermission("A_CRM_PRVLG") || validateERPPermission("A_PUR_PRVLG") || validateERPPermission("M_BILL")
 		ret
 	end
 

@@ -1,19 +1,14 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <%= title l(:label_wkdevices) %>
-<%= render partial: "wkcrmenumeration/render_settings_tabs" %>
-
-<script type="text/javascript">
-  <%# grpChanged (index.js, loaded by render_settings_tabs) reloads the member
-      dropdown from this endpoint when the group selection changes - same
-      endpoint the HR pages use via _render_hr_tabs. %>
-  grpUrl = "<%= url_for(controller: 'wkpayroll', action: 'get_membersby_group') %>";
-</script>
+<%# _render_hr_tabs also sets grpUrl, the endpoint grpChanged (index.js) uses to
+    reload the member dropdown when the group selection changes. %>
+<%= render partial: "wkattendance/render_hr_tabs" %>
 
 <% group_id = controller.getSession(:group_id)
    user_id = controller.getSession(:user_id) %>
 
 <%= form_tag(wkdevices_path, method: :get, id: 'query_form') do %>
-  <%# Keep the Devices settings tab highlighted after applying the filter -
+  <%# Keep the Devices tab highlighted after applying the filter -
       render_tabs falls back to the first tab when params[:tab] is missing. %>
   <%= hidden_field_tag 'tab', 'wkdevices' %>
   <%= hidden_field_tag 'searchlist', controller_name %>
