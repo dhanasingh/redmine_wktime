@@ -32,22 +32,22 @@ module WkreportHelper
 							value.blank? ? 'current_week' : value)
 	end
 
-	def getReportType(apiRequest = false)
-		reportTypeArr =[]
-		reportTypeArr = [ [l(:label_wk_timesheet), 'report_time'], [l(:label_wk_expensesheet), 'report_expense']] if !apiRequest
+	def getReportType
+		reportTypeArr = [ [l(:label_wk_timesheet), 'report_time'], [l(:label_wk_expensesheet), 'report_expense']]
 
-		reportLoc = "plugins/redmine_wktime/app/views/wkreport"
+		reportLoc = Rails.root.join("plugins", "redmine_wktime", "app", "views", "wkreport")
 		Dir["#{reportLoc}/_report*"].each do |path|
 		  fileName = File.basename(path, ".html.erb")
 		  fileName.slice!(0)
 		  label = fileName.remove("_web")
-		  reportTypeArr << [l(:"#{label}"), fileName] if hasViewPermission(label) && (!apiRequest || !(fileName.end_with?("_web")))
+		  reportTypeArr << [l(:"#{label}"), fileName] if hasViewPermission(label)
 		end
-		call_hook(:add_report_type, reports: reportTypeArr, apiRequest: apiRequest)
+		call_hook(:add_report_type, reports: reportTypeArr)
 		reportTypeArr.sort!
 	end
 
 	def hasViewPermission(reportName)
+		reportName = reportName.to_s.remove("_web")
 		ret = true
 		if reportName == 'report_profit_loss' || reportName == 'report_balance_sheet' || reportName == 'report_trial_balance' || reportName == 'report_cash_flow'
 			ret = validateERPPermission("B_ACC_PRVLG") || validateERPPermission("A_ACC_PRVLG")

@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2021 Adhi software pvt ltd
+# Copyright (C) 2011- Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@ module ReportSalesActivity
 	include WkcrmHelper
   include WkreportHelper
 
-	def calcReportData(userId, groupId, projId, from, to)
+	def calcReportData(userId, groupId, projId, from, to, location_id = nil)
 		from = from.to_date
 		to = to.to_date
 		activityList = getActivityList(from, to, groupId, userId)
