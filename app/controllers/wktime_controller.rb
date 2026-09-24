@@ -2768,12 +2768,15 @@ private
 		spent_for[:id] = spentForIds.present? && spentForIds[k].present? ? spentForIds[k] : nil
 
 		unless entry['spent_for_attributes'].blank?
-			unless entry['spent_for_attributes']['spent_for_key'].blank?
+			if entry['spent_for_attributes']['spent_for_key'].present?
 				spentFor = getSpentFor(entry['spent_for_attributes']['spent_for_key'])
 				if spentFor[1].to_i > 0
 					spent_for['spent_for_type'] = spentFor[0]
 					spent_for['spent_for_id'] = spentFor[1].to_i
 				end
+			elsif api_request? && entry['spent_for_attributes'].key?('spent_for_key')
+				spent_for['spent_for_type'] = nil
+				spent_for['spent_for_id'] = nil
 			end
 			spent_for['spent_on_time'] = getDateTime(teEntry.spent_on, entry['spent_for_attributes']['spent_date_hr'], entry['spent_for_attributes']['spent_date_min'], 0)
 		end
