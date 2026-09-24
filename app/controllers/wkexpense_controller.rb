@@ -22,7 +22,7 @@ class WkexpenseController < WktimeController
   before_action :find_optional_project, :only => [:reportdetail, :report]
   before_action :check_module_permission, :only => [:index]
 
-  accept_api_auth :reportdetail, :index, :edit, :update, :destroy , :delete_entries, :get_currency, :get_projects
+  accept_api_auth :reportdetail, :index, :edit, :update, :destroy , :delete_entries, :get_currency, :get_projects, :getissues, :getactivities, :getclients
 
   include WkexpenseHelper
   include SortHelper
@@ -189,7 +189,7 @@ private
     query = query + dtRangeForUsrSqlStr + " left join " + teSqlStr
     query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids}) ) tmp3 "
     query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id as usrid from wk_expense_entries t, users u "
-    query = query + " where u.id = t.user_id and u.id in (#{ids}) #{get_comp_condition('t')} #{get_comp_condition('u')}
+    query = query + " where u.id = t.user_id and u.id in (#{ids}) #{eligible_projects('t')} #{get_comp_condition('t')} #{get_comp_condition('u')}
       group by t.user_id ) vw on vw.usrid = tmp3.user_id "
     query = query + " left join users AS un on un.id = tmp3.user_id " + get_comp_condition('un')
     query = query + getWhereCond(status)
@@ -211,7 +211,7 @@ private
       from (
         select #{getDateSqlString('t.spent_on')} as startday " +
         "from wk_expense_entries t
-        where user_id in (#{ids}) #{get_comp_condition('t')}
+        where user_id in (#{ids}) #{eligible_projects('t')} #{get_comp_condition('t')}
       ) v
       group by v.startday order by v.startday"
     WkExpenseEntry.find_by_sql(teQuery)
@@ -264,22 +264,17 @@ private
   end
 
   def delete(ids)
-    #WkExpenseEntry.delete(ids)
-    errMsg = false
-    @expense_entries = WkExpenseEntry.where(:id => ids)#WkExpenseEntry.find_by_sql("SELECT * FROM wk_expense_entries w where id = #{ids} ;")
-    destroyed = WkExpenseEntry.transaction do
-      @expense_entries.each do |t|
-        status = getExpenseEntryStatus(t.spent_on, t.user_id)
-        if !status.blank? && ('a' == status || 's' == status || 'l' == status)
-            errMsg = false
-        else
-          errMsg = true
-          WkExpenseEntry.delete(ids)
-          break
-        end
-      end
+    entry_ids = Array(ids).map(&:to_s).uniq
+    return false if entry_ids.empty? || entry_ids.any? { |id| !id.match?(/\A\d+\z/) }
+
+    entries = WkExpenseEntry.where(id: entry_ids).to_a
+    return false unless entries.length == entry_ids.length
+    return false unless entries.all? do |entry|
+      deletable_sheet_status?(entry.spent_on, entry.user_id) &&
+        deletable_sheet_entry_by_user?(entry)
     end
-    errMsg
+
+    WkExpenseEntry.delete(entry_ids) == entry_ids.length
   end
 
   def findTEEntries(ids)

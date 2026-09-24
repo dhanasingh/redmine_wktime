@@ -32,6 +32,8 @@ get 'wktime/getactivities', :to => 'wktime#getactivities'
 
 get 'wktime/getclients', :to => 'wktime#getclients'
 
+get 'wktime/getcustomfieldoptions', :to => 'wktime#getcustomfieldoptions'
+
 get 'wktime/getuserclients', :to => 'wktime#getuserclients'
 
 get 'wktime/getuserissues', :to => 'wktime#getuserissues'

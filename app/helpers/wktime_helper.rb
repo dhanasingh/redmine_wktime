@@ -1069,7 +1069,7 @@ end
 
 	def getTEAllTimeRange(ids)
 		teQuery = "select v.startday as startday from (select #{getDateSqlString('t.spent_on')} as startday " +
-				"from time_entries t where user_id in (#{ids}) " + get_comp_cond('t') + ") v group by v.startday order by v.startday"
+					"from time_entries t where user_id in (#{ids}) " + eligible_projects('t') + get_comp_cond('t') + ") v group by v.startday order by v.startday"
 		teResult = TimeEntry.find_by_sql(teQuery)
 	end
 

@@ -7,6 +7,7 @@ api.array :wk_expenses, api_meta(:total_count => @entry_count, :offset => @offse
       api.amount wk_expense.amount
       api.startdate wk_expense.spent_on
       api.status statusString(wk_expense.status) if wk_expense.present?
+      api.status_code wk_expense.status if wk_expense.present?
     end
   end
 end

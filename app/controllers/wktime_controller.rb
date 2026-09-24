@@ -29,7 +29,7 @@ before_action :check_view_redirect, :only => [:index]
 before_action :check_log_time_redirect, :only => [:new]
 before_action :check_module_permission, :only => [:index]
 
-accept_api_auth :index, :edit, :update, :destroy, :delete_entries, :get_projects, :getissues, :getactivities, :get_api_users, :getclients, :get_issue_loggers
+accept_api_auth :index, :edit, :update, :destroy, :delete_entries, :get_projects, :getissues, :getactivities, :get_api_users, :getclients, :get_issue_loggers, :getcustomfieldoptions
 
 helper :custom_fields
 helper :queries
@@ -67,6 +67,10 @@ include ActionView::Helpers::TagHelper
 			@selected_project = getSelectedProject(@manage_view_spenttime_projects, false)
 		end
 		setMembers
+		unless permitted_list_user?(user_id)
+			render_403
+			return
+		end
 		ids = nil
 		if user_id.blank?
 			user_id = (@currentUser_loggable_projects.blank? && @view_spenttime_projects.blank?) ? '-1' : User.current.id.to_s
@@ -90,6 +94,10 @@ include ActionView::Helpers::TagHelper
 			setUserIdsInSession(ids) #set user ids in session if "All User" is chosen
 		else
 			ids = user_id
+		end
+		if !validateERPPermission('A_TE_PRVLG') && !isSupervisorApproval &&
+			(user_id.to_i == 0 || user_id.to_i != User.current.id)
+			@list_project_ids = (@manage_view_spenttime_projects || []).map(&:id)
 		end
 		loc_ids = WkLocation.accessible_location_ids
 		if loc_ids
@@ -145,6 +153,7 @@ include ActionView::Helpers::TagHelper
 		members = []
 		projects = (@manage_projects || []).pluck(:id)
 		projects.concat((@manage_others_log || []).pluck(:id))
+		projects.concat((@approvable_projects || []).pluck(:id))
 		projects.each do |projID|
 			project = Project.find(projID)
 			project.members.each{|member| members << [member.user.name, member.user.id] }
@@ -217,14 +226,18 @@ include ActionView::Helpers::TagHelper
 			getUserwkStatuses
 			getApproverPermProj
 		end
+		writingSheet = !params[:wktime_save].blank? || !params[:wktime_save_continue].blank? || !params[:wktime_submit].blank?
+		if writingSheet
+			@entries = findEntries
+			errorMsg = l(:error_not_permitted_save) unless can_edit_sheet?
+		end
 		if api_request?
-			errorMsg = gatherAPIEntries
+			errorMsg = gatherAPIEntries if errorMsg.blank?
 			errorMsg = validateMinMaxHr(@startday) if errorMsg.blank?
 			total = @total
-			allowApprove = true if check_approvable_status
 		else
 			total = params[:total].to_f
-			gatherEntries
+			gatherEntries if errorMsg.blank?
 			allowApprove = true
 		end
 		#IssueLogs validation
@@ -235,6 +248,24 @@ include ActionView::Helpers::TagHelper
 		cvParams = wktimeParams[:custom_field_values] unless wktimeParams.blank?
 		useApprovalSystem = (!Setting.plugin_redmine_wktime['wktime_use_approval_system'].blank? &&
 							Setting.plugin_redmine_wktime['wktime_use_approval_system'].to_i == 1)
+		approvalAction = !params[:wktime_approve].blank? || !params[:wktime_reject].blank? ||
+			!params[:hidden_wk_reject].blank? || !params[:wktime_unapprove].blank?
+		if approvalAction
+			# Approval requests have no entry edits. Check the saved entries for
+			# both API and HTML requests, including the own-approval setting.
+			actionEntries = @entries
+			@entries = findEntries
+			allowApprove = check_approvable_status
+			@entries = actionEntries
+			approverIds = @approverEntries.pluck(:id)
+			approvedIds = @approverwkStatuses.pluck(:id)
+			pendingApproval = (approverIds - approvedIds).any?
+			isUnapprove = !params[:wktime_unapprove].blank?
+			allowedStatus = isUnapprove ? (@wktime.status == 'a' && approvedIds.any?) :
+				(@wktime.status == 's' && pendingApproval)
+			errorMsg = l(:error_not_permitted_save) unless useApprovalSystem && allowApprove &&
+				!isLocked(@startday) && allowedStatus
+		end
 		@wktime.transaction do
 			begin
 				if errorMsg.blank? && (!params[:wktime_save].blank? || !params[:wktime_save_continue].blank? ||
@@ -247,15 +278,13 @@ include ActionView::Helpers::TagHelper
 						@entries.each do |entry|
 							entrycount += 1
 							entrynilcount += 1 if (entry.hours).blank?
-							allowSave = true
-							if (!entry.id.blank? && !entry.editable_by?(User.current))
-								allowSave = false
-							end
-							allowSave = true if (to_boolean(@edittimelogs) || validateERPPermission('A_TE_PRVLG') || !isBilledTimeEntry(entry))
+							allowSave = can_log_time?(entry.project_id) && !isBilledTimeEntry(entry) &&
+								(entry.id.blank? || entry.editable_by?(User.current) || @user.id == User.current.id ||
+								to_boolean(@edittimelogs) || validateERPPermission('A_TE_PRVLG'))
 								if allowSave
 									errorMsg = updateEntry(entry)
 								else
-									errorMsg = l(:error_not_permitted_save) if !api_request?
+									errorMsg = l(:error_not_permitted_save)
 								end
 								break unless errorMsg.blank?
 						end
@@ -274,18 +303,18 @@ include ActionView::Helpers::TagHelper
 					errorMsg = 	updateWktime if (errorMsg.blank? && ((!@entries.blank? && entrycount!=entrynilcount) || @teEntrydisabled))
 				end
 
-				if getSheetView == 'W' && (!params[:wktime_save].blank? || !params[:wktime_save_continue].blank? || !params[:wktime_submit].blank?)
+				if errorMsg.blank? && getSheetView == 'W' && (!params[:wktime_save].blank? || !params[:wktime_save_continue].blank? || !params[:wktime_submit].blank?)
 					destroyWKstatuses(status='r', @userEntries)
-				elsif useApprovalSystem && !params[:wktime_unapprove].blank?
+				elsif errorMsg.blank? && useApprovalSystem && !params[:wktime_unapprove].blank?
 					destroyWKstatuses(status='a', @approverEntries)
 				end
 
-				if !params[:wktime_approve].blank? || !params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?
+				if errorMsg.blank? && (!params[:wktime_approve].blank? || !params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?)
 					@approverEntries.each do | entry |
 						next if entry.wkstatus.present?
 						saveWKstatuses(entry)
 					end
-				elsif (!Setting.plugin_redmine_wktime['wktime_uuto_approve'].blank? &&
+				elsif errorMsg.blank? && (!Setting.plugin_redmine_wktime['wktime_uuto_approve'].blank? &&
 								Setting.plugin_redmine_wktime['wktime_uuto_approve'].to_i == 1 && !params[:wktime_submit].blank?)
 					@userEntries.each do | entry |
 						next if entry.wkstatus.present?
@@ -295,7 +324,10 @@ include ActionView::Helpers::TagHelper
 
 				if errorMsg.blank? && useApprovalSystem
 					if !@wktime.nil? && @wktime.status == 's' || !params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?
-						if !params[:wktime_approve].blank? && allowApprove && @userEntries.length == @approvedwkStatuses.length
+						approvedEntryIds = WkStatus.where(status_for_type: getModelName, status: 'a',
+							status_for_id: @userEntries.pluck(:id)).distinct.pluck(:status_for_id)
+						if !params[:wktime_approve].blank? && allowApprove &&
+							(@userEntries.pluck(:id) - approvedEntryIds).empty?
 							errorMsg = updateStatus(:a)
 						elsif (!params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?) && allowApprove
 							if api_request?
@@ -391,13 +423,13 @@ include ActionView::Helpers::TagHelper
 			else
 				ids = params['ids']
 			end
-			delete(ids)
+			deleted = ids.present? && delete(ids)
 			respond_to do |format|
 				format.text  {
-					render :plain => 'OK'
+					render :plain => (deleted ? 'OK' : 'FAILED')
 				}
 				format.api {
-					render_api_ok
+					deleted ? render_api_ok : render_403
 				}
 			end
 		else
@@ -418,16 +450,13 @@ include ActionView::Helpers::TagHelper
 	end
 
 	def gatherIDs
-		ids = Array.new
-		teName = getTEName()
-		entityNames = getEntityNames()
-		entries = JSON.parse(params["#{entityNames[1]}"])
-		if !entries.blank?
-			entries.each do |entry|
-				ids << entry["id"]
-			end
+		entries = JSON.parse(params[getEntityNames[1]])
+		return [] unless entries.is_a?(Array) && entries.all? do |entry|
+			entry.is_a?(Hash) && entry['id'].to_s.match?(/\A\d+\z/)
 		end
-		ids
+		entries.map { |entry| entry['id'].to_s }.uniq
+	rescue JSON::ParserError, TypeError
+		[]
 	end
 
 	def destroy
@@ -480,13 +509,15 @@ include ActionView::Helpers::TagHelper
 	end
 
 	def getissues
+		permitted_project_ids = permitted_issue_project_ids
+		unless permitted_project_ids
+			render_403
+			return
+		end
 		projectids = []
 		if !params[:term].blank?
 			 subjectPart = (params[:term]).to_s.strip
-			set_loggable_projects
-			@logtime_projects.each do |project|
-				projectids << project.id
-			end
+			projectids = permitted_project_ids
 		end
 		issueAssignToUsrCond = getIssueAssignToUsrCond
 		trackerIDCond=nil
@@ -548,11 +579,11 @@ include ActionView::Helpers::TagHelper
 
 			issues = Issue.includes(:status).references(:status).where(cond).order('project_id')
 		end
-		#issues.compact!
+		issues = issues.where(project_id: permitted_project_ids) if issues.respond_to?(:where)
 		user = params[:user_id].present? ? User.find(params[:user_id]) : User.current
 		if (!Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1)
 			# adding additional assignee
-			userIssues = getGrpUserIssues(params)
+			userIssues = getGrpUserIssues(params).select { |issue| permitted_project_ids.include?(issue.project_id) }
 			issues = userIssues.present? ? (issues + userIssues).uniq : issues
 		end
 
@@ -598,6 +629,18 @@ include ActionView::Helpers::TagHelper
 		issStr
 	end
 
+	# Resolves issue options only within projects the caller can log for the target user.
+	def permitted_issue_project_ids
+		params[:user_id] = User.current.id if params[:user_id].blank?
+		return nil unless params[:user_id].to_s.match?(/\A\d+\z/)
+		requested_ids = params[:project_id].present? ? [params[:project_id]] : Array(params[:project_ids])
+		return nil unless requested_ids.all? { |id| id.to_s.match?(/\A\d+\z/) }
+		set_loggable_projects
+		allowed_ids = (@logtime_projects || []).map(&:id)
+		return nil unless requested_ids.all? { |id| allowed_ids.include?(id.to_i) }
+		allowed_ids
+	end
+
 	def get_issue_loggers(valid=false)
 		if params[:type] == "finish" || valid
 			issueLogs = WkSpentFor.getIssueLog
@@ -636,7 +679,6 @@ include ActionView::Helpers::TagHelper
 
 	def getactivities
 		project = nil
-		error = nil
 		project_id = params[:project_id]
 		if !project_id.blank?
 			project = Project.find(project_id)
@@ -644,42 +686,69 @@ include ActionView::Helpers::TagHelper
 			issue = Issue.find(params[:issue_id])
 			project = issue.project
 			project_id = project.id
-			u_id = params[:user_id]
-			user = User.find(u_id)
-			if !user_allowed_to?(:log_time, project)
-				error = "403"
-			end
-		else
-			error = "403"
+		end
+		unless permitted_log_project?(project)
+			render_403
+			return
 		end
 
-		if error.blank?
-			# alphabetical for dropdowns; Enumeration default order is position
-			projActivities = project.activities.to_a.sort_by { |a| [a.name.to_s.downcase, a.id] }
-			if params[:format].present?
-				actStr =""
-				projActivities.each do |a|
-				actStr << project_id.to_s() + '|' + a.id.to_s() + '|' + a.is_default.to_s() + '|' + a.name + "\n"
-				end
-				respond_to do |format|
-					format.text  {
-						render :plain => actStr
-				}
-				end
-			else
-				activities = []
-				activities = projActivities.map { |act| { value: act.id, label: act.name }}
-				render json: activities
+		# alphabetical for dropdowns; Enumeration default order is position
+		projActivities = project.activities.to_a.sort_by { |a| [a.name.to_s.downcase, a.id] }
+		if params[:format].present?
+			actStr =""
+			projActivities.each do |a|
+			actStr << project_id.to_s() + '|' + a.id.to_s() + '|' + a.is_default.to_s() + '|' + a.name + "\n"
+			end
+			respond_to do |format|
+				format.text  {
+					render :plain => actStr
+			}
 			end
 		else
-			render_403
+			activities = projActivities.map { |act| { value: act.id, label: act.name }}
+			render json: activities
 		end
+	end
+
+	# Time entry custom field definitions with their options resolved for a
+	# project. Used by API clients that render their own inputs: list options live
+	# on the field, while key/value list, user and version options depend on the
+	# entry being edited.
+	def getcustomfieldoptions
+		project = Project.find_by_id(params[:project_id])
+		unless permitted_log_project?(project)
+			render_403
+			return
+		end
+		entry = TimeEntry.new(:project => project, :user => User.current, :spent_on => User.current.today)
+		fields = TimeEntryCustomField.sorted.to_a.select do |cf|
+			cf.visible? || (project.present? && cf.visible_by?(project))
+		end
+		definitions = fields.map do |cf|
+			options = (cf.possible_values_options(entry) || []).map do |option|
+				if option.is_a?(Array)
+					{ :value => option.last.to_s, :label => option.first.to_s }
+				else
+					{ :value => option.to_s, :label => option.to_s }
+				end
+			end
+			{
+				:id => cf.id,
+				:name => cf.name,
+				:field_format => cf.field_format,
+				:is_required => cf.is_required,
+				:multiple => cf.multiple?,
+				:default_value => cf.default_value,
+				:possible_values => options,
+				:ratio_interval => (cf.field_format == 'progressbar' ?
+					(cf.ratio_interval.presence || Setting.issue_done_ratio_interval).to_i : nil)
+			}
+		end
+		render :json => definitions
 	end
 
 	def getclients
 		project = nil
-		error = nil
-		teUser = User.find(params[:user_id])
 		project_id = params[:project_id]
 		if !project_id.blank?
 			project = Project.find(project_id)
@@ -687,15 +756,11 @@ include ActionView::Helpers::TagHelper
 			issue = Issue.find(params[:issue_id])
 			project = issue.project
 			project_id = project.id
-			u_id = params[:user_id]
-			user = User.find(u_id)
-			if !user_allowed_to?(:log_time, project)
-				error = "403"
-			end
-		else
-			error = "403"
 		end
-		usrLocationId = teUser.wk_user.blank? ? nil : teUser.wk_user.location_id
+		unless permitted_log_project?(project)
+			render_403
+			return
+		end
 		# label name lives on the polymorphic parent, so it can't be sorted in SQL
 		project = project.account_projects.includes(:parent).to_a
 			.sort_by { |ap| [ap.parent&.name.to_s.downcase, ap.parent_type.to_s, ap.parent_id] } unless project.blank?
@@ -721,6 +786,15 @@ include ActionView::Helpers::TagHelper
 				render(json: spentFors)
 			}
 		end
+	end
+
+	# Checks project options against the same target-user project set as sheet editing.
+	def permitted_log_project?(project)
+		return false if project.blank?
+		return false if params[:user_id].present? && !params[:user_id].to_s.match?(/\A\d+\z/)
+		params[:user_id] = User.current.id if params[:user_id].blank?
+		set_loggable_projects
+		(@logtime_projects || []).any? { |allowed_project| allowed_project.id == project.id }
 	end
 
 	def getuserclients
@@ -1267,6 +1341,29 @@ include ActionView::Helpers::TagHelper
 		end
 	end
 
+	def can_approve_sheet?
+		return false unless hasApprovalSystem && !@locked && @wktime && @wktime.status == 's'
+		return false unless check_approvable_status
+		(@approverEntries.pluck(:id) - @approverwkStatuses.pluck(:id)).any?
+	end
+
+	def can_unapprove_sheet?
+		return false unless hasApprovalSystem && !@locked && @wktime && @wktime.status == 'a'
+		check_approvable_status && @approverwkStatuses.any?
+	end
+
+	def can_edit_sheet?
+		return false if isLocked(@startday)
+		return false if @wktime && @wktime.status.present? && !['n', 'e', 'r'].include?(@wktime.status)
+		return true if isSupervisorApproval && canSupervisorEdit && isSupervisorForUser(@user.id)
+		allowedProjectIds = (@logtime_projects || []).pluck(:id)
+		return false if allowedProjectIds.blank?
+		entries = @entries || []
+		return false if entries.any? { |entry| !allowedProjectIds.include?(entry.project_id) }
+		return true if @user.id == User.current.id || entries.blank?
+		entries.all? { |entry| entry.editable_by?(User.current) }
+	end
+
 	############ Moved from private ##############
 
 	def showClockInOut
@@ -1538,29 +1635,22 @@ private
 	end
 
 	def check_permission
-		ret = false
 		setup
 		set_user_projects
-		status = getTimeEntryStatus(@startday, @user_id)
-		approve_projects = @approvable_projects & @logtime_projects
-		if (status != 'n' && (!approve_projects.blank? && approve_projects.size > 0))
-			#for approver
-			ret = true
-		else
-			if !@manage_projects.blank? && @manage_projects.size > 0 || @manage_others_log.present? && @manage_others_log.size > 0
-				#for manager
-					manage_log_projects = @manage_projects || @manage_others_log
-					ret = (!manage_log_projects.blank? && manage_log_projects.size > 0)
-			else
-				#for individuals
-				ret = (@user.id == User.current.id && (@logtime_projects.size > 0 || @edit_own_logs.size > 0))
-			end
-		end
-		# editPermission = call_hook(:controller_check_permission, {:params => params})
-		if	isSupervisorApproval #!editPermission.blank?
-			ret = isSupervisorForUser((params[:user_id]).to_i) || (@user.id == User.current.id && @logtime_projects.size > 0) #editPermission[0]
-		end
-		return (ret || validateERPPermission('A_TE_PRVLG'))
+		return true if validateERPPermission('A_TE_PRVLG')
+		return true if isSupervisorApproval && isSupervisorForUser(@user.id)
+
+		status = getTEName == 'time' ? getTimeEntryStatus(@startday, @user.id) : getExpenseEntryStatus(@startday, @user.id)
+		managed_projects = (@manage_projects || []).to_a + (@manage_others_log || []).to_a
+		viewable_projects = managed_projects + (status == 'n' ? [] : (@approvable_projects || []).to_a)
+		return viewable_projects.present? || @logtime_projects.present? || @edit_own_logs.present? if @user.id == User.current.id
+		return false if viewable_projects.blank?
+
+		project_ids = viewable_projects.map(&:id)
+		entries = getModelName.constantize.where(user_id: @user.id, spent_on: @startday..(@startday + 6))
+		return entries.all? { |entry| project_ids.include?(entry.project_id) } if entries.exists?
+
+		Principal.member_of(Project.where(id: project_ids)).where(id: @user.id).exists?
 	end
 
 	def getGrpMembers
@@ -1780,7 +1870,11 @@ private
 					id = entry[:id]
 					teEntry = nil
 					teEntry = getTEEntry(id)
+					if teEntry.persisted? && (teEntry.user_id != @user.id || teEntry.spent_on < @startday || teEntry.spent_on > @startday + 6)
+						raise l(:error_not_permitted_save)
+					end
 					teEntry.safe_attributes = entry
+					saveAPIAttachments(teEntry, entry[:uploads]) if entry[:uploads].present?
 					if (!entry[:user].blank? && !entry[:user][:id].blank? && @user.id != entry[:user][:id].to_i)
 						raise "#{l(:field_user)} #{l('activerecord.errors.messages.invalid')}"
 					else
@@ -1872,23 +1966,16 @@ private
   end
 
 	def check_editperm_redirect
-		# hookPerm = call_hook(:controller_edit_timelog_permission, {:params => params})
-		if isSupervisorApproval #!hookPerm.blank?
-			allow = (canSupervisorEdit && isSupervisorForUser((params[:user_id]).to_i)) || (check_editPermission && @user.id == User.current.id) || validateERPPermission('A_TE_PRVLG')
-		else
-			allow = check_editPermission
-		end
-		unless allow
+		unless check_editPermission
 			render_403
 			return false
 		end
 	end
 
   def check_editPermission
-		allowed = true
-		hasBilledEntry = false
-		if api_request?
+		if api_request? && action_name == 'delete_entries'
 			ids = gatherIDs
+			return false if ids.blank?
 		else
 			ids = params['ids']
 		end
@@ -1898,19 +1985,27 @@ private
 			setup
 			cond = getCondition('spent_on', @user.id, @startday, @startday+6)
 			@entries = findEntriesByCond(cond)
+			return false unless deletable_sheet_status?(@startday, @user.id)
 		end
-		@entries.each do |entry|
-			if isBilledTimeEntry(entry)
-				hasBilledEntry = true
-				allowed = false
-				break
-			end
-			if(!entry.editable_by?(User.current))
-				allowed = false
-			end
-		end
-		allowed = true if validateERPPermission('A_TE_PRVLG') && !hasBilledEntry
-		return allowed
+		return false unless @entries.all? { |entry| deletable_sheet_status?(entry.spent_on, entry.user_id) }
+		@entries.all? { |entry| deletable_sheet_entry_by_user?(entry) }
+	end
+
+	# Applies sheet status and lock rules to entry deletion from HTML and API actions.
+	def deletable_sheet_status?(spent_on, user_id)
+		return false if isLocked(spent_on)
+		status = getTEName == 'time' ? getTimeEntryStatus(spent_on, user_id) : getExpenseEntryStatus(spent_on, user_id)
+		%w[n e r].include?(status)
+	end
+
+	# Uses the same own-log and delegated edit permissions as the sheet editor.
+	def deletable_sheet_entry_by_user?(entry)
+		return false if entry.wkstatus&.status == 'a'
+		return false if isBilledTimeEntry(entry)
+		return true if validateERPPermission('A_TE_PRVLG')
+		return true if isSupervisorApproval && canSupervisorEdit && isSupervisorForUser(entry.user_id)
+		return true if entry.editable_by?(User.current)
+		entry.user_id == User.current.id && User.current.allowed_to?(:log_time, entry.project)
 	end
 
 	def updateEntry(entry)
@@ -1973,6 +2068,24 @@ private
 			errorMsg = @wktime.errors.full_messages.join('\n')
 		end
 		return errorMsg
+	end
+
+	# Attaches files to an entry from upload tokens. The client posts each file to
+	# /uploads.json first and sends the tokens back as entry[:uploads].
+	def saveAPIAttachments(teEntry, uploads)
+		attachments = []
+		uploads.each do |upload|
+			attachment = Attachment.find_by_token(upload[:token])
+			next if attachment.blank?
+			attachment.container_type = getModelName
+			attachment.filename = upload[:filename] if upload[:filename].present?
+			attachment.description = upload[:description] if upload[:description].present?
+			attach = attachment.as_json
+			attach[:id] = nil
+			attachments << attach
+			attachment.delete
+		end
+		teEntry.attachments_attributes = attachments if attachments.any?
 	end
 
 	def saveAttachments(teEntry, row, col)
@@ -2213,7 +2326,10 @@ private
 		end
 		if !u_id.blank?	&& u_id.to_i != 0
 			@user ||= User.find(u_id)
-			if User.current == @user
+			if validateERPPermission('A_TE_PRVLG') ||
+				(isSupervisorApproval && isSupervisorForUser(@user.id))
+				@logtime_projects = Project.where(Project.allowed_to_condition(@user, :log_time)).order('name')
+			elsif User.current == @user
 				@logtime_projects ||= Project.where(Project.allowed_to_condition(User.current, :log_time)).order('name')
 				@edit_own_logs = Project.where(Project.allowed_to_condition(User.current, :edit_own_time_entries)).order('name')
 			else
@@ -2321,7 +2437,7 @@ private
 			wkSelectStr = wkSelectStr +", un.firstname + ' ' + un.lastname as status_updater "
 			sqlStr += "(select " + sDay + " as startday, "
 			sqlStr += " t.user_id, sum(t." + spField + ") as " + spField + " ,max(t.id) as id" + " from " + entityNames[1] + " t, users u" +
-				" where u.id = t.user_id and u.id in (#{ids})"
+					" where u.id = t.user_id and u.id in (#{ids})" + eligible_projects('t')
 			sqlStr += " and t.spent_on between '#{from}' and '#{to}'" unless from.blank? && to.blank?
 			sqlStr += " group by " + sDay + ", user_id ) as v1"
 		else
@@ -2332,7 +2448,7 @@ private
 			end
 			sqlStr += "(select " + sDay + " as startday, "
 			sqlStr += " t.user_id, sum(t." + spField + ") as " + spField + " ,max(t.id) as id" + " from " + entityNames[1] + " t, users u" +
-				" where u.id = t.user_id and u.id in (#{ids})" + get_comp_condition('t') + get_comp_condition('u')
+					" where u.id = t.user_id and u.id in (#{ids})" + eligible_projects('t') + get_comp_condition('t') + get_comp_condition('u')
 			sqlStr += " and t.spent_on between '#{from}' and '#{to}'" unless from.blank? && to.blank?
 			sqlStr += " group by startday, user_id order by startday desc, user_id ) as v1"
 		end
@@ -2355,7 +2471,7 @@ private
 				" left join " + teSqlStr
 		query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids})) tmp3 "
 		query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id as usrid from time_entries t, users u "
-		query = query + " where u.id = t.user_id and u.id in (#{ids}) " + get_comp_condition('t') + get_comp_condition('u') + " group by t.user_id ) vw on vw.usrid = tmp3.user_id "
+		query = query + " where u.id = t.user_id and u.id in (#{ids}) " + eligible_projects('t') + get_comp_condition('t') + get_comp_condition('u') + " group by t.user_id ) vw on vw.usrid = tmp3.user_id "
 		query = query + " left join users AS un on un.id = tmp3.user_id " + get_comp_condition('un')
 		query = query + getWhereCond(status)
 		return [selectStr, query]
@@ -2381,9 +2497,26 @@ private
 		query = query + "and tmp3.status <> 'e') "
 		query = query + "OR (tmp3.spent_on > '#{current_date}' and tmp3.status <> 'e'))) "
 		if !status.blank?
-			query += " and tmp3.status in ('#{status.join("','")}') "
+			selected_statuses = Array(status).map(&:to_s) & %w[e n r s a]
+			query += selected_statuses.empty? ? ' and 1=0 ' : " and tmp3.status in ('#{selected_statuses.join("','")}') "
 		end
 		query
+	end
+
+	# Accepts users exposed by the browser's selected project or group filter.
+	def permitted_list_user?(user_id)
+		return true if user_id.blank?
+		return false unless user_id.to_s.match?(/\A\d+\z/)
+		return true if user_id.to_i == 0 || user_id.to_i == User.current.id
+		return true if validateERPPermission('A_TE_PRVLG')
+		(@members || []).any? { |member| member[1].to_i == user_id.to_i }
+	end
+
+	# Limits another user's list totals to projects visible in the selected filter.
+	def eligible_projects(table_alias)
+		return '' if @list_project_ids.nil?
+		ids = @list_project_ids.map(&:to_i)
+		" and #{table_alias}.project_id in (#{ids.empty? ? '-1' : ids.join(',')}) "
 	end
 
 	def getAllWeekSql(from, to)
@@ -2455,7 +2588,7 @@ private
 	end
 
 	def delete(ids)
-		TimeEntry.delete(ids)
+		TimeEntry.delete(ids) == Array(ids).length
 	end
 
 	def findTEEntries(ids)

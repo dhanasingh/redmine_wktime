@@ -3,15 +3,54 @@ api.wk_time do
   api.name @user.name
   api.startday controller.getSheetView == 'I' ? @selectedDate : @startday
   api.status statusString(@wktime.status) unless @wktime.nil?
+  api.status_code @wktime.status unless @wktime.nil?
+  api.locked isLocked(@startday)
+  api.can_edit controller.can_edit_sheet?
+  api.can_approve controller.can_approve_sheet?
+  api.can_reject controller.can_approve_sheet?
+  api.can_unapprove controller.can_unapprove_sheet?
+  api.array :non_working_days do
+    (Setting.non_working_week_days || []).each { |day| api.non_working_day day.to_s }
+  end
+  api.array :holidays do
+    getWdayForPublicHday(@startday).each { |day| api.holiday day.to_s }
+  end
+  api.default_work_time (Setting.plugin_redmine_wktime['wktime_default_work_time'].presence || 8).to_i
+  if controller.getSheetView != 'I'
+    api.array :users do
+      (@users || []).each { |name, id| api.user(:value => id, :label => name) }
+    end
+  end
   api.total @wktime.hours unless @wktime.nil?
   if !@wktime.nil? && !@wktime.notes.blank? && @wktime.status == 'r'
 	api.notes @wktime.notes
   end
   render_api_custom_values @wktime.nil? ? Wktime.new.custom_field_values : @wktime.custom_field_values, api
+
+  row_cf_ids = [Setting.plugin_redmine_wktime['wktime_enter_cf_in_row1'],
+                Setting.plugin_redmine_wktime['wktime_enter_cf_in_row2']].reject(&:blank?).collect(&:to_i)
+  api.array :time_entry_custom_fields do
+    (@new_custom_field_values || []).each do |custom_value|
+      cf = custom_value.custom_field
+      api.time_entry_custom_field do
+        api.id cf.id
+        api.name cf.name
+        api.field_format cf.field_format
+        api.is_required cf.is_required
+        api.multiple cf.multiple?
+        api.default_value cf.default_value
+        api.in_row row_cf_ids.include?(cf.id)
+        api.array :possible_values do
+          (cf.possible_values || []).each { |value| api.possible_value value }
+        end
+      end
+    end
+  end
   api.array :time_entries do
 	  @entries.each do |time_entry|
 		api.time_entry do
 		  api.id time_entry.id
+		  api.approved time_entry.wkstatus&.status == 'a'
 		  api.project(:id => time_entry.project_id, :name => time_entry.project.name) unless time_entry.project.nil?
 		  api.issue(:id => time_entry.issue_id, :name => time_entry.issue.subject) unless time_entry.issue.nil?
 		  api.user(:id => time_entry.user_id, :name => time_entry.user.name) unless time_entry.user.nil?
@@ -20,6 +59,11 @@ api.wk_time do
 			api.spent_for_id time_entry.spent_for.id if time_entry.spent_for.present?
 		  api.comments time_entry.comments
 		  api.spent_on time_entry.spent_on
+      if time_entry.attachments.any?
+        api.array :attachments do
+          time_entry.attachments.each { |attachment| render_api_attachment(attachment, api) }
+        end
+      end
       if time_entry.spent_for.present?
         api.spentFor(id: time_entry.spent_for.id, s_longitude: time_entry.spent_for.s_longitude, s_latitude: time_entry.spent_for.s_latitude, e_longitude: time_entry.spent_for.e_longitude, e_latitude: time_entry.spent_for.e_latitude, spent_on_time: time_entry.spent_for.spent_on_time, spent_for_type: time_entry.spent_for.spent_for_type, spent_for_id: time_entry.spent_for.spent_for_id, invoice_item_id: time_entry.spent_for.invoice_item_id)
       end
