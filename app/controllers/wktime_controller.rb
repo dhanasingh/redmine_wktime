@@ -2273,7 +2273,8 @@ private
 		startday ||= Date.today
 		@selectedDate = startday
 		if api_request? && params[:sheet_view].blank?
-			@selectedDate = params[:"wk_#{teName}"].try(:[], :selected_date).to_s.to_date
+			selected_date = params[:"wk_#{teName}"].try(:[], :selected_date)
+			@selectedDate = selected_date.to_s.to_date if selected_date.present?
 		end
 		@startday ||= getStartDay(startday)
 		@user ||= user_id.present? ? User.unscoped.find(user_id) : User.unscoped.current
