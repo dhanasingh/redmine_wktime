@@ -80,9 +80,9 @@ class ErpmineMcpHook < Redmine::Hook::Listener
     ['get_expense', :get, '/wkexpense/edit.json',
      'Get one expense sheet with its editable expense entries. query: user_id, startday (YYYY-MM-DD, the first day of the sheet period).'],
     ['create_expense_entries', :post, '/wkexpense/update.json',
-     'Add expense entries to a user\'s expense sheet. body {"user_id", "startday", "wktime_save": 1, "wk_expense_entries": [{"project": {"id"}, "issue": {"id"}, "activity": {"id"}, "spent_on", "amount", "comments"}]}. Every entry needs an activity — take its id from list_loggable_activities and stop with an error if that returns none. The user must be a member of the project — check list_project_memberships and stop with an error if they are not. Omit each entry\'s "id" to create it. Send "wktime_submit": 1 instead of "wktime_save" to submit the sheet for approval.'],
+     'Add expense entries to a user\'s expense sheet. body {"user_id", "startday", "wktime_save": 1, "wk_expense_entries": [{"project": {"id"}, "issue": {"id"}, "activity": {"id"}, "spent_on", "amount", "comments"}]}. Before presenting the approval preview, every entry must have an issue: call search_loggable_issues with user_id, project_id and the expense description/type as term (for example, "bus"), use the matching issue id, and ask the user to choose an issue if there is no unambiguous match. Never omit issue or send a blank issue id. Every entry also needs an activity — take its id from list_loggable_activities and stop with an error if that returns none. The user must be a member of the project — check list_project_memberships and stop with an error if they are not. Omit each entry\'s "id" to create it. Send "wktime_submit": 1 instead of "wktime_save" to submit the sheet for approval.'],
     ['update_expense_entries', :post, '/wkexpense/update.json',
-     'Update expense entries on an existing expense sheet. Same body as create_expense_entries, including the activity and project-membership rules, but each entry carries the "id" returned by get_expense. Entries omitted from the array are removed from the sheet, so send the full set of rows for the period.'],
+     'Update expense entries on an existing expense sheet. Same body and required issue-resolution, activity and project-membership rules as create_expense_entries, but each entry carries the "id" returned by get_expense. Never omit issue or send a blank issue id. Entries omitted from the array are removed from the sheet, so send the full set of rows for the period.'],
 
     # --- HR — employee master (wkuser) ----------------------------------
     ['list_employees', :get, '/wkuser.json',
@@ -102,7 +102,7 @@ class ErpmineMcpHook < Redmine::Hook::Listener
 
     # --- HR — leave requests (wkleaverequest) ---------------------------
     ['list_leave_requests', :get, '/wkleaverequest.json',
-     'List leave requests with their dates, leave type and approval status. query: user_id, group_id, leave_type, lveStatus, period_type, period, from, to, offset, limit.'],
+     'List leave requests with their dates, leave type and approval status. query: user_id, group_id, leave_type, lveStatus, period_type, period, from, to, submitted_from, submitted_to, offset, limit. from/to filter the requested leave start date; submitted_from/submitted_to filter when the request was submitted (YYYY-MM-DD). For requests submitted today, send both submitted_from and submitted_to as today and omit from/to.'],
     ['get_leave_request', :get, '/wkleaverequest/edit.json',
      'Get one leave request with its editable fields, plus the leave types and available leave hours for the requester. query: id.'],
     ['create_leave_request', :post, '/wkleaverequest/save.json',

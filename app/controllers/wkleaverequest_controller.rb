@@ -42,6 +42,16 @@ class WkleaverequestController < WkbaseController
     entries = entries.groupUser(session[controller_name][:user_id]) if session[controller_name].try(:[], :user_id).present? && session[controller_name].try(:[], :user_id) != "0"
     entries = entries.leaveReqStatus(session[controller_name][:lveStatus]) if session[controller_name].try(:[], :lveStatus).present?
     entries = entries.dateFilter(@from, @to) if !@from.blank? && !@to.blank?
+    submitted_from = parse_leave_request_date(session[controller_name].try(:[], :submitted_from))
+    submitted_to = parse_leave_request_date(session[controller_name].try(:[], :submitted_to))
+    if submitted_from
+      from_time = WkLeaveReq.date_for_user_time_zone(submitted_from.year, submitted_from.month, submitted_from.day)
+      entries = entries.where("wk_leave_reqs.created_at >= ?", from_time.beginning_of_day)
+    end
+    if submitted_to
+      to_time = WkLeaveReq.date_for_user_time_zone(submitted_to.year, submitted_to.month, submitted_to.day)
+      entries = entries.where("wk_leave_reqs.created_at <= ?", to_time.end_of_day)
+    end
     entries = entries.reorder(sort_clause)
     @leave_count = entries.length
     @leave_pages = Paginator.new @leave_count, per_page_option, params["page"]
@@ -178,8 +188,15 @@ class WkleaverequestController < WkbaseController
   end
 
 	def set_filter_session
-    filters = [:group_id, :user_id, :leave_type, :lveStatus, :period, :period_type, :from, :to]
+    filters = [:group_id, :user_id, :leave_type, :lveStatus, :period, :period_type, :from, :to,
+      :submitted_from, :submitted_to]
 		super(filters, {:from => @from, :to => @to})
+  end
+
+  def parse_leave_request_date(value)
+    Date.iso8601(value.to_s) if value.present?
+  rescue ArgumentError
+    nil
   end
 
   def retrieve_date_range
