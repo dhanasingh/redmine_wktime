@@ -659,7 +659,7 @@ end
 				tabs << {:name => 'wksurvey', :partial => 'wktime/tab_content', :label => :label_survey} if showSurvey
 				tabs <<	{name: 'wkskill', partial: 'wktime/tab_content', :label => :label_wk_skill} if showSkill
 				tabs << {:name => 'wkreferrals', :partial => 'wktime/tab_content', :label => :label_referrals} if isChecked("wktime_enable_referrals_module")
-				tabs << {:name => 'wkdevices', :partial => 'wktime/tab_content', :label => :label_wkdevices} if User.current.admin? || validateERPPermission('A_DEVICE')
+				tabs << {:name => 'wkdevices', :partial => 'wktime/tab_content', :label => :label_wkdevices} if validateERPPermission('A_DEVICE')
 
 		elsif params[:controller] == "wkcrmdashboard" || params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact" || params[:controller] == "wksalesquote"
 			tabs = [
