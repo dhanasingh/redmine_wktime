@@ -101,6 +101,11 @@ TimeEntry.class_eval do
 	has_many :attachments, -> {where(container_type: "TimeEntry")}, class_name: "Attachment", foreign_key: "container_id", dependent: :destroy
 	accepts_nested_attributes_for :spent_for, :attachments
 
+	# Files are readable wherever the time log shows the entry, and by timesheet admins.
+	def attachments_visible?(user=User.current)
+		visible?(user) || (user == User.current && Object.new.extend(WktimeHelper).validateERPPermission('A_TE_PRVLG'))
+	end
+
 	def attachments_editable?(user=User.current)
 		true
 	end

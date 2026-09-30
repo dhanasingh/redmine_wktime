@@ -1723,7 +1723,7 @@ private
 
 	def gatherEntries
  		entryHash = params[:time_entry]
-		@entries ||= Array.new
+		@entries = Array.new
 		custom_values = Hash.new
 		#setup
 		decimal_separator = l(:general_csv_decimal_separator)
@@ -1895,8 +1895,9 @@ private
 					end
 					teEntry.activity_id = entry[:activity][:id] if !entry[:activity].blank?
 					setValueForSpField(teEntry,(entry[:"#{spField}"].to_s),decimal_separator,entry)
-					@hrPerDay[entry[:spent_on]] = "#{@hrPerDay[entry[:spent_on]]}".to_f + (entry[:"#{spField}"].to_s).gsub(decimal_separator, '.').to_f
-					@total = @total + (entry[:"#{spField}"].to_s).gsub(decimal_separator, '.').to_f
+					spent = teEntry.send(spField).to_f
+					@hrPerDay[entry[:spent_on]] = "#{@hrPerDay[entry[:spent_on]]}".to_f + spent
+					@total = @total + spent
 					setSpentFor(entry, teEntry, [entry[:spent_for_id]], 0)
 					@entries << teEntry
 				end
