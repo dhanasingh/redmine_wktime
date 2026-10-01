@@ -157,14 +157,14 @@ module SendPatch::TimelogControllerPatch
 					else
 						errorMsg += validateMatterial(paramEntry)
 						if errorMsg.blank?
-							errorMsg += saveMatterial if params[:log_type] == 'M' || params[:log_type] == 'A' || params[:log_type] == @logType
+							errorMsg += (bulk_material_rows_present? ? save_bulk_material : saveMatterial) if params[:log_type] == 'M' || params[:log_type] == 'A' || params[:log_type] == @logType
 							errorMsg += saveExpense if params[:log_type] == 'E'
 							model = @modelEntry
 						end
 					end
 					if errorMsg.blank? && timeErrorMsg.blank?
 						model = model.blank? ? @time_entry : model
-						spentForModel = saveSpentFors(model)
+						spentForModel = bulk_material_rows_present? ? save_bulk_spent_fors : saveSpentFors(model)
 					end
 						#=====================
 					respond_to do |format|
@@ -198,9 +198,13 @@ module SendPatch::TimelogControllerPatch
 									else
 										redirect_to new_time_entry_path(options)
 									end
-								else
-									redirect_back_or_default project_time_entries_path(@time_entry.project)
-								end
+									else
+										if bulk_material_rows_present?
+											redirect_to project_time_entries_path(model.project)
+										else
+											redirect_back_or_default project_time_entries_path(@time_entry.project)
+										end
+									end
 							end
 							# ============= ERPmine_patch Redmine 7.0  =====================
 							else
@@ -276,9 +280,15 @@ module SendPatch::TimelogControllerPatch
 
 			def validateMatterial(paramEntry)
 				errorMsg = ""
-				# if paramEntry[:project_id].blank?
-				# 	errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_project_error) if params[:project_id].blank?
-				# end
+				if bulk_material_rows_present?
+					rows = bulk_material_rows
+					errorMsg = l(:error_item_not_available) if rows.empty?
+					rows.each do |row|
+						errorMsg += (errorMsg.blank? ? '' : '<br/>') + l(:label_selling_price_error) unless valid_bulk_price?(row['selling_price'])
+						errorMsg += (errorMsg.blank? ? '' : '<br/>') + material_quantity_error(row['quantity']) unless valid_material_quantity?(row['quantity'])
+					end
+					return errorMsg unless errorMsg.blank?
+				end
 				if paramEntry[:issue_id].blank?
 					errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_issue_error)
 				end
@@ -289,11 +299,14 @@ module SendPatch::TimelogControllerPatch
 					errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_activity_error)
 				end
 
-				if params[:product_sell_price].blank? && (params[:log_type] == 'M' || params[:log_type] == 'A' || params[:log_type] == @logType)
+				if !bulk_material_rows_present? && params[:product_sell_price].blank? && (params[:log_type] == 'M' || params[:log_type] == 'A' || params[:log_type] == @logType)
 					errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_selling_price_error)
 				end
-				if params[:product_quantity].blank? && (params[:log_type] == 'M' || params[:log_type] == 'A' || params[:log_type] == @logType)
+				if !bulk_material_rows_present? && params[:product_quantity].blank? && (params[:log_type] == 'M' || params[:log_type] == 'A' || params[:log_type] == @logType)
 					errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_quantity_error)
+				end
+				if !bulk_material_rows_present? && params[:product_quantity].present? && !valid_material_quantity?(params[:product_quantity]) && (params[:log_type] == 'M' || params[:log_type] == 'A' || params[:log_type] == @logType)
+					errorMsg = errorMsg + (errorMsg.blank? ? "" : "<br/>") + material_quantity_error(params[:product_quantity])
 				end
 				errorMsg
 			end
@@ -337,14 +350,14 @@ module SendPatch::TimelogControllerPatch
 				else
 					errorMsg = validateMatterial(paramEntry)
 					if errorMsg.blank?
-						errorMsg += saveMatterial if params[:log_type] == 'M' || params[:log_type] == 'A' || params[:log_type] == @logType
+						errorMsg += (bulk_material_rows_present? ? save_bulk_material : saveMatterial) if params[:log_type] == 'M' || params[:log_type] == 'A' || params[:log_type] == @logType
 						errorMsg += saveExpense if params[:log_type] == 'E'
 						model = @modelEntry
 					end
 				end
 				model = model.blank? ? @time_entry : model
 				if errorMsg.blank? && timeErrorMsg.blank?
-					spentForModel = saveSpentFors(model)
+					spentForModel = bulk_material_rows_present? ? save_bulk_spent_fors : saveSpentFors(model)
 				end
 				# =========================
 				respond_to do |format|
@@ -384,6 +397,119 @@ module SendPatch::TimelogControllerPatch
 			end
 
 	# ============= ERPmine_patch Redmine 7.0  =====================
+
+			def bulk_material_rows
+				raw_rows = params[:material_rows]
+				return [] if raw_rows.blank?
+
+				rows = raw_rows.respond_to?(:to_unsafe_h) ? raw_rows.to_unsafe_h.values : raw_rows.to_h.values
+				# Keep rows with a quantity or another field changed by the user.
+				rows.select { |row| row['quantity'].present? || row['entered'] == '1' }
+			end
+
+			def bulk_material_rows_present?
+				params[:bulk_material_entry].present?
+			end
+
+			def save_bulk_spent_fors
+				@bulk_material_entries.map { |entry| saveSpentFors(entry) }.last
+			end
+
+			def save_bulk_material
+				wklog_helper = Object.new.extend(WklogmaterialHelper)
+				entries = []
+				error_message = ''
+
+				WkMaterialEntry.transaction do
+					bulk_material_rows.each_with_index do |row, index|
+						inventory_id = row['inventory_item_id'].presence || row['product_item']
+						inventory_item = WkInventoryItem.lock.find_by(id: inventory_id)
+						quantity = row['quantity'].to_f
+						error_message = bulk_inventory_error(row, inventory_item, quantity)
+						raise ActiveRecord::Rollback if error_message.present?
+
+						# Shared custom fields belong only to the first saved bulk entry.
+						entry = build_bulk_material_entry(row, inventory_item, quantity, index.zero?)
+						unless entry.save
+							error_message = entry.errors.full_messages.join('<br>')
+							raise ActiveRecord::Rollback
+						end
+
+						wklog_helper.updateParentInventoryItem(inventory_item.id, quantity, nil) if params[:log_type] == 'M'
+						update_bulk_asset(row, inventory_item, entry)
+						save_bulk_serial_numbers(row, entry, wklog_helper)
+						entries << entry
+					end
+				end
+
+				return error_message if error_message.present?
+				@bulk_material_entries = entries
+				@modelEntry = entries.last
+				''
+			end
+
+			def bulk_inventory_error(row, inventory_item, quantity)
+				return l(:error_item_not_available) if inventory_item.blank?
+				return l(:error_item_not_available) unless valid_bulk_inventory_item?(row, inventory_item)
+				return l(:label_quantity_error) if quantity <= 0
+				return l(:error_product_qty_greater_avail_qty) if params[:log_type] == 'M' && quantity > inventory_item.available_quantity.to_f
+
+				''
+			end
+
+			def valid_bulk_inventory_item?(row, inventory_item)
+				expected_type = params[:log_type] == 'M' ? 'I' : params[:log_type]
+				product_id = inventory_item.product_item&.product_id
+				location_id = params[:material_grid_location_id]
+
+				product_id.to_s == row['product'].to_s &&
+					inventory_item.location_id.to_s == location_id.to_s &&
+					inventory_item.product_type.to_s == expected_type.to_s &&
+					inventory_item.available_quantity.to_f > 0 &&
+					WkLocation.permitted_final_location_ids.include?(inventory_item.location_id)
+			end
+
+			def valid_bulk_price?(value)
+				price = Float(value, exception: false)
+				price.present? && price.finite? && price >= 0
+			end
+
+			def valid_material_quantity?(value)
+				quantity = Float(value, exception: false)
+				quantity.present? && quantity.finite? && quantity > 0
+			end
+
+			def material_quantity_error(value)
+				return l(:label_quantity_error) if value.blank?
+
+				"#{l(:field_quantity)} #{I18n.t('errors.messages.not_a_number')}"
+			end
+
+			def build_bulk_material_entry(row, inventory_item, quantity, custom_field_values)
+				setEntries(WkMaterialEntry, nil, params[:wk_material_entry], custom_field_values: custom_field_values)
+				@modelEntry.inventory_item_id = inventory_item.id
+				@modelEntry.quantity = quantity
+				@modelEntry.selling_price = row['selling_price'].to_f
+				@modelEntry.uom_id = row['uom_id']
+				@modelEntry.currency = params[:log_type] == 'M' ? inventory_item.currency : Setting.plugin_redmine_wktime['wktime_currency']
+				@modelEntry
+			end
+
+			def update_bulk_asset(row, inventory_item, entry)
+				return unless params[:log_type] == 'A' || params[:log_type] == @logType
+
+				asset = inventory_item.asset_property
+				asset&.update!(matterial_entry_id: row['is_done'].present? && row['is_done'] != '0' ? nil : entry.id)
+			end
+
+			def save_bulk_serial_numbers(row, entry, wklog_helper)
+				serial_numbers = row['serial_numbers'].to_s.split(',').map(&:strip).reject(&:blank?)
+				return if serial_numbers.blank?
+
+				values = serial_numbers.map { |serial_number| { 'id' => '', 'serial_number' => serial_number } }
+				wklog_helper.saveConsumedSN(values, entry)
+			end
+
 			def saveMatterial
 				wklog_helper = Object.new.extend(WklogmaterialHelper)
 				wktime_helper = Object.new.extend(WktimeHelper)
@@ -398,7 +524,7 @@ module SendPatch::TimelogControllerPatch
 				else
 					inventoryItemObj = WkInventoryItem.find(params[:inventory_item_id].to_i) if !params[:inventory_item_id].blank?
 					if params[:log_type] == 'M' && !params[:inventory_item_id].blank?
-						inventoryObj = wklog_helper.updateParentInventoryItem(params[:inventory_item_id].to_i, params[:product_quantity].to_i, @modelEntry.quantity)
+						inventoryObj = wklog_helper.updateParentInventoryItem(params[:inventory_item_id].to_i, params[:product_quantity].to_f, @modelEntry.quantity)
 						inventoryId =  inventoryObj.id
 						currency =  inventoryObj.currency
 					else
@@ -407,7 +533,7 @@ module SendPatch::TimelogControllerPatch
 					end
 					if inventoryId.blank?
 						errorMsg += l(:error_item_not_available)
-					elsif params[:product_quantity].to_i > inventoryItemObj.available_quantity.to_i
+					elsif params[:product_quantity].to_f > inventoryItemObj.available_quantity.to_f
 						errorMsg += l(:error_product_qty_greater_avail_qty)
 					else
 						if params[:log_type] == "A" && params[:clock_action] == "S" && @modelEntry.spent_for.blank?
@@ -428,10 +554,12 @@ module SendPatch::TimelogControllerPatch
 						if params[:log_type] == 'A' || params[:log_type] == @logType
 							inventoryObj = WkInventoryItem.find(inventoryId.to_i)
 							@assetObj = inventoryObj.asset_property
-							if params[:matterial_entry_id].blank? ||(params[:is_done].blank? || params[:is_done] == "0")
-								@assetObj.matterial_entry_id = @modelEntry.id
+							# A checked Done box releases the asset.  Honor it for both
+							# new and existing entries so the value is retained on edit.
+							@assetObj.matterial_entry_id = if params[:is_done].present? && params[:is_done] != "0"
+								nil
 							else
-								@assetObj.matterial_entry_id = nil
+								@modelEntry.id
 							end
 							@assetObj.save
 						end
@@ -442,11 +570,14 @@ module SendPatch::TimelogControllerPatch
 				return errorMsg
 			end
 
-			def setEntries(model, id, params={})
+			def setEntries(model, id, params={}, custom_field_values: true)
 				if id.blank?
 					@modelEntry = model.new
 				else
 					@modelEntry = model.find(id.to_i)
+				end
+				if @modelEntry.respond_to?(:skip_wk_custom_field_values=)
+					@modelEntry.skip_wk_custom_field_values = !custom_field_values
 				end
 				projectId = Issue.find(params[:issue_id].to_i).project_id
 				@modelEntry.project_id = projectId
@@ -455,6 +586,9 @@ module SendPatch::TimelogControllerPatch
 				@modelEntry.comments =  params[:comments]
 				@modelEntry.activity_id =  params[:activity_id].to_i
 				@modelEntry.spent_on = params[:spent_on]
+				if custom_field_values && params[:custom_field_values].present?
+					@modelEntry.custom_field_values = params[:custom_field_values]
+				end
 			end
 
 			def saveExpense

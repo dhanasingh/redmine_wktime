@@ -672,6 +672,7 @@ en:
   label_org_over_head_price: Original Over Head Cost
   label_total_quantity: Total Quantity
   label_available_quantity: Available Quantity
+  label_avail_quantity: Avail. Qty
   label_model: Model
   label_attribute_group: Attribute Group
   label_product_catagory: Product Catagory

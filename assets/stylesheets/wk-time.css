@@ -2255,3 +2255,525 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+/* Product Entry bulk grid: a compact, responsive workspace for multi-line entry. */
+#material-grid-wrapper {
+  box-sizing: border-box;
+  margin: 16px 20px 12px 65px;
+  color: #243b5a;
+}
+
+#material-grid-wrapper .material-grid-card {
+  overflow: hidden;
+  border: 1px solid #c5d3e5;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(33, 70, 112, .08);
+}
+
+#material-grid-wrapper .material-grid-toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #dce6f2;
+  background: linear-gradient(135deg, #f8fbff 0%, #f2f7fd 100%);
+}
+
+#material-grid-wrapper .material-grid-location-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#material-grid-wrapper .material-grid-location-field label {
+  display: inline-block !important;
+  position: static !important;
+  float: none !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  overflow: visible !important;
+  color: #385170 !important;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left !important;
+  white-space: nowrap;
+}
+
+#material-grid-wrapper #material_grid_location_id {
+  min-width: 180px;
+  min-height: 36px;
+  box-sizing: border-box;
+  border: 1px solid #c4d3e6;
+  border-radius: 7px;
+  background: #fff;
+  color: #243b5a;
+}
+
+#material-grid-wrapper .material-grid-location-field .ui.dropdown {
+  width: 180px !important;
+  min-width: 180px !important;
+  min-height: 36px;
+  box-sizing: border-box;
+  padding-right: 34px !important;
+  overflow: visible !important;
+}
+
+#material-grid-wrapper .material-grid-location-field .ui.dropdown>.dropdown.icon {
+  display: block !important;
+  right: 11px !important;
+  opacity: .75 !important;
+}
+
+#material-grid-wrapper .material-grid-toolbar-actions,
+#material-grid-wrapper .material-grid-footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+#material-grid-wrapper .material-grid-add-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  box-sizing: border-box;
+  padding: 7px 12px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color .16s ease, border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+
+#material-grid-wrapper .material-grid-add-row:hover {
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+#material-grid-wrapper .material-grid-close {
+  width: 18px !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  min-height: 18px !important;
+  padding: 0 !important;
+  border: 1px solid #e5484d;
+  border-radius: 50%;
+  background: transparent;
+  color: #e5484d !important;
+  box-shadow: none;
+  font-family: Arial, sans-serif;
+  font-size: 15px !important;
+  font-weight: 600;
+  line-height: 1;
+}
+
+#material-grid-wrapper .material-grid-close:hover,
+#material-grid-wrapper .material-grid-close:focus {
+  border-color: #c9363b;
+  background: transparent;
+  color: #c9363b !important;
+}
+
+#material-grid-wrapper .material-grid-close svg,
+#bulk-entry-toggle svg {
+  stroke-width: 3px;
+}
+
+#material-grid-wrapper .material-grid-table-scroll {
+  overflow-x: auto;
+}
+
+#material-grid-wrapper #material-grid {
+  width: 100%;
+  min-width: 980px;
+  margin: 0;
+  border: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  table-layout: fixed;
+}
+
+#material-grid-wrapper #material-grid .material-grid-product-column {
+  width: 16%;
+}
+
+#material-grid-wrapper #material-grid .material-grid-product-item-column {
+  width: 21%;
+}
+
+#material-grid-wrapper #material-grid .material-grid-serial-number-column {
+  width: 13%;
+}
+
+#material-grid-wrapper #material-grid .material-grid-available-quantity-column {
+  width: 8%;
+}
+
+#material-grid-wrapper #material-grid .material-grid-quantity-column {
+  width: 16%;
+  white-space: nowrap;
+}
+
+#material-grid-wrapper #material-grid .material-grid-price-column {
+  width: 10%;
+}
+
+#material-grid-wrapper #material-grid .material-grid-total-column {
+  width: 8%;
+}
+
+#material-grid-wrapper #material-grid .material-grid-done-column {
+  width: 4%;
+}
+
+#material-grid-wrapper #material-grid .material-grid-action-column {
+  width: 4%;
+}
+
+#material-grid-wrapper #material-grid thead th {
+  padding: 13px 11px;
+  border-right: 1px solid #dce6f2;
+  border-bottom: 1px solid #b9cbe0;
+  background: #f7faff;
+  color: #304b6d;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: left;
+  white-space: nowrap;
+}
+
+#material-grid-wrapper #material-grid thead th:last-child,
+#material-grid-wrapper #material-grid tbody td:last-child {
+  border-right: 0;
+}
+
+#material-grid-wrapper .material-grid-required {
+  margin-left: 2px;
+  color: #e5484d;
+}
+
+#material-grid-wrapper #material-grid .material-grid-serial-note {
+  display: block;
+  margin-top: 3px;
+  color: #60748f;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+#material-grid-wrapper #material-grid tbody td {
+  padding: 10px 11px;
+  border-right: 1px solid #e0e8f2;
+  border-bottom: 1px solid #d5e0ed;
+  background: #fff;
+  color: #243b5a;
+  font-size: 12px;
+  vertical-align: middle;
+}
+
+#material-grid-wrapper #material-grid tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+#material-grid-wrapper #material-grid tbody tr:hover td {
+  background: #f8fbff;
+}
+
+#material-grid-wrapper #material-grid .material-grid-product,
+#material-grid-wrapper #material-grid .material-grid-product-item {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 28px !important;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23243b5a' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");
+  background-position: right 9px center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+#material-grid-wrapper #material-grid input,
+#material-grid-wrapper #material-grid select,
+#material-grid-wrapper #material-grid textarea {
+  min-height: 34px;
+  max-width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #c6d4e6;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #243b5a;
+  font-family: inherit;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+#material-grid-wrapper #material-grid textarea {
+  min-height: 36px;
+  resize: vertical;
+}
+
+#material-grid-wrapper #material-grid input:focus,
+#material-grid-wrapper #material-grid select:focus,
+#material-grid-wrapper #material-grid textarea:focus {
+  border-color: #4f96df;
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(79, 150, 223, .16);
+}
+
+#material-grid-wrapper #material-grid .available-quantity,
+#material-grid-wrapper #material-grid .material-row-total {
+  color: #203d62;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+#material-grid-wrapper #material-grid .material-grid-currency {
+  white-space: nowrap;
+}
+
+#material-grid-wrapper #material-grid .material-grid-remaining-quantity {
+  display: inline-block;
+  margin-left: 6px;
+  color: #dc3d43;
+  font-size: .78em;
+  font-weight: 700;
+}
+
+#materialtable .material-quantity-uom {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+#materialtable .material-uom-label,
+#material-grid-wrapper #material-grid .material-grid-uom-label {
+  display: inline-block;
+  margin-left: 8px;
+  color: #536b88;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Use a stable four-column layout so theme styles cannot compress labels into values. */
+#materialtable {
+  width: 800px;
+  table-layout: fixed;
+  border-collapse: separate;
+}
+
+/* Match Log Type and Spent For to the first label/value pair in the material form. */
+.material-log-header {
+  width: 430px;
+  margin-left: 65px;
+  table-layout: fixed;
+  border-collapse: separate;
+}
+
+.material-log-header th {
+  width: 110px;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.material-log-header td {
+  box-sizing: border-box;
+  padding-left: 0;
+  vertical-align: middle;
+}
+
+#materialtable .material-left-label-column {
+  width: 110px;
+}
+
+#materialtable .material-left-value-column {
+  width: 320px;
+}
+
+#materialtable .material-right-label-column {
+  width: 190px;
+}
+
+#materialtable .material-right-value-column {
+  width: 180px;
+}
+
+#materialtable tr > th,
+#materialtable tr > td {
+  box-sizing: border-box;
+  vertical-align: middle;
+}
+
+/* Keep the product-item selector and its actions on one aligned row. */
+#materialtable .material-product-item-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+#materialtable .material-product-item-controls #product_item,
+#materialtable .material-product-item-controls .material-item-details-link {
+  flex: 0 0 auto;
+}
+
+#materialtable .material-item-details-link {
+  white-space: nowrap;
+}
+
+#materialtable tr > th:nth-child(3) {
+  padding-left: 40px;
+  padding-right: 12px;
+  white-space: nowrap;
+}
+
+#materialtable tr > td.material-single-value {
+  padding-left: 20px !important;
+  white-space: nowrap;
+}
+
+/* Align read-only amounts with the right-aligned quantity and price inputs. */
+#materialtable td.material-single-amount-value #available_quantity {
+  position: relative;
+  left: 34px;
+}
+
+#materialtable td.material-single-total-value #total {
+  position: relative;
+  left: 54px;
+}
+
+/* Currency, price, and the asset rate unit must remain on one row. */
+#materialtable .material-sell-price-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  white-space: nowrap;
+}
+
+#materialtable .material-sell-price-line #spcurrency {
+  display: inline-block;
+  min-width: 12px;
+  text-align: right;
+}
+
+#materialtable .material-sell-price-line .material-unit-text {
+  display: inline-block;
+  float: none !important;
+  margin-left: 0;
+  padding-left: 0 !important;
+}
+
+/* Also reset the older single-entry markup while a browser has it cached. */
+#materialtable #unittext {
+  display: inline-block;
+  float: none !important;
+  width: auto !important;
+  margin-left: 8px !important;
+  padding-left: 0 !important;
+}
+
+/* Make the single-entry bulk toggle easier to spot and activate. */
+#bulk-entry-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+#bulk-entry-toggle svg {
+  width: 24px;
+  height: 24px;
+}
+
+#material-grid-wrapper #material-grid .material-grid-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 6px;
+  color: #1670c8;
+  text-decoration: none;
+}
+
+#material-grid-wrapper #material-grid .material-grid-remove:hover,
+#material-grid-wrapper #material-grid .material-grid-remove:focus {
+  background: #eaf4ff;
+  color: #0d579f;
+  text-decoration: none;
+}
+
+#material-grid-wrapper .material-grid-add-row-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 8px 14px;
+  background: #fbfdff;
+}
+
+#material-grid-wrapper .material-grid-footer {
+  display: flex !important;
+  width: 100%;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  box-sizing: border-box;
+  border-top: 1px solid #dce6f2;
+}
+
+#material-grid-wrapper .material-grid-add-row {
+  flex: 0 0 auto !important;
+  padding: 7px 4px;
+  color: #1769c2;
+  white-space: nowrap;
+}
+
+#material-grid-wrapper .material-grid-footer>.material-grid-footer-add-row {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+
+#material-grid-wrapper .material-grid-add-row:hover,
+#material-grid-wrapper .material-grid-add-row:focus {
+  color: #0f58a7;
+}
+
+@media (max-width: 760px) {
+  #material-grid-wrapper {
+    margin: 12px 0;
+  }
+
+  #material-grid-wrapper .material-grid-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  #material-grid-wrapper .material-grid-location-field {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  #material-grid-wrapper #material_grid_location_id {
+    width: 100%;
+  }
+
+  #material-grid-wrapper .material-grid-toolbar-actions {
+    justify-content: flex-end;
+  }
+}

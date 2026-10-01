@@ -412,7 +412,9 @@ function projChanged(projDropdown, userid, needBlankOption) {
 function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, blankText, blankval = "") {
 	var items = itemStr.split('\n');
 	var i, index, val, text, start;
-	if (dropdown != null && dropdown.options != null) {
+	// An AJAX response can arrive after its dependent row/dropdown was removed.
+	// Do not revive a detached Semantic UI dropdown in that case.
+	if (dropdown != null && dropdown.options != null && document.documentElement.contains(dropdown)) {
 		dropdown.options.length = 0;
 		if (needBlankOption) {
 			dropdown.options[0] = new Option(blankText, blankval, false, false)
@@ -435,19 +437,28 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, bla
 					text, val, false, val == userid);
 			}
 		}
-		// Re-sync the Semantic UI dropdown widget (sidebar-white theme) after its
-		// <option>s are replaced/cleared via AJAX, so it doesn't keep stale text
-		// (e.g. a previously selected apartment) when a dependent dropdown reloads
-		// or goes empty. No-op on themes without the Semantic dropdown wrapper.
+		// Re-sync Semantic UI after the native options change. Rebuilding its wrapper
+		// while its menu is transitioning detaches the animated menu and produces
+		// "Element is no longer attached to DOM" in the browser console.
 		if (window.jQuery && jQuery.fn.dropdown) {
-			var $sel = jQuery(dropdown), $wrap = $sel.parent();
+			var $sel = jQuery(dropdown), $wrap = $sel.closest('.ui.dropdown');
+			// Sidebar themes may render the enhanced dropdown next to, rather
+			// than around, the native select.
+			if (!$wrap.length) $wrap = $sel.siblings('.ui.dropdown').first();
 			if ($sel.length && $wrap.hasClass('dropdown')) {
-				$sel.removeClass('ui dropdown');
-				$sel.insertBefore($wrap);
-				$wrap.remove();
-				$sel.dropdown({ placeholder: false });
+				$wrap.dropdown('refresh');
+				if (dropdown.options.length && dropdown.value) {
+					$wrap.dropdown('set selected', dropdown.value);
+				} else {
+					// An empty native select must also clear the sidebar theme's
+					// generated menu and visible label.
+					$wrap.children('.menu').empty();
+					$wrap.children('.text').empty().addClass('default');
+					$wrap.removeClass('active visible');
+				}
 			}
 		}
+		if (window.jQuery) jQuery(dropdown).trigger('options:updated');
 	}
 }
 
@@ -628,9 +639,19 @@ function productCategoryChanged(changeDDId, uid, logType) {
 		url: productModifyUrl,
 		type: 'get',
 		data: { ptype: changeDDId, log_type: logType, product_id: changeDD.value },
-		success: function (data) { updateUserDD(data, changeDD, userid, needBlankOption, false, ""); },
+		success: function (data) {
+			// Product IDs must not be matched to the current user ID. Leaving the
+			// selection unset makes the browser and Semantic UI choose the first
+			// available Asset/Rental Asset product consistently.
+			updateUserDD(data, changeDD, null, needBlankOption, false, "");
+			// Load dependent items only after the new product options and their
+			// Semantic UI display have been synchronized.
+			if (changeDD.options.length) {
+				productChanged('product', 'product_item', uid, true, false, 'log_type', 'location_id');
+			}
+		},
 		beforeSend: function () { $this.addClass('ajax-loading'); },
-		complete: function () { productChanged('product', 'product_item', uid, true, false, 'log_type'); $this.removeClass('ajax-loading'); }
+		complete: function () { $this.removeClass('ajax-loading'); }
 	});
 }
 
@@ -670,28 +691,57 @@ function productChanged(curDDId, changeDDId, uid, changeAdditionalDD, needBlank,
 	if (locationId != null) {
 		locId = document.getElementById(locationId).value;
 	}
+	// A product/log-type change can issue another request before this one has
+	// finished (notably when switching between single and bulk material entry).
+	// Keep one request per target dropdown and only let the latest request
+	// update it. Without this, a late Asset response can replace Material items.
+	var requestedValue = currDD.value;
+	var requestedLogType = logType;
+	var previousRequest = jQuery(changeDD).data('productChangedRequest');
+	if (previousRequest && previousRequest.readyState !== 4) previousRequest.abort();
+	var isCurrentRequest = false;
 	userid = uid;
 	var $this = $(this);
-	$.ajax({
+	var request = $.ajax({
 		url: productModifyUrl,
 		type: 'get',
 		data: { id: currDD.value, ptype: changeDDId, product_id: productId, update_DD: updateDD, log_type: logType, location_id: locId },
-		success: function (data) { updateUserDD(data, changeDD, userid, needBlankOption, false, ""); },
+		success: function (data) {
+			var currentLogType = logTypeId != null ? document.getElementById(logTypeId).value : null;
+			isCurrentRequest = currDD.value == requestedValue &&
+				(logTypeId == null || (currentLogType == 'M' ? 'I' : currentLogType) == requestedLogType) &&
+				jQuery(changeDD).data('productChangedRequest') === request;
+			if (!isCurrentRequest) return;
+			updateUserDD(data, changeDD, userid, needBlankOption, false, "");
+			// On the Log Material form, dependent product items should immediately
+			// use the first available inventory item. An empty response remains an
+			// empty dropdown, which is the only time a blank value is shown.
+			if (changeDDId === 'product_item' && logTypeId != null && changeDD.options.length) {
+				changeDD.selectedIndex = 0;
+				if (window.jQuery && jQuery.fn.dropdown) {
+					var $select = jQuery(changeDD), $dropdown = $select.closest('.ui.dropdown');
+					if (!$dropdown.length) $dropdown = $select.siblings('.ui.dropdown').first();
+					if ($dropdown.length) $dropdown.dropdown('set selected', changeDD.value);
+				}
+			}
+		},
 		beforeSend: function () { $this.addClass('ajax-loading'); },
 		complete: function () {
-			if (changeAdditionalDD && changeDDId == 'brand_id') {
+			if (jQuery(changeDD).data('productChangedRequest') === request) jQuery(changeDD).removeData('productChangedRequest');
+			if (isCurrentRequest && changeAdditionalDD && changeDDId == 'brand_id') {
 				productChanged('brand_id', 'product_model_id', uid, false, true, null);
 				productChanged('product_id', 'product_attribute_id', uid, false, true, null);
 			}
-			else if (changeAdditionalDD && logTypeId != null) {
+			else if (isCurrentRequest && changeAdditionalDD && logTypeId != null) {
 				productItemChanged('product_item', 'product_quantity', 'product_cost_price', 'product_sell_price', uid, 'log_type');
 			}
-			else if (changeAdditionalDD && (changeDDId.includes("product_item_id"))) {
+			else if (isCurrentRequest && changeAdditionalDD && (changeDDId.includes("product_item_id"))) {
 				deliveryitemChanged('product_item_id' + rowNum);
 			}
 			$this.removeClass('ajax-loading');
 		}
 	});
+	jQuery(changeDD).data('productChangedRequest', request);
 }
 
 function productAssetChanged(curDDId, changeDDId, uid, needBlank) {
@@ -715,16 +765,33 @@ function productUOMChanged(curDDId, changeDDId, uid) {
 	var needBlankOption = false;
 	var changeDD = document.getElementById(changeDDId);
 	var productDD = document.getElementById('product');
+	var requestedValue = currDD.value;
+	var $uomTarget = jQuery(changeDD);
+	var previousRequest = $uomTarget.data('productUOMChangedRequest');
+	if (previousRequest && previousRequest.readyState !== 4) previousRequest.abort();
 	userid = uid;
 	var $this = $(this);
-	$.ajax({
+	var request = $.ajax({
 		url: productModifyUrl,
 		type: 'get',
 		data: { id: currDD.value, ptype: changeDDId, product_id: productDD.value },
-		success: function (data) { updateUserDD(data, changeDD, userid, needBlankOption, false, ""); },
+		success: function (data) {
+			if (currDD.value != requestedValue || $uomTarget.data('productUOMChangedRequest') !== request) return;
+			if (changeDD && changeDD.type === 'hidden' && $('#uom_label').length) {
+				var uom = (data || '').trim().split(',');
+				changeDD.value = uom[0] || '';
+				$('#uom_label').text(uom.slice(1).join(',') || '');
+			} else {
+				updateUserDD(data, changeDD, userid, needBlankOption, false, "");
+			}
+		},
 		beforeSend: function () { $this.addClass('ajax-loading'); },
-		complete: function () { $this.removeClass('ajax-loading'); }
+		complete: function () {
+			if ($uomTarget.data('productUOMChangedRequest') === request) $uomTarget.removeData('productUOMChangedRequest');
+			$this.removeClass('ajax-loading');
+		}
 	});
+	$uomTarget.data('productUOMChangedRequest', request);
 }
 
 function productItemChanged(curDDId, qtyDD, cpDD, spDD, uid, logTypeId) {
@@ -743,12 +810,25 @@ function productItemChanged(curDDId, qtyDD, cpDD, spDD, uid, logTypeId) {
 			logType = logTypeVal
 		}
 	}
+	// Do not apply details for an item that belonged to the previous log type
+	// or product selection. This is the companion guard for productChanged.
+	var requestedValue = currDD.value;
+	var requestedLogType = logType;
+	var $itemSelect = jQuery(currDD);
+	var previousRequest = $itemSelect.data('productItemChangedRequest');
+	if (previousRequest && previousRequest.readyState !== 4) previousRequest.abort();
+	var isCurrentRequest = false;
 
-	$.ajax({
+	var request = $.ajax({
 		url: productModifyUrl,
 		type: 'get',
 		data: { id: currDD.value, ptype: 'inventory_item', product_id: productDD.value, log_type: logType },
 		success: function (data) {
+			var currentLogType = logTypeId != null ? document.getElementById(logTypeId).value : null;
+			isCurrentRequest = currDD.value == requestedValue &&
+				(logTypeId == null || (currentLogType == 'M' ? 'I' : currentLogType) == requestedLogType) &&
+				$itemSelect.data('productItemChangedRequest') === request;
+			if (!isCurrentRequest) return;
 			if (logType == 'I' && data != "") {
 				var pctData = data.split(',');
 				var product_serial_numbers = [];
@@ -760,8 +840,13 @@ function productItemChanged(curDDId, qtyDD, cpDD, spDD, uid, logTypeId) {
 			setProductLogAttribute(data, qtyDD, cpDD, spDD, logType);
 		},
 		beforeSend: function () { $this.addClass('ajax-loading'); },
-		complete: function () { productUOMChanged(curDDId, 'uom_id', uid); $this.removeClass('ajax-loading'); }
+		complete: function () {
+			if ($itemSelect.data('productItemChangedRequest') === request) $itemSelect.removeData('productItemChangedRequest');
+			if (isCurrentRequest) productUOMChanged(curDDId, 'uom_id', uid);
+			$this.removeClass('ajax-loading');
+		}
 	});
+	$itemSelect.data('productItemChangedRequest', request);
 }
 
 function setProductLogAttribute(data, qtyDD, cpDD, spDD, logType) {
@@ -779,7 +864,7 @@ function setProductLogAttribute(data, qtyDD, cpDD, spDD, logType) {
 		document.getElementById(spDD).value = spVal;
 		document.getElementById('inventory_item_id').value = pctData[0];
 		document.getElementById('total').innerHTML = pctData[3] + (parseFloat(pctData[4] * 1).toFixed(2));
-		if (logType != 'I') {
+		if (['A', 'RA'].includes(document.getElementById('log_type').value)) {
 			document.getElementById('unittext').innerHTML = pctData[5];
 		}
 		else {
@@ -796,6 +881,11 @@ function setProductLogAttribute(data, qtyDD, cpDD, spDD, logType) {
 		document.getElementById('inventory_item_id').value = "";
 		document.getElementById('total').innerHTML = "";
 		document.getElementById('unittext').innerHTML = "";
+		$('#available_quantity, #cpcurrency, #spcurrency, #uom_label').empty();
+		$('#uom_id').val('');
+		$('#product_serial_numbers').val('[]');
+		$('#material_sn').val('');
+		$('#warn_serial_number').hide();
 	}
 
 }
@@ -831,9 +921,15 @@ function hideLogDetails(uid) {
 	var entry = 'time_entry'
 	if (logType == 'E') entry = 'wk_expense_entry';
 	if (['M', 'A', 'RA'].includes(logType)) entry = 'wk_material_entry';
-	$('input[name*="' + oldLogType + '"], select[name^="' + oldLogType + '"]').each(function () {
-		let name = (this.name).replace(oldLogType, entry);
-		let id = (this.id).replace(oldLogType, entry);
+	$('input, select, textarea').filter(function () {
+		return this.name && (
+			this.name.indexOf(oldLogType + '[') === 0 ||
+			this.name.indexOf('time_entry[custom_field_values]') === 0
+		);
+	}).each(function () {
+		const sourceEntry = this.name.indexOf('time_entry[custom_field_values]') === 0 ? 'time_entry' : oldLogType;
+		let name = (this.name).replace(sourceEntry, entry);
+		let id = (this.id).replace(sourceEntry, entry);
 		this.name = name;
 		this.id = id;
 	})
@@ -873,8 +969,10 @@ function hideLogDetails(uid) {
 		if (document.getElementById("spent_for_tbl")) {
 			document.getElementById("spent_for_tbl").style.display = 'block';
 		}
-		document.getElementById("materialtable").style.display = 'block';
-		if (uid != null) {
+		document.getElementById("materialtable").style.display = 'table';
+		// The material-log view owns its product/item refresh so that the
+		// single-entry and bulk controls cannot race each other.
+		if (uid != null && !document.getElementById('material-grid-wrapper')) {
 			productCategoryChanged('product', uid, logType);
 		}
 		if (logType == 'A') $('#issuelogtable').show();
