@@ -1667,11 +1667,16 @@ function getPermissionProjectIds(fieldId){
 	return value.match(/\d+/g) || [];
 }
 
+// Permission checks only narrow what the server allowed: a link or cell rendered
+// disabled (locked sheet, billed or paid entry) stays disabled.
 function setPermissionLinkState(link, enabled){
 	if(!link || link.length === 0){
 		return;
 	}
-	if(enabled){
+	if(link.data('serverDisabled') === undefined){
+		link.data('serverDisabled', link.hasClass('disabled'));
+	}
+	if(enabled && !link.data('serverDisabled')){
 		link.removeClass('disabled').css('pointer-events', '').off('click.wktimePermission');
 	}else{
 		link.addClass('disabled').css('pointer-events', 'none').on('click.wktimePermission', function(event){
@@ -1687,9 +1692,13 @@ function setPermissionCellState(cellContainer, row, enabled){
 	var detailImage = cellContainer.find("img[name='custfield_img"+row+"[]']").first();
 	var detailLink = detailImage.parent('a');
 
-	hourField.prop('disabled', !enabled);
+	if(hourField.data('serverDisabled') === undefined){
+		hourField.data('serverDisabled', hourField.prop('disabled'));
+	}
+	var cellEnabled = enabled && !hourField.data('serverDisabled');
+	hourField.prop('disabled', !cellEnabled);
 	if(disabledField.length > 0){
-		disabledField.val(!enabled);
+		disabledField.val(!cellEnabled);
 	}
 	setPermissionLinkState(detailLink, enabled);
 }

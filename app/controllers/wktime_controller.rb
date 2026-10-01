@@ -2328,12 +2328,12 @@ private
 		end
 		if !u_id.blank?	&& u_id.to_i != 0
 			@user ||= User.find(u_id)
-			if validateERPPermission('A_TE_PRVLG') ||
-				(isSupervisorApproval && isSupervisorForUser(@user.id))
-				@logtime_projects = Project.where(Project.allowed_to_condition(@user, :log_time)).order('name')
-			elsif User.current == @user
+			if User.current == @user
 				@logtime_projects ||= Project.where(Project.allowed_to_condition(User.current, :log_time)).order('name')
 				@edit_own_logs = Project.where(Project.allowed_to_condition(User.current, :edit_own_time_entries)).order('name')
+			elsif validateERPPermission('A_TE_PRVLG') ||
+				(isSupervisorApproval && isSupervisorForUser(@user.id))
+				@logtime_projects = Project.where(Project.allowed_to_condition(@user, :log_time)).order('name')
 			else
 				hookProjs = call_hook(:controller_get_permissible_projs, {:user => User.current})
 				if !hookProjs.blank?
