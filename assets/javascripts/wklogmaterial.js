@@ -326,6 +326,7 @@ function updateTotal(currId, nxtId, setId, currencyId)
 		function addRow(loadDefaults, loadProductOptions) {
 			var html = $('#material-grid-row-template').html().replace(/INDEX/g, nextRow++);
 			var $row = $(html).appendTo($rows);
+			if ($row.is(':first-child')) $row.find('.material-grid-remove').hide();
 			$row.find('.material-grid-done-column').toggle(isAssetLog());
 			$row.find('.material-grid-product').on('change', function () { markRowEntered($row); loadItems($row); });
 			$row.find('.material-grid-product-item').on('change', function () { markRowEntered($row); loadItemDetails($row); });
@@ -587,7 +588,9 @@ function updateTotal(currId, nxtId, setId, currencyId)
 		});
 		$rows.on('click', '.material-grid-remove', function (event) {
 			event.preventDefault();
-			$(this).closest('tr').remove();
+			var $row = $(this).closest('tr');
+			if ($row.is(':first-child') || !window.confirm($(this).data('confirmMessage'))) return;
+			$row.remove();
 		});
 		updateMode();
 	});

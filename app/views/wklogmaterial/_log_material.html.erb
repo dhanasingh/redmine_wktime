@@ -278,7 +278,7 @@
 		<td class="material-grid-price"><span class="material-grid-currency"></span><%= text_field_tag 'material_rows[INDEX][selling_price]', '', style: 'width:75px; text-align:right;' %></td>
 		<td class="material-grid-total" style="text-align:right;"><span class="material-grid-currency"></span><span class="material-row-total"></span></td>
 		<td class="material-grid-done-column" style="text-align:center;"><%= check_box_tag 'material_rows[INDEX][is_done]', 1, false, class: 'material-grid-done' %></td>
-		<td><%= link_to sprite_icon('del'), '#', class: 'material-grid-remove icon icon-del', title: l(:button_delete) %></td>
+		<td><%= link_to sprite_icon('del'), '#', class: 'material-grid-remove icon icon-del', title: l(:button_delete), data: { confirm_message: l(:text_are_you_sure) } %></td>
 	</tr>
 </script>
 
