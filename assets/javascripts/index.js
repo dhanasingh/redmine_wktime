@@ -447,11 +447,21 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, bla
 			if (!$wrap.length) $wrap = $sel.siblings('.ui.dropdown').first();
 			if ($sel.length && $wrap.hasClass('dropdown')) {
 				$wrap.dropdown('refresh');
-				if (dropdown.options.length && dropdown.value) {
+				if (dropdown.options.length) {
+					// A blank value can be a valid placeholder option. Keep the
+					// rebuilt menu and show that option instead of treating it as
+					// an empty AJAX result.
 					$wrap.dropdown('set selected', dropdown.value);
+					if (!dropdown.value) {
+						var selectedOption = dropdown.options[dropdown.selectedIndex] || dropdown.options[0];
+						$wrap.dropdown('set text', selectedOption ? selectedOption.text : '');
+					}
 				} else {
 					// An empty native select must also clear the sidebar theme's
-					// generated menu and visible label.
+					// cached defaults: its select observer restores default text
+					// asynchronously after the options are removed.
+					$wrap.dropdown('clear data');
+					$wrap.dropdown('set text', '');
 					$wrap.children('.menu').empty();
 					$wrap.children('.text').empty().addClass('default');
 					$wrap.removeClass('active visible');
