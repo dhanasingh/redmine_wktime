@@ -661,6 +661,8 @@ en:
   label_shipment_date: Receipt Date
   label_serial_number: Serial Number
   label_material: Material
+  label_single_entry: Single
+  label_bulk_entry: Bulk
   label_cost_price: Cost Price
   label_sell_price: Sell Price
   label_brand: Brand

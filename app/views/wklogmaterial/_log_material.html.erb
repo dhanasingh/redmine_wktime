@@ -29,6 +29,9 @@
 <% logmaterial_helper = Object.new.extend(WklogmaterialHelper)	%>
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
 <% wkasset_helper = Object.new.extend(WkassetHelper) %>
+<% additionalMaterialLogTypes = call_hook(:modify_product_log_type).to_s.split %>
+<% materialLogTypes = ['M', 'A'] + additionalMaterialLogTypes %>
+<% assetLogTypes = ['A'] + additionalMaterialLogTypes %>
 <% rateperHash = wkasset_helper.getRatePerHash(false) %>
 <% logtype = logmaterial_helper.getLogHash %>
 <% spentForsValue = wktime_helper.getSpentFors(User.current.id, @time_entry.project_id) %>
@@ -74,7 +77,8 @@
 <% expenseAmount = @expenseEntry.blank? ? "" : @expenseEntry.amount  %>
 <%  assetObj = @materialEntry.blank? ? nil : @materialEntry.inventory_item.asset_property %>
 <% disable = @materialEntry.blank? || @materialEntry.spent_for.blank? || @materialEntry.spent_for.invoice_item_id.blank? ? false : true  %>
-<%= hidden_field_tag 'old_log_type', @spentType == 'E' ? 'wk_expense_entry' : (@spentType == 'M' || @spentType == 'A' ? 'wk_material_entry' : 'time_entry') %>
+<%= hidden_field_tag 'old_log_type', @spentType == 'E' ? 'wk_expense_entry' : (materialLogTypes.include?(@spentType) ? 'wk_material_entry' : 'time_entry') %>
+<%= hidden_field_tag 'additional_material_log_types', additionalMaterialLogTypes.to_json %>
 <%#=h hidden_field_tag('getclients_url', "#{url_for(:controller => 'wktime', :action => 'getclients', :user_id => User.current.id, :separator => ',')}") %>
 <%= hidden_field_tag 'userId', User.current.id %>
 <%
@@ -179,7 +183,7 @@
 			<% sellPrice = @materialEntry.blank? ? "" : @materialEntry.selling_price  %>
 			<%=h text_field_tag("product_sell_price", sellPrice.blank? ? "" : ("%.2f" % sellPrice),:size => 20, :style => "width:80px; text-align:right;", :onchange => "updateTotal(this.id, 'product_quantity', 'total', 'spcurrency');", :disabled => disable) %>
 			<label id="unittext" class="material-unit-text">
-			<% assetlabel = (assetObj.rate_per.blank? ? "" : "/ " + rateperHash[assetObj.rate_per]) if ['A', 'RA'].include?(@spentType) && assetObj.present? %>
+			<% assetlabel = (assetObj.rate_per.blank? ? "" : "/ " + rateperHash[assetObj.rate_per]) if assetLogTypes.include?(@spentType) && assetObj.present? %>
 			<%=h assetlabel || "" %></label>
 			</span>
 		</td>

@@ -639,6 +639,25 @@ function dateRangeValidation(fromId, toId) {
 
 }
 
+function additionalMaterialLogTypes() {
+	var field = document.getElementById('additional_material_log_types');
+	if (!field || !field.value) return [];
+	try {
+		var logTypes = JSON.parse(field.value);
+		return Array.isArray(logTypes) ? logTypes : [];
+	} catch (error) {
+		return [];
+	}
+}
+
+function isMaterialLogType(logType) {
+	return ['M', 'A'].includes(logType) || additionalMaterialLogTypes().includes(logType);
+}
+
+function isAssetLogType(logType) {
+	return logType === 'A' || additionalMaterialLogTypes().includes(logType);
+}
+
 function productCategoryChanged(changeDDId, uid, logType) {
 	//var currDD = document.getElementById(curDDId);
 	var needBlankOption = false;
@@ -652,7 +671,7 @@ function productCategoryChanged(changeDDId, uid, logType) {
 		success: function (data) {
 			// Product IDs must not be matched to the current user ID. Leaving the
 			// selection unset makes the browser and Semantic UI choose the first
-			// available Asset/Rental Asset product consistently.
+			// available core or extension-provided asset product consistently.
 			updateUserDD(data, changeDD, null, needBlankOption, false, "");
 			// Load dependent items only after the new product options and their
 			// Semantic UI display have been synchronized.
@@ -874,7 +893,7 @@ function setProductLogAttribute(data, qtyDD, cpDD, spDD, logType) {
 		document.getElementById(spDD).value = spVal;
 		document.getElementById('inventory_item_id').value = pctData[0];
 		document.getElementById('total').innerHTML = pctData[3] + (parseFloat(pctData[4] * 1).toFixed(2));
-		if (['A', 'RA'].includes(document.getElementById('log_type').value)) {
+		if (isAssetLogType(document.getElementById('log_type').value)) {
 			document.getElementById('unittext').innerHTML = pctData[5];
 		}
 		else {
@@ -930,7 +949,7 @@ function hideLogDetails(uid) {
 	var oldLogType = document.getElementById("old_log_type").value;
 	var entry = 'time_entry'
 	if (logType == 'E') entry = 'wk_expense_entry';
-	if (['M', 'A', 'RA'].includes(logType)) entry = 'wk_material_entry';
+	if (isMaterialLogType(logType)) entry = 'wk_material_entry';
 	$('input, select, textarea').filter(function () {
 		return this.name && (
 			this.name.indexOf(oldLogType + '[') === 0 ||
@@ -986,10 +1005,10 @@ function hideLogDetails(uid) {
 			productCategoryChanged('product', uid, logType);
 		}
 		if (logType == 'A') $('#issuelogtable').show();
-		if (logType == 'M') $('#issuelogtable').hide();
+		if (isMaterialLogType(logType) && logType != 'A') $('#issuelogtable').hide();
 		if (logType == 'M') $('#material_serial_no').show();
 		if (logType != 'M') $('#material_serial_no').hide();
-		if (logType == 'M' || logType == 'A') {
+		if (logType == 'M' || isAssetLogType(logType)) {
 			$('#geolocation').show();
 		} else {
 			$('#geolocation').hide();

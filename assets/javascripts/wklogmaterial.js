@@ -3,7 +3,7 @@
 	var entry = 'time_entry'
 	var log_type = document.getElementById("log_type").value;
 	if(log_type == 'E') entry = 'wk_expense_entry';
-	if(['M', 'A', 'RA'].includes(log_type)) entry = 'wk_material_entry';
+	if(isMaterialLogType(log_type)) entry = 'wk_material_entry';
 	if((document.getElementById(entry+'_project_id')) != null)
 	{
 		$('#'+entry+'_project_id').change(function(){
@@ -12,7 +12,9 @@
 				loadSpentFors(project.val(), 'spent_for', false, uid)
 
 			const allowedProjs = $('#allowedProjects').val();
-			if(allowedProjs) allowedProjs.includes(this.value) ? $('#issuelogtable').show() : $('#issuelogtable').hide();
+			const logType = $('#log_type').val();
+			if(allowedProjs && ['T', 'A'].includes(logType)) allowedProjs.includes(this.value) ? $('#issuelogtable').show() : $('#issuelogtable').hide();
+			else $('#issuelogtable').hide();
 		});
 	}
 
@@ -24,7 +26,7 @@
 		const logType = $('#log_type').val();
 		var entry = 'time_entry'
 		if(logType == 'E') entry = 'wk_expense_entry';
-		if(['M', 'A', 'RA'].includes(logType)) entry = 'wk_material_entry';
+		if(isMaterialLogType(logType)) entry = 'wk_material_entry';
 		const clockAction = $('#clock_action').val();
 		if((parseInt(spent_id) > 0 && clockAction == '') || (!(parseInt(spent_id) > 0) && clockAction == '') &&
 			(($('#'+entry+'_user_id').length > 0 && $('#'+entry+'_user_id').val() != $('#current_user').val()) || ( logType == 'T' && $('#'+entry+'_hours').val() != '')) || (!(parseInt(spent_id) > 0) && $('#'+entry+'_spent_on').val() != new Date().toJSON().slice(0,10).replace(/-/g,'-')))
@@ -97,9 +99,9 @@ function updateTotal(currId, nxtId, setId, currencyId)
 		var $singleToggle = $('#grid-single-entry-toggle');
 		var nextRow = 0;
 
-		// Material, Asset, and Rental Asset use WkMaterialEntry and can share the bulk-item UI.
-		function isInventoryLog() { return ['M', 'A', 'RA'].includes($('#log_type').val()); }
-		function isAssetLog() { return ['A', 'RA'].includes($('#log_type').val()); }
+		// Material, Asset, and extension-provided asset types share the bulk-item UI.
+		function isInventoryLog() { return isMaterialLogType($('#log_type').val()); }
+		function isAssetLog() { return isAssetLogType($('#log_type').val()); }
 		function parseMaterialQuantity(value) {
 			var normalizedValue = String(value == null ? '' : value).trim();
 			if (!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(normalizedValue)) return null;
@@ -496,6 +498,9 @@ function updateTotal(currId, nxtId, setId, currencyId)
 		function updateGridDoneColumn() {
 			$grid.find('.material-grid-done-column').toggle(isAssetLog());
 		}
+		function updateAssetIssueLogEntryMode(isBulkEntry) {
+			$('#issuelogtable').toggleClass('material-bulk-entry-hidden', $('#log_type').val() === 'A' && isBulkEntry);
+		}
 		function hasSingleEntryItems() {
 			return $('#product_item option').filter(function () {
 				return String(this.value || '') !== '';
@@ -505,6 +510,7 @@ function updateTotal(currId, nxtId, setId, currencyId)
 			updateGridDoneColumn();
 			updateSingleEntryFields();
 			if (!isInventoryLog()) {
+				updateAssetIssueLogEntryMode(false);
 				$toggle.hide();
 				$grid.hide();
 				$grid.find(':input').prop('disabled', true);
@@ -514,6 +520,7 @@ function updateTotal(currId, nxtId, setId, currencyId)
 			var canUseBulkEntry = hasSingleEntryItems();
 			$toggle.toggle(canUseBulkEntry);
 			if (!canUseBulkEntry) {
+				updateAssetIssueLogEntryMode(false);
 				$toggle.attr('aria-pressed', 'false');
 				$grid.hide();
 				$grid.find(':input').prop('disabled', true);
@@ -521,11 +528,13 @@ function updateTotal(currId, nxtId, setId, currencyId)
 				return;
 			}
 			if ($toggle.attr('aria-pressed') === 'true') {
+				updateAssetIssueLogEntryMode(true);
 				$single.hide();
 				$grid.show();
 				ensureDefaultGridRows();
 				$grid.find(':input').prop('disabled', false);
 			} else {
+				updateAssetIssueLogEntryMode(false);
 				$grid.hide();
 				// Hidden rows must not select the bulk backend after returning to
 				// single-entry mode. Disabled controls are omitted from form data.

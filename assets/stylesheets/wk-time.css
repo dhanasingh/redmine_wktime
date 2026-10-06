@@ -2256,6 +2256,10 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
     white-space: nowrap;
 }
 /* Product Entry bulk grid: a compact, responsive workspace for multi-line entry. */
+.material-bulk-entry-hidden {
+  display: none !important;
+}
+
 #material-grid-wrapper {
   box-sizing: border-box;
   margin: 16px 20px 12px 65px;
@@ -2776,4 +2780,5 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
   #material-grid-wrapper .material-grid-toolbar-actions {
     justify-content: flex-end;
   }
+
 }
