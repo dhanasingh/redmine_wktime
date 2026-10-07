@@ -2261,17 +2261,24 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
 }
 
 #material-grid-wrapper {
+  --material-grid-left-offset: 110px;
+  --material-grid-base-width: 86rem;
+  --material-grid-quantity-extra: 0px;
+  --material-grid-right-gap: 140px;
   box-sizing: border-box;
-  margin: 16px 20px 12px 65px;
-  color: #243b5a;
+  width: 100%;
+  max-width: 100%;
+  margin: 16px 0 12px;
+  color: inherit;
+  font: inherit;
 }
 
 #material-grid-wrapper .material-grid-card {
-  overflow: hidden;
-  border: 1px solid #c5d3e5;
-  border-radius: 14px;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
   background: #fff;
-  box-shadow: 0 10px 28px rgba(33, 70, 112, .08);
+  box-shadow: none;
 }
 
 #material-grid-wrapper .material-grid-toolbar {
@@ -2279,51 +2286,55 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
   align-items: end;
   justify-content: space-between;
   gap: 16px;
-  padding: 14px 16px;
-  border-bottom: 1px solid #dce6f2;
-  background: linear-gradient(135deg, #f8fbff 0%, #f2f7fd 100%);
+  padding: 14px 72px 14px 16px;
+  border-bottom: 0;
+  background: #fff;
 }
 
 #material-grid-wrapper .material-grid-location-field {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 7px;
+  margin-left: 46px;
 }
 
 #material-grid-wrapper .material-grid-location-field label {
   display: inline-block !important;
   position: static !important;
   float: none !important;
-  width: auto !important;
+  width: 110px !important;
   margin: 0 !important;
   padding: 0 !important;
   visibility: visible !important;
   opacity: 1 !important;
   overflow: visible !important;
-  color: #385170 !important;
-  font-size: 13px;
+  color: inherit !important;
+  font-size: inherit;
   font-weight: 700;
-  text-align: left !important;
+  text-align: right !important;
   white-space: nowrap;
 }
 
 #material-grid-wrapper #material_grid_location_id {
-  min-width: 180px;
-  min-height: 36px;
+  width: 155px;
+  min-width: 155px;
+  min-height: 30px;
   box-sizing: border-box;
-  border: 1px solid #c4d3e6;
-  border-radius: 7px;
+  border: 1px solid #aaa;
+  border-radius: 3px;
   background: #fff;
-  color: #243b5a;
+  color: inherit;
 }
 
 #material-grid-wrapper .material-grid-location-field .ui.dropdown {
-  width: 180px !important;
-  min-width: 180px !important;
-  min-height: 36px;
+  width: 155px !important;
+  min-width: 155px !important;
+  min-height: 30px;
   box-sizing: border-box;
   padding-right: 34px !important;
   overflow: visible !important;
+  font: inherit !important;
+  color: inherit !important;
 }
 
 #material-grid-wrapper .material-grid-location-field .ui.dropdown>.dropdown.icon {
@@ -2361,97 +2372,124 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
 }
 
 #material-grid-wrapper .material-grid-close {
-  width: 18px !important;
-  min-width: 18px !important;
-  height: 18px !important;
-  min-height: 18px !important;
-  padding: 0 !important;
-  border: 1px solid #e5484d;
-  border-radius: 50%;
-  background: transparent;
-  color: #e5484d !important;
-  box-shadow: none;
-  font-family: Arial, sans-serif;
-  font-size: 15px !important;
-  font-weight: 600;
-  line-height: 1;
+  min-width: 0 !important;
+  gap: 5px;
+  color: #1769c2;
+}
+
+#material-grid-wrapper .material-grid-close svg {
+  display: block;
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#material-grid-wrapper .material-grid-close svg circle {
+  fill: transparent;
+  transition: fill .16s ease, stroke .16s ease;
 }
 
 #material-grid-wrapper .material-grid-close:hover,
-#material-grid-wrapper .material-grid-close:focus {
-  border-color: #c9363b;
-  background: transparent;
-  color: #c9363b !important;
+#material-grid-wrapper .material-grid-close:focus-visible {
+  background: #eaf4ff;
+  color: #0d579f;
+  outline: 0;
 }
 
-#material-grid-wrapper .material-grid-close svg,
-#bulk-entry-toggle svg {
-  stroke-width: 3px;
+#material-grid-wrapper .material-grid-close:hover svg circle,
+#material-grid-wrapper .material-grid-close:focus-visible svg circle {
+  fill: #d9ecff;
 }
 
 #material-grid-wrapper .material-grid-table-scroll {
-  overflow-x: auto;
+  box-sizing: border-box;
+  width: calc(100% - var(--material-grid-left-offset));
+  margin-left: var(--material-grid-left-offset);
+  padding: 6px 6px 10px;
+  overflow-x: visible;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: auto;
+  scrollbar-color: #8a9bb0 #edf1f5;
+}
+
+#material-grid-wrapper .material-grid-table-scroll:focus-visible {
+  outline: 2px solid #4f96df;
+  outline-offset: 2px;
 }
 
 #material-grid-wrapper #material-grid {
-  width: 100%;
-  min-width: 980px;
+  /* Fill to the Add Row alignment, retaining readable minimum column widths. */
+  width: calc(100% - var(--material-grid-right-gap));
+  inline-size: calc(100% - var(--material-grid-right-gap));
+  min-width: calc(var(--material-grid-base-width) + var(--material-grid-quantity-extra));
   margin: 0;
-  border: 0;
+  border: 1px solid #d3d3d3;
   border-collapse: separate;
   border-spacing: 0;
   background: #fff;
+  border-radius: 7px;
+  box-shadow: 0 2px 6px rgba(36, 59, 90, .22), 0 6px 16px rgba(36, 59, 90, .14);
   table-layout: fixed;
+  transition: border-color .16s ease, box-shadow .16s ease;
 }
 
-#material-grid-wrapper #material-grid .material-grid-product-column {
-  width: 16%;
+#material-grid-wrapper:has(.material-grid-close:hover) #material-grid,
+#material-grid-wrapper:has(.material-grid-close:focus-visible) #material-grid {
+  border-color: #4f96df;
+  box-shadow: 0 0 0 2px rgba(79, 150, 223, .18), 0 4px 12px rgba(36, 59, 90, .18);
 }
 
-#material-grid-wrapper #material-grid .material-grid-product-item-column {
-  width: 21%;
-}
-
-#material-grid-wrapper #material-grid .material-grid-serial-number-column {
-  width: 13%;
-}
-
-#material-grid-wrapper #material-grid .material-grid-available-quantity-column {
-  width: 8%;
-}
-
+#material-grid-wrapper #material-grid .material-grid-product-column { width: 14rem; }
+#material-grid-wrapper #material-grid .material-grid-product-item-column { width: 20rem; }
 #material-grid-wrapper #material-grid .material-grid-quantity-column {
-  width: 16%;
-  white-space: nowrap;
+  width: calc(12rem + var(--material-grid-quantity-extra));
 }
+#material-grid-wrapper #material-grid .material-grid-available-column { width: 6.3rem; }
+#material-grid-wrapper #material-grid .material-grid-serial-number-column { width: 18rem; }
+#material-grid-wrapper #material-grid .material-grid-price-column { width: 11.7rem; }
+#material-grid-wrapper #material-grid .material-grid-done-column { width: 0; }
+#material-grid-wrapper #material-grid .material-grid-action-column { width: 4rem; }
 
-#material-grid-wrapper #material-grid .material-grid-price-column {
-  width: 10%;
+#material-grid-wrapper.material-grid-asset-mode {
+  --material-grid-base-width: 86rem;
 }
-
-#material-grid-wrapper #material-grid .material-grid-total-column {
-  width: 8%;
+#material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-product-column { width: 14rem; }
+#material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-product-item-column { width: 20rem; }
+#material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-quantity-column {
+  width: calc(10rem + var(--material-grid-quantity-extra));
 }
+#material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-serial-number-column { width: 18rem; }
+#material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-price-column { width: 9.5rem; }
+#material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-done-column { width: 4.2rem; }
 
-#material-grid-wrapper #material-grid .material-grid-done-column {
-  width: 4%;
-}
-
-#material-grid-wrapper #material-grid .material-grid-action-column {
-  width: 4%;
+#material-grid-wrapper #material-grid thead th,
+#material-grid-wrapper #material-grid tbody td {
+  text-align: left !important;
 }
 
 #material-grid-wrapper #material-grid thead th {
   padding: 13px 11px;
-  border-right: 1px solid #dce6f2;
-  border-bottom: 1px solid #b9cbe0;
-  background: #f7faff;
-  color: #304b6d;
-  font-size: 13px;
+  border-right: 1px solid #ddd;
+  border-bottom: 1px solid #d3d3d3;
+  background: #fff;
+  color: inherit;
+  font-size: inherit;
   font-weight: 700;
   line-height: 1.35;
   text-align: left;
   white-space: nowrap;
+}
+
+#material-grid-wrapper #material-grid thead .material-grid-available-heading {
+  width: 76px;
+  white-space: normal;
 }
 
 #material-grid-wrapper #material-grid thead th:last-child,
@@ -2476,11 +2514,12 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
 
 #material-grid-wrapper #material-grid tbody td {
   padding: 10px 11px;
-  border-right: 1px solid #e0e8f2;
-  border-bottom: 1px solid #d5e0ed;
+  border-right: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
   background: #fff;
-  color: #243b5a;
-  font-size: 12px;
+  color: inherit;
+  font-size: inherit;
+  text-align: left;
   vertical-align: middle;
 }
 
@@ -2489,11 +2528,13 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
 }
 
 #material-grid-wrapper #material-grid tbody tr:hover td {
-  background: #f8fbff;
+  background: #fafafa;
 }
 
 #material-grid-wrapper #material-grid .material-grid-product,
 #material-grid-wrapper #material-grid .material-grid-product-item {
+  width: 100%;
+  min-width: 0;
   appearance: none;
   -webkit-appearance: none;
   padding-right: 28px !important;
@@ -2510,17 +2551,44 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
   min-height: 34px;
   max-width: 100%;
   box-sizing: border-box;
-  border: 1px solid #c6d4e6;
-  border-radius: 6px;
+  border: 1px solid #aaa;
+  border-radius: 3px;
   background-color: #fff;
-  color: #243b5a;
+  color: inherit;
   font-family: inherit;
+  font-size: inherit;
+  text-align: left;
   transition: border-color .15s ease, box-shadow .15s ease;
 }
 
 #material-grid-wrapper #material-grid textarea {
+  width: 100%;
   min-height: 36px;
   resize: vertical;
+}
+
+#material-grid-wrapper #material-grid .material-grid-quantity-input {
+  width: 6rem !important;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+#material-grid-wrapper #material-grid .material-grid-quantity,
+#material-grid-wrapper #material-grid .material-grid-price {
+  white-space: nowrap;
+}
+
+#material-grid-wrapper #material-grid .material-grid-price-input {
+  width: 6rem !important;
+  min-width: 0;
+}
+
+#material-grid-wrapper #material-grid .material-grid-price {
+  white-space: nowrap;
+}
+
+#material-grid-wrapper #material-grid .material-grid-available {
+  white-space: nowrap;
 }
 
 #material-grid-wrapper #material-grid input:focus,
@@ -2537,6 +2605,39 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+}
+
+#material-grid-wrapper #material-grid .available-quantity {
+  display: inline-block;
+  margin-top: 0;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 400;
+}
+
+#material-grid-wrapper #material-grid .available-quantity-value {
+  margin-left: 3px;
+  color: #536b88;
+  font-weight: 600;
+}
+
+#material-grid-wrapper #material-grid .ui.dropdown,
+#material-grid-wrapper #material-grid .ui.dropdown > .text {
+  font: inherit !important;
+  color: inherit !important;
+}
+
+#material-grid-wrapper #material-grid .material-grid-quantity-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+#material-grid-wrapper #material-grid .material-grid-quantity input,
+#material-grid-wrapper #material-grid .material-grid-price input {
+  text-align: left !important;
 }
 
 #material-grid-wrapper #material-grid .material-grid-currency {
@@ -2565,6 +2666,14 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
   color: #536b88;
   font-weight: 600;
   white-space: nowrap;
+}
+
+#material-grid-wrapper #material-grid .material-grid-quantity-line .material-grid-uom-label {
+  flex: 0 1 auto;
+  min-width: min-content;
+  margin-left: 0;
+  overflow: visible;
+  white-space: normal;
 }
 
 /* Use a stable four-column layout so theme styles cannot compress labels into values. */
@@ -2694,13 +2803,20 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
   justify-content: center;
   width: 40px;
   height: 40px;
+  background-image: none !important;
   font-size: 18px;
   font-weight: 800;
 }
 
 #bulk-entry-toggle svg {
-  width: 24px;
-  height: 24px;
+  display: block;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 #material-grid-wrapper #material-grid .material-grid-remove {
@@ -2728,7 +2844,7 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
   justify-content: flex-end;
   box-sizing: border-box;
   min-height: 48px;
-  padding: 8px 14px;
+  padding: 8px 72px 8px 14px;
   background: #fbfdff;
 }
 
@@ -2738,7 +2854,7 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
   justify-content: flex-end !important;
   text-align: right !important;
   box-sizing: border-box;
-  border-top: 1px solid #dce6f2;
+  border-top: 0;
 }
 
 #material-grid-wrapper .material-grid-add-row {
@@ -2760,6 +2876,7 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
 
 @media (max-width: 760px) {
   #material-grid-wrapper {
+    width: 100%;
     margin: 12px 0;
   }
 
@@ -2773,12 +2890,165 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
     flex-direction: column;
   }
 
-  #material-grid-wrapper #material_grid_location_id {
+  #material-grid-wrapper .material-grid-location-field label {
+    width: auto !important;
+    text-align: left !important;
+  }
+
+  #material-grid-wrapper #material_grid_location_id,
+  #material-grid-wrapper .material-grid-location-field .ui.dropdown {
     width: 100%;
+    min-width: 0 !important;
   }
 
   #material-grid-wrapper .material-grid-toolbar-actions {
     justify-content: flex-end;
   }
 
+}
+
+/* Fit every grid column inside the content area while the Redmine sidebar is visible. */
+@media (min-width: 1101px) {
+  #main:not(.collapsedsidebar):not(.nosidebar) #material-grid-wrapper {
+    --material-grid-left-offset: 0px;
+    --material-grid-right-gap: 150px;
+  }
+
+  #main:not(.collapsedsidebar):not(.nosidebar) #material-grid-wrapper .material-grid-table-scroll {
+    width: 100%;
+    margin-left: 0;
+    padding-bottom: 8px;
+    overflow-x: auto;
+  }
+
+  #main:not(.collapsedsidebar):not(.nosidebar) #material-grid-wrapper #material-grid {
+    min-width: 0;
+    min-inline-size: 0;
+  }
+
+  #main:not(.collapsedsidebar):not(.nosidebar) #material-grid-wrapper #material-grid .material-grid-product-column { width: 13%; }
+  #main:not(.collapsedsidebar):not(.nosidebar) #material-grid-wrapper #material-grid .material-grid-product-item-column { width: 28%; }
+  #main:not(.collapsedsidebar):not(.nosidebar) #material-grid-wrapper #material-grid .material-grid-quantity-column { width: 12%; }
+  #main:not(.collapsedsidebar):not(.nosidebar) #material-grid-wrapper #material-grid .material-grid-available-column { width: 8%; }
+  #main:not(.collapsedsidebar):not(.nosidebar) #material-grid-wrapper #material-grid .material-grid-serial-number-column { width: 18%; }
+  #main:not(.collapsedsidebar):not(.nosidebar) #material-grid-wrapper #material-grid .material-grid-price-column { width: 15%; }
+  #main:not(.collapsedsidebar):not(.nosidebar) #material-grid-wrapper #material-grid .material-grid-action-column { width: 6%; }
+
+  #main:not(.collapsedsidebar):not(.nosidebar) #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-product-column { width: 12%; }
+  #main:not(.collapsedsidebar):not(.nosidebar) #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-product-item-column { width: 27%; }
+  #main:not(.collapsedsidebar):not(.nosidebar) #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-quantity-column { width: 11%; }
+  #main:not(.collapsedsidebar):not(.nosidebar) #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-available-column { width: 7%; }
+  #main:not(.collapsedsidebar):not(.nosidebar) #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-serial-number-column { width: 17%; }
+  #main:not(.collapsedsidebar):not(.nosidebar) #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-price-column { width: 12%; }
+  #main:not(.collapsedsidebar):not(.nosidebar) #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-done-column { width: 7%; }
+  #main:not(.collapsedsidebar):not(.nosidebar) #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-action-column { width: 7%; }
+}
+
+/* Keep common laptop viewports balanced without shrinking key fields. */
+@media (max-width: 1400px) {
+  #material-grid-wrapper {
+    --material-grid-base-width: 70rem;
+  }
+
+  #material-grid-wrapper .material-grid-table-scroll {
+    padding-bottom: 8px;
+    overflow-x: auto;
+  }
+
+  #material-grid-wrapper #material-grid .material-grid-product-column { width: 10rem; }
+  #material-grid-wrapper #material-grid .material-grid-product-item-column { width: 18rem; }
+  #material-grid-wrapper #material-grid .material-grid-quantity-column { width: calc(8.5rem + var(--material-grid-quantity-extra)); }
+  #material-grid-wrapper #material-grid .material-grid-available-column { width: 5.5rem; }
+  #material-grid-wrapper #material-grid .material-grid-serial-number-column { width: 16rem; }
+  #material-grid-wrapper #material-grid .material-grid-price-column { width: 8.5rem; }
+  #material-grid-wrapper #material-grid .material-grid-action-column { width: 3.5rem; }
+
+  #material-grid-wrapper.material-grid-asset-mode { --material-grid-base-width: 70rem; }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-product-column { width: 9.5rem; }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-product-item-column { width: 18rem; }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-quantity-column { width: calc(8.5rem + var(--material-grid-quantity-extra)); }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-available-column { width: 5rem; }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-serial-number-column { width: 15.5rem; }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-price-column { width: 7.5rem; }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-done-column { width: 3.5rem; }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-action-column { width: 2.5rem; }
+}
+
+/* Narrow the columns on tablets while keeping the grid swipeable. */
+@media (max-width: 1100px) {
+  #material-grid-wrapper {
+    --material-grid-left-offset: 0px;
+    --material-grid-base-width: 69.5rem;
+    --material-grid-right-gap: 82px;
+  }
+
+  #material-grid-wrapper .material-grid-toolbar {
+    padding-right: 16px;
+  }
+
+  #material-grid-wrapper .material-grid-add-row-bar {
+    padding-right: 14px;
+  }
+
+  #material-grid-wrapper .material-grid-table-scroll {
+    width: 100%;
+    margin-left: 0;
+    padding: 6px 6px 10px;
+    overflow-x: auto;
+  }
+
+  #material-grid-wrapper #material-grid .material-grid-quantity-line {
+    flex-wrap: wrap;
+  }
+
+  #material-grid-wrapper #material-grid .material-grid-quantity-line .material-grid-uom-label {
+    white-space: normal;
+  }
+
+  #material-grid-wrapper #material-grid .material-grid-product-column { width: 10rem; }
+  #material-grid-wrapper #material-grid .material-grid-product-item-column { width: 18rem; }
+  #material-grid-wrapper #material-grid .material-grid-quantity-column { width: calc(9rem + var(--material-grid-quantity-extra)); }
+  #material-grid-wrapper #material-grid .material-grid-available-column { width: 6rem; }
+  #material-grid-wrapper #material-grid .material-grid-serial-number-column { width: 14.5rem; }
+  #material-grid-wrapper #material-grid .material-grid-price-column { width: 8.5rem; }
+  #material-grid-wrapper #material-grid .material-grid-action-column { width: 3.5rem; }
+  #material-grid-wrapper.material-grid-asset-mode { --material-grid-base-width: 69.5rem; }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-product-column { width: 9rem; }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-product-item-column { width: 17.5rem; }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-quantity-column { width: calc(8.5rem + var(--material-grid-quantity-extra)); }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-available-column { width: 5.5rem; }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-serial-number-column { width: 14.5rem; }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-price-column { width: 8rem; }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-done-column { width: 3.5rem; }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-action-column { width: 3rem; }
+}
+
+/* Phones get a more compact grid and can swipe it horizontally. */
+@media (max-width: 760px) {
+  #material-grid-wrapper {
+    --material-grid-left-offset: 0px;
+    --material-grid-base-width: 59rem;
+  }
+
+  #material-grid-wrapper #material-grid .material-grid-product-column { width: 8rem; }
+  #material-grid-wrapper #material-grid .material-grid-product-item-column { width: 13.5rem; }
+  #material-grid-wrapper #material-grid .material-grid-quantity-column { width: calc(7rem + var(--material-grid-quantity-extra)); }
+  #material-grid-wrapper #material-grid .material-grid-available-column { width: 4.8rem; }
+  #material-grid-wrapper #material-grid .material-grid-serial-number-column { width: 10rem; }
+  #material-grid-wrapper #material-grid .material-grid-price-column { width: 7rem; }
+  #material-grid-wrapper #material-grid .material-grid-action-column { width: 3rem; }
+  #material-grid-wrapper.material-grid-asset-mode { --material-grid-base-width: 59rem; }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-product-column { width: 7rem; }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-product-item-column { width: 13.5rem; }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-quantity-column { width: calc(7rem + var(--material-grid-quantity-extra)); }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-available-column { width: 4.8rem; }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-serial-number-column { width: 10rem; }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-price-column { width: 7rem; }
+  #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-done-column { width: 3rem; }
+
+  #material-grid-wrapper #material-grid thead th,
+  #material-grid-wrapper #material-grid tbody td {
+    padding-right: 7px;
+    padding-left: 7px;
+  }
 }

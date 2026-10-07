@@ -108,6 +108,47 @@ function updateTotal(currId, nxtId, setId, currencyId)
 			var quantity = Number(normalizedValue);
 			return isFinite(quantity) ? quantity : null;
 		}
+		function setAvailableQuantity($row, value) {
+			var $available = $row.find('.available-quantity').empty();
+			if (value == null || String(value).trim() === '') return;
+			$available.text(value);
+		}
+		function fitGridQuantityToSpace() {
+			var grid = $grid[0];
+			var table = $('#material-grid')[0];
+			if (!grid || !table || !$grid.is(':visible')) return;
+
+			// Use only space already available inside the table's target width. This
+			// preserves the gap reserved for the toolbar actions.
+			grid.style.removeProperty('--material-grid-quantity-extra');
+			var tableWidth = table.getBoundingClientRect().width;
+			var baseMinWidth = parseFloat(window.getComputedStyle(table).minWidth) || tableWidth;
+			var availableExtra = Math.max(0, tableWidth - baseMinWidth);
+			if (availableExtra <= 0) return;
+
+			var canvas = document.createElement('canvas');
+			var context = canvas.getContext('2d');
+			var neededExtra = 0;
+			$rows.find('.material-grid-quantity-line').each(function () {
+				var input = this.querySelector('.material-grid-quantity-input');
+				var label = this.querySelector('.material-grid-uom-label');
+				var cell = this.closest('td');
+				if (!input || !label || !cell || !label.textContent.trim()) return;
+
+				var labelStyle = window.getComputedStyle(label);
+				var cellStyle = window.getComputedStyle(cell);
+				context.font = labelStyle.fontWeight + ' ' + labelStyle.fontSize + ' ' + labelStyle.fontFamily;
+				var labelWidth = context.measureText(label.textContent).width;
+				var gap = parseFloat(window.getComputedStyle(this).columnGap) || 0;
+				var cellSides = (parseFloat(cellStyle.paddingLeft) || 0) + (parseFloat(cellStyle.paddingRight) || 0) +
+					(parseFloat(cellStyle.borderLeftWidth) || 0) + (parseFloat(cellStyle.borderRightWidth) || 0);
+				var requiredWidth = input.getBoundingClientRect().width + labelWidth + gap + cellSides + 2;
+				neededExtra = Math.max(neededExtra, requiredWidth - cell.getBoundingClientRect().width);
+			});
+			if (neededExtra > 0) {
+				grid.style.setProperty('--material-grid-quantity-extra', Math.min(Math.ceil(neededExtra), Math.floor(availableExtra)) + 'px');
+			}
+		}
 		function quantityNumberError($quantity) {
 			return $quantity.data('numericError') || 'Quantity must be a number.';
 		}
@@ -167,6 +208,7 @@ function updateTotal(currId, nxtId, setId, currencyId)
 			$row.find('textarea[name$="[serial_numbers]"]').val('');
 			$row.find('.material-grid-serial-warning').hide();
 			$row.find('.available-quantity, .material-grid-uom-label, .material-grid-currency, .material-row-total').empty();
+			fitGridQuantityToSpace();
 		}
 		function markRowEntered($row) {
 			$row.find('.material-grid-entered').val('1');
@@ -222,7 +264,7 @@ function updateTotal(currId, nxtId, setId, currencyId)
 				$row.data('productSerialNumbers', JSON.stringify(productSerialNumbers));
 				validateRowSerialNumbers($row);
 				$row.data('unitText', values[5] || '');
-				$row.find('.available-quantity').text(availableQuantity);
+				setAvailableQuantity($row, availableQuantity);
 				$row.find('input[name$="[quantity]"]').attr('data-available-quantity', availableQuantity);
 				$row.find('input[name$="[selling_price]"]').val(values[4] || '');
 				updateRowTotal($row);
@@ -242,6 +284,7 @@ function updateTotal(currId, nxtId, setId, currencyId)
 				var valueAndLabel = (response || '').trim().split(',');
 				$row.find('input[name$="[uom_id]"]').val(valueAndLabel[0] || '');
 				$row.find('.material-grid-uom-label').text(valueAndLabel.slice(1).join(',') || '');
+				fitGridQuantityToSpace();
 			}, complete: function () {
 				if ($row.data('uomRequest') === request) $row.removeData('uomRequest');
 			}});
@@ -328,7 +371,6 @@ function updateTotal(currId, nxtId, setId, currencyId)
 		function addRow(loadDefaults, loadProductOptions) {
 			var html = $('#material-grid-row-template').html().replace(/INDEX/g, nextRow++);
 			var $row = $(html).appendTo($rows);
-			if ($row.is(':first-child')) $row.find('.material-grid-remove').hide();
 			$row.find('.material-grid-done-column').toggle(isAssetLog());
 			$row.find('.material-grid-product').on('change', function () { markRowEntered($row); loadItems($row); });
 			$row.find('.material-grid-product-item').on('change', function () { markRowEntered($row); loadItemDetails($row); });
@@ -360,7 +402,7 @@ function updateTotal(currId, nxtId, setId, currencyId)
 					var quantity = hasQuantity ? (parseMaterialQuantity(quantityValue) || 0) : 0;
 					var remainingQuantity = availableQuantity - totalQuantity;
 					var availableForRow = availableQuantity - (totalQuantity - quantity);
-					$row.find('.available-quantity').html(availableQuantity.toFixed(2) + (hasQuantity ? '<span class="material-grid-remaining-quantity">' + Math.max(0, remainingQuantity).toFixed(2) + '</span>' : ''));
+					setAvailableQuantity($row, availableQuantity.toFixed(2));
 					$quantity.attr('data-available-quantity', Math.max(0, availableForRow));
 				});
 			});
@@ -429,12 +471,12 @@ function updateTotal(currId, nxtId, setId, currencyId)
 			var quantity = $row.find('input[name$="[quantity]"]').val();
 			var sellPrice = $row.find('input[name$="[selling_price]"]').val();
 			var currency = $row.data('currency') || '';
-			var total = $row.find('.material-row-total').text();
+			var total = ((parseMaterialQuantity(quantity) || 0) * (parseFloat(sellPrice) || 0)).toFixed(2);
 			$('#product_quantity').val(quantity);
 			$('#product_sell_price').val(sellPrice);
 			$('#material_sn').val($row.find('textarea[name$="[serial_numbers]"]').val());
 			var availableQuantity = parseFloat($row.data('availableQuantity'));
-			$('#available_quantity').text(isNaN(availableQuantity) ? $row.find('.available-quantity').text() : availableQuantity.toFixed(2));
+			$('#available_quantity').text(isNaN(availableQuantity) ? $row.find('.available-quantity').text().replace(/^Avail:\s*/, '') : availableQuantity.toFixed(2));
 			$('#uom_id').val($row.find('input[name$="[uom_id]"]').val());
 			$('#uom_label').text($row.find('.material-grid-uom-label').text());
 			$('#inventory_item_id').val($row.data('inventoryItemId') || $row.find('.material-grid-product-item').val());
@@ -455,15 +497,16 @@ function updateTotal(currId, nxtId, setId, currencyId)
 			setSelectFromSource($('#product_item'), $row.find('.material-grid-product-item'));
 
 			var quantity = $('#product_quantity').val();
-			var availableQuantity = $('#available_quantity').text();
+			var availableQuantity = $('#available_quantity').text().replace(/^Avail:\s*/, '');
 			$row.find('input[name$="[quantity]"]')
 				.val(quantity)
 				.attr('data-available-quantity', availableQuantity);
 			$row.find('input[name$="[selling_price]"]').val($('#product_sell_price').val());
 			$row.find('textarea[name$="[serial_numbers]"]').val($('#material_sn').val());
-			$row.find('.available-quantity').text(availableQuantity);
+			setAvailableQuantity($row, availableQuantity);
 			$row.find('input[name$="[uom_id]"]').val($('#uom_id').val());
 			$row.find('.material-grid-uom-label').text($('#uom_label').text());
+			fitGridQuantityToSpace();
 			$row.data('inventoryItemId', $('#inventory_item_id').val());
 			$row.data('availableQuantity', parseFloat(String(availableQuantity).replace(/,/g, '')) || 0);
 			$row.find('input[name$="[inventory_item_id]"]').val($('#inventory_item_id').val());
@@ -496,7 +539,9 @@ function updateTotal(currId, nxtId, setId, currencyId)
 			return false;
 		}
 		function updateGridDoneColumn() {
-			$grid.find('.material-grid-done-column').toggle(isAssetLog());
+			var showDoneColumn = isAssetLog();
+			$grid.toggleClass('material-grid-asset-mode', showDoneColumn);
+			$grid.find('.material-grid-done-column').toggle(showDoneColumn);
 		}
 		function updateAssetIssueLogEntryMode(isBulkEntry) {
 			$('#issuelogtable').toggleClass('material-bulk-entry-hidden', $('#log_type').val() === 'A' && isBulkEntry);
@@ -533,6 +578,7 @@ function updateTotal(currId, nxtId, setId, currencyId)
 				$grid.show();
 				ensureDefaultGridRows();
 				$grid.find(':input').prop('disabled', false);
+				fitGridQuantityToSpace();
 			} else {
 				updateAssetIssueLogEntryMode(false);
 				$grid.hide();
@@ -598,8 +644,14 @@ function updateTotal(currId, nxtId, setId, currencyId)
 		$rows.on('click', '.material-grid-remove', function (event) {
 			event.preventDefault();
 			var $row = $(this).closest('tr');
-			if ($row.is(':first-child') || !window.confirm($(this).data('confirmMessage'))) return;
+			if ($rows.children().length <= 1 || !window.confirm($(this).data('confirmMessage'))) return;
 			$row.remove();
+			fitGridQuantityToSpace();
 		});
+		var gridScroll = $grid.find('.material-grid-table-scroll')[0];
+		if (window.ResizeObserver && gridScroll) {
+			new ResizeObserver(fitGridQuantityToSpace).observe(gridScroll);
+		}
+		$(window).on('resize.materialGridQuantity', fitGridQuantityToSpace);
 		updateMode();
 	});
