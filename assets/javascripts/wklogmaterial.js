@@ -538,10 +538,11 @@ function updateTotal(currId, nxtId, setId, currencyId)
 			updateRowTotal($quantity.closest('tr'));
 			return false;
 		}
-		function updateGridDoneColumn() {
+		function updateGridColumns() {
 			var showDoneColumn = isAssetLog();
 			$grid.toggleClass('material-grid-asset-mode', showDoneColumn);
 			$grid.find('.material-grid-done-column').toggle(showDoneColumn);
+			$grid.toggleClass('material-grid-no-serial-mode', $('#log_type').val() !== 'M');
 		}
 		function updateAssetIssueLogEntryMode(isBulkEntry) {
 			$('#issuelogtable').toggleClass('material-bulk-entry-hidden', $('#log_type').val() === 'A' && isBulkEntry);
@@ -552,7 +553,7 @@ function updateTotal(currId, nxtId, setId, currencyId)
 			}).length > 0;
 		}
 		function updateMode() {
-			updateGridDoneColumn();
+			updateGridColumns();
 			updateSingleEntryFields();
 			if (!isInventoryLog()) {
 				updateAssetIssueLogEntryMode(false);

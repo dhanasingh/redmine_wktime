@@ -2263,6 +2263,7 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
 #material-grid-wrapper {
   --material-grid-left-offset: 110px;
   --material-grid-base-width: 86rem;
+  --material-grid-serial-width: 18rem;
   --material-grid-quantity-extra: 0px;
   --material-grid-right-gap: 140px;
   box-sizing: border-box;
@@ -2456,6 +2457,15 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
 #material-grid-wrapper #material-grid .material-grid-price-column { width: 11.7rem; }
 #material-grid-wrapper #material-grid .material-grid-done-column { width: 0; }
 #material-grid-wrapper #material-grid .material-grid-action-column { width: 4rem; }
+
+#material-grid-wrapper.material-grid-no-serial-mode #material-grid {
+  min-width: calc(var(--material-grid-base-width) + var(--material-grid-quantity-extra) - var(--material-grid-serial-width));
+}
+
+#material-grid-wrapper.material-grid-no-serial-mode #material-grid .material-grid-serial-number-column,
+#material-grid-wrapper.material-grid-no-serial-mode #material-grid .material-grid-serial-number-cell {
+  display: none;
+}
 
 #material-grid-wrapper.material-grid-asset-mode {
   --material-grid-base-width: 86rem;
@@ -2963,7 +2973,10 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
   #material-grid-wrapper #material-grid .material-grid-price-column { width: 8.5rem; }
   #material-grid-wrapper #material-grid .material-grid-action-column { width: 3.5rem; }
 
-  #material-grid-wrapper.material-grid-asset-mode { --material-grid-base-width: 70rem; }
+  #material-grid-wrapper.material-grid-asset-mode {
+    --material-grid-base-width: 70rem;
+    --material-grid-serial-width: 15.5rem;
+  }
   #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-product-column { width: 9.5rem; }
   #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-product-item-column { width: 18rem; }
   #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-quantity-column { width: calc(8.5rem + var(--material-grid-quantity-extra)); }
@@ -3012,7 +3025,10 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
   #material-grid-wrapper #material-grid .material-grid-serial-number-column { width: 14.5rem; }
   #material-grid-wrapper #material-grid .material-grid-price-column { width: 8.5rem; }
   #material-grid-wrapper #material-grid .material-grid-action-column { width: 3.5rem; }
-  #material-grid-wrapper.material-grid-asset-mode { --material-grid-base-width: 69.5rem; }
+  #material-grid-wrapper.material-grid-asset-mode {
+    --material-grid-base-width: 69.5rem;
+    --material-grid-serial-width: 14.5rem;
+  }
   #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-product-column { width: 9rem; }
   #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-product-item-column { width: 17.5rem; }
   #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-quantity-column { width: calc(8.5rem + var(--material-grid-quantity-extra)); }
@@ -3037,7 +3053,10 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
   #material-grid-wrapper #material-grid .material-grid-serial-number-column { width: 10rem; }
   #material-grid-wrapper #material-grid .material-grid-price-column { width: 7rem; }
   #material-grid-wrapper #material-grid .material-grid-action-column { width: 3rem; }
-  #material-grid-wrapper.material-grid-asset-mode { --material-grid-base-width: 59rem; }
+  #material-grid-wrapper.material-grid-asset-mode {
+    --material-grid-base-width: 59rem;
+    --material-grid-serial-width: 10rem;
+  }
   #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-product-column { width: 7rem; }
   #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-product-item-column { width: 13.5rem; }
   #material-grid-wrapper.material-grid-asset-mode #material-grid .material-grid-quantity-column { width: calc(7rem + var(--material-grid-quantity-extra)); }
