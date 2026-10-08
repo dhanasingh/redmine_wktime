@@ -1,14 +1,16 @@
-# Webinar on ERPmine – Payroll, September 29th, 2026,(11:30 AM GMT)
+# Webinar on ERPmine – Billing, October 27th, 2026,(11:30 AM GMT)
  
 Please click here to register if interested,
-[(https://us02web.zoom.us/meeting/register/tpzdLyHGTwWoz5-x6AUFoA)]
+[(https://us02web.zoom.us/meeting/register/kNRVkp_RS2WFINMsarmT3A)]
  
 **Topics**:
--  Generate payroll
--  Reimbursement
--  Apply tax
--  Payroll Report
--  Payslip report
+-  Billing Projects
+-  Invoice Setup
+-  Contract Setup
+-  Preview Unbilled Invoice
+-  Generate Invoice
+-  Accept Payment
+-  Reports
 -  Mobile App
 -----
 # ERPmine
