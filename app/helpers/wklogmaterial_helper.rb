@@ -83,6 +83,8 @@ module WklogmaterialHelper
 
 	def mergePItemInvItemQuery(productId, logType, locationId)
 
+		assetLogTypes = ['A'] + call_hook(:modify_product_log_type).to_s.split
+
 		sqlQuery = "select it.id, pi.product_id, pi.brand_id, wap.name as asset_name, wap.rate, wap.rate_per, wb.name as brand_name, it.product_attribute_id, pi.product_model_id, wpm.name as product_model_name, pi.part_number, it.cost_price, it.selling_price, it.currency, it.available_quantity, it.uom_id, it.serial_number, it.running_sn from wk_inventory_items it
 		left outer join wk_product_items pi on pi.id = it.product_item_id "+get_comp_cond('pi')+"
 		left outer join wk_brands wb on wb.id = pi.brand_id "+get_comp_cond('wb')+"
@@ -94,7 +96,7 @@ module WklogmaterialHelper
 		sqlQuery = sqlQuery  + " and it.product_type = '#{logType}' " unless logType.blank?
 		sqlQuery = sqlQuery + " and (wap.matterial_entry_id is null or wme.user_id = #{User.current.id}) "
 		sqlQuery = sqlQuery + " and it.location_id = #{locationId} " unless locationId.blank?
-		sqlQuery = sqlQuery + " and it.is_loggable = #{booleanFormat(true)} " if logType == 'A'
+		sqlQuery = sqlQuery + " and it.is_loggable = #{booleanFormat(true)} " if assetLogTypes.include?(logType)
 		sqlQuery = sqlQuery + " order by wb.name, wpm.name, it.serial_number"
 		pctObj = WkInventoryItem.find_by_sql(sqlQuery)
 		pctObj
@@ -104,9 +106,10 @@ module WklogmaterialHelper
 		pctObj = mergePItemInvItemQuery(productId, logType, locationId)
 		pctArr = Array.new
 		rateperhash = getRatePerHash(false)
+		assetLogTypes = ['A'] + call_hook(:modify_product_log_type).to_s.split
 		pctObj.each do | entry|
 			attributeName = entry.product_attribute.blank? ? "" : entry.product_attribute.name
-			if logType == 'A'
+			if assetLogTypes.include?(logType)
 
 				pctArr << [(entry.asset_name.to_s() + ' - ' + entry.rate.to_s() + ' - ' + rateperhash[entry.rate_per].to_s()), entry.id.to_s() ]
 			else
