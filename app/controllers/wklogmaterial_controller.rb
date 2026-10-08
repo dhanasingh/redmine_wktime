@@ -53,7 +53,8 @@ class WklogmaterialController < TimelogController
 		elsif params[:ptype] == "product_item"
 			productType = params[:log_type]
 			location = params[:location_id]
-			pctObj = wklogmatterial_helper.mergePItemInvItemQuery(params[:id], productType, location)
+			currentEntry = WkMaterialEntry.visible.find_by(id: params[:matterial_entry_id]) if params[:matterial_entry_id].present?
+			pctObj = wklogmatterial_helper.mergePItemInvItemQuery(params[:id], productType, location, currentEntry&.inventory_item_id)
 		elsif params[:ptype] == "product_model_id"
 			unless params[:id].blank? || params[:id].to_i < 1
 				pObj = WkBrand.find(params[:id].to_i)

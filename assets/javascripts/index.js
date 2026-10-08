@@ -731,10 +731,15 @@ function productChanged(curDDId, changeDDId, uid, changeAdditionalDD, needBlank,
 	var isCurrentRequest = false;
 	userid = uid;
 	var $this = $(this);
+	var editingMaterial = changeDDId === 'product_item' && logTypeId != null;
+	var materialEntryId = editingMaterial ? jQuery('#matterial_entry_id').val() : null;
+	var currentItemId = editingMaterial && materialEntryId ? jQuery('#product_item').data('currentItemId') : null;
+	var requestData = { id: currDD.value, ptype: changeDDId, product_id: productId, update_DD: updateDD, log_type: logType, location_id: locId };
+	if (materialEntryId) requestData.matterial_entry_id = materialEntryId;
 	var request = $.ajax({
 		url: productModifyUrl,
 		type: 'get',
-		data: { id: currDD.value, ptype: changeDDId, product_id: productId, update_DD: updateDD, log_type: logType, location_id: locId },
+		data: requestData,
 		success: function (data) {
 			var currentLogType = logTypeId != null ? document.getElementById(logTypeId).value : null;
 			isCurrentRequest = currDD.value == requestedValue &&
@@ -747,6 +752,7 @@ function productChanged(curDDId, changeDDId, uid, changeAdditionalDD, needBlank,
 			// empty dropdown, which is the only time a blank value is shown.
 			if (changeDDId === 'product_item' && logTypeId != null && changeDD.options.length) {
 				changeDD.selectedIndex = 0;
+				if (currentItemId && jQuery(changeDD).find('option[value="' + currentItemId + '"]').length) changeDD.value = currentItemId;
 				if (window.jQuery && jQuery.fn.dropdown) {
 					var $select = jQuery(changeDD), $dropdown = $select.closest('.ui.dropdown');
 					if (!$dropdown.length) $dropdown = $select.siblings('.ui.dropdown').first();
@@ -762,7 +768,9 @@ function productChanged(curDDId, changeDDId, uid, changeAdditionalDD, needBlank,
 				productChanged('product_id', 'product_attribute_id', uid, false, true, null);
 			}
 			else if (isCurrentRequest && changeAdditionalDD && logTypeId != null) {
-				productItemChanged('product_item', 'product_quantity', 'product_cost_price', 'product_sell_price', uid, 'log_type');
+				var sameSavedItem = materialEntryId && currentItemId && String(changeDD.value) === String(currentItemId) &&
+					jQuery('#inventory_item_id').val() === String(currentItemId);
+				if (!sameSavedItem) productItemChanged('product_item', 'product_quantity', 'product_cost_price', 'product_sell_price', uid, 'log_type');
 			}
 			else if (isCurrentRequest && changeAdditionalDD && (changeDDId.includes("product_item_id"))) {
 				deliveryitemChanged('product_item_id' + rowNum);
@@ -1008,6 +1016,10 @@ function hideLogDetails(uid) {
 		if (isMaterialLogType(logType) && logType != 'A') $('#issuelogtable').hide();
 		if (logType == 'M') $('#material_serial_no').show();
 		if (logType != 'M') $('#material_serial_no').hide();
+		var $totalCells = $('#material_total_label, #material_total_value');
+		if (logType == 'M') $('#material_serial_no').append($totalCells);
+		else $('#material_cost_done_row').append($totalCells);
+		$('#material_cost_done_row').toggle(logType != 'M' || $('#material_cost_done_row .material-single-cost-field').length > 0);
 		if (logType == 'M' || isAssetLogType(logType)) {
 			$('#geolocation').show();
 		} else {

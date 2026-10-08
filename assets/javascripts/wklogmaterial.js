@@ -325,13 +325,20 @@ function updateTotal(currId, nxtId, setId, currencyId)
 				updateMode();
 				return;
 			}
-			loadOptions($items, { ptype: 'product_item', id: productId, log_type: logType === 'M' ? 'I' : logType, location_id: $('#location_id').val() }, false, function () {
+			var materialEntryId = $('#matterial_entry_id').val();
+			var currentItemId = materialEntryId ? $items.data('currentItemId') : null;
+			var itemRequest = { ptype: 'product_item', id: productId, log_type: logType === 'M' ? 'I' : logType, location_id: $('#location_id').val() };
+			if (materialEntryId) itemRequest.matterial_entry_id = materialEntryId;
+			loadOptions($items, itemRequest, false, function () {
 				if ($('#log_type').val() !== logType || $product.val() !== productId) return;
 				$items.prop('selectedIndex', 0);
+				if (currentItemId && $items.find('option[value="' + currentItemId + '"]').length) $items.val(currentItemId);
 				syncSingleSelect($items);
-				if ($items.val()) {
+				var sameSavedItem = materialEntryId && currentItemId && String($items.val()) === String(currentItemId) &&
+					$('#inventory_item_id').val() === String(currentItemId);
+				if ($items.val() && !sameSavedItem) {
 					productItemChanged('product_item', 'product_quantity', 'product_cost_price', 'product_sell_price', $('#userId').val(), 'log_type');
-				} else {
+				} else if (!$items.val()) {
 					clearSingleEntryItemDetails();
 				}
 				updateMode();
@@ -521,6 +528,11 @@ function updateTotal(currId, nxtId, setId, currencyId)
 			var $quantity = $('#product_quantity');
 			if (!validateNumericQuantity($quantity)) return false;
 			var availableQuantity = parseFloat(($('#available_quantity').text() || '').replace(/,/g, ''));
+			var $item = $('#product_item');
+			var savedItemId = $item.data('currentItemId');
+			var sameSavedMaterial = $('#log_type').val() === 'M' && $('#matterial_entry_id').val() && savedItemId &&
+				String($item.val()) === String(savedItemId) && $('#inventory_item_id').val() === String(savedItemId);
+			if (sameSavedMaterial) availableQuantity += parseFloat($item.data('currentQuantity')) || 0;
 			var quantity = parseMaterialQuantity($quantity.val());
 			if (isNaN(availableQuantity) || isNaN(quantity) || quantity <= availableQuantity) return true;
 			alert('Quantity cannot exceed the available quantity (' + availableQuantity + ').');

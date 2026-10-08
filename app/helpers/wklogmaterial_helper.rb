@@ -81,17 +81,18 @@ module WklogmaterialHelper
 		pctItemArr
 	end
 
-	def mergePItemInvItemQuery(productId, logType, locationId)
+	def mergePItemInvItemQuery(productId, logType, locationId, currentItemId = nil)
 
 		assetLogTypes = ['A'] + call_hook(:modify_product_log_type).to_s.split
 
+		quantityCondition = currentItemId.to_i > 0 ? "(it.available_quantity > 0 or it.id = #{currentItemId.to_i})" : "it.available_quantity > 0"
 		sqlQuery = "select it.id, pi.product_id, pi.brand_id, wap.name as asset_name, wap.rate, wap.rate_per, wb.name as brand_name, it.product_attribute_id, pi.product_model_id, wpm.name as product_model_name, pi.part_number, it.cost_price, it.selling_price, it.currency, it.available_quantity, it.uom_id, it.serial_number, it.running_sn from wk_inventory_items it
 		left outer join wk_product_items pi on pi.id = it.product_item_id "+get_comp_cond('pi')+"
 		left outer join wk_brands wb on wb.id = pi.brand_id "+get_comp_cond('wb')+"
 		left outer join wk_product_models wpm on wpm.id = pi.product_model_id "+get_comp_cond('wpm')+"
 		left outer join wk_asset_properties wap on wap.inventory_item_id = it.id "+get_comp_cond('wap')+"
 		left outer join wk_material_entries wme on wme.id = wap.matterial_entry_id "+get_comp_cond('wme')+"
-		 where  it.available_quantity > 0 "+get_comp_cond('it')
+		 where  #{quantityCondition} "+get_comp_cond('it')
 		sqlQuery = sqlQuery  + " and pi.product_id = #{productId} " unless productId.blank?
 		sqlQuery = sqlQuery  + " and it.product_type = '#{logType}' " unless logType.blank?
 		sqlQuery = sqlQuery + " and (wap.matterial_entry_id is null or wme.user_id = #{User.current.id}) "
@@ -102,8 +103,8 @@ module WklogmaterialHelper
 		pctObj
 	end
 
-	def getPdtItemArr(productId, needBlank, logType, locationId)
-		pctObj = mergePItemInvItemQuery(productId, logType, locationId)
+	def getPdtItemArr(productId, needBlank, logType, locationId, currentItemId = nil)
+		pctObj = mergePItemInvItemQuery(productId, logType, locationId, currentItemId)
 		pctArr = Array.new
 		rateperhash = getRatePerHash(false)
 		assetLogTypes = ['A'] + call_hook(:modify_product_log_type).to_s.split

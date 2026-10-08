@@ -523,17 +523,15 @@ module SendPatch::TimelogControllerPatch
 					errorMsg = l(:error_issue_logger)
 				else
 					inventoryItemObj = WkInventoryItem.find(params[:inventory_item_id].to_i) if !params[:inventory_item_id].blank?
-					if params[:log_type] == 'M' && !params[:inventory_item_id].blank?
-						inventoryObj = wklog_helper.updateParentInventoryItem(params[:inventory_item_id].to_i, params[:product_quantity].to_f, @modelEntry.quantity)
-						inventoryId =  inventoryObj.id
-						currency =  inventoryObj.currency
-					else
-						inventoryId =  params[:inventory_item_id]
-						currency = Setting.plugin_redmine_wktime['wktime_currency']
-					end
+					previousItem = WkInventoryItem.find_by(id: @modelEntry.inventory_item_id) if params[:log_type] == 'M' && @modelEntry.persisted?
+					previousQuantity = previousItem&.product_type == 'I' ? @modelEntry.quantity.to_f : 0
+					sameItem = previousItem&.id == inventoryItemObj&.id && previousItem.present?
+					availableQuantity = inventoryItemObj&.available_quantity.to_f + (sameItem ? previousQuantity : 0)
+					inventoryId = inventoryItemObj&.id
+					currency = params[:log_type] == 'M' ? inventoryItemObj&.currency : Setting.plugin_redmine_wktime['wktime_currency']
 					if inventoryId.blank?
 						errorMsg += l(:error_item_not_available)
-					elsif params[:product_quantity].to_f > inventoryItemObj.available_quantity.to_f
+					elsif params[:product_quantity].to_f > availableQuantity
 						errorMsg += l(:error_product_qty_greater_avail_qty)
 					else
 						if params[:log_type] == "A" && params[:clock_action] == "S" && @modelEntry.spent_for.blank?
@@ -546,8 +544,22 @@ module SendPatch::TimelogControllerPatch
 						@modelEntry.inventory_item_id = inventoryId.to_i
 						@modelEntry.quantity = quantity
 						@modelEntry.currency = currency
-						unless @modelEntry.valid?
+						if !@modelEntry.valid?
 							errorMsg = @modelEntry.errors.full_messages.join("<br>")
+						elsif params[:log_type] == 'M'
+							begin
+								WkMaterialEntry.transaction do
+									@modelEntry.save!
+									inventoryItemObj.incrementAvaQty((sameItem ? previousQuantity : 0) - params[:product_quantity].to_f)
+									inventoryItemObj.save!
+									if previousItem && !sameItem && previousQuantity > 0
+										previousItem.incrementAvaQty(previousQuantity)
+										previousItem.save!
+									end
+								end
+							rescue ActiveRecord::RecordInvalid => error
+								errorMsg = error.record.errors.full_messages.join("<br>")
+							end
 						else
 							@modelEntry.save
 						end
