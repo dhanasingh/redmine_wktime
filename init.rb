@@ -1,24 +1,26 @@
 require_relative 'lib/nested_set/location_nested_set'
 require_relative 'lib/erpmine_mcp_hook'
 
-# Load Patch files
-begin
-  Dir[File.join(File.dirname(__FILE__), 'lib', '**', '*.rb')].each do |file|
-    path = File.dirname(file).split('/').last
-		if ['load_patch', 'send_patch'].include?(path)
-			require_dependency file
-		end
+# Requires every file in lib/load_patch and lib/send_patch, and includes each SendPatch::FooPatch
+Dir[File.join(File.dirname(__FILE__), 'lib', '**', '*.rb')].each do |file|
+  path = File.dirname(file).split('/').last
+  next unless ['load_patch', 'send_patch'].include?(path)
+
+  begin
+    require_dependency file
 
     if path == 'send_patch'
-			folder = path.camelize
+      folder = path.camelize
       patch_class = File.basename(file, '.rb').camelize
       target_class = patch_class.sub('Patch', '').constantize
       patch_module = "#{folder}::#{patch_class}".constantize
       target_class.send(:include, patch_module)
     end
+  rescue => e
+    message = "ERPmine: patch #{file} not applied: #{e.class}: #{e.message}"
+    Rails.logger.error([message, *Array(e.backtrace).first(5)].join("\n  "))
+    warn message
   end
-rescue => e
-  puts e.message
 end
 
 # redmine only differs between project_menu and application_menu! but we want to display the
