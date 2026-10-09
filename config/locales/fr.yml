@@ -656,6 +656,8 @@ fr:
   label_shipment_date: Receipt Date
   label_serial_number: Serial Number
   label_material: Material
+  label_single_entry: Unique
+  label_bulk_entry: En masse
   label_cost_price: Cost Price
   label_sell_price: Sell Price
   label_brand: Brand
@@ -667,6 +669,7 @@ fr:
   label_org_over_head_price: Original Over Head Cost
   label_total_quantity: Total Quantity
   label_available_quantity: Available Quantity
+  label_avail_quantity: Qté dispo.
   label_model: Model
   label_attribute_group: Attribute Group
   label_product_catagory: Product Catagory
@@ -1092,6 +1095,7 @@ fr:
   label_select_leadsource: Select Lead Source
   label_clock: Clock
   label_select_spent_for: Select Spent For
+  label_select_spent_type: Sélectionner le type de dépense
   label_select_project: Select a project
   label_select_issue: Select a issue
   label_select_activity: Select a activity

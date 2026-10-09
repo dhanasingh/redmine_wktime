@@ -1102,6 +1102,7 @@ en:
   label_select_leadsource: Select Lead Source
   label_clock: Clock
   label_select_spent_for: Select Spent For
+  label_select_spent_type: Select Spent Type
   label_select_project: Select a project
   label_select_issue: Select a issue
   label_select_activity: Select a activity

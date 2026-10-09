@@ -586,6 +586,8 @@ ta-IN:
   label_shipment_date: Receipt Date
   label_serial_number: வரிசை எண்
   label_material: பொருள்
+  label_single_entry: Single
+  label_bulk_entry: Bulk
   label_cost_price: அசல்
   label_sell_price: விற்பனை விலை
   label_brand: அடையாளம்
@@ -595,6 +597,7 @@ ta-IN:
   label_org_selling_price: அசல் விற்பனை விலை
   label_total_quantity: மொத்த அளவு
   label_available_quantity: கிடைக்கும் அளவு
+  label_avail_quantity: Avail. Qty
   label_model: மாதிரி
   label_attribute_group: பண்புக்கூறு குழு
   label_product_items: தயாரிப்பு பொருட்கள்
@@ -990,6 +993,7 @@ ta-IN:
   label_select_leadsource: இழுது  மூலத்தைத் தேர்ந்தெடுக்கவும்
   label_clock: மணி
   label_select_spent_for: செலவினத்தைத் தேர்ந்தெடுக்கவும்
+  label_select_spent_type: Select Spent Type
   label_select_project: ஒரு திட்டத்தைத் தேர்ந்தெடுக்கவும்
   label_select_issue: சிக்கலைத் தேர்ந்தெடுக்கவும்
   label_select_activity: ஒரு செயல்பாட்டைத் தேர்ந்தெடுக்கவும்

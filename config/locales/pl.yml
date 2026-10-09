@@ -656,6 +656,8 @@ pl:
   label_shipment_date: Receipt Date
   label_serial_number: Numer seryjny
   label_material: Materiał
+  label_single_entry: Pojedynczy
+  label_bulk_entry: Zbiorczy
   label_cost_price: Cena farbyczna
   label_sell_price: Cena sprzedaży
   label_brand: Marka
@@ -667,6 +669,7 @@ pl:
   label_org_over_head_price: Oryginalny koszt ogólny
   label_total_quantity: Stan całkowity
   label_available_quantity: Dostępna ilość
+  label_avail_quantity: Dost. ilość
   label_model: Model
   label_attribute_group: Właściwości grupy
   label_product_catagory: Kategoria produktu
@@ -1107,6 +1110,7 @@ pl:
   label_select_leadsource: Select Lead Source
   label_clock: Clock
   label_select_spent_for: Select Spent For
+  label_select_spent_type: Wybierz rodzaj wydatku
   label_select_project: Select a project
   label_select_issue: Select a issue
   label_select_activity: Select a activity

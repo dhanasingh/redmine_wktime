@@ -30,9 +30,15 @@ api.array :time_entries, api_meta(:total_count => @entry_count, :offset => @offs
       api.org_selling_price entry.org_selling_price
       api.org_currency entry.org_currency
       api.product_sell_price entry.selling_price
+      if entry.inventory_item.product_type == 'I'
+        serial_numbers = WkConsumedItems.get_serial_nos(entry.id, 'WkMaterialEntry').map { |item| {id: item.id, serial_number: item.serial_number} }
+        api.consumed_serial_numbers serial_numbers
+        api.serial_numbers serial_numbers.map { |item| item[:serial_number] }.join(', ')
+      end
       api.currency entry.currency
-      api.rate_per assetObj.rate_per  if params[:spent_type] == "A"
+      api.rate_per assetObj.rate_per if assetObj.present?
       api.product product
+      render_api_custom_values entry.custom_field_values, api
       api.is_done assetObj.nil? || assetObj.matterial_entry_id.nil?   
     end
   end

@@ -653,6 +653,8 @@ de:
   label_shipment_date: Eingangsdatum
   label_serial_number: Seriennummer
   label_material: Material
+  label_single_entry: Einzeln
+  label_bulk_entry: Mehrere
   label_cost_price: Einkaufspreis
   label_sell_price: Verkaufspreis
   label_brand: Marke
@@ -664,6 +666,7 @@ de:
   label_org_over_head_price: Ursprünglicher Gesamtpreis
   label_total_quantity: Gesamtmenge
   label_available_quantity: Verfügbar
+  label_avail_quantity: Verf. Menge
   label_model: Modell
   label_attribute_group: Attributgruppe
   label_product_catagory: Produktgruppe
@@ -1087,6 +1090,7 @@ de:
   label_select_leadsource: Hauptquelle wählen
   label_clock: Zeitnachweise
   label_select_spent_for: Ausgabenziel wählen
+  label_select_spent_type: Ausgabenart wählen
   label_select_project: Projekt wählen
   label_select_issue: Ticket wählen
   label_select_activity: Aktivität wählen

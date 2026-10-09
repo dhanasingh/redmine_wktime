@@ -27,7 +27,7 @@ class WklogmaterialController < TimelogController
 		super
 		respond_to do |format|
 			format.api {
-				render(layout: "wklogmaterial/material_index") if params[:spent_type] == "M" || params[:spent_type] == "A"
+				render(layout: "wklogmaterial/material_index") if (["M", "A"] + call_hook(:modify_product_log_type).to_s.split).include?(params[:spent_type])
 			}
     end
   end
@@ -144,7 +144,6 @@ class WklogmaterialController < TimelogController
 			}
 			format.json  {
 				spentTypes = []
-				spentTypeHash.delete("RA")  # if resident management Plugin present
 				# spentTypeHash.delete("E") if !wklogtime_helper.isChecked('wktime_enable_expense_module')
 				# if !wklogtime_helper.isChecked('wktime_enable_inventory_module')
 				# 	spentTypeHash.delete("M")
