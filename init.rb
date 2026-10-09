@@ -64,7 +64,6 @@ module Redmine::MenuManager::MenuHelper
 end
 
 
-Rails.configuration.to_prepare do
 	# Add module to User class
 	TimeEntry.send(:include, LoadPatch::EditablebyTimeEntryPatch)
 	User.send(:include, LoadPatch::AllowedtoUserPatch)
@@ -74,7 +73,6 @@ Rails.configuration.to_prepare do
 		ActiveRecord::Base.connection.column_exists?("#{User.table_name}", :parent_id)
 		TimeEntryQuery.send(:include, LoadPatch::ScopeTimeEntryQueryPatch)
 	end
-end
 
 # Models patches
 ApplicationRecord.class_eval do
