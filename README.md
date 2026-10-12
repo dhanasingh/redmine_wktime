@@ -123,7 +123,7 @@ For more information on features, please refer to the user guide
 
 | **Redmine** | **ERPmine** |
 |-------------|-------------|
-| 7.0.0 | 5.0, 5.1, 5.1.1 |
+| 7.0.0 | 5.0, 5.1, 5.1.1, 5.1.2 |
 | 6.1.x | 4.9.1, 4.9.2, 4.9.3, 4.9.4 |
 | 6.0.x | 4.8, 4.8.1, 4.8.2, 4.8.3, 4.8.4, 4.8.5, 4.9 |
 | 5.1.x | 4.7.1, 4.7.2, 4.7.3, 4.7.4, 4.7.5, 4.7.6 |
@@ -134,11 +134,16 @@ For more information on features, please refer to the user guide
 | 4.0.x | 3.4, 3.5, 3.6, 3.7, 3.8, 3.9 |
 | 3.4.x | 2.9, 3.0, 3.1, 3.2, 3.3 |
 
-## Release Notes for v5.1.1
+## Release Notes for v5.1.2
 
 - **Features**
   ```text
-  - Added REST API for purchasing, inventory, Ledger, scheduling and skills module
+  - Added material bulk entry feature in new log page.
+  - Added ERPmine MCP tools.
+  ```
+- **Bug fixes**
+  ```text
+  - Moved Devices tab to HR module.
   ```
 
 ## Customization
