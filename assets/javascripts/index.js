@@ -409,7 +409,7 @@ function projChanged(projDropdown, userid, needBlankOption) {
 		complete: function () { $this.removeClass('ajax-loading'); }
 	});
 }
-function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, blankText, blankval = "") {
+function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, blankText, blankval = "", preserveUnderscores = false) {
 	var items = itemStr.split('\n');
 	var i, index, val, text, start;
 	// An AJAX response can arrive after its dependent row/dropdown was removed.
@@ -431,7 +431,7 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, bla
 			}
 			if (index != -1) {
 				val = items[i].substring(start, index);
-				val = val.replace(/_/g, ",");
+				if (!preserveUnderscores) val = val.replace(/_/g, ",");
 				text = items[i].substring(index + 1);
 				dropdown.options[needBlankOption ? i + 1 : i] = new Option(
 					text, val, false, val == userid);
@@ -1147,7 +1147,7 @@ function loadSpentFors(id, Dropdown, needBlank, uid) {
 		type: 'get',
 		data: { project_id: id, user_id: uid, format: fmt },
 		success: function (data) {
-			updateUserDD(data, clientDropdown, uid, needBlank, false, "");
+			updateUserDD(data, clientDropdown, uid, needBlank, false, "", "", true);
 		},
 		beforeSend: function () { $this.addClass('ajax-loading'); },
 		complete: function () { $this.removeClass('ajax-loading'); }

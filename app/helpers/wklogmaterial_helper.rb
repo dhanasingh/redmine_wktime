@@ -83,7 +83,7 @@ module WklogmaterialHelper
 
 	def mergePItemInvItemQuery(productId, logType, locationId, currentItemId = nil)
 
-		assetLogTypes = ['A'] + call_hook(:modify_product_log_type).to_s.split
+		assetLogTypes = ['A'] + Array(call_hook(:modify_product_log_type)).flat_map { |type| type.to_s.split }
 
 		quantityCondition = currentItemId.to_i > 0 ? "(it.available_quantity > 0 or it.id = #{currentItemId.to_i})" : "it.available_quantity > 0"
 		sqlQuery = "select it.id, pi.product_id, pi.brand_id, wap.name as asset_name, wap.rate, wap.rate_per, wb.name as brand_name, it.product_attribute_id, pi.product_model_id, wpm.name as product_model_name, pi.part_number, it.cost_price, it.selling_price, it.currency, it.available_quantity, it.uom_id, it.serial_number, it.running_sn from wk_inventory_items it
@@ -107,7 +107,7 @@ module WklogmaterialHelper
 		pctObj = mergePItemInvItemQuery(productId, logType, locationId, currentItemId)
 		pctArr = Array.new
 		rateperhash = getRatePerHash(false)
-		assetLogTypes = ['A'] + call_hook(:modify_product_log_type).to_s.split
+		assetLogTypes = ['A'] + Array(call_hook(:modify_product_log_type)).flat_map { |type| type.to_s.split }
 		pctObj.each do | entry|
 			attributeName = entry.product_attribute.blank? ? "" : entry.product_attribute.name
 			if assetLogTypes.include?(logType)
@@ -189,7 +189,7 @@ module WklogmaterialHelper
 	def getLogTypeName
 		entry = {'T' => 'time_entry', 'E' => 'wk_expense_entry', 'M' => 'wk_material_entry', 'A' => 'wk_material_entry'}
 		hookType = call_hook(:additional_type)
-		entry[hookType] = 'wk_material_entry' if hookType.present?
+		Array(hookType).flat_map { |type| type.to_s.split }.each { |type| entry[type] = 'wk_material_entry' }
 		entry
 	end
 

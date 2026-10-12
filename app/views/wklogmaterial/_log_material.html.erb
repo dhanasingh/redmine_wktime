@@ -29,7 +29,7 @@
 <% logmaterial_helper = Object.new.extend(WklogmaterialHelper)	%>
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
 <% wkasset_helper = Object.new.extend(WkassetHelper) %>
-<% additionalMaterialLogTypes = call_hook(:modify_product_log_type).to_s.split %>
+<% additionalMaterialLogTypes = Array(call_hook(:modify_product_log_type)).flat_map { |type| type.to_s.split } %>
 <% materialLogTypes = ['M', 'A'] + additionalMaterialLogTypes %>
 <% assetLogTypes = ['A'] + additionalMaterialLogTypes %>
 <% rateperHash = wkasset_helper.getRatePerHash(false) %>

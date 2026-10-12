@@ -14,7 +14,12 @@ api.array :time_entries, api_meta(:total_count => @entry_count, :offset => @offs
       api.created_on entry.created_on
       api.updated_on entry.updated_on
       if entry.spent_for.present?
-        spent_for = entry.spent_for.spent_for_type ? entry.project.id.to_s + "|" + entry.spent_for.spent_for_type.to_s + "_" + entry.spent_for.spent_for_id.to_s + "|" : nil
+        spent_for_type = entry.spent_for.spent_for_type
+        spent_for_id = entry.spent_for.spent_for_id
+        if spent_for_id.nil? && (combined_spent_for = spent_for_type.to_s.match(/\A([^,]+),(\d+)\z/))
+          spent_for_type, spent_for_id = combined_spent_for.captures
+        end
+        spent_for = spent_for_type && spent_for_id ? "#{entry.project.id}|#{spent_for_type}_#{spent_for_id}|" : nil
         api.spentFor(id: entry.spent_for.id, start_on: entry.spent_for.spent_on_time, end_on: entry.spent_for.end_on, spent_for: spent_for, clock_action: entry.spent_for.clock_action, s_longitude: entry.spent_for.s_longitude, s_latitude: entry.spent_for.s_latitude, e_longitude: entry.spent_for.e_longitude, e_latitude: entry.spent_for.e_latitude)
       end
 

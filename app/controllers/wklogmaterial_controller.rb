@@ -27,7 +27,7 @@ class WklogmaterialController < TimelogController
 		super
 		respond_to do |format|
 			format.api {
-				render(layout: "wklogmaterial/material_index") if (["M", "A"] + call_hook(:modify_product_log_type).to_s.split).include?(params[:spent_type])
+				render(layout: "wklogmaterial/material_index") if (["M", "A"] + Array(call_hook(:modify_product_log_type)).flat_map { |type| type.to_s.split }).include?(params[:spent_type])
 			}
     end
   end
