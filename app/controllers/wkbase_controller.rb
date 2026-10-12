@@ -207,7 +207,7 @@ class WkbaseController < ApplicationController
 		permissons = (wkpermissons || []).map{ |perm| perm.short_name }
 		Setting.plugin_redmine_wktime.each{ |key, val| settings[key] = val if val != "" }
 		configs = {
-			permissions: permissons, mapAPIkey: Setting.plugin_redmine_wktime['label_mapbox_apikey'],
+			permissions: permissons,
 			logEditPermission: getEditLogPermission,
 			settings: settings, languageSet: languageSet
 		}

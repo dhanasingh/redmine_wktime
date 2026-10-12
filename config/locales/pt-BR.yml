@@ -1019,8 +1019,6 @@ pt-BR:
   label_auto_round_gl: Arredondar valores
   label_trend_chart: gráfico de tendências
 
-  label_mapbox_apikey: Chave de API do Mapbox
-  label_api_key_info: Se você não tiver uma chave de API, obtenha-a aqui
   error_issue_logger: "Não é possível atualizar até parar o registrador de problemas"
   error_item_not_available: Não solicitado de itens não disponíveis no estoque
   label_reviewer_cmt: Comentário do revisor

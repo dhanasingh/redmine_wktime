@@ -1027,8 +1027,6 @@ de:
   label_auto_round_gl: Abrunden von Beträgen
   label_trend_chart: Trenddiagramm
 
-  label_mapbox_apikey: Mapbox API key
-  label_api_key_info: Wenn Sie keinen API-Schlüssel besitzen, holen Sie ihn sich hier
   error_issue_logger: "Kann erst aktualisiert werden, wenn der Ticket Logger gestoppt wurde"
   error_item_not_available: Angeforderte Anzahl von Artikeln, die nicht im Lager verfügbar sind
   label_reviewer_cmt: Gutachterkommentar

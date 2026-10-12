@@ -930,8 +930,6 @@ ta-IN:
   label_auto_round_gl: ஆட்டோ சுற்று விலைப்பட்டியல்
   label_trend_chart: பிரபலமாகும் விளக்கப்படம்
 
-  label_mapbox_apikey: Mapbox API சாவி
-  label_api_key_info: உங்களிடம் API சாவி இல்லையென்றால் அதை இங்கிருந்து பெறுங்கள்
   error_issue_logger: "சிக்கல் லாகரை நிறுத்தும் வரை புதுப்பிக்க முடியாது"
   error_item_not_available: பங்குகளில் கிடைக்காத பொருட்கள் எதுவும் கோரப்படவில்லை
   label_reviewer_cmt: மதிப்பீட்டாளர் கருத்து
