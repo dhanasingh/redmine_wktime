@@ -96,7 +96,7 @@ For more information on features, please refer to the user guide
 
 - Run the following command for db migration
   ```sh
-  rake redmine:plugins:migrate NAME=redmine_wktime RAILS_ENV=production
+  bundle exec rake redmine:plugins:migrate NAME=redmine_wktime RAILS_ENV=production
   ```
 
 - Run the following command to load default data
@@ -116,7 +116,7 @@ For more information on features, please refer to the user guide
 
 - When uninstalling the plugin, be sure to remove the db changes by running
   ```sh
-  rake redmine:plugins:migrate NAME=redmine_wktime VERSION=0 RAILS_ENV=production
+  bundle exec rake redmine:plugins:migrate NAME=redmine_wktime VERSION=0 RAILS_ENV=production
   ```
 
 ## Compatibility Matrix
@@ -153,13 +153,13 @@ For any Customization/Support, please contact us, our consulting team will be ha
 Adhi Software Pvt Ltd
 12/B-35, 6th Cross Road
 SIPCOT IT Park, Siruseri
-Kancheepuram Dist
+Chengalpattu Dist
 Tamilnadu - 603103
 India
 
 Website: [https://www.adhisoftware.co.in](https://www.adhisoftware.co.in)
 Email: info@adhisoftware.co.in
-Phone: +91 44 27470401
+Phone: +91 44 46612534
 
 Here are the Customizations we have done for our clients:
 1. Monthly Calendar - Puny Human
