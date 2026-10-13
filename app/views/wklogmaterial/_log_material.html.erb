@@ -1,6 +1,7 @@
 
 <%= javascript_include_tag 'wklogmaterial', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', plugin: 'redmine_wktime' %>
 <%
 	Issue.class_eval do
 		has_one :wk_issue, :dependent => :destroy, :class_name => 'WkIssue'
@@ -28,6 +29,9 @@
 <% logmaterial_helper = Object.new.extend(WklogmaterialHelper)	%>
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
 <% wkasset_helper = Object.new.extend(WkassetHelper) %>
+<% additionalMaterialLogTypes = Array(call_hook(:modify_product_log_type)).flat_map { |type| type.to_s.split } %>
+<% materialLogTypes = ['M', 'A'] + additionalMaterialLogTypes %>
+<% assetLogTypes = ['A'] + additionalMaterialLogTypes %>
 <% rateperHash = wkasset_helper.getRatePerHash(false) %>
 <% logtype = logmaterial_helper.getLogHash %>
 <% spentForsValue = wktime_helper.getSpentFors(User.current.id, @time_entry.project_id) %>
@@ -59,11 +63,13 @@
 <% ltype = @spentType == 'M' ? 'I' : @spentType  %>
 <% locId = locationArr[0][1] unless locationArr.blank? %>
 <% locationId = @materialEntry.blank? ? locId : @materialEntry.inventory_item.location_id %>
-<% itemArr = logmaterial_helper.getPdtItemArr(productId, false, ltype, locationId)  %>
 <% itemId = @materialEntry.blank? ? '' : @materialEntry.inventory_item_id  %>
+<% itemArr = logmaterial_helper.getPdtItemArr(productId, false, ltype, locationId, itemId)  %>
 <% uomId = @materialEntry.blank? ? '' : @materialEntry.uom_id  %>
 <% inventoryItemId = @materialEntry.blank? ? (itemArr.blank? ? '' : itemArr[0][1]) : @materialEntry.inventory_item.id %>
 <% itemObj = WkInventoryItem.find(inventoryItemId) unless inventoryItemId.blank?  %>
+<% uomId = itemObj.uom_id if uomId.blank? && itemObj.present? %>
+<% uomLabel = WkMesureUnit.find_by(id: uomId)&.name || itemObj&.uom&.name || "" %>
 <%= hidden_field_tag 'inventory_item_id', (itemObj.blank? ? "" : itemObj.id) %>
 <% matterialId = @materialEntry.blank? ? '' : @materialEntry.id  %>
 <%= hidden_field_tag 'matterial_entry_id', matterialId %>
@@ -71,7 +77,8 @@
 <% expenseAmount = @expenseEntry.blank? ? "" : @expenseEntry.amount  %>
 <%  assetObj = @materialEntry.blank? ? nil : @materialEntry.inventory_item.asset_property %>
 <% disable = @materialEntry.blank? || @materialEntry.spent_for.blank? || @materialEntry.spent_for.invoice_item_id.blank? ? false : true  %>
-<%= hidden_field_tag 'old_log_type', @spentType == 'E' ? 'wk_expense_entry' : (@spentType == 'M' || @spentType == 'A' ? 'wk_material_entry' : 'time_entry') %>
+<%= hidden_field_tag 'old_log_type', @spentType == 'E' ? 'wk_expense_entry' : (materialLogTypes.include?(@spentType) ? 'wk_material_entry' : 'time_entry') %>
+<%= hidden_field_tag 'additional_material_log_types', additionalMaterialLogTypes.to_json %>
 <%#=h hidden_field_tag('getclients_url', "#{url_for(:controller => 'wktime', :action => 'getclients', :user_id => User.current.id, :separator => ',')}") %>
 <%= hidden_field_tag 'userId', User.current.id %>
 <%
@@ -107,7 +114,7 @@
 <%= hidden_field_tag 'product_serial_numbers', productSNs.to_json || [] %>
 <%= hidden_field_tag 'hidden_sns', hidden_sns.to_json || [] %>
 
-<table style="padding-left:100px;">
+<table class="material-log-header">
 	<tr>
 		<th align="right" ><%= l(:label_log_type) %><span style="color:red;">*</span></th>
 		<td align="left">
@@ -117,7 +124,7 @@
 </table>
 
 <% if wktime_helper.showBilling %>
-	<table id='spent_for_tbl' style="padding-left:100px;">
+	<table id="spent_for_tbl" class="material-log-header">
 		<tr>
 			<th align="right" ><%= l(:label_spent_for) %></th>
 			<td align="left">
@@ -127,42 +134,58 @@
 	</table>
 <% end %>
 
-<table id="materialtable" style="padding-left:65px; display:none;">
+<table id="materialtable" style="margin-left:65px; display:none;">
+	<colgroup>
+		<col class="material-left-label-column">
+		<col class="material-left-value-column">
+		<col class="material-right-label-column">
+		<col class="material-right-value-column">
+	</colgroup>
 	<tr>
 		<th align="right" ><%= l(:field_location) %><span style="color:red;">*</span></th>
 		<td align="left">
-			<%=h select_tag('location_id', options_for_select(locationArr, :selected => (locationId.blank? ? locationArr : locationId) ), :style => "width:155px;", :onchange => "productChanged('product', 'product_item', #{User.current.id}, true, true, 'log_type', 'location_id'); ", :disabled => disable) %>
+			<%=h select_tag('location_id', options_for_select(locationArr, :selected => (locationId.blank? ? locationArr : locationId) ), :style => "width:155px;", :onchange => "productChanged('product', 'product_item', #{User.current.id}, true, false, 'log_type', 'location_id'); ", :disabled => disable) %>
 		</td>
-		<th align="right"><%= l(:label_available_quantity) %></th>
+		<th align="left"><%= l(:label_available_quantity) %></th>
 		<% availableQuantity = itemObj.blank? ? " " : itemObj.available_quantity  %>
-		<td align="left" style="padding-left: 45px;"><label id="available_quantity"><%=h html_hours("%.2f" % availableQuantity ) unless availableQuantity.blank? %></label></td>
+		<td align="left" class="material-single-value material-single-amount-value"><label id="available_quantity"><%=h html_hours("%.2f" % availableQuantity ) unless availableQuantity.blank? %></label></td>
 	</tr>
 	<tr>
 		<th align="right" ><%= l(:label_product) %><span style="color:red;">*</span></th>
 		<td align="left">
-			<%=h select_tag('product', options_for_select(productArr, :selected => (productId.blank? ? productArr : productId) ), :style => "width:155px;", :onchange => "productChanged(this.id, 'product_item', #{User.current.id}, true, true, 'log_type', 'location_id'); ", :disabled => disable) %>
+			<%=h select_tag('product', options_for_select(productArr, :selected => (productId.blank? ? productArr : productId) ), :style => "width:155px;", :onchange => "productChanged(this.id, 'product_item', #{User.current.id}, true, false, 'log_type', 'location_id'); ", :disabled => disable) %>
 		</td>
 		<% totQuantity = @materialEntry.blank? ? 1 : @materialEntry.quantity  %>
-		<th align="right"><%= l(:field_quantity) %><span style="color:red;">*</span></th>
-		<td align="left" style="padding-left: 20px;">
-			<%=h text_field_tag("product_quantity", ("%.2f" % totQuantity  ),:size => 10, :style => "width:80px;text-align:right;", :onchange => "updateTotal(this.id, 'product_sell_price', 'total', 'spcurrency');", :disabled => disable) %>
-			<%=h select_tag("uom_id", options_for_select(uomArr, :selected => uomId.blank? ? uomArr  : uomId), :disabled => disable) %>
+		<th align="left"><%= l(:field_quantity) %><span style="color:red;">*</span></th>
+		<td align="left" class="material-single-value">
+			<span class="material-quantity-uom">
+				<%= hidden_field_tag 'uom_id', uomId %>
+				<%=h text_field_tag("product_quantity", ("%.2f" % totQuantity  ), :size => 10, :inputmode => 'decimal', :pattern => '(?:[0-9]+(?:[.][0-9]*)?|[.][0-9]+)', :data => { numeric_error: "#{l(:field_quantity)} #{I18n.t('errors.messages.not_a_number')}" }, :style => "width:80px;text-align:right;", :onchange => "updateTotal(this.id, 'product_sell_price', 'total', 'spcurrency');", :disabled => disable) %>
+				<span id="uom_label" class="material-uom-label"><%=h uomLabel %></span>
+			</span>
 		</td>
 	</tr>
 	<tr>
 		<th align="right" ><%= l(:label_product_items) %><span style="color:red;">*</span></th>
 		<td align="left" >
-			<%= select_tag('product_item', options_for_select(itemArr, :selected => itemId.blank? ? itemArr  : itemId), :style => "width:155px;", :onchange => "productItemChanged(this.id, 'product_quantity', 'product_cost_price', 'product_sell_price', #{User.current.id}, 'log_type' ); productUOMChanged(this.id, 'uom_id', #{User.current.id})", :disabled => disable) %>
-			<span><%= link_to sprite_icon('document', l(:label_details)), logmaterial_helper.get_item_details_url(itemId, @spentType), class: 'icon' if itemId.present? %></span>
+			<span class="material-product-item-controls">
+				<%= select_tag('product_item', options_for_select(itemArr, :selected => itemId.blank? ? itemArr  : itemId), :style => "width:155px;", :onchange => "productItemChanged(this.id, 'product_quantity', 'product_cost_price', 'product_sell_price', #{User.current.id}, 'log_type' )", :disabled => disable, :data => { current_item_id: itemId, current_quantity: @materialEntry&.quantity }) %>
+				<% if @materialEntry.blank? %>
+					<%= link_to '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M3 14h18M9 4v16m6-16v16"/></svg>'.html_safe, '#', id: 'bulk-entry-toggle', class: 'icon icon-only', title: l(:label_bulk_entry, default: 'Bulk Entry'), aria: { label: l(:label_bulk_entry, default: 'Bulk Entry'), pressed: false } %>
+				<% end %>
+				<%= link_to sprite_icon('document', l(:label_details)), logmaterial_helper.get_item_details_url(itemId, @spentType), class: 'icon material-item-details-link' if itemId.present? %>
+			</span>
 		</td>
-		<th align="right"><%= l(:label_sell_price) %><span style="color:red;">*</span></th>
-		<td align="left" colspan="3" style="padding-left: 30px;" >
+		<th align="left"><%= l(:label_sell_price) %><span style="color:red;">*</span></th>
+		<td align="left" class="material-single-value" >
+			<span class="material-sell-price-line">
 			<label id="spcurrency"><%=h (itemObj.blank? ? "" : itemObj.currency) %></label>
 			<% sellPrice = @materialEntry.blank? ? "" : @materialEntry.selling_price  %>
 			<%=h text_field_tag("product_sell_price", sellPrice.blank? ? "" : ("%.2f" % sellPrice),:size => 20, :style => "width:80px; text-align:right;", :onchange => "updateTotal(this.id, 'product_quantity', 'total', 'spcurrency');", :disabled => disable) %>
-			<label id="unittext" style="float:right;padding-left: 120px; " >
-			<% assetlabel = (assetObj.rate_per.blank? ? "" : "/ " + rateperHash[assetObj.rate_per]) unless assetObj.blank? %>
-			<%=h assetObj.blank? ? "" : assetlabel %></label>
+			<label id="unittext" class="material-unit-text">
+			<% assetlabel = (assetObj.rate_per.blank? ? "" : "/ " + rateperHash[assetObj.rate_per]) if assetLogTypes.include?(@spentType) && assetObj.present? %>
+			<%=h assetlabel || "" %></label>
+			</span>
 		</td>
 	</tr>
 		<tr id="material_serial_no">
@@ -171,31 +194,96 @@
 				<div><%= l(:label_serial_number_note) %></div>
 				<span class="icon icon-warning warning" id="warn_serial_number" style="background-color: unset; border: 0;display:none;"><%= l(:warn_sn_range) %></span></td>
 		</tr>
-	<tr>
-		<% if wktime_helper.isModuleAdmin('wktime_inventory_admin') && @spentType == 'M'  %>
-			<th align="right"><%= l(:label_cost_price) %><span style="color:red;">*</span></th>
-			<td align="left" style="padding-left: 40px;">
-
-				<label id="cpcurrency" ><%=h (itemObj.blank? ? "" : itemObj.currency) %></label>
-				<% costPrice = itemObj.blank? ? "" : itemObj.cost_price %>
-				<%=h text_field_tag("product_cost_price", costPrice.blank? ? "" : ("%.2f" % costPrice) ,:size => 20, :disabled => true, :style => "width:100px; text-align:right; float:right") %>
-			</td>
-		<% elsif @spentType != 'T' && @spentType != 'E' && @spentType != 'I'  %>
-			<th align="right"><%= l(:label_done) %></th>
-			<% isDone = assetObj.blank? || assetObj.matterial_entry_id.blank? ? true :  false  %>
-			<td align="left" style="padding-left: 10px;"><%= check_box_tag("is_done", 1, isDone, :disabled => disable) %></td>
-		<% else %>
-			<th></th>
-			<td></td>
-		<% end %>
-		<th align="right"><%= l(:label_total) %></th>
-		<td align="left" style="padding-left: 95px;">
+	<tr id="material_cost_done_row">
+		<th align="right">
+			<% if wktime_helper.isModuleAdmin('wktime_inventory_admin') %>
+				<span class="material-single-cost-field"><%= l(:label_cost_price) %><span style="color:red;">*</span></span>
+			<% end %>
+			<span class="material-single-done-field"><%= l(:label_done) %></span>
+		</th>
+		<td align="left" style="padding-left: 40px;">
+			<% if wktime_helper.isModuleAdmin('wktime_inventory_admin') %>
+				<span class="material-single-cost-field">
+					<label id="cpcurrency"><%=h (itemObj.blank? ? "" : itemObj.currency) %></label>
+					<% costPrice = itemObj.blank? ? "" : itemObj.cost_price %>
+					<%=h text_field_tag("product_cost_price", costPrice.blank? ? "" : ("%.2f" % costPrice), :size => 20, :disabled => true, :style => "width:100px; text-align:right; float:right") %>
+				</span>
+			<% end %>
+			<%# A new asset log starts active; existing logs reflect whether the asset was released. %>
+			<span class="material-single-done-field"><% isDone = @materialEntry.present? && (assetObj.blank? || assetObj.matterial_entry_id.blank?) %><%= check_box_tag("is_done", 1, isDone, :disabled => disable) %></span>
+		</td>
+		<th id="material_total_label" align="left"><%= l(:label_total) %></th>
+		<td id="material_total_value" align="left" class="material-single-value material-single-total-value">
 			<!-- <label id="totalcurrency" style="padding-left: 40px;"><%#=h (itemObj.blank? ? "" : itemObj.currency) %></label> -->
 			<% netTotal = @materialEntry.blank? ? 0 : (@materialEntry.selling_price * @materialEntry.quantity)  %>
 			<label id="total"><%=h (itemObj.blank? ? "" : itemObj.currency) %><%=h html_hours("%.2f" % netTotal ) unless netTotal.blank? %></label>
 		</td>
 	</tr>
 </table>
+
+<div id="material-grid-wrapper" style="display:none;">
+	<%= hidden_field_tag 'bulk_material_entry', '1', disabled: true %>
+	<section class="material-grid-card" aria-label="<%= l(:label_bulk_entry, default: 'Bulk Entry') %>">
+		<div class="material-grid-toolbar">
+			<div class="material-grid-location-field">
+				<label for="material_grid_location_id"><%= l(:field_location) %><span class="material-grid-required" aria-hidden="true">*</span></label>
+				<span class="material-grid-location-controls">
+					<%= select_tag 'material_grid_location_id', options_for_select(locationArr, locationId), class: 'material-grid-select multi-row' %>
+					<%= link_to '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M9 3v18m6-18v18"/></svg>'.html_safe, '#', id: 'grid-single-entry-toggle', class: 'material-grid-add-row material-grid-close', title: l(:label_single_entry, default: 'Single Entry'), aria: { label: l(:label_single_entry, default: 'Single Entry') } %>
+				</span>
+			</div>
+			<div class="material-grid-toolbar-actions">
+				<%= link_to sprite_icon('add', l(:button_add_row)), '#', class: 'add-material-grid-row material-grid-add-row icon icon-add' %>
+			</div>
+		</div>
+		<div class="material-grid-table-scroll" tabindex="0">
+	<table id="material-grid" class="list">
+		<colgroup>
+			<col class="material-grid-product-column">
+			<col class="material-grid-product-item-column">
+			<col class="material-grid-quantity-column">
+			<col class="material-grid-available-column">
+			<col class="material-grid-serial-number-column">
+			<col class="material-grid-price-column">
+			<col class="material-grid-done-column">
+			<col class="material-grid-action-column">
+		</colgroup>
+		<thead>
+			<tr>
+				<th><%= l(:label_product) %><span class="material-grid-required">*</span></th>
+				<th><%= l(:label_product_items) %><span class="material-grid-required">*</span></th>
+				<th><%= l(:field_quantity) %><span class="material-grid-required">*</span></th>
+				<th class="material-grid-available-heading"><%= l(:label_avail_quantity) %></th>
+				<th class="material-grid-serial-number-cell"><%= l(:label_serial_number) %><span class="material-grid-serial-note"><%= l(:label_serial_number_note) %></span></th>
+				<th><%= l(:label_sell_price) %><span class="material-grid-required">*</span></th>
+				<th class="material-grid-done-column"><%= l(:label_done) %></th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody></tbody>
+	</table>
+		</div>
+		<div class="material-grid-footer material-grid-add-row-bar">
+			<%= link_to sprite_icon('add', l(:button_add_row)), '#', class: 'add-material-grid-row material-grid-add-row material-grid-footer-add-row icon icon-add', style: 'margin-left:auto; margin-right:0;' %>
+		</div>
+</section>
+</div>
+
+<script type="text/template" id="material-grid-row-template">
+	<tr class="material-grid-row">
+		<td><%= hidden_field_tag 'material_rows[INDEX][entered]', '0', class: 'material-grid-entered' %><%= select_tag 'material_rows[INDEX][product]', options_for_select([['', '']]), class: 'material-grid-select material-grid-product multi-row' %></td>
+		<td><%= select_tag 'material_rows[INDEX][product_item]', options_for_select([['', '']]), class: 'material-grid-select material-grid-product-item multi-row' %></td>
+		<td class="material-grid-quantity"><div class="material-grid-quantity-line"><%= text_field_tag 'material_rows[INDEX][quantity]', '', inputmode: 'decimal', pattern: '(?:[0-9]+(?:[.][0-9]*)?|[.][0-9]+)', data: { numeric_error: "#{l(:field_quantity)} #{I18n.t('errors.messages.not_a_number')}" }, class: 'material-grid-quantity-input' %><span class="material-grid-uom-label"></span></div><%= hidden_field_tag 'material_rows[INDEX][uom_id]', '' %><%= hidden_field_tag 'material_rows[INDEX][inventory_item_id]', '' %></td>
+		<td class="material-grid-available"><span class="available-quantity"></span></td>
+		<td class="material-grid-serial-number-cell">
+			<%= text_area_tag 'material_rows[INDEX][serial_numbers]', '', class: 'material-grid-serial-input' %>
+			<span class="icon icon-warning warning material-grid-serial-warning" style="background-color: unset; border: 0; display:none;"><%= l(:warn_sn_range) %></span>
+		</td>
+		<td class="material-grid-price"><span class="material-grid-currency"></span><%= text_field_tag 'material_rows[INDEX][selling_price]', '', class: 'material-grid-price-input' %></td>
+		<td class="material-grid-done-column" style="text-align:center;"><%= check_box_tag 'material_rows[INDEX][is_done]', 1, false, class: 'material-grid-done' %></td>
+		<td><%= link_to sprite_icon('del'), '#', class: 'material-grid-remove icon icon-del', title: l(:button_delete), data: { confirm_message: l(:text_are_you_sure) } %></td>
+	</tr>
+</script>
 
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
 <% currency = @expenseEntry.blank? ? Setting.plugin_redmine_wktime['wktime_currency'] : @expenseEntry.currency %>

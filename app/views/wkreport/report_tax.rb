@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2021 Adhi software pvt ltd
+# Copyright (C) 2011- Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -18,7 +18,7 @@
 module ReportTax
 	include WkreportHelper
 
-	def calcReportData(userId, groupId, projId, from, to)
+	def calcReportData(userId, groupId, projId, from, to, location_id = nil)
 		from = from.to_date
 		to = to.to_date
 		betwn_mnth_count = getInBtwMonthsArr(from, to)

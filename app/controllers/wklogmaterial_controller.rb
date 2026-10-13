@@ -27,7 +27,7 @@ class WklogmaterialController < TimelogController
 		super
 		respond_to do |format|
 			format.api {
-				render(layout: "wklogmaterial/material_index") if params[:spent_type] == "M" || params[:spent_type] == "A"
+				render(layout: "wklogmaterial/material_index") if (["M", "A"] + Array(call_hook(:modify_product_log_type)).flat_map { |type| type.to_s.split }).include?(params[:spent_type])
 			}
     end
   end
@@ -53,7 +53,8 @@ class WklogmaterialController < TimelogController
 		elsif params[:ptype] == "product_item"
 			productType = params[:log_type]
 			location = params[:location_id]
-			pctObj = wklogmatterial_helper.mergePItemInvItemQuery(params[:id], productType, location)
+			currentEntry = WkMaterialEntry.visible.find_by(id: params[:matterial_entry_id]) if params[:matterial_entry_id].present?
+			pctObj = wklogmatterial_helper.mergePItemInvItemQuery(params[:id], productType, location, currentEntry&.inventory_item_id)
 		elsif params[:ptype] == "product_model_id"
 			unless params[:id].blank? || params[:id].to_i < 1
 				pObj = WkBrand.find(params[:id].to_i)
@@ -89,7 +90,7 @@ class WklogmaterialController < TimelogController
 					if params[:module_type] == 'invoice'
 						product = {value: entry.product_id.to_s+'_ '+entry.id.to_s, label: entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ entry.part_number.to_s() +' - '+ attributeName  +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s() +' - '+ (entry.serial_number.to_s() + entry.running_sn.to_s() + ' - qty ' + entry.available_quantity.to_s()))}
 					else
-						product = {value: entry.id, label: entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ entry.part_number.to_s() +' - '+ attributeName  +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s() +' - '+ (entry.serial_number.to_s() + entry.running_sn.to_s()))}
+						product = {value: entry.id, label: entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ attributeName +' - '+ entry.part_number.to_s() +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s() +' - '+ (entry.serial_number.to_s() + entry.running_sn.to_s()))}
 					end
 				end
 				productDetail << product
@@ -143,7 +144,6 @@ class WklogmaterialController < TimelogController
 			}
 			format.json  {
 				spentTypes = []
-				spentTypeHash.delete("RA")  # if resident management Plugin present
 				# spentTypeHash.delete("E") if !wklogtime_helper.isChecked('wktime_enable_expense_module')
 				# if !wklogtime_helper.isChecked('wktime_enable_inventory_module')
 				# 	spentTypeHash.delete("M")

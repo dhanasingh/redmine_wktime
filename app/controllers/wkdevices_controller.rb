@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkdevicesController < WkbaseController
-  menu_item :wkcrmenumeration
+  menu_item :wkattendance
   before_action :require_login
   before_action :check_perm_and_redirect, only: [:index, :update, :destroy]
   skip_before_action :verify_authenticity_token, only: [:check]
@@ -149,7 +149,7 @@ class WkdevicesController < WkbaseController
   end
 
   def check_perm_and_redirect
-    unless User.current.admin? || validateERPPermission('A_DEVICE')
+    unless validateERPPermission('A_DEVICE')
       render_403
       return false
     end

@@ -99,7 +99,7 @@ accept_api_auth :get_reports, :get_report_data, :export
 
 	def get_reports
 		headers = {}
-		reportType = getReportType(true)
+		reportType = getReportType
 		projects = Project.active.order('name')
 		groups = Group.sorted.givable
 		# Scope the location filter to the user's accessible locations so the dropdown
@@ -123,12 +123,13 @@ accept_api_auth :get_reports, :get_report_data, :export
 		attachment = WkLocation.getMainLogo
 		base64Image = getBase64Image(attachment)
 		if(params[:report_type].present?)
+			report_type = params[:report_type].remove("_web")
 			begin
-				require_relative "../views/wkreport/#{params[:report_type]}"
-				report = Object.new.extend(params[:report_type].camelize.constantize)
+				require_relative "../views/wkreport/#{report_type}"
+				report = Object.new.extend(report_type.camelize.constantize)
 			rescue LoadError
 				report_module = []
-				call_hook(:load_report_module, report_type: params[:report_type], report_module: report_module)
+				call_hook(:load_report_module, report_type: report_type, report_module: report_module)
 				report = report_module.first
 			end
 			if report.present?

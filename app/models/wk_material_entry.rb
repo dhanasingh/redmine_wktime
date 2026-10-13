@@ -17,10 +17,26 @@
 
 class WkMaterialEntry < TimeEntry
 
+  attr_accessor :skip_wk_custom_field_values
 
   self.table_name = "wk_material_entries"
 
+  # Material, asset, and RA logs are all stored as material entries and use
+  # the Time Entry custom fields rendered by the shared log form.
+  def available_custom_fields
+    return [] if skip_wk_custom_field_values
+
+    TimeEntryCustomField.sorted.to_a
+  end
+
+  # Material, asset, and RA records live in wk_material_entries even though
+  # they inherit TimeEntry behavior.
+  def self.polymorphic_name
+    name
+  end
+
   validates_presence_of :project_id, :user_id, :issue_id, :quantity, :activity_id, :spent_on
+  validates_numericality_of :quantity, greater_than: 0
   validates :spent_on, :date => true
 
   belongs_to :project

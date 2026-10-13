@@ -661,6 +661,8 @@ en:
   label_shipment_date: Receipt Date
   label_serial_number: Serial Number
   label_material: Material
+  label_single_entry: Single
+  label_bulk_entry: Bulk
   label_cost_price: Cost Price
   label_sell_price: Sell Price
   label_brand: Brand
@@ -672,6 +674,7 @@ en:
   label_org_over_head_price: Original Over Head Cost
   label_total_quantity: Total Quantity
   label_available_quantity: Available Quantity
+  label_avail_quantity: Avail. Qty
   label_model: Model
   label_attribute_group: Attribute Group
   label_product_catagory: Product Catagory
@@ -1036,8 +1039,6 @@ en:
   label_auto_round_gl: Round Off Amounts
   label_trend_chart: Trending Chart
 
-  label_mapbox_apikey: Mapbox API key
-  label_api_key_info: If you do not have a api key get it from here
   error_issue_logger: "Can't Update until stop the issue logger"
   error_item_not_available: Requested no of items not available in the stock
   label_reviewer_cmt: Reviewer Comment
@@ -1099,6 +1100,7 @@ en:
   label_select_leadsource: Select Lead Source
   label_clock: Clock
   label_select_spent_for: Select Spent For
+  label_select_spent_type: Select Spent Type
   label_select_project: Select a project
   label_select_issue: Select a issue
   label_select_activity: Select a activity

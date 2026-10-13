@@ -19,6 +19,19 @@ class WkExpenseEntry < TimeEntry
 
   self.table_name = "wk_expense_entries"
 
+  # Expense entries share the Time Entry custom fields shown by the log form.
+  # Without this override, acts_as_customizable searches for a (non-existent)
+  # WkExpenseEntryCustomField type and silently drops the submitted values.
+  def available_custom_fields
+    TimeEntryCustomField.sorted.to_a
+  end
+
+  # This model inherits TimeEntry behavior but persists in its own table.
+  # Keep polymorphic custom values attached to that table, not time_entries.
+  def self.polymorphic_name
+    name
+  end
+
   belongs_to :project
   belongs_to :issue
   belongs_to :user

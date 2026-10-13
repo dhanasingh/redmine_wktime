@@ -1,32 +1,7 @@
 module SendPatch::QueriesHelperPatch
 	def self.included(base)
+		base.prepend(WkColOverrides)
 		base.class_eval do
-
-			# module InstanceMethods
-			def column_value_with_wktime_projects(column, item, value)
-				case column.name
-			# ============= ERPmine_patch Redmine 7.0 =====================
-				when :inventory_item_id
-					formProductItem(item)
-				when :selling_price
-					val = item.selling_price * item.quantity
-					value = val.blank? ? 0.00 : ("%.2f" % val)
-				when :resident_id
-					val = item.resident.name
-					value = val
-				when :resident_type
-					value = item.resident.location.name
-				when :apartment_id
-					value = item.apartment.blank? ? "" : item.apartment.asset_property.name
-				when :bed_id
-					value = item.bed.blank? ? "" : item.bed.asset_property.name
-			# =============================
-				else
-					column_value_without_wktime_projects(column, item, value)
-				end
-			end
-			alias_method :column_value_without_wktime_projects, :column_value
-			alias_method :column_value, :column_value_with_wktime_projects
 
 			def render_query_totals(query)
 				return unless query.totalable_columns.present?
@@ -89,6 +64,32 @@ module SendPatch::QueriesHelperPatch
 				out
 			end
 
+		end
+	end
+
+	# Renders ERPmine's material-entry and resident query columns. Other plugins
+	module WkColOverrides
+		def column_value(column, item, value)
+			case column.name
+		# ============= ERPmine_patch Redmine 7.0 =====================
+			when :inventory_item_id
+				formProductItem(item)
+			when :selling_price
+				val = item.selling_price * item.quantity
+				value = val.blank? ? 0.00 : ("%.2f" % val)
+			when :resident_id
+				val = item.resident.name
+				value = val
+			when :resident_type
+				value = item.resident.location.name
+			when :apartment_id
+				value = item.apartment.blank? ? "" : item.apartment.asset_property.name
+			when :bed_id
+				value = item.bed.blank? ? "" : item.bed.asset_property.name
+		# =============================
+			else
+				super
+			end
 		end
 	end
 end
