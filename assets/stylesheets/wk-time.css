@@ -2299,6 +2299,12 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
   margin-left: 46px;
 }
 
+#material-grid-wrapper .material-grid-location-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 #material-grid-wrapper .material-grid-location-field label {
   display: inline-block !important;
   position: static !important;
@@ -2372,25 +2378,32 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
   transform: translateY(-1px);
 }
 
-#material-grid-wrapper .material-grid-close {
-  min-width: 0 !important;
-  gap: 5px;
+#material-grid-wrapper .add-material-grid-row {
+  font-size: 14px;
+}
+
+#material-grid-wrapper #grid-single-entry-toggle {
+  width: 40px;
+  height: 40px;
+  min-width: 40px !important;
+  min-height: 40px;
+  padding: 0;
   color: #1769c2;
 }
 
 #material-grid-wrapper .material-grid-close svg {
   display: block;
-  flex: 0 0 16px;
-  width: 16px;
-  height: 16px;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 2;
+  stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
-#material-grid-wrapper .material-grid-close svg circle {
+#material-grid-wrapper .material-grid-close svg rect {
   fill: transparent;
   transition: fill .16s ease, stroke .16s ease;
 }
@@ -2402,8 +2415,8 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
   outline: 0;
 }
 
-#material-grid-wrapper .material-grid-close:hover svg circle,
-#material-grid-wrapper .material-grid-close:focus-visible svg circle {
+#material-grid-wrapper .material-grid-close:hover svg rect,
+#material-grid-wrapper .material-grid-close:focus-visible svg rect {
   fill: #d9ecff;
 }
 
@@ -2905,9 +2918,15 @@ fieldset.surveyquestion.ed-qrow > legend{display:none}
     text-align: left !important;
   }
 
-  #material-grid-wrapper #material_grid_location_id,
-  #material-grid-wrapper .material-grid-location-field .ui.dropdown {
+  #material-grid-wrapper .material-grid-location-controls {
+    display: flex;
     width: 100%;
+  }
+
+  #material-grid-wrapper .material-grid-location-controls #material_grid_location_id,
+  #material-grid-wrapper .material-grid-location-controls .ui.dropdown {
+    flex: 1 1 auto;
+    width: auto !important;
     min-width: 0 !important;
   }
 

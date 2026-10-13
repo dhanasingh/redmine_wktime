@@ -227,11 +227,13 @@
 		<div class="material-grid-toolbar">
 			<div class="material-grid-location-field">
 				<label for="material_grid_location_id"><%= l(:field_location) %><span class="material-grid-required" aria-hidden="true">*</span></label>
-				<%= select_tag 'material_grid_location_id', options_for_select(locationArr, locationId), class: 'material-grid-select multi-row' %>
+				<span class="material-grid-location-controls">
+					<%= select_tag 'material_grid_location_id', options_for_select(locationArr, locationId), class: 'material-grid-select multi-row' %>
+					<%= link_to '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M9 3v18m6-18v18"/></svg>'.html_safe, '#', id: 'grid-single-entry-toggle', class: 'material-grid-add-row material-grid-close', title: l(:label_single_entry, default: 'Single Entry'), aria: { label: l(:label_single_entry, default: 'Single Entry') } %>
+				</span>
 			</div>
 			<div class="material-grid-toolbar-actions">
 				<%= link_to sprite_icon('add', l(:button_add_row)), '#', class: 'add-material-grid-row material-grid-add-row icon icon-add' %>
-				<%= link_to '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M8.5 8.5l7 7m0-7l-7 7"/></svg>'.html_safe + l(:button_close, default: 'Close'), '#', id: 'grid-single-entry-toggle', class: 'material-grid-add-row material-grid-close' %>
 			</div>
 		</div>
 		<div class="material-grid-table-scroll" tabindex="0">
