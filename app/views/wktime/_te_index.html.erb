@@ -122,7 +122,11 @@ $(document).ready(function()
 
 <% if @entries.present? %>
 	<div class="total-hours">
-		<p><%= l(:label_total) %>: <%= "#{@unit}" %>&nbsp;<%= controller.total_all(@total_hours) %></p>
+		<p><%= l(:label_total) %>: <%= "#{@unit}" %>&nbsp;<%= controller.total_all(@total_hours) %>
+			<% if controller_name == 'wktime' && @show_logged_project_hours %>
+				&nbsp;&nbsp;<%= l(:label_wk_project_total) %>: <%= controller.total_all(@total_project_hours) %>
+			<% end %>
+		</p>
 	</div>
 	<%= render :partial => 'wktime/list', :locals => { :entries => @entries }%>
 	<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

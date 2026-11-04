@@ -698,6 +698,10 @@ end
 		date
 	end
 
+	def project_hours_for(entry)
+		entry&.project_hours&.to_f&.round(2)
+	end
+
 	#Code snippet taken from application_helper.rb  - include_calendar_headers_tags method
 	def getStartOfWeek
 		start_of_week = Setting.start_of_week

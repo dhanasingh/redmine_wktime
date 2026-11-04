@@ -14,6 +14,9 @@
 
 					<% headerName = controller.getLabelforSpField == "Hours" ? "hours" : "amount" %>
 					<%= sort_header_tag(headerName, :caption => controller.getLabelforSpField) %>
+					<% if controller.controller_name == 'wktime' && @show_logged_project_hours %>
+						<th><%= l(:field_project) %></th>
+					<% end %>
 					<%= sort_header_tag("status", :caption => l(:field_status)) %>
 					<%= sort_header_tag("modified_by", :caption => l(:field_status_modified_by), class: "lbl-txt-align") %>
 					<th></th>
@@ -34,6 +37,9 @@
 						<td class="lbl-txt-align"><%=h entry.user.supervisor.blank? ? "" : entry.user.supervisor.name %></td>
 					<% end %>
 					<td ><%= controller.getUnit(entry) %>&nbsp;<%=h html_hours("%.2f" % (entry.hours || entry.amount || 0)) %></td>
+					<% if controller.controller_name == 'wktime' && @show_logged_project_hours %>
+						<td><%=h html_hours("%.2f" % project_hours_for(entry)) %></td>
+					<% end %>
 					<td class="status colorcode-bg-setup col-status-<%= entry.status %>"><%=h statusString(entry.status) unless entry.status.blank? %></td>
 					<td class="lbl-txt-align"><%=h entry.status_updater %></td>
 					<td align="center">

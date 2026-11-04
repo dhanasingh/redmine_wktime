@@ -351,12 +351,12 @@ private
   end
 
 	def getLastPDFCell(list, entry)
-		list << [ entry.currency.to_s + " " + entry.amount.to_s , 40 ]
+		list << [ entry.currency.to_s + " " + entry.amount.to_s , 38 ]
 		list
   end
 
 	def getPDFFooter(pdf, row_Height)
-		pdf.RDMCell( 140, row_Height, l(:label_total), 1, 0, 'R', 1)
-		pdf.RDMCell( 40, row_Height, (@total_hours || 0).to_s, 1, 0, '', 1)
+		pdf.RDMCell( 150, row_Height, l(:label_total), 1, 0, 'R', 1)
+		pdf.RDMCell( 38, row_Height, (@total_hours || 0).to_s, 1, 0, '', 1)
 	end
 end

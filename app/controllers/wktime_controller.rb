@@ -66,7 +66,17 @@ include ActionView::Helpers::TagHelper
 		if (!@manage_view_spenttime_projects.blank? && @manage_view_spenttime_projects.size > 0)
 			@selected_project = getSelectedProject(@manage_view_spenttime_projects, false)
 		end
+		filter_type = session[controller_name].try(:[], :filter_type)
+		project_filter_active = filter_type == '1' ||
+			(filter_type.blank? && (!isSupervisorApproval || (validateERPPermission('A_TE_PRVLG') && !isSupervisor)))
+		# Project view shows only weeks with logged hours in the selected project and includes its hours column.
+		@show_logged_project_hours = controller_name == 'wktime' && @selected_project.present? && project_filter_active
 		setMembers
+		# A blank or stale member selection in group view means all members of that group.
+		if filter_type == '2' && !@members.any? { |member| member[1].to_s == user_id.to_s }
+			user_id = '0'
+			session[controller_name][:user_id] = user_id
+		end
 		ids = nil
 		if user_id.blank?
 			user_id = (@currentUser_loggable_projects.blank? && @view_spenttime_projects.blank?) ? '-1' : User.current.id.to_s
@@ -107,17 +117,21 @@ include ActionView::Helpers::TagHelper
 				get_TE_entries(queries[0] + queries[1] + orderStr)
 			end
 			format.pdf do
-				get_TE_entries(queries[0] + queries[1] + orderStr)
 				findBySql(queries[0], queries[1], orderStr)
+				get_TE_entries(queries[0] + queries[1] + orderStr)
 				send_data(list_to_pdf(@entries, setEntityLabel), :type => 'application/pdf', :filename => "#{setEntityLabel}.pdf")
 			end
       format.csv do
 				get_TE_entries(queries[0] + queries[1] + orderStr)
-        headers = {cal_week: l(:label_week), date: l(:field_start_date), user: l(:field_user), type: getLabelforSpField, status: l(:field_status), modifiedby: l(:field_status_modified_by) }
+        headers = {cal_week: l(:label_week), date: l(:field_start_date), user: l(:field_user), type: getLabelforSpField}
+        headers[:project_hours] = l(:field_project) if @show_logged_project_hours
+        headers.merge!(status: l(:field_status), modifiedby: l(:field_status_modified_by))
 				headers[:supervisor] = l(:label_ftte_supervisor) if isSupervisorApproval
         data = @entries.map do |e|
 					status = e.status.present? ? statusString(e.status) : nil
-					rowData = {cal_week: e.spent_on&.cweek, date: format_date(e.spent_on), user: e.user&.name, type: getUnit(e).to_s + (e.hours || e.amount || 0).round(2).to_s, status: status, modifiedby: e.status_updater}
+					rowData = {cal_week: e.spent_on&.cweek, date: format_date(e.spent_on), user: e.user&.name, type: getUnit(e).to_s + (e.hours || e.amount || 0).round(2).to_s}
+					rowData[:project_hours] = project_hours_for(e) if @show_logged_project_hours
+					rowData.merge!(status: status, modifiedby: e.status_updater)
 					rowData[:supervisor] = e.user&.supervisor&.name if isSupervisorApproval
 					rowData
 				end
@@ -2287,14 +2301,16 @@ private
 		spField = getSpecificField()
 		entityNames = getEntityNames()
 		teSelectStr = "select v1.id, v1.user_id, v1.startday as spent_on, v1." + spField
+		teSelectStr += ", v1.project_hours" if @show_logged_project_hours
 		wkSelectStr = teSelectStr + ", case when w.status is null then 'n' else w.status end as status "
 		sqlStr = " from "
 		sDay = getDateSqlString('t.spent_on')
+		projectHoursSql = @show_logged_project_hours ? ", sum(case when t.project_id = #{@selected_project.id.to_i} then t.hours else 0 end) as project_hours" : ""
 		#Martin Dube contribution: 'start of the week' configuration
 		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'
 			wkSelectStr = wkSelectStr +", un.firstname + ' ' + un.lastname as status_updater "
 			sqlStr += "(select " + sDay + " as startday, "
-			sqlStr += " t.user_id, sum(t." + spField + ") as " + spField + " ,max(t.id) as id" + " from " + entityNames[1] + " t, users u" +
+			sqlStr += " t.user_id, sum(t." + spField + ") as " + spField + " ,max(t.id) as id" + projectHoursSql + " from " + entityNames[1] + " t, users u" +
 				" where u.id = t.user_id and u.id in (#{ids})"
 			sqlStr += " and t.spent_on between '#{from}' and '#{to}'" unless from.blank? && to.blank?
 			sqlStr += " group by " + sDay + ", user_id ) as v1"
@@ -2305,7 +2321,7 @@ private
 				wkSelectStr = wkSelectStr +", concat(un.firstname,' ' ,un.lastname) as status_updater "
 			end
 			sqlStr += "(select " + sDay + " as startday, "
-			sqlStr += " t.user_id, sum(t." + spField + ") as " + spField + " ,max(t.id) as id" + " from " + entityNames[1] + " t, users u" +
+			sqlStr += " t.user_id, sum(t." + spField + ") as " + spField + " ,max(t.id) as id" + projectHoursSql + " from " + entityNames[1] + " t, users u" +
 				" where u.id = t.user_id and u.id in (#{ids})"
 			sqlStr += " and t.spent_on between '#{from}' and '#{to}'" unless from.blank? && to.blank?
 			sqlStr += " group by startday, user_id order by startday desc, user_id ) as v1"
@@ -2323,15 +2339,19 @@ private
 		teSqlStr = "(" + teQuery + ") tmp2"
 
 		selectStr = "select tmp3.id, tmp3.user_id as user_id , tmp3.spent_on as spent_on, tmp3.#{spField} as #{spField}, tmp3.status as status, tmp3.status_updater as status_updater, tmp3.created_on as created_on"
+		selectStr += ", tmp3.project_hours as project_hours" if @show_logged_project_hours
 		query = " from (select tmp2.id, tmp1.id as user_id, tmp1.created_on, tmp1.selected_date as spent_on, " +
 				"case when tmp2.#{spField} is null then 0 else tmp2.#{spField} end as #{spField}, " +
-				"case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.status_updater from " + dtRangeForUsrSqlStr +
+				"case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.status_updater"
+		query += ", tmp2.project_hours" if @show_logged_project_hours
+		query += " from " + dtRangeForUsrSqlStr +
 				" left join " + teSqlStr
 		query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids})) tmp3 "
 		query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id as usrid from time_entries t, users u "
 		query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id "
 		query = query + " left join users AS un on un.id = tmp3.user_id "
 		query = query + getWhereCond(status)
+		query += " AND COALESCE(tmp3.project_hours, 0) <> 0" if @show_logged_project_hours
 		return [selectStr, query]
 	end
 
@@ -2342,7 +2362,13 @@ private
 		rangeStr = formPaginationCondition()
 		get_TE_entries(selectStr + query + orderStr + rangeStr)
 		@unit = nil
-		@total_hours = findSumBySql(query, spField, TimeEntry)
+		if @show_logged_project_hours
+			totals = TimeEntry.find_by_sql("select sum(tmp3.#{spField}) as total_hours, sum(tmp3.project_hours) as total_project_hours " + query).first
+			@total_hours = totals&.total_hours&.round(2)
+			@total_project_hours = totals&.total_project_hours&.round(2)
+		else
+			@total_hours = findSumBySql(query, spField, TimeEntry)
+		end
 	end
 
 	def getWhereCond(status)
@@ -2626,32 +2652,49 @@ private
 	end
 
 	def getPDFHeaders()
+		if @show_logged_project_hours
+			return [[l(:label_week), 24], [l(:field_start_date), 32], [l(:field_user), 42],
+				[l(:field_status), 30], [getLabelforSpField, 30], [l(:field_project), 30]]
+		end
 		headers = [
-			[ l(:label_week), 40 ],
-			[ l(:field_start_date), 40 ],
-			[ l(:field_user), 60 ],
-			[ l(:field_status), 40 ],
-			[ getLabelforSpField, 40 ]
+			[ l(:label_week), 26 ],
+			[ l(:field_start_date), 36 ],
+			[ l(:field_user), 52 ],
+			[ l(:field_status), 36 ],
+			[ getLabelforSpField, 38 ]
 		]
+		headers
 	end
 
 	def getPDFcells(entry)
+		if @show_logged_project_hours
+			return [[entry.spent_on&.cweek.to_s, 24], [entry.spent_on.to_s, 32],
+				[entry.user.name.to_s, 42], [statusString(entry.status), 30],
+				[entry.hours.to_s, 30], [project_hours_for(entry).to_s, 30]]
+		end
 		list = [
-			[ entry.spent_on&.cweek.to_s, 40 ],
-			[ entry.spent_on.to_s, 40 ],
-			[ entry.user.name.to_s, 60 ],
-			[ statusString(entry.status), 40 ]
+			[ entry.spent_on&.cweek.to_s, 26 ],
+			[ entry.spent_on.to_s, 36 ],
+			[ entry.user.name.to_s, 52 ],
+			[ statusString(entry.status), 36 ]
 		]
 		list = getLastPDFCell(list, entry)
+		list
 	end
 
 	def getPDFFooter(pdf, row_Height)
-		pdf.RDMCell( 180, row_Height, l(:label_total), 1, 0, 'R', 1)
-		pdf.RDMCell( 40, row_Height, (@total_hours || 0).to_s, 1, 0, '', 1)
+		if @show_logged_project_hours
+			pdf.RDMCell(128, row_Height, l(:label_total), 1, 0, 'R', 1)
+			pdf.RDMCell(30, row_Height, (@total_hours || 0).to_s, 1, 0, '', 1)
+			pdf.RDMCell(30, row_Height, (@total_project_hours || 0).to_s, 1, 0, '', 1)
+			return
+		end
+		pdf.RDMCell( 150, row_Height, l(:label_total), 1, 0, 'R', 1)
+		pdf.RDMCell( 38, row_Height, (@total_hours || 0).to_s, 1, 0, '', 1)
 	end
 
 	def getLastPDFCell(list, entry)
-		list << [ entry.hours.to_s , 40 ]
+		list << [ entry.hours.to_s , 38 ]
 		list
 	end
 
