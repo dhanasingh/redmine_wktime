@@ -1,15 +1,15 @@
-# Webinar on ERPmine – Billing, October 27th, 2026,(11:30 AM GMT)
+# Webinar on ERPmine – CRM, November 24th, 2026, 11:30 AM GMT
  
 Please click here to register if interested,
-[(https://us02web.zoom.us/meeting/register/kNRVkp_RS2WFINMsarmT3A)]
+[https://us02web.zoom.us/meeting/register/7sTyE2jETw6c_qqEWkbOVA]
  
 **Topics**:
--  Billing Projects
--  Invoice Setup
--  Contract Setup
--  Preview Unbilled Invoice
--  Generate Invoice
--  Accept Payment
+-  Leads
+-  Accounts
+-  Contacts
+-  Opportunities
+-  Activities
+-  Sales Quote
 -  Reports
 -  Mobile App
 -----
