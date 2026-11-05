@@ -29,7 +29,6 @@
 		<tbody>
 
 			<%
-				approvalProjects = @approvable_projects.pluck(:id)
 				# To Populate approved leaves
 				approved_leaves = controller.get_approved_leaves if @wktime.nil? && params['sheet_view'] != 'I'
 			%>
@@ -43,12 +42,12 @@
 					<% matrix.each do |rows| %>
 						<% issueWritten = false %>
 						<% (rows || []).each.with_index do |entry, i| %>
-							<% if !entry.blank? && ((@wktime.present? && @wktime.status == 'n') || approvalProjects.length == 0 || approvalProjects.include?(entry.project_id)) %>
+							<% if !entry.blank? && wk_entry_visible?(entry) %>
 								<% if !issueWritten %>
 									<% # this is a new Row %>
 									<% # close the previously opened row first %>
 									<%= render :partial => 'edit_hours', :locals => {:entry => nil, :isTemplate => false, :padAt => 'end', :padTill => @renderer.getDaysPerSheet + 1}%>
-									<%= render :partial => 'edit_issues2', :locals => {:entry => entry, :isTemplate => false}%>
+									<%= render :partial => 'edit_issues2', :locals => {:entry => entry, :isTemplate => false, :row_entries => rows.compact}%>
 									<% issueWritten = true %>
 								<% end %>
 								<% # fill the days till the current day %>
@@ -117,39 +116,29 @@
 </div>
 
 <div style="float: left;">
-	<% if !@locked %>
-			<%if @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r' && (@approverwkStatuses.length == 0 || @user.id == User.current.id) %>
-				<%= submit_tag l(:button_save), :id => 'wktime_save', :name => 'wktime_save',  :disabled => !(@row > 0)%>
-				<%= submit_tag l(:button_save_continue), :id => 'wktime_save_continue', :name => 'wktime_save_continue' , :disabled => !(@row > 0)%>
-			<% if controller.hasApprovalSystem && !@renderer.showSpentOnInRow %>
-				<% defaultHours = !Setting.plugin_redmine_wktime['wktime_default_work_time'].blank? ? Setting.plugin_redmine_wktime['wktime_default_work_time'].to_i : 8 %>
-					<%= submit_tag l(:button_submit),:id => 'wktime_submit', :name => 'wktime_submit', :onclick => "return validateMinhour('#{controller.maxHour}','#{controller.minHour}','#{getNonWorkingDayColumn(params[:startday])}','#{controller.minHourPerWeek}', '#{controller.maxHourPerWeek}', '#{defaultHours}');" , :disabled => !(@row > 0)%>
-			<% end %>
-		<% end %>
-
-		<% if controller.hasApprovalSystem && !@renderer.showSpentOnInRow  %>
-			<% approverEntries = @approverEntries.pluck(:id)
-				approvedEntries =  @approverwkStatuses.pluck(:id)
-			%>
-			<% if !@wktime.nil? && @wktime.status == 's' %>
-				<% if @approvedwkStatuses.length == 0 %>
-					<%= submit_tag l(:button_wk_unsubmit), :name => 'wktime_unsubmit', :disabled => !(@row > 0)%>
-				<% end %>
-				<% if controller.check_approvable_status() && (approverEntries - approvedEntries).length > 0 %>
-					<%= submit_tag l(:button_wk_approve), :name => 'wktime_approve', :disabled => !(@row > 0)%>
-					<%=h hidden_field_tag('wktime_notes', "") %>
-					<% # the jquery dialog box doesn't port the reject button value%>
-					<%=h hidden_field_tag('hidden_wk_reject', "") %>
-					<%= submit_tag l(:button_wk_reject), :name => 'wktime_reject', :disabled => !(@row > 0),
-						:onclick => "return showNotes('#{l(:button_wk_reject)}');" %>
-				<% end %>
-			<% end %>
-			<% if !@wktime.nil? && approvedEntries.length > 0 %>
-				<% if controller.check_approvable_status() %>
-					<%= submit_tag l(:button_wk_unapprove), :id => 'wktime_unapprove', :name => 'wktime_unapprove'%>
-				<% end %>
-		<% end %>
-		<% end %>
+	<% actions = @wk_sheet_actions || wk_sheet_actions(@entries.select { |entry| wk_entry_visible?(entry) }) %>
+	<% if actions[:save] %>
+		<%= submit_tag l(:button_save), id: 'wktime_save', name: 'wktime_save', disabled: !(@row > 0) %>
+		<%= submit_tag l(:button_save_continue), id: 'wktime_save_continue', name: 'wktime_save_continue', disabled: !(@row > 0) %>
+	<% end %>
+	<% if actions[:submit] %>
+		<% defaultHours = Setting.plugin_redmine_wktime['wktime_default_work_time'].to_i.nonzero? || 8 %>
+		<%= submit_tag l(:button_submit), id: 'wktime_submit', name: 'wktime_submit', disabled: !(@row > 0),
+			onclick: "return validateMinhour('#{controller.maxHour}','#{controller.minHour}','#{getNonWorkingDayColumn(params[:startday])}','#{controller.minHourPerWeek}', '#{controller.maxHourPerWeek}', '#{defaultHours}');" %>
+	<% end %>
+	<% if actions[:unsubmit] %>
+		<%= submit_tag l(:button_wk_unsubmit), name: 'wktime_unsubmit', disabled: !(@row > 0) %>
+	<% end %>
+	<% if actions[:approve] %>
+		<%= submit_tag l(:button_wk_approve), name: 'wktime_approve', disabled: !(@row > 0) %>
+	<% end %>
+	<% if actions[:reject] %>
+		<%= hidden_field_tag 'wktime_notes', '' %>
+		<%= hidden_field_tag 'hidden_wk_reject', '' %>
+		<%= submit_tag l(:button_wk_reject), name: 'wktime_reject', disabled: !(@row > 0), onclick: "return showNotes('#{l(:button_wk_reject)}');" %>
+	<% end %>
+	<% if actions[:unapprove] %>
+		<%= submit_tag l(:button_wk_unapprove), id: 'wktime_unapprove', name: 'wktime_unapprove' %>
 	<% end %>
 </div>
 

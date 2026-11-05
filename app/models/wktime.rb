@@ -19,6 +19,17 @@ class Wktime < ActiveRecord::Base
 unloadable
 include Redmine::SafeAttributes
 
+  def self.status_from_entries(statuses)
+    values = statuses.map(&:to_s).map { |status| status.blank? ? 'n' : status }.uniq
+    return 'n' if values.empty?
+    return values.first if values.one?
+    return 'pr' if values.include?('r')
+    return 'pa' if values.include?('a')
+    return 'ps' if values.include?('s')
+
+    'n'
+  end
+
   belongs_to :user
   belongs_to :submitter, :class_name => 'User', :foreign_key => 'submitter_id'
   belongs_to :updater, :class_name => 'User', :foreign_key => 'statusupdater_id'

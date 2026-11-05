@@ -86,6 +86,9 @@ en:
   wk_status_empty: Empty
   wk_status_submitted: Submitted
   wk_status_approved: Approved
+  wk_status_partially_submitted: Partially Submitted
+  wk_status_partially_approved: Partially Approved
+  wk_status_partially_rejected: Partially Rejected
 
   text_start_of_week_confirmation: "Are you Sure? Status will be lost on the previously submitted %{value}"
   text_wk_warning_min_hour: "You have not entered the Minimum hours (%{value}) required per day"

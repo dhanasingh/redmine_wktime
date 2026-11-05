@@ -27,6 +27,9 @@
 				disable = true if !@prev_template && isBilledTimeEntry(entry) || (entry&.has_attribute?('payroll_id') && entry&.payroll_id.to_i > 0)
 			end
 			disable = (!@prev_template && entry&.wkstatus&.status == 'a') if entry&.wkstatus&.status == 'a'
+			if @renderer.showTEStatus
+				disable ||= entry.present? ? !wk_entry_editable?(entry) : !@wk_row_cells_editable
+			end
 			spentForId = entry.present? && entry.spent_for.present? && !@prev_template ? entry.spent_for.id : nil
 			holiday = WkPublicHoliday.getHolidays(params[:user_id], (@startday + @wday_index) - 1)
 			holiday = holiday.length > 0
@@ -37,7 +40,7 @@
 			end
 			%>
 			<%#if this is from a previous template, don't print the hours%>
-			<td class="hours">
+			<td class="hours" data-entry-id="<%= entry&.id unless @prev_template %>" data-entry-status="<%= wk_entry_status(entry) if entry.present? %>">
 				<div style="float: left; ">
 				<%=h text_field_tag('hours' + @row.to_s() +'[]', hrs ,:size => "#{controller.textfield_size}",
 				:disabled => disable, class: "hrs_col_" + @wday_index.to_s(),
@@ -53,11 +56,13 @@
 					<fieldset id="<%= 'attachment_' + @row.to_s() + '_' + @wday_index.to_s %>" class="attachment">
 						<legend><%=l(:label_attachment)%></legend>
 						<% if !@prev_template && entry.present? && entry.attachments.any? %>
-							<%= attachments_links entry, { editable: true, deletable: true, hideImage: true, author: false} %>
+							<%= attachments_links entry, { editable: !disable, deletable: !disable, hideImage: true, author: false} %>
 						<% end %>
 						<fieldset>
 							<legend><%=l(:label_attachment_plural)%></legend>
+							<% unless disable %>
 							<%= render partial: 'attachments/form', locals: { attachment_param: "attachments_"+ @row.to_s() + '_' + @wday_index.to_s } %>
+							<% end %>
 						</fieldset>
 					</fieldset>
 				</span>

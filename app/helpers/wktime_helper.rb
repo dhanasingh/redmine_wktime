@@ -39,8 +39,11 @@ module WktimeHelper
 							[l(:label_new), 'n'],
 							[l(:default_issue_status_rejected), 'r'],
 							[l(:wk_status_submitted), 's'],
-							[l(:wk_status_approved), 'a']],
-							value.blank? ? ['e','n','r','s','a'] : value)
+							[l(:wk_status_approved), 'a'],
+							[l(:wk_status_partially_submitted), 'ps'],
+							[l(:wk_status_partially_approved), 'pa'],
+							[l(:wk_status_partially_rejected), 'pr']],
+							value.blank? ? ['e','n','r','s','a','ps','pa','pr'] : value)
 	end
 
 	def options_for_sheet_select(value)
@@ -60,11 +63,85 @@ module WktimeHelper
 			statusStr = l(:wk_status_submitted)
 		when 'e'
 			statusStr = l(:wk_status_empty)
+		when 'ps'
+			statusStr = l(:wk_status_partially_submitted)
+		when 'pa'
+			statusStr = l(:wk_status_partially_approved)
+		when 'pr'
+			statusStr = l(:wk_status_partially_rejected)
 		else
 			statusStr = l(:label_new)
 		end
 		return statusStr
 	end
+
+  # Presentation rules only. Status persistence and action authorization stay in the controller.
+  def wk_partial_status?(status)
+    %w[ps pa pr].include?(status)
+  end
+
+  def wk_entry_status(entry)
+    return 'n' if @prev_template || entry&.new_record?
+    stored = entry&.wkstatus&.status
+    return stored if %w[n s a r].include?(stored)
+    # Legacy sheets may not have entry records; a partial header cannot identify an individual entry's state.
+    @wktime&.status if %w[n s a r].include?(@wktime&.status)
+  end
+
+  def wk_entry_visible?(entry)
+    return true if @user == User.current || validateERPPermission('A_TE_PRVLG')
+    approval_projects = (@approvable_projects || []).map(&:id)
+    @wktime&.status == 'n' || approval_projects.empty? || approval_projects.include?(entry.project_id)
+  end
+
+  def wk_entry_editable?(entry)
+    return false if @locked || !@editable
+    return true if @prev_template || entry.nil? || entry.new_record?
+    return false unless %w[n r].include?(wk_entry_status(entry))
+    return false if isBilledTimeEntry(entry) || (entry.has_attribute?('payroll_id') && entry.payroll_id.to_i > 0)
+    return true if validateERPPermission('A_TE_PRVLG')
+    return true if @edittimelogs == 'true'
+    return false if @edittimelogs == 'false' && @manage_projects.present? && @user != User.current
+    entry.editable_by?(User.current)
+  end
+
+  def prepare_wk_sheet_ui
+    return unless @renderer.showTEStatus
+    records = (@entries.to_a + (@userEntries || []).to_a + (@approverEntries || []).to_a)
+    ActiveRecord::Associations::Preloader.new.preload(records, :wkstatus)
+    visible = @entries.select { |entry| wk_entry_visible?(entry) }
+    @editable &&= visible.empty? || @prev_template || visible.any? { |entry| wk_entry_editable?(entry) }
+    @wk_sheet_actions = wk_sheet_actions(visible)
+  end
+
+  def wk_sheet_actions(visible_entries)
+    actions = {save: false, submit: false, unsubmit: false, approve: false, reject: false, unapprove: false}
+    return actions if @locked
+    actions[:save] = @editable && (visible_entries.empty? || @prev_template || visible_entries.any? { |entry| wk_entry_editable?(entry) })
+    sheet_controller = respond_to?(:controller) ? controller : self
+    return actions unless sheet_controller.hasApprovalSystem && !@renderer.showSpentOnInRow
+    actions[:submit] = actions[:save]
+    all_entries = (@userEntries || []).to_a
+    all_states = all_entries.map { |entry| wk_entry_status(entry) }
+    # Owners may request recall of submitted entries in a partially approved sheet.
+    actions[:unsubmit] = (@user == User.current || validateERPPermission('A_TE_PRVLG')) && all_states.include?('s') && (!all_states.include?('a') || @wktime&.status == 'pa')
+    if sheet_controller.check_approvable_status
+      scoped_states = (@approverEntries || []).map { |entry| wk_entry_status(entry) }
+      actions[:unsubmit] ||= scoped_states.include?('s')
+      actions[:approve] = actions[:reject] = scoped_states.include?('s')
+      actions[:unapprove] = scoped_states.include?('a')
+    end
+    actions
+  end
+
+  # Existing row subpartials use @editable for selectors, comments, currency and custom fields.
+  def with_wk_row_editability(editable)
+    previous = @editable
+    @editable = editable
+    yield
+  ensure
+    @editable = previous
+  end
 
 	# Indentation of Subprojects based on levels
 	def options_for_wktime_project(projects, needBlankRow=false)

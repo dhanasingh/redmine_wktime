@@ -163,6 +163,7 @@ include ActionView::Helpers::TagHelper
 		end
 
 		@editable = @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r'
+		@editable ||= wk_partial_status?(@wktime&.status) && (@user == User.current || validateERPPermission('A_TE_PRVLG'))
 		@editable = canSupervisorEdit if isSupervisorApproval && @editable && isSupervisor
 		@locked  = isLocked(@startday)
 		@editable = false if @locked
@@ -195,6 +196,7 @@ include ActionView::Helpers::TagHelper
 				@prev_template = true
 			end
 		end
+		prepare_wk_sheet_ui
 		respond_to do |format|
 			format.html {
 				render :layout => !request.xhr?
@@ -218,6 +220,7 @@ include ActionView::Helpers::TagHelper
 		wkattendance = nil
 		findWkTE(@startday)
 		@wktime = getWkEntity if @wktime.nil?
+		status_before_update = @wktime.status.to_s
 		allowApprove = false
 		if getSheetView == 'W'
 			getUserwkStatuses
@@ -233,6 +236,9 @@ include ActionView::Helpers::TagHelper
 			gatherEntries
 			allowApprove = true
 		end
+		editable_partial_entries = wk_partial_status?(status_before_update) &&
+			(@user.id == User.current.id || validateERPPermission('A_TE_PRVLG')) &&
+			(@entries || []).any? { |entry| entry.new_record? || ['n', 'r'].include?(entry.wkstatus&.status) }
 		#IssueLogs validation
 		errorMsg = issueLogValidation if errorMsg.blank?
 
@@ -245,12 +251,13 @@ include ActionView::Helpers::TagHelper
 			begin
 				if errorMsg.blank? && (!params[:wktime_save].blank? || !params[:wktime_save_continue].blank? ||
 					(!params[:wktime_submit].blank? && @wkvalidEntry && useApprovalSystem))
-					if !@wktime.nil? && ( @wktime.status == 'n' || @wktime.status == 'r')
-						@wktime.status = :n
+					if !@wktime.nil? && ( @wktime.status == 'n' || @wktime.status == 'r' || editable_partial_entries)
+						@wktime.status = :n unless wk_partial_status?(status_before_update)
 						# save each entry
 						entrycount=0
 						entrynilcount=0
 						@entries.each do |entry|
+							next if ['a', 's'].include?(entry.wkstatus&.status)
 							entrycount += 1
 							entrynilcount += 1 if (entry.hours).blank?
 							allowSave = true
@@ -268,10 +275,10 @@ include ActionView::Helpers::TagHelper
 						if !params[:wktime_submit].blank? && useApprovalSystem
 							@wktime.submitted_on = Date.today
 							@wktime.submitter_id = User.current.id
-							@wktime.status = :s
+							@wktime.status = :s unless wk_partial_status?(status_before_update)
 							if !Setting.plugin_redmine_wktime['wktime_uuto_approve'].blank? &&
 								Setting.plugin_redmine_wktime['wktime_uuto_approve'].to_i == 1
-								@wktime.status = :a
+								@wktime.status = :a unless wk_partial_status?(status_before_update)
 							end
 						end
 					end
@@ -280,27 +287,38 @@ include ActionView::Helpers::TagHelper
 					errorMsg = 	updateWktime if (errorMsg.blank? && ((!@entries.blank? && entrycount!=entrynilcount) || @teEntrydisabled))
 				end
 
-				if getSheetView == 'W' && (!params[:wktime_save].blank? || !params[:wktime_save_continue].blank? || !params[:wktime_submit].blank?)
-					destroyWKstatuses(status='r', @userEntries)
-				elsif useApprovalSystem && !params[:wktime_unapprove].blank?
-					destroyWKstatuses(status='a', @approverEntries)
-				end
-
-				if !params[:wktime_approve].blank? || !params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?
-					@approverEntries.each do | entry |
-						next if entry.wkstatus.present?
-						saveWKstatuses(entry)
-					end
-				elsif (!Setting.plugin_redmine_wktime['wktime_uuto_approve'].blank? &&
-								Setting.plugin_redmine_wktime['wktime_uuto_approve'].to_i == 1 && !params[:wktime_submit].blank?)
-					@userEntries.each do | entry |
-						next if entry.wkstatus.present?
-						saveWKstatuses(entry)
+				if errorMsg.blank?
+					if !params[:wktime_approve].blank? || !params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?
+						entry_status = !params[:wktime_approve].blank? ? 'a' : 'r'
+						(@approverEntries || []).each do |entry|
+							next unless entry.wkstatus&.status == 's'
+							saveWKstatuses(entry, entry_status)
+						end
+					elsif (!params[:wktime_submit].blank? || !params[:wktime_save].blank? || !params[:wktime_save_continue].blank?) && (['n', 'r'].include?(status_before_update) || editable_partial_entries)
+						entry_status = if !params[:wktime_submit].blank?
+							Setting.plugin_redmine_wktime['wktime_uuto_approve'].to_i == 1 ? 'a' : 's'
+						else
+							'n'
+						end
+						((@userEntries || []) + (@entries || [])).uniq { |entry| entry.id }.each do |entry|
+							next unless entry.persisted?
+							next if ['a', 's'].include?(entry.wkstatus&.status) && entry.wkstatus&.status != entry_status
+							saveWKstatuses(entry, entry_status)
+						end
+					elsif !params[:wktime_unsubmit].blank?
+						unsubmit_entries = (@user.id == User.current.id || validateERPPermission('A_TE_PRVLG')) ? @userEntries : @approverEntries
+						(unsubmit_entries || []).each do |entry|
+							saveWKstatuses(entry, 'n') if entry.wkstatus&.status == 's'
+						end
+					elsif !params[:wktime_unapprove].blank?
+						(@approverEntries || []).each do |entry|
+							saveWKstatuses(entry, 's') if entry.wkstatus&.status == 'a'
+						end
 					end
 				end
 
 				if errorMsg.blank? && useApprovalSystem
-					if !@wktime.nil? && @wktime.status == 's' || !params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?
+					if !@wktime.nil? && ['s', 'pa'].include?(@wktime.status) || !params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?
 						if !params[:wktime_approve].blank? && allowApprove && @userEntries.length == @approvedwkStatuses.length
 							errorMsg = updateStatus(:a)
 						elsif (!params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?) && allowApprove
@@ -316,12 +334,12 @@ include ActionView::Helpers::TagHelper
 							if email_delivery_enabled? && WkNotification.notify('timeRejected')
 								sendRejectionEmail
 							end
-						elsif !params[:wktime_unsubmit].blank?
+						elsif !params[:wktime_unsubmit].blank? && @wk_status_saved
 							errorMsg = updateStatus(:n)
 						end
 					elsif !params[:wktime_unapprove].blank? && !@wktime.nil? && @wktime.status == 'a' && allowApprove
 						errorMsg = updateStatus(:s)
-					elsif !params[:wktime_submit].blank? && !@wktime.nil? && ( @wktime.status == 'n' || @wktime.status == 'r')
+					elsif !params[:wktime_submit].blank? && !@wktime.nil? && ( @wktime.status == 'n' || @wktime.status == 'r' || editable_partial_entries)
 						#if TE sheet is read only mode with submit button
 						@wktime.submitted_on = Date.today
 						@wktime.submitter_id = User.current.id
@@ -330,6 +348,18 @@ include ActionView::Helpers::TagHelper
 							errorMsg = updateStatus(:a)
 						else
 							errorMsg = updateStatus(:s)
+						end
+					end
+				end
+				if errorMsg.blank? && useApprovalSystem && @wk_status_saved
+					entry_statuses = getModelName.constantize.where(user_id: @user.id, spent_on: @startday..(@startday + 6)).includes(:wkstatus).map { |entry| entry.wkstatus&.status }
+					if entry_statuses.any?
+						computed_status = Wktime.status_from_entries(entry_statuses)
+						if @wktime.status != computed_status
+							@wktime.status = computed_status
+							@wktime.statusupdater_id = User.current.id
+							@wktime.statusupdate_on = Date.today
+							@wktime.save!
 						end
 					end
 				end
@@ -1410,14 +1440,16 @@ include ActionView::Helpers::TagHelper
 		'TimeEntry'
 	end
 
-	def saveWKstatuses(entry)
-		wkStatuses = WkStatus.new
+	def saveWKstatuses(entry, status)
+		wkStatuses = WkStatus.find_or_initialize_by(status_for_type: getModelName, status_for_id: entry.id)
+		return if wkStatuses.persisted? && wkStatuses.status == status
 		wkStatuses.status_for_type = getModelName
 		wkStatuses.status_for_id = entry.id
-		wkStatuses.status = !params[:wktime_approve].blank? || !params[:wktime_submit].blank? ? 'a' : 'r'
+		wkStatuses.status = status
 		wkStatuses.status_date = Time.now
 		wkStatuses.status_by_id = User.current.id
-		wkStatuses.save
+		wkStatuses.save!
+		@wk_status_saved = true
 	end
 
 	def destroyWKstatuses(status, entries)

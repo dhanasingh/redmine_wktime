@@ -4,8 +4,7 @@
         <%=h hidden_field_tag('issue_assign_user', Setting.plugin_redmine_wktime['wktime_allow_filter_issue']) %>
       <% end %>
   <% end %>
-  <% status = @wktime.status unless @wktime.blank? %>
-  <% if 'a' != status && 's' != status && (params[:enter_issue_id].blank? || (!params[:enter_issue_id].blank? && !params[:enter_issue_id].to_i == 1)) %>
+  <% if @editable && (params[:enter_issue_id].blank? || (!params[:enter_issue_id].blank? && !params[:enter_issue_id].to_i == 1)) %>
     <%=h hidden_field_tag('select_issues_tracker', Setting.plugin_redmine_wktime["wktime_issues_filter_tracker"]) %>
   <% end %>
 </table>

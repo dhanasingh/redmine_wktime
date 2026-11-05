@@ -43,6 +43,10 @@ table.nowrap {
 
 div.schedule {background:#ecd9c6; padding:6px; margin-bottom:6px; border: 1px solid #d7d7d7; border-radius:3px;}
 
+.time-entries .col-status-ps {background:#e3efff; color:#204f85;}
+.time-entries .col-status-pa {background:#e3f2e6; color:#235d31;}
+.time-entries .col-status-pr {background:#fce8e8; color:#8c2828;}
+
 fieldset label {
     font-weight: bold;
 }

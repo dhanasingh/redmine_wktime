@@ -71,6 +71,12 @@ TimeEntry.class_eval do
       return l(:wk_status_submitted)
     elsif status == 'r'
       return l(:default_issue_status_rejected)
+    elsif status == 'pr'
+      return l(:wk_status_partially_rejected)
+    elsif status == 'pa'
+      return l(:wk_status_partially_approved)
+    elsif status == 'ps'
+      return l(:wk_status_partially_submitted)
     else
       return ""
     end

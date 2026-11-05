@@ -73,6 +73,9 @@ ta-IN:
   wk_status_empty: வெற்று
   wk_status_submitted: சமர்ப்பிக்கப்பட்டது
   wk_status_approved: அங்கீகரிக்கப்பட்டது
+  wk_status_partially_submitted: பகுதியளவு சமர்ப்பிக்கப்பட்டது
+  wk_status_partially_approved: பகுதியளவு அங்கீகரிக்கப்பட்டது
+  wk_status_partially_rejected: பகுதியளவு நிராகரிக்கப்பட்டது
 
   text_wk_warning_min_hour: "நீங்கள் ஒரு நாளைக்கான குறைந்தபட்ச மணிநேரத்தை (%{value}) உள்ளிடவில்லை"
   text_wk_warning_max_hour: "அதிகபட்ச மணிநேரங்களுக்கு மேல் குறைந்தபட்ச மணிநேரத்தை (%{value}) உள்ளிடவில்லை"

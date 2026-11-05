@@ -13,6 +13,11 @@
 	project_id = entry.nil? ? (holidayProj.present? ? holidayProj : @logtime_projects.present? ? @logtime_projects[0].id : 0) : entry.project_id
 %>
 
+<%
+	@wk_row_entries = local_assigns[:row_entries] || [entry].compact
+	@wk_row_cells_editable = @editable && (@wk_row_entries.empty? || @wk_row_entries.any? { |item| wk_entry_editable?(item) })
+%>
+<% with_wk_row_editability(@wk_row_cells_editable) do %>
 <tr class="time-entry <%= cycle("odd", "even") %>">
 	<% if params[:enter_issue_id].blank? %>
 		<%
@@ -30,6 +35,7 @@
 					options_for_select(projects, :selected =>  project_id),
 					:onchange => "projectChanged(this,#{@row.to_s()});", :style=> "width:150px" ) %>
 				<% else %>
+					<%= hidden_field_tag(isTemplate ? '__template__time_entry[][project_id]' : 'time_entry[][project_id]', project_id) %>
 					<% if project.blank? %>
 						<% if entry.nil? %>
 							<%= '' %>
@@ -90,6 +96,7 @@
 				options_for_select(issues, :selected =>  entry.nil? ? (Setting.plugin_redmine_wktime['wktime_holiday'].present? ? Setting.plugin_redmine_wktime['wktime_holiday'] : 0 ) : entry.issue_id, :required => true), class: 'issueDD',
 				:style=> "width:250px;" ) %>
 			<% else %>
+				<%= hidden_field_tag(isTemplate ? '__template__time_entry[][issue_id]' : 'time_entry[][issue_id]', entry&.issue_id) %>
 				<%=  entry.issue.tracker.to_s() +  " #" + entry.issue.id.to_s() + ": " + entry.issue.subject if !entry.nil? && !entry.issue.nil? %>
 			<% end %>
 		</td>
@@ -128,6 +135,7 @@
 			activities.blank? ? nil : options_for_select(activities, :selected => entry.nil? ? defActivity : entry.activity_id),
 			:style=> "width:150px" ) %>
 		<% else %>
+			<%= hidden_field_tag(isTemplate ? '__template__time_entry[][activity_id]' : 'time_entry[][activity_id]', entry&.activity_id) %>
 			<%= activity.blank? ? entry.activity_id : activity.name unless entry.nil?%>
 		<% end %>
 		</td>
@@ -166,6 +174,7 @@
 			billableProjects.blank? ? nil : options_for_select(billableProjects, :selected => spent_for_key),
 			:style=> "width:150px" ) %>
 		<% else %>
+			<%= hidden_field_tag(isTemplate ? '__template__time_entry[][spent_for_attributes][spent_for_key]' : 'time_entry[][spent_for_attributes][spent_for_key]', spent_for_key) %>
 			<%= billableProject.parent.name unless billableProject.nil?%>
 		<% end %>
 		</td>
@@ -179,6 +188,7 @@
 			<%=h text_field_tag(isTemplate ? '__template__time_entry[][comments]' : 'time_entry[][comments]',
 				(entry.nil? ? '' : entry.comments),:size => 35)%>
 		<% else %>
+			<%= hidden_field_tag(isTemplate ? '__template__time_entry[][comments]' : 'time_entry[][comments]', entry&.comments) %>
 			<%=h entry.nil? ? '' : entry.comments%>
 		<% end %>
 		</td>
@@ -212,3 +222,4 @@
 			0  ) %>
 	<% end %>
 	<% @wday_index = 1 %>
+<% end %>
