@@ -80,12 +80,13 @@ module WktimeHelper
     %w[ps pa pr].include?(status)
   end
 
-  def wk_entry_status(entry)
+  def wk_entry_status(entry, sheet_status = @wktime&.status)
     return 'n' if @prev_template || entry&.new_record?
     stored = entry&.wkstatus&.status
     return stored if %w[n s a r].include?(stored)
-    # Legacy sheets may not have entry records; a partial header cannot identify an individual entry's state.
-    @wktime&.status if %w[n s a r].include?(@wktime&.status)
+    # Legacy partial approvals/rejections recorded only the changed entries; the rest stayed submitted.
+    return 's' if %w[pa pr].include?(sheet_status)
+    %w[n s a r].include?(sheet_status) ? sheet_status : 'n'
   end
 
   def wk_entry_visible?(entry)
