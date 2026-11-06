@@ -124,12 +124,17 @@ module WktimeHelper
     all_entries = (@userEntries || []).to_a
     all_states = all_entries.map { |entry| wk_entry_status(entry) }
     # Owners may request recall of submitted entries in a partially approved sheet.
-    actions[:unsubmit] = (@user == User.current || validateERPPermission('A_TE_PRVLG')) && all_states.include?('s') && (!all_states.include?('a') || @wktime&.status == 'pa')
+    actions[:unsubmit] = !actions[:submit] &&
+      (@user == User.current || validateERPPermission('A_TE_PRVLG')) &&
+      all_states.include?('s') &&
+      (!all_states.include?('a') || @wktime&.status == 'pa')
     if sheet_controller.check_approvable_status
       scoped_states = (@approverEntries || []).map { |entry| wk_entry_status(entry) }
-      actions[:unsubmit] ||= scoped_states.include?('s')
-      actions[:approve] = actions[:reject] = scoped_states.include?('s')
-      actions[:unapprove] = scoped_states.include?('a')
+      has_submitted = scoped_states.include?('s')
+      has_approved = scoped_states.include?('a')
+      actions[:unsubmit] ||= !actions[:submit] && has_submitted
+      actions[:approve] = actions[:reject] = has_submitted
+      actions[:unapprove] = !has_submitted && has_approved
     end
     actions
   end
