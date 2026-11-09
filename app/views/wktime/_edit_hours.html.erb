@@ -129,7 +129,11 @@
 		<% end %>
 		<% if padAt == 'end' %>
 			<td align="center">
-			<% if @editable %>
+			<%
+				row_deletable = @editable &&
+					(@wk_row_entries.blank? || @wk_row_entries.all? { |item| wk_entry_editable?(item) })
+			%>
+			<% if row_deletable %>
 				<% unless has_approved(ids: @entry_ids) %>
 					<%= link_to image_tag('delete.png'), "javascript:deleteRow(#{@row.to_s}, '#{l(:notice_unable_delete_time_entry)}');",
 							:data => {confirm: l(:text_are_you_sure) }, :title => l(:button_delete) %>
