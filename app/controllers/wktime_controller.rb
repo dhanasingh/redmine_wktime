@@ -220,7 +220,7 @@ include ActionView::Helpers::TagHelper
 		wkattendance = nil
 		findWkTE(@startday)
 		@wktime = getWkEntity if @wktime.nil?
-		# Keep the original sheet status as the fallback for legacy entries during this update.
+		# Keep the original sheet status as the fallback for entries without status records.
 		status_before_update = @wktime.status.to_s
 		allowApprove = false
 		if getSheetView == 'W'
@@ -240,7 +240,7 @@ include ActionView::Helpers::TagHelper
 		new_entries = (@entries || []).select(&:new_record?)
 		editable_partial_entries = wk_partial_status?(status_before_update) &&
 			(@user.id == User.current.id || validateERPPermission('A_TE_PRVLG')) &&
-			(@entries || []).any? { |entry| ['n', 'r'].include?(wk_entry_status(entry, status_before_update)) }
+			(@entries || []).any? { |entry| entry.new_record? || ['n', 'r'].include?(entry.wkstatus&.status) }
 		#IssueLogs validation
 		errorMsg = issueLogValidation if errorMsg.blank?
 
@@ -259,7 +259,7 @@ include ActionView::Helpers::TagHelper
 						entrycount=0
 						entrynilcount=0
 						@entries.each do |entry|
-							next if ['a', 's'].include?(wk_entry_status(entry, status_before_update))
+							next if entry.persisted? && ['a', 's'].include?(wk_entry_status(entry, status_before_update))
 							entrycount += 1
 							entrynilcount += 1 if (entry.hours).blank?
 							allowSave = true
@@ -303,7 +303,16 @@ include ActionView::Helpers::TagHelper
 						else
 							'n'
 						end
-						((@userEntries || []) + (@entries || [])).uniq { |entry| entry.id }.each do |entry|
+						status_entries = ((@userEntries || []) + (@entries || [])).uniq { |entry| entry.id }
+						if params[:wktime_submit].present?
+							project_ids = @projectId.present? ? [@projectId.to_i] : Array(params[:time_entry]).map { |row| row[:project_id].to_i }
+							project_ids = (@entries || []).map(&:project_id) if project_ids.empty? && api_request?
+							if @user.id != User.current.id && !validateERPPermission('A_TE_PRVLG')
+								project_ids &= [@manage_projects, @manage_others_log, @approvable_projects].compact.flat_map { |projects| projects.map(&:id) }
+							end
+							status_entries.select! { |entry| project_ids.include?(entry.project_id) }
+						end
+						status_entries.each do |entry|
 							next unless entry.persisted?
 							current_status = new_entry_ids.include?(entry.id) ? 'n' : wk_entry_status(entry, status_before_update)
 							next if ['a', 's'].include?(current_status) && current_status != entry_status
@@ -318,10 +327,6 @@ include ActionView::Helpers::TagHelper
 						(@approverEntries || []).each do |entry|
 							saveWKstatuses(entry, 's') if wk_entry_status(entry, status_before_update) == 'a'
 						end
-					end
-					# Give untouched legacy entries their original status before recalculating the sheet.
-					getModelName.constantize.where(user_id: @user.id, spent_on: @startday..(@startday + 6)).includes(:wkstatus).each do |entry|
-						saveWKstatuses(entry, new_entry_ids.include?(entry.id) ? 'n' : wk_entry_status(entry, status_before_update)) unless entry.wkstatus.present?
 					end
 				end
 
@@ -359,7 +364,7 @@ include ActionView::Helpers::TagHelper
 						end
 					end
 				end
-				if errorMsg.blank? && useApprovalSystem && @wk_status_saved
+				if errorMsg.blank? && useApprovalSystem && (@wk_status_saved || params[:wktime_submit].present?)
 					entry_statuses = getModelName.constantize.where(user_id: @user.id, spent_on: @startday..(@startday + 6)).includes(:wkstatus).map { |entry| wk_entry_status(entry, status_before_update) }
 					if entry_statuses.any?
 						computed_status = Wktime.status_from_entries(entry_statuses)
