@@ -23,7 +23,7 @@ include WkcrmHelper
 require 'json'
 
 before_action :require_login
-before_action :check_perm_and_redirect, :only => [:edit, :update, :destroy] # user without edit permission can't destroy
+before_action :check_perm_and_redirect, :only => [:edit, :update, :destroy, :export] # user without edit permission can't destroy
 before_action :check_editperm_redirect, :only => [:destroy]
 before_action :check_view_redirect, :only => [:index]
 before_action :check_log_time_redirect, :only => [:new]
@@ -188,6 +188,7 @@ include ActionView::Helpers::TagHelper
 			end
 			@entries = $tempEntries
 		end
+		@entries = @entries.select { |entry| wk_entry_visible?(entry) }
 		set_project_issues(@entries)
 		if @entries.blank? && params[:prev_template].present? && (Setting.plugin_redmine_wktime['wktime_previous_template_week']).to_i > 0
 			@prev_entries = prevTemplate(@user.id)
@@ -886,6 +887,7 @@ include ActionView::Helpers::TagHelper
 		@new_custom_field_values = getNewCustomField
 		@entries = findEntries()
 		findWkTE(@startday)
+		@entries = @entries.select { |entry| wk_entry_visible?(entry) }
 		unitLabel = getUnitLabel
 		format.pdf {
 			send_data(wktime_to_pdf(@entries, @user, @startday,unitLabel), :type => 'application/pdf', :filename => "#{@startday}-#{params[:user_id]}.pdf")
@@ -2500,7 +2502,37 @@ private
 	end
 
 	def delete(ids)
-		TimeEntry.delete(ids)
+		entries = TimeEntry.where(:id => ids).to_a
+		affected_weeks = entries.map do |entry|
+			[entry.user_id, getStartDay(entry.spent_on)]
+		end.uniq
+
+		TimeEntry.transaction do
+			entries.each(&:destroy!)
+
+			affected_weeks.each do |user_id, startday|
+				wktime = Wktime.find_by(:user_id => user_id, :begin_date => startday)
+				next if wktime.nil?
+
+				remaining_entries = TimeEntry.
+					where(:user_id => user_id, :spent_on => startday..(startday + 6)).
+					includes(:wkstatus).to_a
+
+				if remaining_entries.empty?
+					wktime.destroy!
+				else
+					statuses = remaining_entries.map do |entry|
+						wk_entry_status(entry, wktime.status)
+					end
+					wktime.update!(
+						:hours => remaining_entries.sum {|entry| entry.hours.to_f},
+						:status => Wktime.status_from_entries(statuses),
+						:statusupdater_id => User.current.id,
+						:statusupdate_on => Date.today
+					)
+				end
+			end
+		end
 	end
 
 	def findTEEntries(ids)

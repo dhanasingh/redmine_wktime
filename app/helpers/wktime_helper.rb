@@ -91,8 +91,10 @@ module WktimeHelper
 
   def wk_entry_visible?(entry)
     return true if @user == User.current || validateERPPermission('A_TE_PRVLG')
-    approval_projects = (@approvable_projects || []).map(&:id)
-    @wktime&.status == 'n' || approval_projects.empty? || approval_projects.include?(entry.project_id)
+
+    visible_project_ids = [@approvable_projects, @manage_projects, @manage_others_log].
+      compact.flat_map { |projects| projects.map(&:id) }.uniq
+    visible_project_ids.include?(entry.project_id)
   end
 
   def wk_entry_editable?(entry)
