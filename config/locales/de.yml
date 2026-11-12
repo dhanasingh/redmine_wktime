@@ -96,6 +96,9 @@ de:
   wk_status_empty: Leer
   wk_status_submitted: Versendet
   wk_status_approved: Genehmigt
+  wk_status_partially_submitted: Teilweise eingereicht
+  wk_status_partially_approved: Teilweise genehmigt
+  wk_status_partially_rejected: Teilweise abgelehnt
 
   text_start_of_week_confirmation: "Sicher? Der zuvor eingereichte Status %{value} wird dabei gelöscht"
   text_wk_warning_min_hour: "Sie haben nicht die pro Tag erforderlichen Mindeststunden (%{value}) eingegeben"
@@ -128,6 +131,7 @@ de:
   label_wk_timesheet: Arbeitszeittabelle
   label_wk_expensesheet: Spesenabrechnung
   text_wk_no_reminder: Keine Erinnerungen zu senden
+  label_wk_project_total: Projektsumme
 
   report_attendance: Anwesenheit
   report_spent_time: Benötigte Zeit

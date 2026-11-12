@@ -97,6 +97,9 @@ ru:
   wk_status_empty: Пусто
   wk_status_submitted: Submitted
   wk_status_approved: Одобрено
+  wk_status_partially_submitted: Частично отправлено
+  wk_status_partially_approved: Частично одобрено
+  wk_status_partially_rejected: Частично отклонено
 
   text_start_of_week_confirmation: "Are you Sure? Status will be lost on the previously submitted %{value}"
   text_wk_warning_min_hour: "You have not entered the Minimum hours (%{value}) required per day"
@@ -130,6 +133,7 @@ ru:
   label_wk_timesheet: Timesheet
   label_wk_expensesheet: Expensesheet
   text_wk_no_reminder: No reminders to send
+  label_wk_project_total: Итого по проекту
 
 
   report_attendance: Attendance

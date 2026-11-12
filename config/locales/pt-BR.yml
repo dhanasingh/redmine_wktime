@@ -86,6 +86,9 @@ pt-BR:
   wk_status_empty: Vazio
   wk_status_submitted: Enviado
   wk_status_approved: Aprovado
+  wk_status_partially_submitted: Parcialmente enviado
+  wk_status_partially_approved: Parcialmente aprovado
+  wk_status_partially_rejected: Parcialmente rejeitado
 
   text_start_of_week_confirmation: "Tem certeza? O status será perdido no %{value} enviado anteriormente"
   text_wk_warning_min_hour: "Você não inseriu as horas mínimas (%{value}) necessárias por dia"
@@ -119,6 +122,7 @@ pt-BR:
   label_wk_timesheet: Quadro de Horários
   label_wk_expensesheet: planilha de despesas
   text_wk_no_reminder: Nenhum lembrete para enviar
+  label_wk_project_total: Total do projeto
 
 
   report_attendance: Presença

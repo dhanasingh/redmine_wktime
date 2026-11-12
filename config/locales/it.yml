@@ -98,6 +98,9 @@ it:
 
   wk_status_submitted: Submitted
   wk_status_approved: Approved
+  wk_status_partially_submitted: Parzialmente inviato
+  wk_status_partially_approved: Parzialmente approvato
+  wk_status_partially_rejected: Parzialmente respinto
   text_start_of_week_confirmation: "Are you Sure? Status will be lost on the previously submitted %{value}"
   text_wk_warning_min_hour: "You have not entered the Minimum hours (%{value}) required per day"
   text_wk_warning_max_hour: "You have entered hours above Maximum hours (%{value}) allowed per day"
@@ -129,6 +132,7 @@ it:
   label_wk_timesheet: Timesheet
   label_wk_expensesheet: Expensesheet
   text_wk_no_reminder: No reminders to send
+  label_wk_project_total: Totale del progetto
 
   report_attendance: Attendance
   report_spent_time: Tempo impiegato

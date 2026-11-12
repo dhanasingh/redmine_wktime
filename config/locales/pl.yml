@@ -98,6 +98,9 @@ pl:
   wk_status_empty: Pusty
   wk_status_submitted: Wysłany
   wk_status_approved: Zatwierdzony
+  wk_status_partially_submitted: Częściowo wysłany
+  wk_status_partially_approved: Częściowo zatwierdzony
+  wk_status_partially_rejected: Częściowo odrzucony
 
   text_start_of_week_confirmation: "Czy jesteś pewien? Status zostanie utracony na wcześniej wysłanym %{value}"
   text_wk_warning_min_hour: "Nie podałeś minimalnej ilości godzin (%{value}) wymaganych na dzień"
@@ -131,6 +134,7 @@ pl:
   label_wk_timesheet: Lista obecności
   label_wk_expensesheet: Arkusz kalkulacyjny
   text_wk_no_reminder: Brak przypomnień do wysłania
+  label_wk_project_total: Suma dla projektu
 
 
   report_attendance: Frekwencja

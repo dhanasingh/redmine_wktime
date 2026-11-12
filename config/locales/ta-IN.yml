@@ -107,6 +107,7 @@ ta-IN:
   label_wk_timesheet: நேர தாள்
   label_wk_expensesheet: செலவுத் தாள்
   text_wk_no_reminder: எந்த நினைவூட்டலும் இல்லை
+  label_wk_project_total: திட்டத்தின் மொத்தம்
 
 
   report_attendance: வருகை

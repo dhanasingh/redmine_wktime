@@ -99,6 +99,9 @@ fr:
 
   wk_status_submitted: Soumise
   wk_status_approved: Approuvée
+  wk_status_partially_submitted: Partiellement soumise
+  wk_status_partially_approved: Partiellement approuvée
+  wk_status_partially_rejected: Partiellement rejetée
 
   text_start_of_week_confirmation: "Etes-vous certain? Le statut de la %{value} précédemment soumise sera perdu."
   text_wk_warning_min_hour: "Vous n'avez pas saisi le minimum d'heures (%{value}) requis par jour"
@@ -131,6 +134,7 @@ fr:
   label_wk_timesheet: Feuille de temps
   label_wk_expensesheet: Feuille de dépenses
   text_wk_no_reminder: Aucun rappel à envoyer
+  label_wk_project_total: Total du projet
 
   report_attendance: Présence
   report_spent_time: Temps passé
