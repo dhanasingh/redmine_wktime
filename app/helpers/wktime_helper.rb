@@ -91,8 +91,9 @@ module WktimeHelper
 
   def wk_entry_visible?(entry)
     return true if @user == User.current || validateERPPermission('A_TE_PRVLG')
-
-    visible_project_ids = [@approvable_projects, @manage_projects, @manage_others_log].
+    project_scopes = isSupervisorApproval ? [@approvable_projects] :
+      [@approvable_projects, @manage_projects, @manage_others_log]
+    visible_project_ids = project_scopes.
       compact.flat_map { |projects| projects.map(&:id) }.uniq
     visible_project_ids.include?(entry.project_id)
   end
