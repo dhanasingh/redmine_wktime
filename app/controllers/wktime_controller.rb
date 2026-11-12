@@ -2398,7 +2398,14 @@ private
 		query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id "
 		query = query + " left join users AS un on un.id = tmp3.user_id "
 		query = query + getWhereCond(status)
-		query += " AND COALESCE(tmp3.project_hours, 0) <> 0" if @show_logged_project_hours
+		if @show_logged_project_hours
+			project_hours_condition = "COALESCE(tmp3.project_hours, 0) <> 0"
+			if isSupervisorApproval || @manage_projects.present? || @manage_others_log.present?
+				# Show the approver/manager's own empty week, but keep other members scoped to logged project hours.
+				project_hours_condition += " OR (tmp3.user_id = #{User.current.id} AND tmp3.status = 'e')"
+			end
+			query += " AND (#{project_hours_condition})"
+		end
 		return [selectStr, query]
 	end
 

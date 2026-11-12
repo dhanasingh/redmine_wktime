@@ -785,7 +785,7 @@ end
 	end
 
 	def project_hours_for(entry)
-		entry&.project_hours&.to_f&.round(2)
+		(entry&.project_hours || 0).to_f.round(2)
 	end
 
 	#Code snippet taken from application_helper.rb  - include_calendar_headers_tags method
