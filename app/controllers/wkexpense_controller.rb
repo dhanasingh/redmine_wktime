@@ -342,14 +342,6 @@ private
 	session[:wkexpense][:status]
   end
 
-  def setUserIdsInSession(ids)
-	session[:wkexpense][:all_user_ids] = ids
-  end
-
-  def getUserIdsFromSession
-	session[:wkexpense][:all_user_ids]
-  end
-
 	def getLastPDFCell(list, entry)
 		list << [ entry.currency.to_s + " " + entry.amount.to_s , 38 ]
 		list

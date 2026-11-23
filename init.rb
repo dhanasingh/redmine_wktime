@@ -61,24 +61,18 @@ TimeEntry.class_eval do
   end
 
   def weekly_timesheet
-    status = Wktime.where(begin_date: (self.spent_on - 6.days)..self.spent_on, user_id: self.user_id)&.first&.status
+    status = wkstatus&.status
+    status ||= Wktime.where(begin_date: (self.spent_on - 6.days)..self.spent_on, user_id: self.user_id)&.first&.status
 
-    if status == 'n'
-      return l(:label_new)
-    elsif status == 'a'
-      return l(:wk_status_approved)
-    elsif status == 's'
-      return l(:wk_status_submitted)
-    elsif status == 'r'
-      return l(:default_issue_status_rejected)
-    elsif status == 'pr'
-      return l(:wk_status_partially_rejected)
-    elsif status == 'pa'
-      return l(:wk_status_partially_approved)
-    elsif status == 'ps'
-      return l(:wk_status_partially_submitted)
-    else
-      return ""
+    case status
+    when 'n' then l(:label_new)
+    when 's' then l(:wk_status_submitted)
+    when 'a' then l(:wk_status_approved)
+    when 'r' then l(:default_issue_status_rejected)
+    when 'pr' then l(:wk_status_partially_rejected)
+    when 'pa' then l(:wk_status_partially_approved)
+    when 'ps' then l(:wk_status_partially_submitted)
+    else ''
     end
   end
 end

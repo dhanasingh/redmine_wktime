@@ -40,7 +40,7 @@
 		$(".reportersDD").attr("disabled", false);' %>
 			<%=l(:label_reporters)%></th>
 			<td>
-				<%= select_tag('filter_type', options_for_select(supervisorReporters, :selected => filter_type), :onchange => "reportersChanged(this)", class: "reportersDD" ) %>
+				<%= select_tag('filter_type', options_for_select(supervisorReporters, :selected => filter_type), :onchange => "reportersChanged(this, #{User.current.id})", class: "reportersDD" ) %>
 			</td>
 		</tr>
 		<% end %>
@@ -49,24 +49,24 @@
 	<% if !@manage_view_spenttime_projects.blank? %>
 		<tr>
 			<th><%= radio_button_tag 'filter_type', '1', opt_proj,
-			 :onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#user_id").removeAttr("disabled");$("#group_id").attr("disabled", true);$("#project_id").removeAttr("disabled");$(".reportersDD").attr("disabled", true);' %>
+			 :onclick => 'progrpChanged(this, ' + User.current.id.to_s + ', true, "0");$("#user_id").removeAttr("disabled");$("#group_id").attr("disabled", true);$("#project_id").removeAttr("disabled");$(".reportersDD").attr("disabled", true);' %>
 			<%=l(:field_project)%></th>
 			<td class="project" align="left"><%=h select_tag('project_id', 
 				options_for_select(options_for_wktime_project(@manage_view_spenttime_projects),
 				:selected => !projectid.nil? ? projectid.to_i: @selected_project.id),:disabled => @use_group,
-				:onchange => "projChanged(this, #{User.current.id}, true);") %></td>
+				:onchange => "projChanged(this, #{User.current.id}, true, '0');") %></td>
 		</tr>
 	<% end %>
 	<% if !@groups.blank? %>
 		<tr>
 			<th><%= radio_button_tag 'filter_type', '2', opt_grp, 
-			:onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#user_id").removeAttr("disabled");$("#group_id").removeAttr("disabled");$("#project_id").attr("disabled", true);$(".reportersDD").attr("disabled", true);' %>
+			:onclick => 'progrpChanged(this, ' + User.current.id.to_s + ', true, "0");$("#user_id").removeAttr("disabled");$("#group_id").removeAttr("disabled");$("#project_id").attr("disabled", true);$(".reportersDD").attr("disabled", true);' %>
 			<%=l(:label_group_plural)%></th>
 			<td>
 				<%=h select_tag('group_id',
 				options_for_select( @groups.collect {|p| [p.name, p.id ]},
 				:selected => (groupid.nil? ? 0 : groupid)),:disabled => !@use_group,
-				:onchange => "grpChanged(this, #{User.current.id}, true);") %>
+				:onchange => "grpChanged(this, #{User.current.id}, true, '0');") %>
 			</td>
 		</tr>
 	<% end %>

@@ -87,17 +87,7 @@ include ActionView::Helpers::TagHelper
 		#	ids = User.current.id.to_s
 		#elsif user_id.to_i == 0
 		if user_id.to_i == 0
-			unless @members.blank?
-				@members.each_with_index do |users,i|
-					if i == 0
-						ids =  users[1].to_s
-					else
-						ids +=',' + users[1].to_s
-					end
-				end
-			end
-			ids = '0' if ids.nil?
-			setUserIdsInSession(ids) #set user ids in session if "All User" is chosen
+			ids = getMemberIds || '0'
 		else
 			ids = user_id
 		end
@@ -1564,8 +1554,10 @@ private
 		if user_id.blank?
 			ids = User.current.id.to_s
 		elsif user_id.to_i == 0
-			ids = getUserIdsFromSession
-			ids = '0' if ids.nil?
+			set_user_projects
+			@selected_project = getSelectedProject(@manage_view_spenttime_projects, false) if @manage_view_spenttime_projects.present?
+			setMembers
+			ids = getMemberIds || '0'
 		else
 			ids = user_id
 		end
@@ -2399,11 +2391,8 @@ private
 		query = query + " left join users AS un on un.id = tmp3.user_id "
 		query = query + getWhereCond(status)
 		if @show_logged_project_hours
-			project_hours_condition = "COALESCE(tmp3.project_hours, 0) <> 0"
-			if isSupervisorApproval || @manage_projects.present? || @manage_others_log.present?
-				# Show the approver/manager's own empty week, but keep other members scoped to logged project hours.
-				project_hours_condition += " OR (tmp3.user_id = #{User.current.id} AND tmp3.status = 'e')"
-			end
+	
+			project_hours_condition = "COALESCE(tmp3.project_hours, 0) <> 0 OR tmp3.user_id = #{User.current.id}"
 			query += " AND (#{project_hours_condition})"
 		end
 		return [selectStr, query]
@@ -2701,12 +2690,8 @@ private
 		session[controller_name].try(:[], :status)
 	end
 
-	def setUserIdsInSession(ids)
-		session[controller_name][:all_user_ids] = ids
-	end
-
-	def getUserIdsFromSession
-		session[controller_name].try(:[], :all_user_ids)
+	def getMemberIds
+		(@members || []).map { |member| member[1].to_s }.join(',').presence
 	end
 
 	def setSpentForID(entry, spentForIds, k)

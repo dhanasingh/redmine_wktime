@@ -371,7 +371,7 @@ function resetReminderEmailDlg() {
 	$('textarea').removeData('changed'); //for removing 'leave this page' warning
 }
 
-function projChanged(projDropdown, userid, needBlankOption){
+function projChanged(projDropdown, userid, needBlankOption, blankValue){
 	var id = projDropdown.options[projDropdown.selectedIndex].value;
 	var fmt = 'text';
 	var userDropdown = document.getElementById("user_id");
@@ -381,19 +381,19 @@ function projChanged(projDropdown, userid, needBlankOption){
 		url: userUrl,
 		type: 'get',
 		data: {project_id: id, user_id: userid, format:fmt},
-		success: function(data){ updateUserDD(data, userDropdown, userid, needBlankOption, false,"All Users"); },
+		success: function(data){ updateUserDD(data, userDropdown, userid, needBlankOption, false,"All Users", blankValue); },
 		beforeSend: function(){ $this.addClass('ajax-loading'); },
 		complete: function(){ $this.removeClass('ajax-loading'); }
 	});
 }
-function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, blankText)
+function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, blankText, blankValue)
 {
 	var items = itemStr.split('\n');
 	var i, index, val, text, start;
 	if(dropdown != null && dropdown.options != null){
 		dropdown.options.length = 0;
 		if(needBlankOption){
-			dropdown.options[0] = new Option(blankText, "", false, false)
+			dropdown.options[0] = new Option(blankText, blankValue || "", false, false)
 		}
 		for(i=0; i < items.length-1; i++){
 			index = items[i].indexOf(',');
@@ -452,7 +452,7 @@ function reportChanged(reportDD, userid){
 	grpChanged(document.getElementById("group_id"), userid, needBlankOption)
 }
 
-function grpChanged(grpDropdown, userid, needBlankOption){
+function grpChanged(grpDropdown, userid, needBlankOption, blankValue){
 
 	var id = grpDropdown.options[grpDropdown.selectedIndex].value;
 	var fmt = 'text';
@@ -463,17 +463,17 @@ function grpChanged(grpDropdown, userid, needBlankOption){
 		url: grpUrl,
 		type: 'get',
 		data: {user_id: userid, format:fmt,group_id:id},
-		success: function(data){ updateUserDD(data, userDropdown, userid, needBlankOption, false,"All Users"); },
+		success: function(data){ updateUserDD(data, userDropdown, userid, needBlankOption, false,"All Users", blankValue); },
 		beforeSend: function(){ $this.addClass('ajax-loading'); },
 		complete: function(){ $this.removeClass('ajax-loading'); }
 	});
 }
-function progrpChanged(btnoption, userid, needBlankOption){
+function progrpChanged(btnoption, userid, needBlankOption, blankValue){
 	if (btnoption.value==1){
-		projChanged(document.getElementById("project_id"), userid, needBlankOption)
+		projChanged(document.getElementById("project_id"), userid, needBlankOption, blankValue)
 	}
 	else{
-		grpChanged(document.getElementById("group_id"), userid, needBlankOption)
+		grpChanged(document.getElementById("group_id"), userid, needBlankOption, blankValue)
 	}
 }
 
@@ -1033,13 +1033,13 @@ function myReportUser(optionID,userID){
 		url: userCurrentUrl,
 		type: 'get',
 		data: { filter_type:value, user_id: userID, format:fmt},
-		success: function(data){ updateUserDD(data, userDropdown, userID, true, false, "All Users"); },
+		success: function(data){ updateUserDD(data, userDropdown, userID, true, false, "All Users", "0"); },
 		beforeSend: function(){ $this.addClass('ajax-loading'); },
 		complete: function(){ $this.removeClass('ajax-loading'); }
 	});
 }
 
-function reportersChanged(ele){
+function reportersChanged(ele, userid){
 	switch(ele.value){
 		case '3':
 			$("#group_id").attr("disabled", true);
@@ -1047,13 +1047,13 @@ function reportersChanged(ele){
 			$("#user_id").attr("disabled", true);
 		break;
 		case '4':
-			myReportUser(ele,"#{User.current.id}");
+			myReportUser(ele, userid);
 			$("#group_id").attr("disabled", true);
 			$("#project_id").attr("disabled", true);
 			$("#user_id").removeAttr("disabled");
 		break;
 		case '5':
-			myReportUser(ele,"#{User.current.id}");
+			myReportUser(ele, userid);
 			$("#group_id").attr("disabled", true);
 			$("#project_id").attr("disabled", true);
 			$("#user_id").removeAttr("disabled");
