@@ -19,13 +19,21 @@ namespace :erpmine do
     # insert_all skips attribute casting; cast so status_date is stored as create! stored it.
     status_date_type = WkStatus.type_for_attribute('status_date')
 
+    total_without_status = 0
     created_status_count = 0
     updated_sheet_count = 0
+    total_errors = 0
+    # One pattern for the per-sheet-type lines and the Total line.
+    summary = lambda do |records_label, records, created, updated, failed|
+      text = "#{records_label}: #{records}, #{created} statuses created, #{updated} sheet statuses updated"
+      failed > 0 ? "#{text}, #{failed} failed (see above)" : text
+    end
 
     [[Wktime, TimeEntry], [Wkexpense, WkExpenseEntry]].each do |sheet_model, entry_model|
-      sheet_name = sheet_model == Wktime ? 'Timesheet' : 'ExpenseSheet'
+      sheet_name, records_label = sheet_model == Wktime ? ['Timesheet', 'Total time records'] : ['ExpenseSheet', 'Total expense records']
       to_process = 0
       success = 0
+      sheets_updated = 0
       errors = 0
       failed_users = []
       # A sheet that starts up to 6 days before the year still holds that year's first entries.
@@ -75,7 +83,7 @@ namespace :erpmine do
           end
         end
         success += new_statuses.size
-        updated_sheet_count += sheet_ids_by_status.values.sum(&:size)
+        sheets_updated += sheet_ids_by_status.values.sum(&:size)
       rescue => e
         # Skip the failed user and go on; a re-run picks up only what is still missing.
         errors += 1
@@ -103,13 +111,15 @@ namespace :erpmine do
         errors += 1
         puts "#{sheet_name} entries outside a sheet, batch failed: #{e.message}"
       end
+      total_without_status += to_process
       created_status_count += success
-      result = "#{to_process} to process, #{success} success"
-      result += ", errors: #{errors}" if errors > 0
-      puts to_process.zero? && errors.zero? ? "#{sheet_name}: skipped (nothing to process)" : "#{sheet_name}: #{result}"
+      updated_sheet_count += sheets_updated
+      total_errors += errors
+      nothing_done = to_process.zero? && sheets_updated.zero? && errors.zero?
+      puts nothing_done ? "#{sheet_name}: skipped (nothing to update)" : summary.call(records_label, to_process, success, sheets_updated, errors)
     end
 
-    puts "Created #{created_status_count} records in wkstatuses; updated #{updated_sheet_count} timesheet statuses."
+    puts summary.call('Total records', total_without_status, created_status_count, updated_sheet_count, total_errors)
     puts "Finished in #{Time.at(Time.now - started_at).utc.strftime('%H:%M:%S')}"
   end
 end
