@@ -1,6 +1,6 @@
-# Usage: rake erpmine:update_missing_te_status RAILS_ENV=production [year=2026] [user=active]
-#   year  only that year's sheets and entries; omit for all years
-#   user  active = active users only; omit or all = all users (inactive included)
+# Usage: bundle exec rake erpmine:update_missing_te_status RAILS_ENV=production YEAR=2026 USER_STATUS=active
+#   YEAR         only that year's sheets and entries; omit for all years
+#   USER_STATUS  active = active users only; omit or all = all users (inactive included)
 namespace :erpmine do
   desc 'Add missing time and expense entry statuses and update sheet statuses'
   task update_missing_te_status: :environment do
@@ -8,14 +8,14 @@ namespace :erpmine do
       raise "Missing database table: #{model.table_name}" unless model.table_exists?
     end
 
-    year_input = ENV['year'].to_s.strip
-    abort "Invalid year=#{year_input}: use a 4-digit year like year=2026" unless year_input.empty? || year_input.match?(/\A\d{4}\z/)
+    year_input = ENV['YEAR'].to_s.strip
+    abort "Invalid YEAR=#{year_input}: use a 4-digit year like YEAR=2026" unless year_input.empty? || year_input.match?(/\A\d{4}\z/)
     year_range = Date.new(year_input.to_i, 1, 1)..Date.new(year_input.to_i, 12, 31) if year_input.present?
 
-    users = User.active if ENV['user'].to_s.strip.casecmp?('active')
+    users = User.active if ENV['USER_STATUS'].to_s.strip.casecmp?('active')
     $stdout.sync = true
     started_at = Time.now
-    puts "Started #{started_at.strftime('%Y-%m-%d %H:%M:%S')} (year=#{year_input.presence || 'all'}, user=#{users ? 'active' : 'all'})"
+    puts "Started #{started_at.strftime('%Y-%m-%d %H:%M:%S')} (YEAR=#{year_input.presence || 'all'}, USER_STATUS=#{users ? 'active' : 'all'})"
     # insert_all skips attribute casting; cast so status_date is stored as create! stored it.
     status_date_type = WkStatus.type_for_attribute('status_date')
 
